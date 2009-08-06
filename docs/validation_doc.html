@@ -1,0 +1,128 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML lang=cn xml:lang="cn" xmlns="http://www.w3.org/1999/xhtml">
+<HEAD><TITLE> Form Validation Rule Reference</TITLE>
+<META content="text/html; charset=utf-8" http-equiv=Content-Type>
+</HEAD>
+<BODY>
+<H2> Rule Reference</H2>
+<em style="color:red;">
+You can just write the html Element's attribute of ”jstyle“ to setup the  Validation Rule。 
+For example :<br/>&lt;input jstyle="validation_rule:{name:' Text Element',required:true,min_length:5,max_length:8}" title=" Text Element" name="elementText" id="elementText" type="text" value="" /&gt;
+</em>
+<TABLE style="WIDTH: 100%;border:1px solid black;" border=1 cellSpacing=1 
+cellPadding=0>
+  <TBODY>
+  <TR>
+    <TH>Rule</TH>
+    <TH width="15%">Parameter</TH>
+    <TH width="50%">Description</TH>
+    <TH>Example</TH></TR>
+	  <TR>
+    <TD class=td><STRONG>name</STRONG></TD>
+    <TD class=td>String</TD>
+    <TD class=td>The element's name, use to alert message to users.</TD>
+    <TD class=td>name:'Name'</TD></TR>
+
+	  <TR>
+    <TD class=td><STRONG>{parameter_name}_message</STRONG></TD>
+    <TD class=td>String</TD>
+    <TD class=td>when {parameter_name} validation failed, show this message to user.</TD>
+    <TD class=td>email_message:'the value should be email '</TD></TR>
+
+  <TR>
+    <TD class=td><STRONG>required</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the form element is empty.</TD>
+    <TD class=td>required:true</TD></TR>
+  <TR>
+    <TD class=td><STRONG>matches</STRONG></TD>
+    <TD class=td>Array of String</TD>
+    <TD class=td>Returns FALSE if the form element does not match the one in 
+      the parameter.</TD>
+    <TD class=td>matches:['form_item']</TD></TR>
+  <TR>
+    <TD class=td><STRONG>min_length</STRONG></TD>
+    <TD class=td>integer</TD>
+    <TD class=td>Returns FALSE if the form element is shorter then the 
+      parameter value.</TD>
+    <TD class=td>min_length:6</TD></TR>
+  <TR>
+    <TD class=td><STRONG>max_length</STRONG></TD>
+    <TD class=td>integer</TD>
+    <TD class=td>Returns FALSE if the form element is longer then the 
+      parameter value.</TD>
+    <TD class=td>max_length:12</TD></TR>
+  <TR>
+  <TR>
+    <TD class=td><STRONG>littler </STRONG></TD>
+    <TD class=td>string</TD>
+    <TD class=td>Returns FALSE if the form element is littler then the 
+      parameter value.</TD>
+    <TD class=td>littler:'455666'</TD></TR>
+  <TR>
+    <TD class=td><STRONG>greater</STRONG></TD>
+    <TD class=td>integer</TD>
+    <TD class=td>string FALSE if the form element is greater then the 
+      parameter value.</TD>
+    <TD class=td>greater:'455666'</TD></TR>
+  <TR>
+    <TD class=td><STRONG>exact_length</STRONG></TD>
+    <TD class=td>integer</TD>
+    <TD class=td>Returns FALSE if the form element is not exactly the 
+      parameter value.</TD>
+    <TD class=td>exact_length:8</TD></TR>
+  <TR>
+    <TD class=td><STRONG>alpha</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the form element contains anything other 
+      than alphabetical characters.</TD>
+    <TD class=td></TD></TR>
+  <TR>
+    <TD class=td><STRONG>alpha_numeric</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the form element contains anything other 
+      than alpha-numeric characters.</TD>
+    <TD class=td></TD></TR>
+  <TR>
+    <TD class=td><STRONG>alpha_dash</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the form element contains anything other 
+      than alpha-numeric characters, underscores or dashes.</TD>
+    <TD class=td></TD></TR>
+  <TR>
+    <TD class=td><STRONG>numeric</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the form element contains anything other 
+      than numeric characters.</TD>
+    <TD class=td>&nbsp;</TD></TR>
+  <TR>
+    <TD class=td><STRONG>integer</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the form element contains anything other 
+      than an integer.</TD>
+    <TD class=td>&nbsp;</TD></TR>
+  <TR>
+    <TD class=td><STRONG>email</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the form element does not contain a valid 
+      email address.</TD>
+    <TD class=td>&nbsp;</TD></TR>
+  <TR>
+    <TD class=td><STRONG>ip</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the supplied IP is not valid.</TD>
+    <TD class=td>&nbsp;</TD></TR>
+  <TR>
+    <TD class=td><STRONG>base64</STRONG></TD>
+    <TD class=td>boolean</TD>
+    <TD class=td>Returns FALSE if the supplied string contains anything other 
+      than valid Base64 characters.</TD>
+    <TD class=td>&nbsp;</TD></TR>
+  <TR>
+  <TR>
+    <TD class=td><STRONG>regexp</STRONG></TD>
+    <TD class=td>String</TD>
+    <TD class=td>Returns False if don't match the giving regexp string。</TD>
+    <TD class=td>regexp:'^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$'</TD></TR>
+	</TBODY></TABLE>
+</BODY></HTML>

@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML lang=en xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<HEAD>
+<TITLE> Input Render Rule Reference</TITLE>
+<META content="text/html; charset=utf-8" http-equiv=Content-Type>
+</HEAD>
+<BODY>
+<H2> Rule Reference</H2>
+<em style="color: red;"> You can just write the html Element's attribute of ”jstyle“ to setup the Render Rule。
+For example:<br/> &lt;input
+jstyle="render:{dialog:{url:'get_input.php?value=xxx'}}"
+title=" Text Element" name="elementText" id="elementText" type="text" value=""
+/&gt; </em>
+<TABLE style="WIDTH: 100%; border: 1px solid black;" border=1
+	cellSpacing=1 cellPadding=0>
+	<TBODY>
+		<TR>
+			<TH>Rule</TH>
+			<TH>Parameter</TH>
+			<TH>Description</TH>
+			<TH>Example</TH>
+		</TR>
+		<TR>
+			<TD class=td><STRONG>dialog</STRONG></TD>
+			<TD class=td>Object</TD>
+			<TD class=td>Open a dialog to get the element's value.<br/> 
+			<strong>parameters</strong><br/> 
+			<strong>title:</strong> the tile of dialog button.<br/> 
+			<strong>text:</strong> the element's text.<br/>
+			<strong>features:</strong>the dialog's features.@see sFeatures of  window.showModalDialog
+			</TD>
+			<TD class=td>dialog:{url:'get_input.php?value=xxx',<br>
+			features:'dialogWidth:300px;dialogHeight:600px'}</TD>
+		</TR>
+		<tr>
+			<td class="td"><strong>validation</strong></td>
+			<td class="td">Object</td>
+			<td class="td">Validation the element's value from the giving  url. Using ajax.<br/> 
+			<strong>parameters</strong><br/> 
+			<strong>title:</strong>the tile of validation button.
+			</td>
+			<td class="td"><strong style="font-weight: normal;">validation</strong>:{url:'validation_input.php?value=xxx',<br>
+			title:' Validate if the user exists.'}</td>
+		</tr>
+		<tr>
+			<td class="td"><strong>getvalue</strong></td>
+			<td class="td">Object</td>
+			<td class="td">Get the element's value from the giving url.Using ajax.<br/> 
+			<strong>parameters</strong><br/> 
+			<strong>title:</strong>the tile of getvalue button.<br/>
+			<strong>readonly:</strong>is the element readonly or not?
+			</td>
+			<td class="td"><strong style="font-weight: normal;">getvalue</strong>:{url:'get_input.php?value=xxx',<br>
+			title:'get the element's value',readonly:true}</td>
+		</tr>
+	</TBODY>
+</TABLE>
+</BODY>
+</HTML>

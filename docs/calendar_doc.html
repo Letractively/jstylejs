@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML lang=cn xml:lang="cn" xmlns="http://www.w3.org/1999/xhtml">
+<HEAD><TITLE>Calendar Rule Reference</TITLE>
+<META content="text/html; charset=utf-8" http-equiv=Content-Type>
+</HEAD>
+<BODY>
+<H2>Calendar Rule Reference</H2>
+<em style="color:red;">
+注意：通过设置 Element的jstyle属性来设置calendar Rule。 例如某input的html Format为： &lt;input jstyle="{calendar:{ifFormat:'%Y-%m-%d %H:%M',showsTime :true}}" title="日期 Element" name="elementText" id="elementText" type="text" value="" /&gt;
+</em>
+日历 Format设置的说明
+<table style="WIDTH: 100%;border:1px solid black;" border=1 cellSpacing=1 
+cellPadding=0><tr><td valign=top ><b>property</b> </td><td valign=top ><b>type</b> </td><td valign=top ><b>description</b> </td><td valign=top ><b>default</b>
+</td></tr>
+<tr><td valign=top ><tt>inputField</tt>
+</td><td valign=top >string </td><td valign=top >The ID of your input field.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>displayArea</tt>
+</td><td valign=top >string </td><td valign=top >This is the ID of a &lt;span&gt;, &lt;div&gt;, or any other element that you would like to use to display the current date. This is generally useful only if the input field is hidden, as an area to display the date.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>button</tt>
+</td><td valign=top >string </td><td valign=top >The ID of the calendar ``trigger''. This is an element (ordinarily a button or an image) that will dispatch a certain event (usually ``click'') to the function that creates and displays the calendar.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>eventName</tt>
+</td><td valign=top >string </td><td valign=top >The name of the event that will trigger the calendar. The name should be without the ``on'' prefix, such as ``click'' instead of ``onclick''. Virtually all users will want to let this have the default value (``click''). Anyway, it could be useful if, say, you want the calendar to appear when the input field is focused and have no trigger button (in this case use ``focus'' as the event name).
+</td><td valign=top >``click''
+</td></tr>
+<tr><td valign=top ><tt>ifFormat</tt>
+</td><td valign=top >string </td><td valign=top >The format string that will be used to enter the date in the input field. This format will be honored even if the input field is hidden.
+</td><td valign=top >``%Y/%m/%d''
+</td></tr>
+<tr><td valign=top ><tt>daFormat</tt>
+</td><td valign=top >string </td><td valign=top >Format of the date displayed in the displayArea (if specified).
+</td><td valign=top >``%Y/%m/%d''
+</td></tr>
+<tr><td valign=top ><tt>singleClick</tt>
+</td><td valign=top >boolean </td><td valign=top >Wether the calendar is in ``single-click mode'' or ``double-click mode''. If true (the default) the calendar will be created in single-click mode.
+</td><td valign=top >true
+</td></tr>
+<tr><td valign=top ><tt>dateStatusFunc</tt>
+</td><td valign=top >function </td><td valign=top >A function that receives a JS Date object and returns a boolean
+or a string.  This function allows one to set a certain CSS class to some
+date, therefore making it look different.  If it returns <tt>true</tt> then
+the date will be disabled.  If it returns <tt>false</tt> nothing special
+happens with the given date.  If it returns a string then that will be taken
+as a CSS class and appended to the date element.  If this string is
+``disabled'' then the date is also disabled (therefore is like returning
+<tt>true</tt>).  For more information please also refer to section
+<a href="#node_sec_5.3.8">5.3.8</a>.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>firstDay</tt>
+</td><td valign=top >integer </td><td valign=top >Specifies which day is to be displayed as the first day of
+week.  Possible values are 0 to 6; 0 means Sunday, 1 means Monday, ..., 6
+means Saturday.  The end user can easily change this too, by clicking on the
+day name in the calendar header.
+</td><td valign=top >0
+</td></tr>
+<tr><td valign=top ><tt>weekNumbers</tt>
+</td><td valign=top >boolean </td><td valign=top >If ``true'' then the calendar will display week numbers.
+</td><td valign=top >true
+</td></tr>
+<tr><td valign=top ><tt>align</tt>
+</td><td valign=top >string </td><td valign=top >Alignment of the calendar, relative to the reference element. The
+reference element is dynamically chosen like this: if a displayArea is
+specified then it will be the reference element. Otherwise, the input field
+is the reference element.  For the meaning of the alignment characters
+please section <a href="#node_sec_5.3.11">5.3.11</a>.
+</td><td valign=top >``Bl''
+</td></tr>
+<tr><td valign=top ><tt>range</tt>
+</td><td valign=top >array </td><td valign=top >An array having exactly 2 elements, integers. (!) The first [0] element is the minimum year that is available, and the second [1] element is the maximum year that the calendar will allow.
+</td><td valign=top >[1900, 2999]
+</td></tr>
+<tr><td valign=top ><tt>flat</tt>
+</td><td valign=top >string </td><td valign=top >If you want a flat calendar, pass the ID of the parent object in
+this property.  If not, pass <tt>null</tt> here (or nothing at all as
+<tt>null</tt> is the default value).
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>flatCallback</tt>
+</td><td valign=top >function </td><td valign=top >You should provide this function if the calendar is flat.  It
+will be called when the date in the calendar is changed with a reference to
+the calendar object.  See section <a href="#node_sec_2.2">2.2</a> for an example
+of how to setup a flat calendar.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>onSelect</tt>
+</td><td valign=top >function </td><td valign=top >If you provide a function handler here then you have to manage
+the ``click-on-date'' event by yourself.  Look in the calendar-setup.js and
+take as an example the onSelect handler that you can see there.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>onClose</tt>
+</td><td valign=top >function </td><td valign=top >This handler will be called when the calendar needs to close.
+You don't need to provide one, but if you do it's your responsibility to
+hide/destroy the calendar.  You're on your own.  Check the calendar-setup.js
+file for an example.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>onUpdate</tt>
+</td><td valign=top >function </td><td valign=top >If you supply a function handler here, it will be called right
+after the target field is updated with a new date.  You can use this to
+chain 2 calendars, for instance to setup a default date in the second just
+after a date was selected in the first.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>date</tt>
+</td><td valign=top >date </td><td valign=top >This allows you to setup an initial date where the calendar will be
+positioned to.  If absent then the calendar will open to the today date.
+</td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>showsTime</tt>
+</td><td valign=top >boolean </td><td valign=top >If this is set to <tt>true</tt> then the calendar will also
+allow time selection.
+</td><td valign=top >false
+</td></tr>
+<tr><td valign=top ><tt>timeFormat</tt>
+</td><td valign=top >string </td><td valign=top >Set this to ``12'' or ``24'' to configure the way that the
+calendar will display time.
+</td><td valign=top >``24''
+</td></tr>
+<tr><td valign=top ><tt>electric</tt>
+</td><td valign=top >boolean </td><td valign=top >Set this to ``false'' if you want the calendar to update the
+field only when closed (by default it updates the field at each date change,
+even if the calendar is not closed) </td><td valign=top >true
+</td></tr>
+<tr><td valign=top ><tt>position</tt>
+</td><td valign=top >array </td><td valign=top >Specifies the [x, y] position, relative to page's top-left corner,
+where the calendar will be displayed.  If not passed then the position will
+be computed based on the ``align'' parameter.  Defaults to ``null'' (not
+used). </td><td valign=top >null
+</td></tr>
+<tr><td valign=top ><tt>cache</tt>
+</td><td valign=top >boolean </td><td valign=top >Set this to ``true'' if you want to cache the calendar object.
+This means that a single calendar object will be used for all fields that
+require a popup calendar </td><td valign=top >false
+</td></tr>
+<tr><td valign=top ><tt>showOthers</tt>
+</td><td valign=top >boolean </td><td valign=top >If set to ``true'' then days belonging to months overlapping
+with the currently displayed month will also be displayed in the calendar
+(but in a ``faded-out'' color) </td><td valign=top >false
+ 
+</td></tr></table>
+
+ifFormat Format说明
+<table  style="WIDTH: 100%;border:1px solid black;" border=1  cellSpacing=1 
+cellPadding=0 ><tr><td valign=top ></td></tr>
+<tr><td valign=top ><tt>%a</tt> </td><td valign=top >abbreviated weekday name </td></tr>
+<tr><td valign=top ><tt>%A</tt> </td><td valign=top >full weekday name </td></tr>
+<tr><td valign=top ><tt>%b</tt> </td><td valign=top >abbreviated month name </td></tr>
+<tr><td valign=top ><tt>%B</tt> </td><td valign=top >full month name </td></tr>
+<tr><td valign=top ><tt>%C</tt> </td><td valign=top >century number </td></tr>
+<tr><td valign=top ><tt>%d</tt> </td><td valign=top >the day of the month ( 00 .. 31 ) </td></tr>
+<tr><td valign=top ><tt>%e</tt> </td><td valign=top >the day of the month ( 0 .. 31 ) </td></tr>
+<tr><td valign=top ><tt>%H</tt> </td><td valign=top >hour ( 00 .. 23 ) </td></tr>
+<tr><td valign=top ><tt>%I</tt> </td><td valign=top >hour ( 01 .. 12 ) </td></tr>
+<tr><td valign=top ><tt>%j</tt> </td><td valign=top >day of the year ( 000 .. 366 ) </td></tr>
+<tr><td valign=top ><tt>%k</tt> </td><td valign=top >hour ( 0 .. 23 ) </td></tr>
+<tr><td valign=top ><tt>%l</tt> </td><td valign=top >hour ( 1 .. 12 ) </td></tr>
+<tr><td valign=top ><tt>%m</tt> </td><td valign=top >month ( 01 .. 12 ) </td></tr>
+<tr><td valign=top ><tt>%M</tt> </td><td valign=top >minute ( 00 .. 59 ) </td></tr>
+<tr><td valign=top ><tt>%n</tt> </td><td valign=top >a newline character </td></tr>
+<tr><td valign=top ><tt>%p</tt> </td><td valign=top >``PM'' or ``AM'' </td></tr>
+<tr><td valign=top ><tt>%P</tt> </td><td valign=top >``pm'' or ``am'' </td></tr>
+<tr><td valign=top ><tt>%S</tt> </td><td valign=top >second ( 00 .. 59 ) </td></tr>
+<tr><td valign=top ><tt>%s</tt> </td><td valign=top >number of seconds since Epoch (since Jan 01 1970 00:00:00 UTC) </td></tr>
+<tr><td valign=top ><tt>%t</tt> </td><td valign=top >a tab character </td></tr>
+<tr><td valign=top ><tt>%U, %W, %V</tt> </td><td valign=top >the week number</td></tr>
+<tr><td valign=top ><tt>%u</tt> </td><td valign=top >the day of the week ( 1 .. 7, 1 = MON )</td></tr>
+<tr><td valign=top ><tt>%w</tt> </td><td valign=top >the day of the week ( 0 .. 6, 0 = SUN )</td></tr>
+<tr><td valign=top ><tt>%y</tt> </td><td valign=top >year without the century ( 00 .. 99 )</td></tr>
+<tr><td valign=top ><tt>%Y</tt> </td><td valign=top >year including the century ( ex. 1979 )</td></tr>
+<tr><td valign=top ><tt>%%</tt> </td><td valign=top >a literal <tt>%</tt> character
+</td></tr></table>
+</BODY></HTML>
