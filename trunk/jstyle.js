@@ -149,7 +149,7 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
             makeChildObject(element_style, stylepath);
             var style_define_name = style_paths.pop();
             var element_style_define_object = getChildObject(element_style, style_paths.join("."));
-            if (typeof(jstyle) == "object" || typeof(jstyle) == "function") {
+            if (typeof(jstyle) == "object") {
                 extendObject(element_style_define_object[style_define_name], jstyle);
             } else {
                 element_style_define_object[style_define_name] = jstyle;
@@ -423,7 +423,8 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
         element.jStyle = returnjStyle;
         return returnjStyle;
     };
-    jStyle.addEvent = function(element, event_name, handler) { (element.addEventListener) ? element.addEventListener(event_name, handler, false) : element.attachEvent("on" + event_name, handler);
+    jStyle.addEvent = function(element, event_name, handler) {
+        if (typeof(event_name) != "string") return false; (element.addEventListener) ? element.addEventListener(event_name, handler, false) : element.attachEvent("on" + event_name, handler);
     };
     jStyle.cancelEvent = function(event) {
         if (window.event) {
@@ -481,6 +482,26 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
             }
         }
     };
+    jStyle.toggleClass = function(element, classNames) {
+        if (!element || element.nodeType != 1) return false;
+        var classes = (classNames || "").split(/\s+/);
+        var bAdd;
+        for (var i = 0; i < classes.length; i++) {
+            var elementClasses = (element.className || "").split(/\s+/);
+            bAdd = true;
+            for (var j = 0; j < elementClasses.length; j++) {
+                if (elementClasses[j] == classes[i]) {
+                    bAdd = false;
+                    break;
+                }
+            }
+            if (bAdd) element.className += (element.className ? " ": "") + classes[i];
+            else {
+                if (element.className.indexOf(classes[i]) == 0) element.className = element.className.substr(classes[i].length);
+                else element.className = element.className.replace(" " + classes[i], "");
+            }
+        }
+    };
     jStyle.styles = [];
     jStyle.getStyle = function(styleName) {
         if (!styleName || styleName == "") return null;
@@ -519,21 +540,15 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
                 } catch(e) {;
                 };
             }
-            delete element.jStyle.css;
             break;
         case "string":
-            if (" " > style) return false;
-            var style_paths = style.split(".");
-            if (style_paths.length != 2) return false;
-            var style_name = style_paths[1];
-            try {
-                element.style[style_name] = style
-            } catch(e) {;
-            };
+            if (" " > style) break;
+            element.cssText = (element.cssText || "") + style;
             break;
         default:
-            return false;
+            break;
         }
+        delete element.jStyle.css;
     };
     jStyle.addStyle("class");
     jStyle.styles["class"].filter = "*";
@@ -549,8 +564,22 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
             jStyle.removeClass(element, delete_classes[1]);
             return true;
         }
+        var toggle_classes = style.match(/^>(.*)$/);
+        if (toggle_classes) {
+            jStyle.toggleClass(element, toggle_classes[1]);
+            return true;
+        }
         element.className = style;
         return true;
+    };
+    jStyle.addStyle("event");
+    jStyle.styles.event.filter = "*";
+    jStyle.styles.event.render = function(style, element) {
+        for (var style_name in style) {
+            if (typeof(style[style_name]) != "function") continue;
+            jStyle.addEvent(element, style_name, jStyle.closureListener(style[style_name], element));
+        }
+        delete element.jStyle.event;
     };
     jStyle.addStyle("alert");
     jStyle.styles.alert.filter = "*";
