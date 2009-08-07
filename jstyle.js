@@ -536,8 +536,8 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
         }
     };
     jStyle.addStyle("class");
-    jStyle.styles.class.filter = "*";
-    jStyle.styles.class.render = function(style, element) {
+    jStyle.styles["class"].filter = "*";
+    jStyle.styles["class"].render = function(style, element) {
         if (typeof(style) != "string") return false;
         var add_classes = style.match(/^\+(.*)$/);
         if (add_classes) {
