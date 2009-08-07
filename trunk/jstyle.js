@@ -36,838 +36,855 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
 
 (function() {
     if (window.Node && !HTMLElement.insertAdjacentElement) {
-        HTMLElement.prototype.insertAdjacentElement = function(where, parsedNode) {
-            switch (where) {
+        HTMLElement.prototype.insertAdjacentElement = function(a, b) {
+            switch (a) {
             case "beforeBegin":
-                this.parentNode.insertBefore(parsedNode, this);
+                this.parentNode.insertBefore(b, this);
                 break;
             case "afterBegin":
-                this.insertBefore(parsedNode, this.firstChild);
+                this.insertBefore(b, this.firstChild);
                 break;
             case "beforeEnd":
-                this.appendChild(parsedNode);
+                this.appendChild(b);
                 break;
             case "afterEnd":
-                if (this.nextSibling) this.parentNode.insertBefore(parsedNode, this.nextSibling);
-                else this.parentNode.appendChild(parsedNode);
-                break;
+                if (this.nextSibling) this.parentNode.insertBefore(b, this.nextSibling);
+                else this.parentNode.appendChild(b);
+                break
             }
-        };
+        }
     }
-    var extendObject = function() {
-        var args = arguments;
-        if (args.length == 1) args = [this, args[0]];
-        for (var prop in args[1]) {
-            args[0][prop] = args[1][prop];
+    var t = function() {
+        var a = arguments;
+        if (a.length == 1) a = [this, a[0]];
+        for (var b in a[1]) {
+            a[0][b] = a[1][b]
         }
-        args[0].__supper = args[1];
-        return args[0];
+        return a[0]
     };
-    function toAbsolutePath(loc, url) {
-        if (/:\/\//i.test(url)) {
-            return url;
+    function toAbsolutePath(a, b) {
+        if (/:\/\//i.test(b)) {
+            return b
         }
-        if (!/[\/\\]$/.test(loc)) loc += '/';
-        loc = loc.substring(0, loc.lastIndexOf('/'));
-        while (/^\.\./.test(url)) {
-            loc = loc.substring(0, loc.lastIndexOf('/'));
-            url = url.substring(3);
+        if (!/[\/\\]$/.test(a)) a += '/';
+        a = a.substring(0, a.lastIndexOf('/'));
+        while (/^\.\./.test(b)) {
+            a = a.substring(0, a.lastIndexOf('/'));
+            b = b.substring(3)
         }
-        return loc + '/' + url;
-    };
-    var getJStyleBasePath = function() {
-        var nl,
+        return a + '/' + b
+    }
+    var u = function() {
+        var b,
         base;
-        var jStyle_basePath = "";
-        nl = document.getElementsByTagName('base');
-        for (i = 0; i < nl.length; i++) {
-            if (v = nl[i].href) {
+        var c = "";
+        b = document.getElementsByTagName('base');
+        for (i = 0; i < b.length; i++) {
+            if (v = b[i].href) {
                 if (/^https?:\/\/[^\/]+$/.test(v)) v += '/';
-                base = v ? v.match(/.*\//)[0] : '';
+                base = v ? v.match(/.*\//)[0] : ''
             }
         }
-        var getBase = function(n) {
-            var fileName = "";
-            if (n.src) fileName = n.src.substring(n.src.lastIndexOf('/') + 1, n.src.length);
-            if (n.src && /jstyle(\.dev|\.src|\.min)?.js/.test(fileName)) {
-                jStyle_basePath = n.src.substring(0, n.src.lastIndexOf('/'));
-                if (base && jStyle_basePath.indexOf('://') == -1) jStyle_basePath = base + jStyle_basePath;
-                return jStyle_basePath;
+        var d = function(n) {
+            var a = "";
+            if (n.src) a = n.src.substring(n.src.lastIndexOf('/') + 1, n.src.length);
+            if (n.src && /jstyle(\.dev|\.src|\.min)?.js/.test(a)) {
+                c = n.src.substring(0, n.src.lastIndexOf('/'));
+                if (base && c.indexOf('://') == -1) c = base + c;
+                return c
             }
-            return null;
+            return null
         };
-        nl = document.getElementsByTagName('script');
-        for (i = 0; i < nl.length; i++) {
-            if (getBase(nl[i])) break;
+        b = document.getElementsByTagName('script');
+        for (i = 0; i < b.length; i++) {
+            if (d(b[i])) break
         }
-        var documentBaseURL = window.location.href.replace(/[\?#].*$/, '').replace(/[\/\\][^\/]+$/, '');
-        jStyle_basePath = toAbsolutePath(documentBaseURL, jStyle_basePath);
-        return jStyle_basePath;
+        var e = window.location.href.replace(/[\?#].*$/, '').replace(/[\/\\][^\/]+$/, '');
+        c = toAbsolutePath(e, c);
+        return c
     };
-    var jStyle = {};
-    var cs$;
-    jStyle = window.jStyle = window.cs$ = function(selector, stylepath, jstyle) {
-        if (!selector || " " > stylepath || typeof(jstyle) == "undefined") return false;
-        var elements = [];
-        var temp_style_paths = stylepath.split(".");
-        var style_paths = [];
-        var makeChildObject = function(parentObject, children_string) {
-            if (" " > children_string) return;
-            var strings = children_string.split(".");
-            if (!strings || strings.length == 0) return;
-            var child_string = strings.shift();
-            if (typeof(parentObject[child_string]) == "undefined") parentObject[child_string] = new Object();
-            var left_children_string = strings.join(".");
-            makeChildObject(parentObject[child_string], left_children_string);
-            return;
+    var w = {};
+    var x;
+    var y;
+    w = window.jStyle = window.cs$ = function() {
+        var f = arguments;
+        var g,
+        stylepath,
+        jstyle;
+        g = f[0];
+        stylepath = f[1];
+        jstyle = f[2];
+        if (!g) return false;
+        if (typeof(stylepath) == "undefined") {
+            y = g || document;
+            return w.styles
+        }
+        if (" " > stylepath || typeof(jstyle) == "undefined") return false;
+        var h = [];
+        var j = stylepath.split(".");
+        var k = [];
+        var l = function(a, b) {
+            if (" " > b) return;
+            var c = b.split(".");
+            if (!c || c.length == 0) return;
+            var d = c.shift();
+            if (typeof(a[d]) == "undefined") a[d] = new Object();
+            var e = c.join(".");
+            l(a[d], e);
+            return
         };
-        var getChildObject = function(parentObject, children_string) {
-            var strings;
-            if (" " > children_string) return parentObject;
-            strings = children_string.split(".");
-            if (strings.length == 1) {
-                return parentObject[children_string];
+        var m = function(a, b) {
+            var c;
+            if (" " > b) return a;
+            c = b.split(".");
+            if (c.length == 1) {
+                return a[b]
             }
-            var child_string = strings.shift();
-            return getChildObject(parentObject[child_string], strings.join("."));
+            var d = c.shift();
+            return m(a[d], c.join("."))
         };
-        if (typeof(selector) == "string") elements = jStyle.cssSelector(selector);
-        else if (selector.length) elements = selector;
-        else elements = [selector];
-        var element_style;
-        var style_setting;
-        style_path_length = temp_style_paths.length;
-        style_setting = jStyle.getStyle(temp_style_paths[0]);
-        if (!style_setting) return false;
-        if (style_setting.disabled) return false;
-        elements = jStyle.cssSelector.matches(style_setting.filter, elements);
-        for (var i = 0; i < elements.length; i++) {
-            style_paths.length = 0;
-            style_paths = style_paths.concat(temp_style_paths);
-            if (" " > elements[i].getAttribute("jstyle")) elements[i].setAttribute("jstyle", "");
-            element_style = jStyle.getOrCreateElementJStyle(elements[i]);
-            makeChildObject(element_style, stylepath);
-            var style_define_name = style_paths.pop();
-            var element_style_define_object = getChildObject(element_style, style_paths.join("."));
+        if (typeof(g) == "string") h = w.cssSelector(g);
+        else if (g.length) h = g;
+        else h = [g];
+        var n;
+        var o;
+        var p = j.length;
+        o = w.getStyle(j[0]);
+        if (!o) return false;
+        if (o.disabled) return false;
+        h = w.cssSelector.matches(o.filter, h);
+        for (var i = 0; i < h.length; i++) {
+            k.length = 0;
+            k = k.concat(j);
+            if (" " > h[i].getAttribute("jstyle")) h[i].setAttribute("jstyle", "");
+            n = w.getOrCreateElementJStyle(h[i]);
+            l(n, stylepath);
+            var q = k.pop();
+            var r = m(n, k.join("."));
             if (typeof(jstyle) == "object") {
-                extendObject(element_style_define_object[style_define_name], jstyle);
+                t(r[q], jstyle)
             } else {
-                element_style_define_object[style_define_name] = jstyle;
+                r[q] = jstyle
             }
-            style_setting.build_parameters(element_style[style_setting.name], elements[i]);
-            style_setting.render(element_style[style_setting.name], elements[i]);
+            o.build_parameters(n[o.styleName], h[i]);
+            o.render(n[o.styleName], h[i])
         }
-        delete elements;
-        return true;
+        delete h;
+        return true
     };
-    jStyle.loader = function() {
-        jStyle.changeLanguage(jStyle.language);
-        var jStyle_all_elements = jStyle.cssSelector("*[" + "jstyle" + "]", document);
-        var elements_of_style;
-        var jstylesetting;
-        for (var i = 0; i < jStyle.styles.length; i++) {
-            jstylesetting = jStyle.styles[i];
-            if (jstylesetting.disabled) continue;
-            elements_of_style = jStyle.cssSelector.matches(jstylesetting.filter, jStyle_all_elements);
-            var element_jstyle;
-            for (var j = 0; j < elements_of_style.length; j++) {
-                element_jstyle = jStyle.getOrCreateElementJStyle(elements_of_style[j]);
-                var cur_jstyle;
-                cur_jstyle = element_jstyle[jstylesetting.name];
-                if (!cur_jstyle) {
-                    continue;
+    w.loader = function() {
+        w.loadLanguage(w.language);
+        var a = w.cssSelector("*[" + "jstyle" + "]", document);
+        var b;
+        var c;
+        for (var i = 0; i < w.styles.length; i++) {
+            c = w.styles[i];
+            if (c.disabled) continue;
+            b = w.cssSelector.matches(c.filter, a);
+            var d;
+            for (var j = 0; j < b.length; j++) {
+                d = w.getOrCreateElementJStyle(b[j]);
+                var e;
+                e = d[c.styleName];
+                if (!e) {
+                    continue
                 }
-                jstylesetting.build_parameters(cur_jstyle, elements_of_style[j]);
-                if (jstylesetting.render) jstylesetting.render(cur_jstyle, elements_of_style[j]);
+                c.build_parameters(e, b[j]);
+                if (c.render) c.render(e, b[j])
             }
-            if (jstylesetting.register) jstylesetting.register();
+            if (c.register) c.register()
         }
     };
-    jStyle.version = "1.00";
-    jStyle.cssSelector = Sizzle;
-    jStyle.debug = true;
-    jStyle.console = {
-        error: function() {;
-        },
-        log: function() {;
-        },
-        info: function() {;
-        },
-        assert: function() {;
-        },
-        warn: function() {;
-        },
-        clear: function() {;
-        }
+    w.version = "1.00";
+    w.cssSelector = Sizzle;
+    w.debug = true;
+    w.console = {
+        error: function() {},
+        log: function() {},
+        info: function() {},
+        assert: function() {},
+        warn: function() {},
+        clear: function() {}
     };
-    if (jStyle.debug && typeof(console) != "undefined") jStyle.console = console;
-    var __basePath = getJStyleBasePath();
-    jStyle.basePath = __basePath;
-    jStyle.t = function(string_id) {
-        if (jStyle.lang[string_id]) return jStyle.lang[string_id];
-        else return string_id;
+    if (w.debug && typeof(console) != "undefined") w.console = console;
+    var z = u();
+    w.basePath = z;
+    w.t = function(a) {
+        if (w.lang[a]) return w.lang[a];
+        else return a
     };
-    var __xhr = function() {
-        return window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
+    var A = function() {
+        return window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest()
     };
-    jStyle.ajax = function(options) {
-        if (" " > options.url) return null;
-        var xhr = __xhr();
-        var complete = false;
-        var success_handler = null;
-        var error_handler = null;
-        var type = "GET";
-        var callback = function() {
-            if (complete) {
-                return;
+    w.ajax = function(a) {
+        if (" " > a.url) return null;
+        var b = A();
+        var c = false;
+        var d = null;
+        var e = null;
+        var f = "GET";
+        var g = function() {
+            if (c) {
+                return
             }
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
-                    if (success_handler) success_handler(xhr.responseText, xhr.statusText);
-                    complete = true;
+            if (b.readyState == 4) {
+                if (b.status == 200) {
+                    if (d) d(b.responseText, b.statusText);
+                    c = true
                 } else {
-                    if (error_handler) error_handler(xhr, xhr.statusText);
+                    if (e) e(b, b.statusText)
                 }
-                xhr = null;
-            } else {;
-            }
+                b = null
+            } else {}
         };
-        if (typeof(options.success) == "function") success_handler = options.success;
-        if (typeof(options.error) == "function") error_handler = options.error;
-        if (" " < options.type) type = options.type;
-        if (options.cache === false && type == "GET") {
-            var ts = +new Date();
-            var ret = options.url.replace(/(\?|&)_=.*?(&|$)/, "$1_=" + ts + "$2");
-            options.url = ret + ((ret == options.url) ? (options.url.match(/\?/) ? "&": "?") + "_=" + ts: "");
+        if (typeof(a.success) == "function") d = a.success;
+        if (typeof(a.error) == "function") e = a.error;
+        if (" " < a.type) f = a.type;
+        if (a.cache === false && f == "GET") {
+            var h = +new Date();
+            var i = a.url.replace(/(\?|&)_=.*?(&|$)/, "$1_=" + h + "$2");
+            a.url = i + ((i == a.url) ? (a.url.match(/\?/) ? "&": "?") + "_=" + h: "")
         }
-        if (jStyle.browser.msie) xhr.onreadystatechange = callback;
-        else xhr.onload = callback;
-        xhr.open(type, options.url, options.async);
-        xhr.send(null);
-        return xhr;
+        if (w.browser.msie) b.onreadystatechange = g;
+        else b.onload = g;
+        b.open(f, a.url, a.async);
+        b.send(null);
+        return b
     };
-    jStyle.closureListener = function(func, thisObject) {
-        toArray = function(iterable) {
-            var length = iterable.length,
-            results = new Array(length);
-            while (length--) {
-                results[length] = iterable[length];
+    w.closureListener = function(c, d) {
+        toArray = function(a) {
+            var b = a.length,
+            results = new Array(b);
+            while (b--) {
+                results[b] = a[b]
             }
             results.shift();
-            return results;
+            return results
         };
-        var __method = func,
+        var f = c,
         args = toArray(arguments),
         object = args.shift();
         return function(e) {
             e = e || window.event;
             if (e.target) {
-                var target = e.target;
+                var a = e.target
             } else {
-                var target = e.srcElement;
+                var a = e.srcElement
             }
-            return __method.apply(object, [e, target].concat(args));
-        };
+            return f.apply(object, [e, a].concat(args))
+        }
     };
-    var __userAgent = navigator.userAgent.toLowerCase();
-    var __browser = {
-        version: (__userAgent.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
-        safari: /webkit/.test(__userAgent),
-        opera: /opera/.test(__userAgent),
-        msie: /msie/.test(__userAgent) && !/opera/.test(__userAgent),
-        mozilla: /mozilla/.test(__userAgent) && !/(compatible|webkit)/.test(__userAgent),
-        userAgent: __userAgent
+    var B = navigator.userAgent.toLowerCase();
+    var C = {
+        version: (B.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
+        safari: /webkit/.test(B),
+        opera: /opera/.test(B),
+        msie: /msie/.test(B) && !/opera/.test(B),
+        mozilla: /mozilla/.test(B) && !/(compatible|webkit)/.test(B),
+        userAgent: B
     };
-    jStyle.browser = __browser;
-    var __imported_js = [];
-    jStyle.importFile = function(path, type, charset) {
-        path = toAbsolutePath(jStyle.basePath, path);
-        if (type == "js") {
-            for (var i = 0; i < __imported_js.length; i++) {
-                if (__imported_js[i] && __imported_js[i].indexOf(path) != -1) return;
+    w.browser = C;
+    var D = [];
+    w.importFile = function(c, d, e) {
+        c = toAbsolutePath(w.basePath, c);
+        if (d == "js") {
+            for (var i = 0; i < D.length; i++) {
+                if (D[i] && D[i].indexOf(c) != -1) return
             }
-            var head,
+            var f,
             script;
-            head = document.getElementsByTagName("head")[0] || document.documentElement;
-            if (!/^file:/i.test(path)) {
-                var script_data = "";
-                var ajaxObject;
-                ajaxObject = jStyle.ajax({
-                    url: path,
-                    success: function(date) {
-                        script_data = date;
+            f = document.getElementsByTagName("head")[0] || document.documentElement;
+            if (!/^file:/i.test(c)) {
+                var g = "";
+                var h;
+                h = w.ajax({
+                    url: c,
+                    success: function(a) {
+                        g = a
                     },
                     async: false
                 });
-                if (script_data && /\S/.test(script_data)) {
+                if (g && /\S/.test(g)) {
                     script = document.createElement("script");
                     script.type = "text/javascript";
-                    script.text = script_data;
-                    head.insertBefore(script, head.firstChild);
-                    head.removeChild(script);
+                    script.text = g;
+                    f.insertBefore(script, f.firstChild);
+                    f.removeChild(script)
                 }
             } else {
                 script = document.createElement("script");
                 script.type = "text/javascript";
-                script.src = path;
-                head.insertBefore(script, head.firstChild);
-                var completed = false;
-                var tryTimes = 0;
-                var sleepAndCheckLoad = function(milliseconds) {
-                    if (tryTimes++>10 || script.readyState == "loaded") completed = true;
-                    var start = new Date().getTime();
-                    for (var i = 0; i < 1e7; i++) if ((new Date().getTime() - start) > milliseconds) break;
+                script.src = c;
+                f.insertBefore(script, f.firstChild);
+                var j = false;
+                var k = 0;
+                var l = function(a) {
+                    if (k++>10 || script.readyState == "loaded") j = true;
+                    var b = new Date().getTime();
+                    for (var i = 0; i < 1e7; i++) if ((new Date().getTime() - b) > a) break
                 };
-                while (!completed) sleepAndCheckLoad(1);
+                while (!j) l(1)
             }
-            jStyle.console.info("imported js: " + path);
-            __imported_js.push(path);
-        } else if (type == "css") {
-            var ls = document.getElementsByTagName("link");
-            for (var i = 0; i < ls.length; i++) {
-                if (ls[i].href && ls[i].href.indexOf(path) != -1) return;
+            w.console.info("imported js: " + c);
+            D.push(c)
+        } else if (d == "css") {
+            var m = document.getElementsByTagName("link");
+            for (var i = 0; i < m.length; i++) {
+                if (m[i].href && m[i].href.indexOf(c) != -1) return
             }
             var s = document.createElement("link");
             s.rel = "stylesheet";
             s.type = "text/css";
-            s.href = path;
+            s.href = c;
             s.disabled = false;
-            var head = document.getElementsByTagName("head")[0];
-            head.appendChild(s);
+            var f = document.getElementsByTagName("head")[0];
+            f.appendChild(s)
         }
-        return true;
+        return true
     };
-    jStyle.language = "en";
-    jStyle.lang = [];
-    jStyle.changeLanguage = function(language_name) {
-        jStyle.importFile("lang/" + language_name + ".js", "js");
+    w.language = "en";
+    w.lang = [];
+    w.loadLanguage = function(a) {
+        w.importFile("lang/" + a + ".js", "js")
     };
-    var __uuid = +new Date();
-    jStyle.getUid = function() {
-        __uuid++;
-        return "jStyle" + __uuid;
+    var E = +new Date();
+    w.getUid = function() {
+        E++;
+        return "jStyle" + E
     };
-    jStyle.basic_element_style = function() {
+    w.basic_element_style = function() {
         this.srcElement = null;
-        this.uid = "";
+        this.uid = ""
     };
-    jStyle.basic_style_parameter = function() {
+    w.basic_style_parameter = function() {
         this.name = '';
         this.title = "";
-        this.builder = function(style, element) {;
-        };
+        this.builder = function(a, b) {}
     };
-    jStyle.basic_style = function() {
-        this.name = "";
+    w.basic_style = function() {
+        this.styleName = "";
         this.disabled = false;
         this.filter = "input,textarea,select";
+        this.makeStyle = function(a) {
+            var b = y;
+            return w(b, this.styleName, a)
+        };
         this.parameters = [];
-        this.getParameter = function(name) {
-            var parameter = null;
+        this.getParameter = function(a) {
+            var b = null;
             for (var i = 0; i < this.parameters.length; i++) {
-                if (this.parameters[i].name == name) {
-                    parameter = this.parameters[i];
-                    break;
+                if (this.parameters[i].name == a) {
+                    b = this.parameters[i];
+                    break
                 }
             }
-            return parameter;
+            return b
         };
-        this.addParameter = function(param) {
-            if (!param) return false;
-            var param_object;
-            param_object = new jStyle.basic_style_parameter();
-            if (typeof(param) == "object") {
-                if (" " >= param.name) return false;
-                extendObject(param_object, param);
+        this.addParameter = function(a) {
+            if (!a) return false;
+            var b;
+            b = new w.basic_style_parameter();
+            if (typeof(a) == "object") {
+                if (" " >= a.name) return false;
+                t(b, a)
             }
-            if (typeof(param) == "string") {
-                param_object = new jStyle.basic_style_parameter();
-                param_object.name = param;
+            if (typeof(a) == "string") {
+                b = new w.basic_style_parameter();
+                b.name = a
             }
-            this.parameters[param_object.name] = param_object;
-            if (!this.getParameter(param_object.name)) this.parameters.push(param_object);
-            return true;
+            this.parameters[b.name] = b;
+            if (!this.getParameter(b.name)) this.parameters.push(b);
+            return true
         };
-        this.render = function(style, element) {};
-        this.build_parameters = function(style, element) {
-            var parameter;
-            for (var parameter_name in style) {
-                parameter = this.getParameter(parameter_name);
-                if (parameter && parameter.builder) parameter.builder(style[parameter_name], element);
+        this.render = function(a, b) {};
+        this.build_parameters = function(a, b) {
+            var c;
+            for (var d in a) {
+                c = this.getParameter(d);
+                if (c && c.builder) c.builder(a[d], b)
             }
         };
         this.register = function() {
-            if (this.disabled) return false;
-        };
+            if (this.disabled) return false
+        }
     };
-    jStyle.getOrCreateElementJStyle = function(element) {
-        if (element["jStyle"] && typeof(element["jStyle"]) == "object") return element["jStyle"];
-        var jstyle_string = element.getAttribute("jstyle");
-        var returnjStyle = new jStyle.basic_element_style();
-        returnjStyle.uid = jStyle.getUid();
-        if (" " < jstyle_string) {
-            jstyle_string = jstyle_string.replace(/(^\s*)|(\s*$)/g, "");
-            if (jstyle_string.substr(0, 1) != "{") {
-                jstyle_string = "{" + jstyle_string;
-                jstyle_string += "}";
+    w.getOrCreateElementJStyle = function(a) {
+        if (a["jStyle"] && typeof(a["jStyle"]) == "object") return a["jStyle"];
+        var b = a.getAttribute("jstyle");
+        var c = new w.basic_element_style();
+        c.uid = w.getUid();
+        if (" " < b) {
+            b = b.replace(/(^\s*)|(\s*$)/g, "");
+            if (b.substr(0, 1) != "{") {
+                b = "{" + b;
+                b += "}"
             }
             try {
-                var tempjStyle;
-                eval("tempjStyle=" + jstyle_string + ";");
+                var d;
+                d = eval('(' + b + ')')
             } catch(e) {
-                jStyle.console.error(element.id + "'s format of " + "jStyle" + ":\n\"" + jstyle_string + "\"\n is wrong,\n please note that it shoulde be an JavaScript object's description!");
+                w.console.error(a.id + "'s format of " + "jStyle" + ":\n\"" + b + "\"\n is wrong,\n please note that it shoulde be an JavaScript object's description!")
             }
-            extendObject(returnjStyle, tempjStyle);
+            t(c, d)
         }
-        returnjStyle.srcElement = element;
-        element.jStyle = returnjStyle;
-        return returnjStyle;
+        c.srcElement = a;
+        a.jStyle = c;
+        return c
     };
-    jStyle.addEvent = function(element, event_name, handler) {
-        if (typeof(event_name) != "string") return false; (element.addEventListener) ? element.addEventListener(event_name, handler, false) : element.attachEvent("on" + event_name, handler);
+    w.addEvent = function(a, b, c) {
+        if (typeof(b) != "string") return false;
+        if (a.addEventListener) a.addEventListener(b, c, false);
+        else a.attachEvent("on" + b, c)
     };
-    jStyle.cancelEvent = function(event) {
+    w.cancelEvent = function(a) {
         if (window.event) {
-            event.returnValue = false;
-        } else event.preventDefault();
+            a.returnValue = false
+        } else a.preventDefault()
     };
-    jStyle.createElement = function(jStyleId, tag_name) {
-        if (" " > jStyleId) return null;
-        var element = document.getElementById(jStyleId);
-        if (element) return element;
-        element = document.createElement(tag_name);
-        element.id = jStyleId;
-        return element;
+    w.createElement = function(a, b) {
+        if (" " > a) return null;
+        var c = document.getElementById(a);
+        if (c) return c;
+        c = document.createElement(b);
+        c.id = a;
+        return c
     };
-    jStyle.deleteElement = function(jStyleId) {
-        var element = document.getElementById(jStyleId);
-        if (element) {
-            element.parentNode.removeChild(element);
-            return true;
+    w.deleteElement = function(a) {
+        var b = document.getElementById(a);
+        if (b) {
+            b.parentNode.removeChild(b);
+            return true
         }
-        return false;
+        return false
     };
-    jStyle.addClass = function(element, classNames) {
-        if (!element || element.nodeType != 1) return false;
-        var classes = (classNames || "").split(/\s+/);
-        var bAdd;
-        for (var i = 0; i < classes.length; i++) {
-            var elementClasses = (element.className || "").split(/\s+/);
-            bAdd = true;
-            for (var j = 0; j < elementClasses.length; j++) {
-                if (elementClasses[j] == classes[i]) {
-                    bAdd = false;
-                    break;
+    w.addClass = function(a, b) {
+        if (!a || a.nodeType != 1) return false;
+        var c = (b || "").split(/\s+/);
+        var d;
+        for (var i = 0; i < c.length; i++) {
+            var e = (a.className || "").split(/\s+/);
+            d = true;
+            for (var j = 0; j < e.length; j++) {
+                if (e[j] == c[i]) {
+                    d = false;
+                    break
                 }
             }
-            if (bAdd) element.className += (element.className ? " ": "") + classes[i];
+            if (d) a.className += (a.className ? " ": "") + c[i]
         }
     };
-    jStyle.removeClass = function(element, classNames) {
-        if (!element || element.nodeType != 1) return false;
-        var classes = (classNames || "").split(/\s+/);
-        var bDelete;
-        for (var i = 0; i < classes.length; i++) {
-            var elementClasses = (element.className || "").split(/\s+/);
-            bDelete = false;
-            for (var j = 0; j < elementClasses.length; j++) {
-                if (elementClasses[j] == classes[i]) {
-                    bDelete = true;
-                    break;
+    w.removeClass = function(a, b) {
+        if (!a || a.nodeType != 1) return false;
+        var c = (b || "").split(/\s+/);
+        var d;
+        for (var i = 0; i < c.length; i++) {
+            var e = (a.className || "").split(/\s+/);
+            d = false;
+            for (var j = 0; j < e.length; j++) {
+                if (e[j] == c[i]) {
+                    d = true;
+                    break
                 }
             }
-            if (bDelete) {
-                if (element.className.indexOf(classes[i]) == 0) element.className = element.className.substr(classes[i].length);
-                else element.className = element.className.replace(" " + classes[i], "");
+            if (d) {
+                if (a.className.indexOf(c[i]) == 0) a.className = a.className.substr(c[i].length);
+                else a.className = a.className.replace(" " + c[i], "")
             }
         }
     };
-    jStyle.toggleClass = function(element, classNames) {
-        if (!element || element.nodeType != 1) return false;
-        var classes = (classNames || "").split(/\s+/);
-        var bAdd;
-        for (var i = 0; i < classes.length; i++) {
-            var elementClasses = (element.className || "").split(/\s+/);
-            bAdd = true;
-            for (var j = 0; j < elementClasses.length; j++) {
-                if (elementClasses[j] == classes[i]) {
-                    bAdd = false;
-                    break;
+    w.toggleClass = function(a, b) {
+        if (!a || a.nodeType != 1) return false;
+        var c = (b || "").split(/\s+/);
+        var d;
+        for (var i = 0; i < c.length; i++) {
+            var e = (a.className || "").split(/\s+/);
+            d = true;
+            for (var j = 0; j < e.length; j++) {
+                if (e[j] == c[i]) {
+                    d = false;
+                    break
                 }
             }
-            if (bAdd) element.className += (element.className ? " ": "") + classes[i];
+            if (d) a.className += (a.className ? " ": "") + c[i];
             else {
-                if (element.className.indexOf(classes[i]) == 0) element.className = element.className.substr(classes[i].length);
-                else element.className = element.className.replace(" " + classes[i], "");
+                if (a.className.indexOf(c[i]) == 0) a.className = a.className.substr(c[i].length);
+                else a.className = a.className.replace(" " + c[i], "")
             }
         }
     };
-    jStyle.styles = [];
-    jStyle.getStyle = function(styleName) {
-        if (!styleName || styleName == "") return null;
-        return jStyle.styles[styleName];
+    w.styles = [];
+    w.getStyle = function(a) {
+        if (!a || a == "") return null;
+        return w.styles[a]
     };
-    jStyle.addStyle = function(style) {
-        if (!style) return false;
-        var style_object;
-        style_object = new jStyle.basic_style();
-        if (typeof(style) == "object") {
-            if (" " >= style.name) return false;
-            extendObject(style_object, style);
-            if (style_object.parameters && style_object.parameters.length) {
-                for (var i = 0; i < style_object.parameters.length; i++) {
-                    if (" " < style_object.parameters[i].name) {
-                        style_object.addParameter(style_object.parameters[i]);
+    w.addStyle = function(a) {
+        if (!a) return false;
+        if (w.getStyle(a.styleName || a)) {
+            w.console.error("the style " + (a.styleName || a) + " is already exists");
+            return false
+        }
+        var b = new w.basic_style();
+        if (typeof(a) == "object") {
+            if (" " >= a.styleName) return false;
+            t(b, a);
+            if (b.parameters && b.parameters.length) {
+                for (var i = 0; i < b.parameters.length; i++) {
+                    if (" " < b.parameters[i].name) {
+                        b.addParameter(b.parameters[i])
                     }
                 }
             }
         }
-        if (typeof(style) == "string") {
-            style_object.name = style;
+        if (typeof(a) == "string") {
+            b.styleName = a
         }
-        jStyle.styles.push(style_object);
-        jStyle.styles[style_object.name] = style_object;
-        return true;
+        var c = function() {
+            b.makeStyle.apply(b, arguments)
+        };
+        t(c, b);
+        w.styles.push(c);
+        w.styles[b.styleName] = c;
+        return true
     };
-    jStyle.addStyle("css");
-    jStyle.styles.css.filter = "*";
-    jStyle.styles.css.render = function(style, element) {
-        switch (typeof(style)) {
+    w.addStyle("css");
+    w.styles.css.filter = "*";
+    w.styles.css.render = function(a, b) {
+        switch (typeof(a)) {
         case "object":
-            for (var style_name in style) {
+            for (var c in a) {
                 try {
-                    element.style[style_name] = style[style_name]
-                } catch(e) {;
-                };
+                    b.style[c] = a[c]
+                } catch(e) {}
             }
             break;
         case "string":
-            if (" " > style) break;
-            element.cssText = (element.cssText || "") + style;
+            if (" " > a) break;
+            b.style.cssText = (b.cssText || "") + a;
             break;
         default:
-            break;
+            break
         }
-        delete element.jStyle.css;
+        delete b.jStyle.css
     };
-    jStyle.addStyle("class");
-    jStyle.styles["class"].filter = "*";
-    jStyle.styles["class"].render = function(style, element) {
-        if (typeof(style) != "string") return false;
-        var add_classes = style.match(/^\+(.*)$/);
-        if (add_classes) {
-            jStyle.addClass(element, add_classes[1]);
-            return true;
+    w.addStyle("Class");
+    w.styles.Class.filter = "*";
+    w.styles.Class.render = function(a, b) {
+        if (typeof(a) != "string") return false;
+        var c = a.match(/^\+(.*)$/);
+        if (c) {
+            w.addClass(b, c[1]);
+            return true
         }
-        var delete_classes = style.match(/^\-(.*)$/);
-        if (delete_classes) {
-            jStyle.removeClass(element, delete_classes[1]);
-            return true;
+        var d = a.match(/^\-(.*)$/);
+        if (d) {
+            w.removeClass(b, d[1]);
+            return true
         }
-        var toggle_classes = style.match(/^>(.*)$/);
-        if (toggle_classes) {
-            jStyle.toggleClass(element, toggle_classes[1]);
-            return true;
+        var e = a.match(/^>(.*)$/);
+        if (e) {
+            w.toggleClass(b, e[1]);
+            return true
         }
-        element.className = style;
-        return true;
+        b.className = a;
+        return true
     };
-    jStyle.addStyle("event");
-    jStyle.styles.event.filter = "*";
-    jStyle.styles.event.render = function(style, element) {
-        for (var style_name in style) {
-            if (typeof(style[style_name]) != "function") continue;
-            jStyle.addEvent(element, style_name, jStyle.closureListener(style[style_name], element));
+    w.addStyle("event");
+    w.styles.event.filter = "*";
+    w.styles.event.render = function(a, b) {
+        for (var c in a) {
+            if (typeof(a[c]) != "function") continue;
+            w.addEvent(b, c, w.closureListener(a[c], b))
         }
-        delete element.jStyle.event;
+        delete b.jStyle.event
     };
-    jStyle.addStyle("alert");
-    jStyle.styles.alert.filter = "*";
-    jStyle.styles.alert.render = function(style, element) {
-        var element_msg_id = element.jStyle.uid + "_" + "alert";
-        var alertSpan = document.getElementById(element_msg_id);
-        if (!alertSpan && style) {
-            alertSpan = jStyle.createElement(element_msg_id, "span");
-            alertSpan.id = element_msg_id;
-            alertSpan.className = "jstyle_alert";
-            element.insertAdjacentElement("afterEnd", alertSpan);
+    w.addStyle("alert");
+    w.styles.alert.filter = "*";
+    w.styles.alert.render = function(a, b) {
+        var c = b.jStyle.uid + "_" + "alert";
+        var d = document.getElementById(c);
+        if (!d && a) {
+            d = w.createElement(c, "span");
+            d.id = c;
+            d.className = "jstyle_alert";
+            b.insertAdjacentElement("afterEnd", d)
         }
-        if (alertSpan && !style) jStyle.deleteElement(element_msg_id);
-        if (style) alertSpan.innerHTML = style;
+        if (d && !a) w.deleteElement(c);
+        if (a) d.innerHTML = a
     };
-    jStyle.addStyle("message");
-    jStyle.styles.message.filter = "*";
-    jStyle.styles.message.render = function(style, element) {
-        var element_text_id = element.jStyle.uid + "_" + "message";
-        var textSpan = document.getElementById(element_text_id);
-        if (!textSpan && style) {
-            textSpan = jStyle.createElement(element_text_id, "span");
-            textSpan.id = element_text_id;
-            textSpan.className = "jstyle_message";
-            element.insertAdjacentElement("afterEnd", textSpan);
+    w.addStyle("message");
+    w.styles.message.filter = "*";
+    w.styles.message.render = function(a, b) {
+        var c = b.jStyle.uid + "_" + "message";
+        var d = document.getElementById(c);
+        if (!d && a) {
+            d = w.createElement(c, "span");
+            d.id = c;
+            d.className = "jstyle_message";
+            b.insertAdjacentElement("afterEnd", d)
         }
-        if (textSpan && !style) jStyle.deleteElement(element_text_id);
-        if (style) textSpan.innerHTML = style;
+        if (d && !a) w.deleteElement(c);
+        if (a) d.innerHTML = a
     };
-    jStyle.addStyle({
-        name: 'validation',
+    w.addStyle({
+        styleName: 'validation',
         filter: "form input,textarea,select",
         parameters: [{
             name: 'required',
-            message: jStyle.t("Required"),
-            title: jStyle.t("Required Item"),
-            checker: function(element, setting) {
-                if ("" < element.value) return true;
+            message: w.t("Required"),
+            title: w.t("Required Item"),
+            checker: function(a, b) {
+                if ("" < a.value) return true
             },
-            builder: function(style, element) {
-                var element_id = element.jStyle.uid + "_validation_required";
-                var redStarNode = document.getElementById(element_id);
-                if (!redStarNode && style) {
-                    var redStarNode = jStyle.createElement(element_id, "span");
-                    redStarNode.className = "validation_required";
-                    redStarNode.id = element_id;
-                    element.insertAdjacentElement("afterEnd", redStarNode);
+            builder: function(a, b) {
+                var c = b.jStyle.uid + "_validation_required";
+                var d = document.getElementById(c);
+                if (!d && a) {
+                    var d = w.createElement(c, "span");
+                    d.className = "validation_required";
+                    d.id = c;
+                    b.insertAdjacentElement("afterEnd", d)
                 }
-                if (redStarNode && style) redStarNode.title = this.title;
-                if (redStarNode && !style) jStyle.deleteElement(element_id);
+                if (d && a) d.title = this.title;
+                if (d && !a) w.deleteElement(c)
             }
         },
         {
             name: 'min_length',
-            message: jStyle.t("The littler value is $0"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (setting <= element.value.length) return true;
-                return false;
+            message: w.t("The littler value is $0"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (b <= a.value.length) return true;
+                return false
             }
         },
         {
             name: 'max_length',
-            message: jStyle.t("The greater value is $0"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (setting >= element.value.length) return true;
-                return false;
+            message: w.t("The greater value is $0"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (b >= a.value.length) return true;
+                return false
             }
         },
         {
             name: 'littler',
-            message: jStyle.t("More then $0"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (setting >= element.value) return true;
-                return false;
+            message: w.t("More then $0"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (b >= a.value) return true;
+                return false
             }
         },
         {
             name: 'greater',
-            message: jStyle.t("Less then $0"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (setting <= element.value) return true;
-                return false;
+            message: w.t("Less then $0"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (b <= a.value) return true;
+                return false
             }
         },
         {
             name: 'exact_length',
-            message: jStyle.t("Length is $0"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (setting == element.value.length) return true;
-                return false;
+            message: w.t("Length is $0"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (b == a.value.length) return true;
+                return false
             }
         },
         {
             name: 'alpha',
-            message: jStyle.t("Shoud be alpha"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (element.value.match(/^([a-z])+$/i)) return true;
-                return false;
+            message: w.t("Shoud be alpha"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (a.value.match(/^([a-z])+$/i)) return true;
+                return false
             }
         },
         {
             name: 'alpha_numeric',
-            message: jStyle.t("Shoud be alpha or numeric"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (element.value.match(/^([a-z0-9])+$/i)) return true;
-                return false;
+            message: w.t("Shoud be alpha or numeric"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (a.value.match(/^([a-z0-9])+$/i)) return true;
+                return false
             }
         },
         {
             name: 'numeric',
-            message: jStyle.t("Shoud be numeric"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (element.value.match(/^[\-+]?[0-9]*\.?[0-9]+$/)) return true;
-                return false;
+            message: w.t("Shoud be numeric"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (a.value.match(/^[\-+]?[0-9]*\.?[0-9]+$/)) return true;
+                return false
             }
         },
         {
             name: 'integer',
-            message: jStyle.t("Shoud be integer"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (element.value.match(/^[\-+]?[0-9]+$/i)) return true;
-                return false;
+            message: w.t("Shoud be integer"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (a.value.match(/^[\-+]?[0-9]+$/i)) return true;
+                return false
             }
         },
         {
             name: 'email',
-            message: jStyle.t("should be an email address"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (element.value.match(/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i)) return true;
-                return false;
+            message: w.t("should be an email address"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (a.value.match(/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i)) return true;
+                return false
             }
         },
         {
             name: 'ip',
-            message: jStyle.t("should be an ip string"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                var ips = element.value.split(".");
-                if (ips.length != 4) {
-                    return false;
+            message: w.t("should be an ip string"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                var c = a.value.split(".");
+                if (c.length != 4) {
+                    return false
                 }
-                for (var i = 0; i < ips.length; i++) {
-                    if (ips[i] == '' || !ips[i].match(/[0-9]+$/) || parseInt(ips[i]) > 255 || ips[i].length > 3) return false;
+                for (var i = 0; i < c.length; i++) {
+                    if (c[i] == '' || !c[i].match(/[0-9]+$/) || parseInt(c[i]) > 255 || c[i].length > 3) return false
                 }
-                return true;
+                return true
             }
         },
         {
             name: 'base64',
-            message: jStyle.t("should be an base64 string"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (element.value.match(/[^a-zA-Z0-9\/\+=]/i)) return true;
-                return false;
+            message: w.t("should be an base64 string"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (a.value.match(/[^a-zA-Z0-9\/\+=]/i)) return true;
+                return false
             }
         },
         {
             name: 'regexp',
-            message: jStyle.t("Dose not match the specific format"),
-            checker: function(element, setting) {
-                if (!setting || " " > element.value) return true;
-                if (element.value.match(eval("/" + setting + "/i"))) return true;
-                return false;
+            message: w.t("Dose not match the specific format"),
+            checker: function(a, b) {
+                if (!b || " " > a.value) return true;
+                if (a.value.match(eval("/" + b + "/i"))) return true;
+                return false
             }
         },
         {
             name: 'matches',
-            message: jStyle.t("Dose not match"),
-            checker: function(element, setting) {
-                if (!setting) return true;
-                var input_match_id,
+            message: w.t("Dose not match"),
+            checker: function(a, b) {
+                if (!b) return true;
+                var c,
                 input_match_name,
                 input_match;
-                for (var i = 0; i < setting.length; i++) {
-                    input_match_id = setting[i];
-                    input_match = jStyle.cssSelector("#" + input_match_id, element.form)[0];
+                for (var i = 0; i < b.length; i++) {
+                    c = b[i];
+                    input_match = w.cssSelector("#" + c, a.form)[0];
                     if (!input_match) {
-                        alert(jStyle.t("Can not find the element to match ") + input_match_id);
-                        return false;
+                        alert(w.t("Can not find the element to match ") + c);
+                        return false
                     }
-                    if (element.value == input_match.value) return true;
+                    if (a.value == input_match.value) return true
                 }
-                return false;
+                return false
             }
         }],
         register: function() {
             if (this.disabled) return false;
-            var validation_form = function(e) {
-                var bRet = true;
-                var validation_elements = jStyle.cssSelector(jStyle.styles.validation.filter.replace("form ", ""), this);
-                for (var i = 0; i < validation_elements.length; i++) {
-                    if (validation_elements[i].jStyle && validation_elements[i].jStyle.validation) {
-                        if (!jStyle.styles.validation.validater(validation_elements[i])) bRet = false;
+            var c = function(e) {
+                var a = true;
+                var b = w.cssSelector(w.styles.validation.filter.replace("form ", ""), this);
+                for (var i = 0; i < b.length; i++) {
+                    if (b[i].jStyle && b[i].jStyle.validation) {
+                        if (!w.styles.validation.validater(b[i])) a = false
                     }
                 }
-                if (!bRet) jStyle.cancelEvent(e);
-                return bRet;
+                if (!a) w.cancelEvent(e);
+                return a
             };
-            var forms = document.getElementsByTagName("form");
-            for (var i = 0; i < forms.length; i++) jStyle.addEvent(forms[i], 'submit', jStyle.closureListener(validation_form, forms[i]));
+            var d = document.getElementsByTagName("form");
+            for (var i = 0; i < d.length; i++) w.addEvent(d[i], 'submit', w.closureListener(c, d[i]))
         },
-        validater: function(element) {
-            var bRet = true;
-            var validation_style = element.jStyle.validation;
-            if (!validation_style) {
+        validater: function(a) {
+            var b = true;
+            var c = a.jStyle.validation;
+            if (!c) {
                 alert("Error!element " + this.id + " should has validation jstyle!");
-                return false;
+                return false
             }
-            var element_name;
-            if (validation_style.name) element_name = validation_style.name;
-            else element_name = element.id;
-            jStyle(element, "alert", "");
-            var message = "";
+            var d;
+            if (c.name) d = c.name;
+            else d = a.id;
+            w(a, "alert", "");
+            var e = "";
             for (var i = 0; i < this.parameters.length; i++) {
-                if (validation_style[this.parameters[i].name] && this.parameters[i].checker) {
-                    if (!this.parameters[i].checker(element, validation_style[this.parameters[i].name])) {
-                        message = "";
-                        if (" " < this.parameters[i].message) message = this.parameters[i].message;
-                        if (" " < validation_style[this.parameters[i].name + "_message"]) message = validation_style[this.parameters[i].name + "_message"];
-                        message = message.replace("$0", validation_style[this.parameters[i].name]);
-                        if (" " < message) jStyle(element, "alert", element_name + " " + message);
-                        return false;
+                if (c[this.parameters[i].name] && this.parameters[i].checker) {
+                    if (!this.parameters[i].checker(a, c[this.parameters[i].name])) {
+                        e = "";
+                        if (" " < this.parameters[i].message) e = this.parameters[i].message;
+                        if (" " < c[this.parameters[i].name + "_message"]) e = c[this.parameters[i].name + "_message"];
+                        e = e.replace("$0", c[this.parameters[i].name]);
+                        if (" " < e) w(a, "alert", d + " " + e);
+                        return false
                     }
                 }
             }
-            return bRet;
-        }
+            return b
+        },
+        render: function(a, b) {}
     });
-    jStyle.addStyle({
-        name: 'render',
+    w.addStyle({
+        styleName: 'render',
         filter: "input,textarea,select",
         parameters: [{
             name: 'dialog',
             title: "",
             render_dialog: function(e) {
-                var returnV;
-                var render_dialog;
-                if (this.jStyle.render && this.jStyle.render.dialog) render_dialog = this.jStyle.render.dialog;
-                if (!render_dialog) {
+                var a;
+                var b;
+                if (this.jStyle.render && this.jStyle.render.dialog) b = this.jStyle.render.dialog;
+                if (!b) {
                     alert("Error!element " + this.id + " should has render.dialog jstyle!");
-                    return false;
+                    return false
                 }
-                var vArguments = new Object();
-                vArguments.text = (this.jStyle.render.dialog.text) ? this.jStyle.render.dialog.text: "";
-                vArguments.value = this.value;
-                var dialog_features = "";
-                render_dialog.url = render_dialog.url + ((render_dialog.url.match(/\?/)) ? "": "?") + "&value=" + vArguments.value + "&text=" + vArguments.text;
-                if (render_dialog.features) dialog_features = render_dialog.features;
-                returnV = window.showModalDialog(render_dialog.url, vArguments, dialog_features);
-                if (returnV) {
-                    this.value = vArguments.value;
-                    jStyle(this, "message", vArguments.text);
+                var c = new Object();
+                c.text = (this.jStyle.render.dialog.text) ? this.jStyle.render.dialog.text: "";
+                c.value = this.value;
+                var d = "";
+                b.url = b.url + ((b.url.match(/\?/)) ? "": "?") + "&value=" + c.value + "&text=" + c.text;
+                if (b.features) d = b.features;
+                a = window.showModalDialog(b.url, c, d);
+                if (a) {
+                    this.value = c.value;
+                    w(this, "message", c.text)
                 }
-                return returnV;
+                return a
             },
-            builder: function(style, element) {
-                var element_id = element.jStyle.uid + "_" + "render_dialog";
-                var button = document.getElementById(element_id);
-                var title = "";
-                if (element.jStyle.render.dialog.title) title = element.jStyle.render.dialog.title;
-                var text = "";
-                if (element.jStyle.render.dialog.text) text = element.jStyle.render.dialog.text;
-                if (!button && style) {
-                    button = jStyle.createElement(element_id, "span");
-                    button.id = element_id;
-                    button.className = "render_browser";
-                    button.onclick = jStyle.closureListener(this.render_dialog, element);
-                    element.insertAdjacentElement("afterEnd", button);
-                    element.style.display = "none";
+            builder: function(a, b) {
+                var c = b.jStyle.uid + "_" + "render_dialog";
+                var d = document.getElementById(c);
+                var e = "";
+                if (b.jStyle.render.dialog.title) e = b.jStyle.render.dialog.title;
+                var f = "";
+                if (b.jStyle.render.dialog.text) f = b.jStyle.render.dialog.text;
+                if (!d && a) {
+                    d = w.createElement(c, "span");
+                    d.id = c;
+                    d.className = "render_browser";
+                    d.onclick = w.closureListener(this.render_dialog, b);
+                    b.insertAdjacentElement("afterEnd", d);
+                    b.style.display = "none"
                 }
-                if (button && style) {
-                    jStyle(element, "message", text);
-                    button.innerHTML = title;
-                    button.title = jStyle.t("Brower...");
+                if (d && a) {
+                    w(b, "message", f);
+                    d.innerHTML = e;
+                    d.title = w.t("Brower...")
                 }
-                if (button && !style) {
-                    element.style.display = "";
-                    jStyle.deleteElement(button);
+                if (d && !a) {
+                    b.style.display = "";
+                    w.deleteElement(d)
                 }
             }
         },
@@ -875,106 +892,105 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
             name: 'validation',
             title: "",
             render_validation: function(e) {
-                var bRet = false;
+                var b = false;
                 if (" " > this.value) return true;
-                var render_validation;
-                if (this.jStyle.render && this.jStyle.render.validation) render_validation = this.jStyle.render.validation;
-                if (!render_validation) {
+                var c;
+                if (this.jStyle.render && this.jStyle.render.validation) c = this.jStyle.render.validation;
+                if (!c) {
                     alert("Error!element " + this.id + " should has render.validation jstyle!");
-                    return false;
+                    return false
                 }
-                var url = render_validation.url + (render_validation.url.match(/\?/) ? "&": "?") + "value=" + this.value;
-                var ajax = jStyle.ajax({
+                var d = c.url + (c.url.match(/\?/) ? "&": "?") + "value=" + this.value;
+                var f = w.ajax({
                     type: "POST",
-                    url: url,
+                    url: d,
                     async: false,
-                    success: function(text) {
-                        if (text == "1") bRet = true;
+                    success: function(a) {
+                        if (a == "1") b = true
                     }
                 });
-                var title = jStyle.t("Validate");
-                title += " ";
-                var message = "";
-                if (render_validation.title) title = render_validation.title;
-                if (bRet) {
-                    if (render_validation.success_message) message = render_validation.success_message;
-                    else message = title + jStyle.t("Success")
+                var g = w.t("Validate");
+                g += " ";
+                var h = "";
+                if (c.title) g = c.title;
+                if (b) {
+                    if (c.success_message) h = c.success_message;
+                    else h = g + w.t("Success")
                 } else {
-                    if (render_validation.failure_message) message = render_validation.failure_message;
-                    else message = title + jStyle.t("Failed")
+                    if (c.failure_message) h = c.failure_message;
+                    else h = g + w.t("Failed")
                 }
-                jStyle(this, "alert", message);
-                return bRet;
+                w(this, "alert", h);
+                return b
             },
-            builder: function(style, element) {
-                var button_id = element.jStyle.uid + "_render_validation";
-                var button = document.getElementById(button_id);
-                var title = "";
-                if (element.jStyle.render.validation.title) title = element.jStyle.render.validation.title;
-                if (!button && style) {
-                    button = jStyle.createElement(button_id, "span");
-                    button.className = "render_validation";
-                    button.id = button_id;
-                    button.onclick = jStyle.closureListener(this.render_validation, element);
-                    element.insertAdjacentElement("afterEnd", button);
+            builder: function(a, b) {
+                var c = b.jStyle.uid + "_render_validation";
+                var d = document.getElementById(c);
+                var e = "";
+                if (b.jStyle.render.validation.title) e = b.jStyle.render.validation.title;
+                if (!d && a) {
+                    d = w.createElement(c, "span");
+                    d.className = "render_validation";
+                    d.id = c;
+                    d.onclick = w.closureListener(this.render_validation, b);
+                    b.insertAdjacentElement("afterEnd", d)
                 }
-                if (button && style) {
-                    var title = jStyle.t("Validate");;
-                    if (style.title) title = style.title;
-                    button.title = title;
-                    button.innerHTML = title;
+                if (d && a) {
+                    var e = w.t("Validate");
+                    if (a.title) e = a.title;
+                    d.title = e;
+                    d.innerHTML = e
                 }
-                if (button && !style) jStyle.deleteElement(button_id);
+                if (d && !a) w.deleteElement(c)
             }
         },
         {
             name: 'getvalue',
             title: "",
             render_getvalue: function(e) {
-                var sRet = "";
-                var render_getvalue;
-                if (this.jStyle.render && this.jStyle.render.getvalue) render_getvalue = this.jStyle.render.getvalue;
-                if (!render_getvalue) {
+                var b = "";
+                var c;
+                if (this.jStyle.render && this.jStyle.render.getvalue) c = this.jStyle.render.getvalue;
+                if (!c) {
                     alert("Error!element " + this.id + " should has render.getvalue jstyle!");
-                    return false;
+                    return false
                 }
-                var url = render_getvalue.url + (render_getvalue.url.match(/\?/) ? "&": "?") + "value=" + this.value;
-                jStyle.ajax({
+                var d = c.url + (c.url.match(/\?/) ? "&": "?") + "value=" + this.value;
+                w.ajax({
                     type: "POST",
-                    url: url,
+                    url: d,
                     async: false,
-                    success: function(text) {
-                        if (text.length < "200") sRet = text;
+                    success: function(a) {
+                        if (a.length < "200") b = a
                     }
                 });
-                if (" " < sRet) this.value = sRet;
-                return true;
+                if (" " < b) this.value = b;
+                return true
             },
-            builder: function(style, element) {
-                var element_id = element.jStyle.uid + "_render_getvalue";
-                var button = document.getElementById(element_id);
-                if (!button && style) {
-                    button = jStyle.createElement(element_id, "span");
-                    button.className = "render_getvalue";
-                    button.id = element_id;
-                    button.onclick = jStyle.closureListener(this.render_getvalue, element);
-                    element.insertAdjacentElement("afterEnd", button);
-                    if (style.readonly) element.readOnly = true;
+            builder: function(a, b) {
+                var c = b.jStyle.uid + "_render_getvalue";
+                var d = document.getElementById(c);
+                if (!d && a) {
+                    d = w.createElement(c, "span");
+                    d.className = "render_getvalue";
+                    d.id = c;
+                    d.onclick = w.closureListener(this.render_getvalue, b);
+                    b.insertAdjacentElement("afterEnd", d);
+                    if (a.readonly) b.readOnly = true
                 }
-                if (button && style) {
-                    var title = jStyle.t("Get value");
-                    if (style.title) title = style.title;
-                    button.title = title;
-                    button.innerHTML = title;
+                if (d && a) {
+                    var e = w.t("Get value");
+                    if (a.title) e = a.title;
+                    d.title = e;
+                    d.innerHTML = e
                 }
-                if (button && !style) {
-                    jStyle.deleteElement(element_id);
-                    element.readOnly = false;
+                if (d && !a) {
+                    w.deleteElement(c);
+                    b.readOnly = false
                 }
             }
         }],
-        render: function(style, element) {;
-        }
-    });
+        render: function(a, b) {}
+    })
 })();
 jStyle.addEvent(window, "load", jStyle.loader);
