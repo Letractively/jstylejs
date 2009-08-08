@@ -106,71 +106,62 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
     var w = {};
     var x;
     var y;
-    w = window.jStyle = window.cs$ = function() {
-        var f = arguments;
-        var g,
-        stylepath,
-        jstyle;
-        g = f[0];
-        stylepath = f[1];
-        jstyle = f[2];
-        if (!g) return false;
-        if (typeof(stylepath) == "undefined") {
-            y = g || document;
-            return w.styles
-        }
-        if (" " > stylepath || typeof(jstyle) == "undefined") return false;
-        var h = [];
-        var j = stylepath.split(".");
-        var k = [];
-        var l = function(a, b) {
-            if (" " > b) return;
-            var c = b.split(".");
-            if (!c || c.length == 0) return;
-            var d = c.shift();
-            if (typeof(a[d]) == "undefined") a[d] = new Object();
-            var e = c.join(".");
-            l(a[d], e);
-            return
-        };
-        var m = function(a, b) {
-            var c;
-            if (" " > b) return a;
-            c = b.split(".");
-            if (c.length == 1) {
-                return a[b]
+    w = window.jStyle = window.cs$ = function(f, g, h) {
+        var j = [];
+        if (typeof(g) == "string") {
+            if (" " > g || typeof(h) == "undefined") return false;
+            var k = g.split(".");
+            var l = [];
+            var m = function(a, b) {
+                if (" " > b) return;
+                var c = b.split(".");
+                if (!c || c.length == 0) return;
+                var d = c.shift();
+                if (typeof(a[d]) == "undefined") a[d] = new Object();
+                var e = c.join(".");
+                m(a[d], e);
+                return
+            };
+            var n = function(a, b) {
+                var c;
+                if (" " > b) return a;
+                c = b.split(".");
+                if (c.length == 1) {
+                    return a[b]
+                }
+                var d = c.shift();
+                return n(a[d], c.join("."))
+            };
+            if (typeof(f) == "string") j = w.cssSelector(f);
+            else if (f.length) j = f;
+            else j = [f];
+            var o;
+            var p;
+            var q = k.length;
+            p = w.getStyle(k[0]);
+            if (!p) return false;
+            if (p.disabled) return false;
+            j = w.cssSelector.matches(p.filter, j);
+            for (var i = 0; i < j.length; i++) {
+                l.length = 0;
+                l = l.concat(k);
+                if (" " > j[i].getAttribute("jstyle")) j[i].setAttribute("jstyle", "");
+                o = w.getOrCreateElementJStyle(j[i]);
+                m(o, g);
+                var r = l.pop();
+                var s = n(o, l.join("."));
+                if (typeof(h) == "object") {
+                    t(s[r], h)
+                } else {
+                    s[r] = h
+                }
+                p.build_parameters(o[p.styleName], j[i]);
+                p.render(o[p.styleName], j[i])
             }
-            var d = c.shift();
-            return m(a[d], c.join("."))
-        };
-        if (typeof(g) == "string") h = w.cssSelector(g);
-        else if (g.length) h = g;
-        else h = [g];
-        var n;
-        var o;
-        var p = j.length;
-        o = w.getStyle(j[0]);
-        if (!o) return false;
-        if (o.disabled) return false;
-        h = w.cssSelector.matches(o.filter, h);
-        for (var i = 0; i < h.length; i++) {
-            k.length = 0;
-            k = k.concat(j);
-            if (" " > h[i].getAttribute("jstyle")) h[i].setAttribute("jstyle", "");
-            n = w.getOrCreateElementJStyle(h[i]);
-            l(n, stylepath);
-            var q = k.pop();
-            var r = m(n, k.join("."));
-            if (typeof(jstyle) == "object") {
-                t(r[q], jstyle)
-            } else {
-                r[q] = jstyle
-            }
-            o.build_parameters(n[o.styleName], h[i]);
-            o.render(n[o.styleName], h[i])
         }
-        delete h;
-        return true
+        delete j;
+        y = f || document;
+        return w.styles
     };
     w.loader = function() {
         w.loadLanguage(w.language);
@@ -365,7 +356,7 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
         this.styleName = "";
         this.disabled = false;
         this.filter = "input,textarea,select";
-        this.makeStyle = function(a) {
+        this.applyStyle = function(a) {
             var b = y;
             return w(b, this.styleName, a)
         };
@@ -539,7 +530,7 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
             b.styleName = a
         }
         var c = function() {
-            b.makeStyle.apply(b, arguments)
+            return b.applyStyle.apply(b, arguments)
         };
         t(c, b);
         w.styles.push(c);
