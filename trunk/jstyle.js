@@ -557,9 +557,9 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
         }
         delete b.jStyle.css
     };
-    w.addStyle("Class");
-    w.styles.Class.filter = "*";
-    w.styles.Class.render = function(a, b) {
+    w.addStyle("classes");
+    w.styles.classes.filter = "*";
+    w.styles.classes.render = function(a, b) {
         if (typeof(a) != "string") return false;
         var c = a.match(/^\+(.*)$/);
         if (c) {
