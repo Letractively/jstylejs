@@ -88,7 +88,7 @@ if (typeof(Sizzle) == "undefined") eval(function(p, a, c, k, e, r) {
         var d = function(n) {
             var a = "";
             if (n.src) a = n.src.substring(n.src.lastIndexOf('/') + 1, n.src.length);
-            if (n.src && /jstyle(\.dev|\.src|\.min)?.js/.test(a)) {
+            if (n.src && /jstyle.*(\.dev|\.src|\.min)?.js/.test(a)) {
                 c = n.src.substring(0, n.src.lastIndexOf('/'));
                 if (base && c.indexOf('://') == -1) c = base + c;
                 return c
