@@ -98,12 +98,67 @@ if (typeof(Sizzle)=="undefined")
         c = toAbsolutePath(e, c);
         return c
     };
-    var w = {};
-    var x;
-    var y;
-    w = window.jStyle = window.cs$ = function(f, g, h) {
+    var w = function(a, b) {
+        if (!a || a.nodeType != 1) return false;
+        var c = (b || "").split(/\s+/);
+        var d;
+        for (var i = 0; i < c.length; i++) {
+            var e = (a.className || "").split(/\s+/);
+            d = true;
+            for (var j = 0; j < e.length; j++) {
+                if (e[j] == c[i]) {
+                    d = false;
+                    break
+                }
+            }
+            if (d) a.className += (a.className ? " ": "") + c[i]
+        }
+    };
+    var x = function(a, b) {
+        if (!a || a.nodeType != 1) return false;
+        var c = (b || "").split(/\s+/);
+        var d;
+        for (var i = 0; i < c.length; i++) {
+            var e = (a.className || "").split(/\s+/);
+            d = false;
+            for (var j = 0; j < e.length; j++) {
+                if (e[j] == c[i]) {
+                    d = true;
+                    break
+                }
+            }
+            if (d) {
+                if (a.className.indexOf(c[i]) == 0) a.className = a.className.substr(c[i].length);
+                else a.className = a.className.replace(" " + c[i], "")
+            }
+        }
+    };
+    var y = function(a, b) {
+        if (!a || a.nodeType != 1) return false;
+        var c = (b || "").split(/\s+/);
+        var d;
+        for (var i = 0; i < c.length; i++) {
+            var e = (a.className || "").split(/\s+/);
+            d = true;
+            for (var j = 0; j < e.length; j++) {
+                if (e[j] == c[i]) {
+                    d = false;
+                    break
+                }
+            }
+            if (d) a.className += (a.className ? " ": "") + c[i];
+            else {
+                if (a.className.indexOf(c[i]) == 0) a.className = a.className.substr(c[i].length);
+                else a.className = a.className.replace(" " + c[i], "")
+            }
+        }
+    };
+    var z = {};
+    var A;
+    var B;
+    z = window.jStyle = window.cs$ = function(f, g, h) {
         f = f || document;
-        y = f;
+        B = f;
         var j = [];
         if (typeof(g) == "string") {
             if (" " > g || typeof(h) == "undefined") return false;
@@ -129,21 +184,21 @@ if (typeof(Sizzle)=="undefined")
                 var d = c.shift();
                 return n(a[d], c.join("."))
             };
-            if (typeof(f) == "string") j = w.cssSelector(f);
+            if (typeof(f) == "string") j = z.cssSelector(f);
             else if (f.length) j = f;
             else j = [f];
             var o;
             var p;
             var q = k.length;
-            p = w.getStyle(k[0]);
+            p = z.getStyle(k[0]);
             if (!p) return false;
             if (p.disabled) return false;
-            j = w.matches(p.filter, j);
+            j = z.matches(p.filter, j);
             for (var i = 0; i < j.length; i++) {
                 l.length = 0;
                 l = l.concat(k);
                 if (" " > j[i].getAttribute("jstyle")) j[i].setAttribute("jstyle", "");
-                o = w.getOrCreateElementJStyle(j[i]);
+                o = z.getOrCreateElementJStyle(j[i]);
                 m(o, g);
                 var r = l.pop();
                 var s = n(o, l.join("."));
@@ -157,20 +212,20 @@ if (typeof(Sizzle)=="undefined")
             }
         }
         delete j;
-        return w.styles
+        return z.styles
     };
-    w.loader = function() {
-        w.loadLanguage(w.language);
-        var a = w.cssSelector("*[" + "jstyle" + "]", document);
+    z.loader = function() {
+        z.loadLanguage(z.language);
+        var a = z.cssSelector("*[" + "jstyle" + "]", document);
         var b;
         var c;
-        for (var i = 0; i < w.styles.length; i++) {
-            c = w.styles[i];
+        for (var i = 0; i < z.styles.length; i++) {
+            c = z.styles[i];
             if (c.disabled) continue;
-            b = w.matches(c.filter, a);
+            b = z.matches(c.filter, a);
             var d;
             for (var j = 0; j < b.length; j++) {
-                d = w.getOrCreateElementJStyle(b[j]);
+                d = z.getOrCreateElementJStyle(b[j]);
                 var e;
                 e = d[c.styleName];
                 if (!e) {
@@ -182,16 +237,16 @@ if (typeof(Sizzle)=="undefined")
             if (c.register) c.register()
         }
     };
-    w.version = "1.00";
-    w.cssSelector = Sizzle;
-    w.matches = function(a, b) {
-        return w.cssSelector.matches(a, b)
+    z.version = "1.00";
+    z.cssSelector = Sizzle;
+    z.matches = function(a, b) {
+        return z.cssSelector.matches(a, b)
     };
-    w.find = function(a, b) {
-        return w.cssSelector(a, b)
+    z.find = function(a, b) {
+        return z.cssSelector(a, b)
     };
-    w.debug = true;
-    w.console = {
+    z.debug = true;
+    z.console = {
         error: function() {},
         log: function() {},
         info: function() {},
@@ -199,19 +254,19 @@ if (typeof(Sizzle)=="undefined")
         warn: function() {},
         clear: function() {}
     };
-    if (w.debug && typeof(console) != "undefined") w.console = console;
-    var z = u();
-    w.basePath = z;
-    w.t = function(a) {
-        if (w.lang[a]) return w.lang[a];
+    if (z.debug && typeof(console) != "undefined") z.console = console;
+    var C = u();
+    z.basePath = C;
+    z.t = function(a) {
+        if (z.lang[a]) return z.lang[a];
         else return a
     };
-    var A = function() {
+    var D = function() {
         return window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest()
     };
-    w.ajax = function(a) {
+    z.ajax = function(a) {
         if (" " > a.url) return null;
-        var b = A();
+        var b = D();
         var c = false;
         var d = null;
         var e = null;
@@ -238,13 +293,13 @@ if (typeof(Sizzle)=="undefined")
             var i = a.url.replace(/(\?|&)_=.*?(&|$)/, "$1_=" + h + "$2");
             a.url = i + ((i == a.url) ? (a.url.match(/\?/) ? "&": "?") + "_=" + h: "")
         }
-        if (w.browser.msie) b.onreadystatechange = g;
+        if (z.browser.msie) b.onreadystatechange = g;
         else b.onload = g;
         b.open(f, a.url, a.async);
         b.send(null);
         return b
     };
-    w.closureListener = function(b, c) {
+    z.closureListener = function(b, c) {
         var d = toArray(arguments),
         __method = d.shift(),
         object = d.shift();
@@ -258,22 +313,22 @@ if (typeof(Sizzle)=="undefined")
             return __method.apply(object, [e, a].concat(d))
         }
     };
-    var B = navigator.userAgent.toLowerCase();
-    var C = {
-        version: (B.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
-        safari: /webkit/.test(B),
-        opera: /opera/.test(B),
-        msie: /msie/.test(B) && !/opera/.test(B),
-        mozilla: /mozilla/.test(B) && !/(compatible|webkit)/.test(B),
-        userAgent: B
+    var E = navigator.userAgent.toLowerCase();
+    var F = {
+        version: (E.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/) || [0, '0'])[1],
+        safari: /webkit/.test(E),
+        opera: /opera/.test(E),
+        msie: /msie/.test(E) && !/opera/.test(E),
+        mozilla: /mozilla/.test(E) && !/(compatible|webkit)/.test(E),
+        userAgent: E
     };
-    w.browser = C;
-    var D = [];
-    w.importFile = function(c, d, e) {
-        c = toAbsolutePath(w.basePath, c);
+    z.browser = F;
+    var G = [];
+    z.importFile = function(c, d, e) {
+        c = toAbsolutePath(z.basePath, c);
         if (d == "js") {
-            for (var i = 0; i < D.length; i++) {
-                if (D[i] && D[i].indexOf(c) != -1) return
+            for (var i = 0; i < G.length; i++) {
+                if (G[i] && G[i].indexOf(c) != -1) return
             }
             var f,
             script;
@@ -281,7 +336,7 @@ if (typeof(Sizzle)=="undefined")
             if (!/^file:/i.test(c)) {
                 var g = "";
                 var h;
-                h = w.ajax({
+                h = z.ajax({
                     url: c,
                     success: function(a) {
                         g = a
@@ -309,8 +364,8 @@ if (typeof(Sizzle)=="undefined")
                 };
                 while (!j) l(1)
             }
-            w.console.info("imported js: " + c);
-            D.push(c)
+            z.console.info("imported js: " + c);
+            G.push(c)
         } else if (d == "css") {
             var m = document.getElementsByTagName("link");
             for (var i = 0; i < m.length; i++) {
@@ -326,33 +381,33 @@ if (typeof(Sizzle)=="undefined")
         }
         return true
     };
-    w.language = "en";
-    w.lang = [];
-    w.loadLanguage = function(a) {
-        w.importFile("lang/" + a + ".js", "js")
+    z.language = "en";
+    z.lang = [];
+    z.loadLanguage = function(a) {
+        z.importFile("lang/" + a + ".js", "js")
     };
-    var E = +new Date();
-    w.getUid = function() {
-        E++;
-        return "jStyle" + E
+    var H = +new Date();
+    z.getUid = function() {
+        H++;
+        return "jStyle" + H
     };
-    w.basic_element_style = function() {
+    z.basic_element_style = function() {
         this.srcElement = null;
         this.uid = ""
     };
-    w.basic_style_parameter = function() {
+    z.basic_style_parameter = function() {
         this.name = '';
         this.title = "";
         this.index = 0;
         this.builder = function(a, b) {}
     };
-    w.basic_style = function() {
+    z.basic_style = function() {
         this.styleName = "";
         this.disabled = false;
         this.parameterCount = 0;
         this.filter = "input,textarea,select";
         this.applyStyle = function() {
-            var a = y;
+            var a = B;
             var b;
             if (arguments.length == 1) b = arguments[0];
             else {
@@ -369,7 +424,7 @@ if (typeof(Sizzle)=="undefined")
                     }
                 }
             }
-            return w(a, this.styleName, b)
+            return z(a, this.styleName, b)
         };
         this.parameters = [];
         this.getParameter = function(a) {
@@ -385,13 +440,13 @@ if (typeof(Sizzle)=="undefined")
         this.addParameter = function(a) {
             if (!a) return false;
             var b;
-            b = new w.basic_style_parameter();
+            b = new z.basic_style_parameter();
             if (typeof(a) == "object") {
                 if (" " >= a.name) return false;
                 t(b, a)
             }
             if (typeof(a) == "string") {
-                b = new w.basic_style_parameter();
+                b = new z.basic_style_parameter();
                 b.name = a
             }
             this.parameters[b.name] = b;
@@ -412,11 +467,11 @@ if (typeof(Sizzle)=="undefined")
             if (this.disabled) return false
         }
     };
-    w.getOrCreateElementJStyle = function(a) {
+    z.getOrCreateElementJStyle = function(a) {
         if (a["jStyle"] && typeof(a["jStyle"]) == "object") return a["jStyle"];
         var b = a.getAttribute("jstyle");
-        var c = new w.basic_element_style();
-        c.uid = w.getUid();
+        var c = new z.basic_element_style();
+        c.uid = z.getUid();
         if (" " < b) {
             b = b.replace(/(^\s*)|(\s*$)/g, "");
             if (b.substr(0, 1) != "{") {
@@ -427,7 +482,7 @@ if (typeof(Sizzle)=="undefined")
                 var d;
                 d = eval('(' + b + ')')
             } catch(e) {
-                w.console.error(a.id + "'s format of " + "jStyle" + ":\n\"" + b + "\"\n is wrong,\n please note that it shoulde be an JavaScript object's description!")
+                z.console.error(a.id + "'s format of " + "jStyle" + ":\n\"" + b + "\"\n is wrong,\n please note that it shoulde be an JavaScript object's description!")
             }
             t(c, d)
         }
@@ -435,17 +490,17 @@ if (typeof(Sizzle)=="undefined")
         a.jStyle = c;
         return c
     };
-    w.addEvent = function(a, b, c) {
+    z.addEvent = function(a, b, c) {
         if (typeof(b) != "string") return false;
         if (a.addEventListener) a.addEventListener(b, c, false);
         else a.attachEvent("on" + b, c)
     };
-    w.cancelEvent = function(a) {
+    z.cancelEvent = function(a) {
         if (window.event) {
             a.returnValue = false
         } else a.preventDefault()
     };
-    w.createElement = function(a, b) {
+    z.createElement = function(a, b) {
         if (" " > a) return null;
         var c = document.getElementById(a);
         if (c) return c;
@@ -453,7 +508,7 @@ if (typeof(Sizzle)=="undefined")
         c.id = a;
         return c
     };
-    w.deleteElement = function(a) {
+    z.deleteElement = function(a) {
         var b = document.getElementById(a);
         if (b) {
             b.parentNode.removeChild(b);
@@ -461,73 +516,18 @@ if (typeof(Sizzle)=="undefined")
         }
         return false
     };
-    w.addClass = function(a, b) {
-        if (!a || a.nodeType != 1) return false;
-        var c = (b || "").split(/\s+/);
-        var d;
-        for (var i = 0; i < c.length; i++) {
-            var e = (a.className || "").split(/\s+/);
-            d = true;
-            for (var j = 0; j < e.length; j++) {
-                if (e[j] == c[i]) {
-                    d = false;
-                    break
-                }
-            }
-            if (d) a.className += (a.className ? " ": "") + c[i]
-        }
-    };
-    w.removeClass = function(a, b) {
-        if (!a || a.nodeType != 1) return false;
-        var c = (b || "").split(/\s+/);
-        var d;
-        for (var i = 0; i < c.length; i++) {
-            var e = (a.className || "").split(/\s+/);
-            d = false;
-            for (var j = 0; j < e.length; j++) {
-                if (e[j] == c[i]) {
-                    d = true;
-                    break
-                }
-            }
-            if (d) {
-                if (a.className.indexOf(c[i]) == 0) a.className = a.className.substr(c[i].length);
-                else a.className = a.className.replace(" " + c[i], "")
-            }
-        }
-    };
-    w.toggleClass = function(a, b) {
-        if (!a || a.nodeType != 1) return false;
-        var c = (b || "").split(/\s+/);
-        var d;
-        for (var i = 0; i < c.length; i++) {
-            var e = (a.className || "").split(/\s+/);
-            d = true;
-            for (var j = 0; j < e.length; j++) {
-                if (e[j] == c[i]) {
-                    d = false;
-                    break
-                }
-            }
-            if (d) a.className += (a.className ? " ": "") + c[i];
-            else {
-                if (a.className.indexOf(c[i]) == 0) a.className = a.className.substr(c[i].length);
-                else a.className = a.className.replace(" " + c[i], "")
-            }
-        }
-    };
-    w.styles = [];
-    w.getStyle = function(a) {
+    z.styles = [];
+    z.getStyle = function(a) {
         if (!a || a == "") return null;
-        return w.styles[a]
+        return z.styles[a]
     };
-    w.addStyle = function(a) {
+    z.addStyle = function(a) {
         if (!a) return false;
-        if (w.getStyle(a.styleName || a)) {
-            w.console.error("the style " + (a.styleName || a) + " is already exists");
+        if (z.getStyle(a.styleName || a)) {
+            z.console.error("the style " + (a.styleName || a) + " is already exists");
             return false
         }
-        var b = new w.basic_style();
+        var b = new z.basic_style();
         if (typeof(a) == "object") {
             if (" " >= a.styleName) return false;
             t(b, a);
@@ -549,13 +549,13 @@ if (typeof(Sizzle)=="undefined")
             return b.applyStyle.apply(b, arguments)
         };
         t(d, b);
-        w.styles.push(d);
-        w.styles[b.styleName] = d;
+        z.styles.push(d);
+        z.styles[b.styleName] = d;
         return true
     };
-    w.addStyle("css");
-    w.styles.css.filter = "*";
-    w.styles.css.render = function(a, b) {
+    z.addStyle("css");
+    z.styles.css.filter = "*";
+    z.styles.css.render = function(a, b) {
         switch (typeof(a)) {
         case "object":
             for (var c in a) {
@@ -573,17 +573,17 @@ if (typeof(Sizzle)=="undefined")
         }
         delete b.jStyle.css
     };
-    w.addStyle("classes");
-    w.styles.classes.filter = "*";
-    w.styles.classes.addParameter({
+    z.addStyle("classes");
+    z.styles.classes.filter = "*";
+    z.styles.classes.addParameter({
         name: 'op',
         index: 0
     });
-    w.styles.classes.addParameter({
+    z.styles.classes.addParameter({
         name: 'content',
         index: 1
     });
-    w.styles.classes.render = function(a, b) {
+    z.styles.classes.render = function(a, b) {
         if (typeof(a) != "object") return false;
         var c,
         content;
@@ -593,15 +593,15 @@ if (typeof(Sizzle)=="undefined")
         switch (c) {
         case "-":
         case "delete":
-            w.removeClass(b, content);
+            x(b, content);
             break;
         case "+":
         case "add":
-            w.addClass(b, content);
+            w(b, content);
             break;
         case ">":
         case "toggle":
-            w.toggleClass(b, content);
+            y(b, content);
             break;
         case "=":
         default:
@@ -611,18 +611,18 @@ if (typeof(Sizzle)=="undefined")
         delete b.jStyle.classes;
         return true
     };
-    w.styles.cls = w.styles.classes;
-    w.addStyle("manipulate");
-    w.styles.manipulate.filter = "*";
-    w.styles.manipulate.addParameter({
+    z.styles.cls = z.styles.classes;
+    z.addStyle("manipulate");
+    z.styles.manipulate.filter = "*";
+    z.styles.manipulate.addParameter({
         name: 'op',
         index: 0
     });
-    w.styles.manipulate.addParameter({
+    z.styles.manipulate.addParameter({
         name: 'content',
         index: 1
     });
-    w.styles.manipulate.render = function(a, b) {
+    z.styles.manipulate.render = function(a, b) {
         var c,
         content;
         c = a.op || a;
@@ -641,7 +641,7 @@ if (typeof(Sizzle)=="undefined")
             d = content;
             if (!d) b.parentNode.removeChild(b);
             if (typeof(d) == "string" && " " < d) {
-                e = w.find(d, b);
+                e = z.find(d, b);
                 var g = e.length;
                 for (var i = 0; i < g; i++) {
                     e[i].parentNode.removeChild(e[i])
@@ -661,24 +661,24 @@ if (typeof(Sizzle)=="undefined")
             b.insertAdjacentElement("afterBegin", f);
             break;
         default:
-            w.console.error("the manipulate's op: \"" + c + "\" is wrong!");
+            z.console.error("the manipulate's op: \"" + c + "\" is wrong!");
             break
         }
         delete b.jStyle.manipulate;
         return true
     };
-    w.styles.mp = w.styles.manipulate;
-    w.addStyle("effects");
-    w.styles.effects.filter = "*";
-    w.styles.effects.addParameter({
+    z.styles.mp = z.styles.manipulate;
+    z.addStyle("effects");
+    z.styles.effects.filter = "*";
+    z.styles.effects.addParameter({
         name: 'op',
         index: 0
     });
-    w.styles.effects.addParameter({
+    z.styles.effects.addParameter({
         name: 'content',
         index: 1
     });
-    w.styles.effects.render = function(a, b) {
+    z.styles.effects.render = function(a, b) {
         var c,
         content;
         c = a.op || a;
@@ -704,52 +704,52 @@ if (typeof(Sizzle)=="undefined")
         delete b.jStyle.effects;
         return true
     };
-    w.styles.ef = w.styles.effects;
-    w.addStyle("event");
-    w.styles.event.filter = "*";
-    w.styles.event.render = function(a, b) {
+    z.styles.ef = z.styles.effects;
+    z.addStyle("event");
+    z.styles.event.filter = "*";
+    z.styles.event.render = function(a, b) {
         for (var c in a) {
             if (typeof(a[c]) != "function") continue;
-            w.addEvent(b, c, w.closureListener(a[c], b))
+            z.addEvent(b, c, z.closureListener(a[c], b))
         }
         delete b.jStyle.event
     };
-    w.addStyle("alert");
-    w.styles.alert.filter = "*";
-    w.styles.alert.render = function(a, b) {
+    z.addStyle("alert");
+    z.styles.alert.filter = "*";
+    z.styles.alert.render = function(a, b) {
         var c = b.jStyle.uid + "_" + "alert";
         var d = document.getElementById(c);
         if (!d && a) {
-            d = w.createElement(c, "span");
+            d = z.createElement(c, "span");
             d.id = c;
             d.className = "jstyle_alert";
             b.insertAdjacentElement("afterEnd", d)
         }
-        if (d && !a) w.deleteElement(c);
+        if (d && !a) z.deleteElement(c);
         if (a) d.innerHTML = a
     };
-    w.addStyle("message");
-    w.styles.message.filter = "*";
-    w.styles.message.render = function(a, b) {
+    z.addStyle("message");
+    z.styles.message.filter = "*";
+    z.styles.message.render = function(a, b) {
         var c = b.jStyle.uid + "_" + "message";
         var d = document.getElementById(c);
         if (!d && a) {
-            d = w.createElement(c, "span");
+            d = z.createElement(c, "span");
             d.id = c;
             d.className = "jstyle_message";
             b.insertAdjacentElement("afterEnd", d)
         }
-        if (d && !a) w.deleteElement(c);
+        if (d && !a) z.deleteElement(c);
         if (a) d.innerHTML = a
     };
-    w.styles.msg = w.styles.message;
-    w.addStyle({
+    z.styles.msg = z.styles.message;
+    z.addStyle({
         styleName: 'validation',
         filter: "form input,textarea,select",
         parameters: [{
             name: 'required',
-            message: w.t("Required"),
-            title: w.t("Required Item"),
+            message: z.t("Required"),
+            title: z.t("Required Item"),
             checker: function(a, b) {
                 if ("" < a.value) return true
             },
@@ -757,18 +757,18 @@ if (typeof(Sizzle)=="undefined")
                 var c = b.jStyle.uid + "_validation_required";
                 var d = document.getElementById(c);
                 if (!d && a) {
-                    var d = w.createElement(c, "span");
+                    var d = z.createElement(c, "span");
                     d.className = "validation_required";
                     d.id = c;
                     b.insertAdjacentElement("afterEnd", d)
                 }
                 if (d && a) d.title = this.title;
-                if (d && !a) w.deleteElement(c)
+                if (d && !a) z.deleteElement(c)
             }
         },
         {
             name: 'min_length',
-            message: w.t("The littler value is $0"),
+            message: z.t("The littler value is $0"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (b <= a.value.length) return true;
@@ -777,7 +777,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'max_length',
-            message: w.t("The greater value is $0"),
+            message: z.t("The greater value is $0"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (b >= a.value.length) return true;
@@ -786,7 +786,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'littler',
-            message: w.t("More then $0"),
+            message: z.t("More then $0"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (b >= a.value) return true;
@@ -795,7 +795,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'greater',
-            message: w.t("Less then $0"),
+            message: z.t("Less then $0"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (b <= a.value) return true;
@@ -804,7 +804,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'exact_length',
-            message: w.t("Length is $0"),
+            message: z.t("Length is $0"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (b == a.value.length) return true;
@@ -813,7 +813,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'alpha',
-            message: w.t("Shoud be alpha"),
+            message: z.t("Shoud be alpha"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (a.value.match(/^([a-z])+$/i)) return true;
@@ -822,7 +822,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'alpha_numeric',
-            message: w.t("Shoud be alpha or numeric"),
+            message: z.t("Shoud be alpha or numeric"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (a.value.match(/^([a-z0-9])+$/i)) return true;
@@ -831,7 +831,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'numeric',
-            message: w.t("Shoud be numeric"),
+            message: z.t("Shoud be numeric"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (a.value.match(/^[\-+]?[0-9]*\.?[0-9]+$/)) return true;
@@ -840,7 +840,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'integer',
-            message: w.t("Shoud be integer"),
+            message: z.t("Shoud be integer"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (a.value.match(/^[\-+]?[0-9]+$/i)) return true;
@@ -849,7 +849,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'email',
-            message: w.t("should be an email address"),
+            message: z.t("should be an email address"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (a.value.match(/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/i)) return true;
@@ -858,7 +858,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'ip',
-            message: w.t("should be an ip string"),
+            message: z.t("should be an ip string"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 var c = a.value.split(".");
@@ -873,7 +873,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'base64',
-            message: w.t("should be an base64 string"),
+            message: z.t("should be an base64 string"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (a.value.match(/[^a-zA-Z0-9\/\+=]/i)) return true;
@@ -882,7 +882,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'regexp',
-            message: w.t("Dose not match the specific format"),
+            message: z.t("Dose not match the specific format"),
             checker: function(a, b) {
                 if (!b || " " > a.value) return true;
                 if (a.value.match(eval("/" + b + "/i"))) return true;
@@ -891,7 +891,7 @@ if (typeof(Sizzle)=="undefined")
         },
         {
             name: 'matches',
-            message: w.t("Dose not match"),
+            message: z.t("Dose not match"),
             checker: function(a, b) {
                 if (!b) return true;
                 var c,
@@ -899,9 +899,9 @@ if (typeof(Sizzle)=="undefined")
                 input_match;
                 for (var i = 0; i < b.length; i++) {
                     c = b[i];
-                    input_match = w.cssSelector("#" + c, a.form)[0];
+                    input_match = z.cssSelector("#" + c, a.form)[0];
                     if (!input_match) {
-                        alert(w.t("Can not find the element to match ") + c);
+                        alert(z.t("Can not find the element to match ") + c);
                         return false
                     }
                     if (a.value == input_match.value) return true
@@ -913,17 +913,17 @@ if (typeof(Sizzle)=="undefined")
             if (this.disabled) return false;
             var c = function(e) {
                 var a = true;
-                var b = w.cssSelector(w.styles.validation.filter.replace("form ", ""), this);
+                var b = z.cssSelector(z.styles.validation.filter.replace("form ", ""), this);
                 for (var i = 0; i < b.length; i++) {
                     if (b[i].jStyle && b[i].jStyle.validation) {
-                        if (!w.styles.validation.validater(b[i])) a = false
+                        if (!z.styles.validation.validater(b[i])) a = false
                     }
                 }
-                if (!a) w.cancelEvent(e);
+                if (!a) z.cancelEvent(e);
                 return a
             };
             var d = document.getElementsByTagName("form");
-            for (var i = 0; i < d.length; i++) w.addEvent(d[i], 'submit', w.closureListener(c, d[i]))
+            for (var i = 0; i < d.length; i++) z.addEvent(d[i], 'submit', z.closureListener(c, d[i]))
         },
         validater: function(a) {
             var b = true;
@@ -935,7 +935,7 @@ if (typeof(Sizzle)=="undefined")
             var d;
             if (c.name) d = c.name;
             else d = a.id;
-            w(a, "alert", "");
+            z(a, "alert", "");
             var e = "";
             for (var i = 0; i < this.parameters.length; i++) {
                 if (c[this.parameters[i].name] && this.parameters[i].checker) {
@@ -944,7 +944,7 @@ if (typeof(Sizzle)=="undefined")
                         if (" " < this.parameters[i].message) e = this.parameters[i].message;
                         if (" " < c[this.parameters[i].name + "_message"]) e = c[this.parameters[i].name + "_message"];
                         e = e.replace("$0", c[this.parameters[i].name]);
-                        if (" " < e) w(a, "alert", d + " " + e);
+                        if (" " < e) z(a, "alert", d + " " + e);
                         return false
                     }
                 }
@@ -953,8 +953,8 @@ if (typeof(Sizzle)=="undefined")
         },
         render: function(a, b) {}
     });
-    w.styles.val = w.styles.validation;
-    w.addStyle({
+    z.styles.val = z.styles.validation;
+    z.addStyle({
         styleName: 'render',
         filter: "input,textarea,select",
         parameters: [{
@@ -977,7 +977,7 @@ if (typeof(Sizzle)=="undefined")
                 a = window.showModalDialog(b.url, c, d);
                 if (a) {
                     this.value = c.value;
-                    w(this, "message", c.text)
+                    z(this, "message", c.text)
                 }
                 return a
             },
@@ -989,21 +989,21 @@ if (typeof(Sizzle)=="undefined")
                 var f = "";
                 if (b.jStyle.render.dialog.text) f = b.jStyle.render.dialog.text;
                 if (!d && a) {
-                    d = w.createElement(c, "span");
+                    d = z.createElement(c, "span");
                     d.id = c;
                     d.className = "render_browser";
-                    d.onclick = w.closureListener(this.render_dialog, b);
+                    d.onclick = z.closureListener(this.render_dialog, b);
                     b.insertAdjacentElement("afterEnd", d);
                     b.style.display = "none"
                 }
                 if (d && a) {
-                    w(b, "message", f);
+                    z(b, "message", f);
                     d.innerHTML = e;
-                    d.title = w.t("Brower...")
+                    d.title = z.t("Brower...")
                 }
                 if (d && !a) {
                     b.style.display = "";
-                    w.deleteElement(d)
+                    z.deleteElement(d)
                 }
             }
         },
@@ -1020,7 +1020,7 @@ if (typeof(Sizzle)=="undefined")
                     return false
                 }
                 var d = c.url + (c.url.match(/\?/) ? "&": "?") + "value=" + this.value;
-                var f = w.ajax({
+                var f = z.ajax({
                     type: "POST",
                     url: d,
                     async: false,
@@ -1028,18 +1028,18 @@ if (typeof(Sizzle)=="undefined")
                         if (a == "1") b = true
                     }
                 });
-                var g = w.t("Validate");
+                var g = z.t("Validate");
                 g += " ";
                 var h = "";
                 if (c.title) g = c.title;
                 if (b) {
                     if (c.success_message) h = c.success_message;
-                    else h = g + w.t("Success")
+                    else h = g + z.t("Success")
                 } else {
                     if (c.failure_message) h = c.failure_message;
-                    else h = g + w.t("Failed")
+                    else h = g + z.t("Failed")
                 }
-                w(this, "alert", h);
+                z(this, "alert", h);
                 return b
             },
             builder: function(a, b) {
@@ -1048,19 +1048,19 @@ if (typeof(Sizzle)=="undefined")
                 var e = "";
                 if (b.jStyle.render.validation.title) e = b.jStyle.render.validation.title;
                 if (!d && a) {
-                    d = w.createElement(c, "span");
+                    d = z.createElement(c, "span");
                     d.className = "render_validation";
                     d.id = c;
-                    d.onclick = w.closureListener(this.render_validation, b);
+                    d.onclick = z.closureListener(this.render_validation, b);
                     b.insertAdjacentElement("afterEnd", d)
                 }
                 if (d && a) {
-                    var e = w.t("Validate");
+                    var e = z.t("Validate");
                     if (a.title) e = a.title;
                     d.title = e;
                     d.innerHTML = e
                 }
-                if (d && !a) w.deleteElement(c)
+                if (d && !a) z.deleteElement(c)
             }
         },
         {
@@ -1075,7 +1075,7 @@ if (typeof(Sizzle)=="undefined")
                     return false
                 }
                 var d = c.url + (c.url.match(/\?/) ? "&": "?") + "value=" + this.value;
-                w.ajax({
+                z.ajax({
                     type: "POST",
                     url: d,
                     async: false,
@@ -1090,21 +1090,21 @@ if (typeof(Sizzle)=="undefined")
                 var c = b.jStyle.uid + "_render_getvalue";
                 var d = document.getElementById(c);
                 if (!d && a) {
-                    d = w.createElement(c, "span");
+                    d = z.createElement(c, "span");
                     d.className = "render_getvalue";
                     d.id = c;
-                    d.onclick = w.closureListener(this.render_getvalue, b);
+                    d.onclick = z.closureListener(this.render_getvalue, b);
                     b.insertAdjacentElement("afterEnd", d);
                     if (a.readonly) b.readOnly = true
                 }
                 if (d && a) {
-                    var e = w.t("Get value");
+                    var e = z.t("Get value");
                     if (a.title) e = a.title;
                     d.title = e;
                     d.innerHTML = e
                 }
                 if (d && !a) {
-                    w.deleteElement(c);
+                    z.deleteElement(c);
                     b.readOnly = false
                 }
             }
