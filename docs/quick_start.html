@@ -26,7 +26,7 @@
 	</OL>
 	<br/>
     <DIV class="chapter jstyle">
-      Core
+      core
     </DIV><br/>
 	There are two ways to take jstyle into affects.
     <OL>
@@ -132,32 +132,169 @@
             <DIV class="example">
               For example:
 				<DIV class="code" source="demo4_1"></DIV>
-				<DIV class="demo" id="demo4_1"><style>.demo4_1_temp_class{color:red;}
-				.demo4_1_class{background-color:green;}</style>
-				<div id="demo4_1_div" class="demo4_1_temp_class">A Div</div>
-					<INPUT type="button" class="testcode" value="+" onclick="test_code_3_1('+');">
-					<INPUT type="button" class="testcode" value="-" onclick="test_code_3_1('-');">
-					<INPUT type="button" class="testcode" value=">" onclick="test_code_3_1('>');">
-					<INPUT type="button" class="testcode" value="=" onclick="test_code_3_1('=');">
-				   <SCRIPT type="text/javascript">function test_code_3_1(op){
+				<DIV class="demo" id="demo4_1"><style>.demo4_1_temp_class{color:red;}.demo4_1_class{background-color:green;}</style><div id="demo4_1_div" class="demo4_1_temp_class">A Div</div>
+					<INPUT type="button" class="testcode" value="+" onclick="test_code_4_1('+');">
+					<INPUT type="button" class="testcode" value="-" onclick="test_code_4_1('-');">
+					<INPUT type="button" class="testcode" value=">" onclick="test_code_4_1('>');">
+					<INPUT type="button" class="testcode" value='=' onclick="test_code_4_1('=');">
+				   <SCRIPT type="text/javascript">function test_code_4_1(op){
 						cs$("#demo4_1_div").cls(op,"demo4_1_class");
 					 }</SCRIPT>
 				</DIV>
             </DIV>
-    <SCRIPT type="text/javascript">
-//set the code divs's innerHtml
+	<br/>
+    <DIV class="chapter jstyle">
+      manipulate
+    </DIV><br/>
+	This style is use to manipulate the specified elemenet(s).<br>
+There are five operators：<br/>
+<strong>"-"</strong> means delete content<br/>
+<strong>"+<"</strong> means add content at beforeBegin<br/>
+<strong>">+"</strong> means add content at afterEnd<br/>
+<strong>"+>"</strong> means add content at beforeEnd<br/>
+<strong>"<+"</strong> means add content at afterBegin
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo5_1"></DIV>
+				<DIV class="demo" id="demo5_1"><div>Outer div, Begin the target div.<div id="demo5_1_div" class="demo4_1_class">Target Div<div>Inside div1</div><div>Inside div2</div></div>After the target div.</div>
+				<INPUT type="button" class="testcode" value="-" onclick="cs$('#demo5_1_div').mp('-','div');">
+					<INPUT type="button" class="testcode" value="+<" onclick="test_code_5_1('+<');">
+					<INPUT type="button" class="testcode" value=">+" onclick="test_code_5_1('>+');">
+					<INPUT type="button" class="testcode" value="+>" onclick="test_code_5_1('+>');">
+					<INPUT type="button" class="testcode" value="<+" onclick="test_code_5_1('<+');">
+				   <SCRIPT type="text/javascript">function test_code_5_1(op){
+						cs$("#demo5_1_div").mp(op,"<div>Insered div</div>");
+					 }</SCRIPT>
+				</DIV>
+            </DIV>
+<br/>
+	    <DIV class="chapter jstyle">
+      effects
+    </DIV><br/>
+	This style is use to make the effects of the element(s).<br>
+	There are three operators by this time：<br/>
+	<strong>"+"</strong> means show  the element(s). <br/>
+	<strong>"-"</strong> means hidden  the element(s). <br/>
+	<strong>">"</strong> means toggle  the element(s). <br/>
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo6_1"></DIV>
+				<DIV class="demo" id="demo6_1"><div id="demo6_1_div" class="demo4_1_class">A Element</div>
+					<INPUT type="button" class="testcode" value="+" onclick="test_code_6_1('+');">
+					<INPUT type="button" class="testcode" value="-" onclick="test_code_6_1('-');">
+					<INPUT type="button" class="testcode" value=">" onclick="test_code_6_1('>');">
+				   <SCRIPT type="text/javascript">function test_code_6_1(op){
+						cs$("#demo6_1_div").ef(op);
+					 }</SCRIPT>
+				</DIV>
+            </DIV>
+<br/>
+	    <DIV class="chapter jstyle">
+      event
+    </DIV><br/>
+	This style is use to add events and its handlers to the specified elemenet(s).<br>
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo7_1"></DIV>
+				<DIV class="demo" id="demo7_1"><INPUT type="button" class="testcode" value="test code" id="demo7_1_button" />
+				   <SCRIPT type="text/javascript">
+						cs$("#demo7_1_button","event.click",function(){alert("You just clicked me!");});
+				   </SCRIPT>
+				</DIV>
+            </DIV>
+<br/>
+	    <DIV class="chapter jstyle">
+      alert
+    </DIV><br/>
+	This style is use to alert message on the specified elemenet(s).<br>
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo8_1"></DIV>
+				<DIV class="demo" id="demo8_1"><span class="demo8_1_class_1">Element 1</span>
+				<span class="demo8_1_class_1">Element 2</span><br/>
+				<INPUT type="button" class="testcode" value="test code" onclick="test_code_8_1();"/>
+				<SCRIPT type="text/javascript">
+				   function test_code_8_1(){
+						cs$(".demo8_1_class_1","alert","Warnning message!");// or cs$(".demo8_1_class_1").alert("Warnning message!");
+					}</SCRIPT></DIV>
+            </DIV>
+<br/>
+  <DIV class="chapter jstyle">
+      message
+    </DIV><br/>
+	This style is use to show message on the specified elemenet(s).<br>
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo9_1"></DIV>
+				<DIV class="demo" id="demo9_1"><span class="demo9_1_class_1">Element 1</span>
+				<span class="demo9_1_class_1">Element 2</span><br/>
+				<INPUT type="button" class="testcode" value="test code" onclick="test_code_9_1();"/>
+				<SCRIPT type="text/javascript">
+				   function test_code_9_1(){
+						cs$(".demo9_1_class_1").msg("Please notes me!");	// or cs$(".demo9_1_class_1","message","Warnning message!");
+					}</SCRIPT></DIV>
+            </DIV>
+<br/>
+  <DIV class="chapter jstyle">
+      validation
+    </DIV><br/>
+	This style is use to  validation the value of specified elemenet(s) when the form (which contain the elemenet(s)) is submiting.<br>
+	About the validation rule detail, please refer to the <a href="validation_doc.html" >validation rule reference document</a>.
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo10_1"></DIV>
+				<DIV class="demo" id="demo10_1"><FORM>
+				<INPUT type="text" jstyle=
+				"validation:{required:true,integer:true}"><INPUT type=
+				"submit" class="testcode" value="test code">
+			  </FORM>
+				</DIV>
+            </DIV>
+<br/>
+<DIV class="chapter jstyle">
+      render
+    </DIV><br/>
+	This style is use to  render the UI of get (or validation) the value of specified elemenet(s).<br>
+	About the render rule detail, please refer to the <a href="render_doc.html" >render rule reference document</a>.
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo11_1"></DIV>
+				<DIV class="demo" id="demo11_1"><FORM>
+				<strong>Organization:</strong><INPUT type="text" jstyle="render:{dialog:{title:'Open dialog',text:'Organization 1',url:'../dialog_example.html',features:'dialogWidth:300px;dialogHeight:160px'}}"><br/>
+				<strong>Description:</strong><INPUT id="demo11_1_input_2" type="text"><br/>
+			  </FORM>
+			<SCRIPT type="text/javascript">				   
+			cs$("#demo11_1_input_2","render.getvalue",{url:'../getvalue_example.html',title:'get the element\'s value',readonly:true});
+			</SCRIPT></DIV>
+            </DIV>
+<br/>
+	<SCRIPT type="text/javascript">
+	  function HTMLEncode(str)
+	   {  
+			 var s = "";
+			 if(str.length == 0) return "";
+			 s    =    str.replace(/&/g,"&amp;");
+			 s    =    s.replace(/</g,"&lt;");
+			 s    =    s.replace(/>/g,"&gt;");
+			 s    =    s.replace(/ /g,"&nbsp;");
+			 s    =    s.replace(/\'/g,"&#39;");
+			 s    =    s.replace(/\"/g,"&quot;");
+			 return   s;  
+	   }   
+   //set the code divs's innerHtml
     var code_elements=jStyle.find(".code");
     var code_element;
     var source_element;
+	var code_element_innerHTML="";
     for (var i=0;i<code_elements.length ;i++ )
     {
 		code_element=code_elements[i];
 		source_element=cs$.find("#"+code_element.getAttribute("source"))[0];
-		if(source_element) code_element.innerHTML=source_element.innerHTML;
-		else {code_element.innerHTML="Can not find the source!";continue;}
-		code_element.innerHTML=code_element.innerHTML.replace(/([^"]?)(<)/gm,"$1&lt;");
-		code_element.innerHTML=code_element.innerHTML.replace(/([^"]?)(>)/gm,"$1&gt;");
-		code_element.innerHTML=code_element.innerHTML.replace(/\n/gm,"<br/>");
+		if(source_element) code_element_innerHTML=source_element.innerHTML;
+		else {code_element_innerHTML="Can not find the source!";continue;}
+		code_element_innerHTML=HTMLEncode(code_element_innerHTML);
+		code_element_innerHTML=code_element_innerHTML.replace(/\n/mg,"<br/>");
+		code_element.innerHTML=code_element_innerHTML;
     }
 //make table of contents
   var table_conetens=cs$.find("#table_conetens")[0];
