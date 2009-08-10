@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>jStyle examples page</TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="">
+<META NAME="Description" CONTENT="">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script language="javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script language="javascript" src="js/jstyle/jstyle.min.js"></script>
+<script language="javascript" src="js/jstyle/jstyle.extend.js"></script>
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<link rel="stylesheet" type="text/css" href="css/jstyle.css" />
+</HEAD>
+<BODY>
+<div id=header style="background:url(img/logo.gif) no-repeat;padding-left:64px;height:30px;">
+<a href="index.html">Back to home</a>
+</div>
+<form action="http://www.163.com" method="post">
+	<div id=mainForm>
+	<fieldset jstyle="fieldset:{collasible:true,closed:false}">
+	<legend>main fieldset (collasible)</legend>
+	<table cellspacing="1" cellpadding="3" width="90%" align="center" bgcolor="#33ccff" border="0">
+			<tbody>
+				<tr bgcolor="#ffffff">
+					<td>text element:</td>
+					<td><input jstyle="alert:'warring message'" title="text element" name="elementText" id="elementText" type="text" value="" /><button onclick="jStyle('#elementText','calendar.ifFormat', '%Y-%m-%d %H:%M');return false;" href="javascript:void(0);">change my jStyle</button></td>
+					
+					<td>calendar element:</td>
+					<td><input title="calendar element" name="elementDate" id="elementDate" type="text" value=""  jstyle="{validation:{required:true,name:'calendar element'},calendar:{ifFormat:'%Y-%m-%d %H:%M',showsTime :true}}" /></td>
+				</tr>
+				<tr bgcolor="#ffffff">
+					<td>CheckBox element:</td>
+					<td><input title="CheckBox element" name="elementCheckBox" id="elementCheckBox"  type="checkbox" jstyle="{validation:{name:'CheckBox element',integer:true}}"  /></td>
+					<td>TextArea element:</td>
+					<td><textarea title="TextArea element" name="elementTextArea" id="elementTextArea"   style="height:50;width:200;" jstyle="{validation:{matches:['elementText'],matches_message:'text element dose not match with text element!'}}" ></textarea></td>
+				</tr>
+				<tr bgcolor="#ffffff">
+					<td>autocomplete element:</td>
+					<td><input title="Select element" name="elementSelect" id="elementSelect"  type="text"  jstyle="{message:'please try to input Li',validation:{required:true},render:{},autocomplete:{url:'autocomplete_example.html'}}" /></td>
+					<td>dialog element:</td>
+					<td><input title="Organization element" name="elementOrganization" id="elementOrganization"  type="text" jstyle="{validation:{required:true},render:{dialog:{title:'Open dialog',text:'Organization 1',url:'dialog_example.html',features:'dialogWidth:300px;dialogHeight:160px'}}}" /></td>
+				</tr>
+				<tr bgcolor="#ffffff">
+					<td>validation from server element:</td>
+					<td><input title="People element" name="elementPeople" id="elementPeople"  type="text" jstyle="render:{validation:{url:'validation_example.html'}},validation:{required:true},calendar:{ifFormat:'%Y-%m-%d %H:%M',showsTime :true}" /></td>
+					<td>getvalue form server element:</td>
+					<td><input title="File element" name="elementFile" id="elementFile"  type="text" jstyle="render:{getvalue:{url:'getvalue_example.html'}},validation:{required:true}" /></td>
+				</tr>				
+			</tbody>
+		</table>
+</fieldset>
+
+<fieldset id="fieldset23" jstyle="fieldset:{collasible:false,closed:false}">
+<legend>sub fieldset 1</legend>
+<div>
+		
+<TABLE  id="subtable01" cellspacing="1" cellpadding="3" width="90%" align="center"  border="0" style="border:1px solid #555555;" >
+	<tr class="content">
+		<td>
+		<span>text element:<input title="text element" name="elementTextSub1" id="elementTextSub1" type="text" />&nbsp;</span><span>calendar element:<input title="calendar element" name="elementDateSub1" id="elementDateSub1" type="text" />&nbsp;</span><span>TextArea element:<input title="TextArea element" name="elementTextAreaSub1" id="elementTextAreaSub1"  type="text" style="height:50;width:200;" />&nbsp;</span><span>Organization element:<input title="Organization element" name="elementOrganizationSub1" id="elementOrganizationSub1"  type="text" />&nbsp;</span></td>
+	<tr/>
+</TABLE>
+	</div>
+</fieldset>
+
+<fieldset jstyle="fieldset:{collasible:true,closed:true}">
+<legend>sub  fieldset 2(collasible ，closed)</legend>
+<span>
+		
+<TABLE  id="subtable02" cellspacing="1" cellpadding="1" width="90%" align="center"  border="0" style="border:1px solid #555555;" >
+	<tr class="content">
+		<td>
+		<span>text element:<input title="text element" name="elementTextSub2" id="elementTextSub2" type="text" jstyle="{validation:{regexp:'^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$'}}" />&nbsp;</span><span>calendar element:<input title="calendar element" name="elementDateSub2" id="elementDateSub2" type="text" />&nbsp;</span><span>TextArea element:<input title="TextArea element" name="elementTextAreaSub2" id="elementTextAreaSub2"  type="text" style="height:50;width:200;" />&nbsp;</span><span>Organization element:<input title="Organization element" name="elementOrganizationSub2" id="elementOrganizationSub2"  type="text" />&nbsp;</span></td>
+	<tr/>
+</TABLE>
+	</span>
+</fieldset>
+
+		<div align=center width=100%>
+		<input type="button" onclick="testJStyle();" value=" test jStyle" />
+		<input type="submit" name="sendOrderFL"  /> <input type='button' onclick="document.location.reload();" value='fresh' />
+			<div style="display:none;">
+				Change the jStyle language 
+				<select onchange="jStyle.changeLanguage(this.value);">
+				<option selected value="en" >English</option>
+				<option  value="cn" >Chinese</option>
+				</select>
+			</div>
+		</div>
+		
+
+	</div>
+<fieldset jstyle="fieldset:{collasible:true}">
+	<legend>	treeview jStyle example</legend>
+	<div>
+	<ul id="browser" class="filetree" jstyle="treeview:{}">
+		<li><span class="folder">Folder 1</span>
+			<ul>
+				<li><span class="file">Item 1.1</span></li>
+			</ul>
+		</li>
+		<li><span class="folder">Folder 2</span>
+			<ul>
+				<li><span class="folder">Subfolder 2.1</span>
+					<ul id="folder21">
+						<li><span class="file">File 2.1.1</span></li>
+						<li><span class="file">File 2.1.2</span></li>
+					</ul>
+				</li>
+				<li><span class="file">File 2.2</span></li>
+			</ul>
+		</li>
+		<li class="closed"><span class="folder">Folder 3 (closed at start)</span>
+			<ul>
+				<li><span class="file">File 3.1</span></li>
+			</ul>
+		</li>
+		<li><span class="file">File 4</span></li>
+	   </ul>
+	</div>
+</fieldset>
+<fieldset jstyle="fieldset:{collasible:true}">
+	<legend>	treeview jStyle example2</legend>
+	<div>
+<ul id="navigation">
+		<li><a href="?1">Item 1</a>
+			<ul>
+				<li><a href="?1.0">Item 1.0</a>
+
+					<ul>
+						<li><a href="?1.0.0">Item 1.0.0</a></li>
+					</ul>
+				</li>
+				<li><a href="?1.1">Item 1.1</a></li>
+				<li><a href="?1.2">Item 1.2</a>
+					<ul>
+
+						<li><a href="?1.2.0">Item 1.2.0</a>
+						<ul>
+							<li><a href="?1.2.0.0">Item 1.2.0.0</a></li>
+							<li><a href="?1.2.0.1">Item 1.2.0.1</a></li>
+							<li><a href="?1.2.0.2">Item 1.2.0.2</a></li>
+						</ul>
+					</li>
+
+						<li><a href="?1.2.1">Item 1.2.1</a>
+						<ul>
+							<li><a href="?1.2.1.0">Item 1.2.1.0</a></li>
+						</ul>
+					</li>
+						<li><a href="?1.2.2">Item 1.2.2</a>
+						<ul>
+
+							<li><a href="?1.2.2.0">Item 1.2.2.0</a></li>
+							<li><a href="?1.2.2.1">Item 1.2.2.1</a></li>
+							<li><a href="?1.2.2.2">Item 1.2.2.2</a></li>
+						</ul>
+					</li>
+					</ul>
+				</li>
+
+			</ul>
+		</li>
+		<li><a href="?2">Item 2</a>
+			<ul>
+				<li><span>Item 2.0</span>
+					<ul>
+						<li><a href="?2.0.0">Item 2.0.0</a>
+
+						<ul>
+							<li><a href="?2.0.0.0">Item 2.0.0.0</a></li>
+							<li><a href="?2.0.0.1">Item 2.0.0.1</a></li>
+						</ul>
+					</li>
+					</ul>
+				</li>
+				<li><a href="?2.1">Item 2.1</a>
+
+					<ul>
+						<li><a href="?2.1.0">Item 2.1.0</a>
+						<ul>
+							<li><a href="?2.1.0.0">Item 2.1.0.0</a></li>
+						</ul>
+					</li>
+						<li><a href="?2.1.1">Item 2.1.1</a>
+
+						<ul>
+							<li><a href="?2.1.1.0abc">Item 2.1.1.0</a></li>
+							<li><a href="?2.1.1.1">Item 2.1.1.1</a></li>
+							<li><a href="?2.1.1.2">Item 2.1.1.2</a></li>
+						</ul>
+					</li>
+						<li><a href="?2.1.2">Item 2.1.2</a>
+
+						<ul>
+							<li><a href="?2.1.2.0">Item 2.1.2.0</a></li>
+							<li><a href="?2.1.2.1">Item 2.1.2.1</a></li>
+							<li><a href="?2.1.2.2">Item 2.1.2.2</a></li>
+						</ul>
+					</li>
+					</ul>
+
+				</li>
+			</ul>
+		</li>
+		<li><a href="?3">Item 3</a>
+			<ul>
+				<li class="open"><a href="?3.0">Item 3.0</a>
+					<ul>
+						<li><a href="?3.0.0">Item 3.0.0</a></li>
+
+						<li><a href="?3.0.1">Item 3.0.1</a>
+							<ul>
+								<li><a href="?3.0.1.0">Item 3.0.1.0</a></li>
+								<li><a href="?3.0.1.1">Item 3.0.1.1</a></li>
+							</ul>
+						</li>
+						<li><a href="?3.0.2">Item 3.0.2</a>
+
+							<ul>
+								<li><a href="?3.0.2.0">Item 3.0.2.0</a></li>
+								<li><a href="?3.0.2.1">Item 3.0.2.1</a></li>
+								<li><a href="?3.0.2.2">Item 3.0.2.2</a></li>
+							</ul>
+						</li>
+					</ul>
+
+				</li>
+			</ul>
+		</li>
+	</ul>
+
+	</div>
+</fieldset>
+</form>
+<script>
+	//set jstyle by javascript
+	//jStyle.styles.validation.disabled=true;
+	//jStyle("#fieldset23","fieldset.collasible", true);
+	function testJStyle(){
+		jStyle("#navigation","treeview",{collapsed: true,unique: true});
+		jStyle("#fieldset23","fieldset.collasible", false);
+		jStyle("#elementText","validation", {name:'text element',base64:true});
+		jStyle("#elementTextArea","render.validation.url", "validation_example.html");
+		// jStyle("#elementTextArea","render.dialog", false);
+		jStyle("#elementTextArea","validation.required", true);
+		jStyle("#elementTextArea","validation.greater", "dasfdsfsd");
+		jStyle("#elementTextArea","render.getvalue.url", 'getvalue_example.html');
+		//jStyle("#elementTextArea","render.getvalue", false);
+		cs$("#elementTextArea").msg('please validation'); 
+		//cs$("#elementTextArea","message",false); 
+		cs$("input").alert("alert some message");
+		jStyle("input").css({color:'red',border:'solid 1px black'});
+		jStyle("#elementText").css("display:none;").classes('+','none1');//.classes('-','none1');
+		jStyle("#elementText").css("display:;");
+		jStyle(document.forms).mp("-","#elementTextArea");
+		var node=document.createElement("span");
+		node.innerHTML="inserted node";
+		jStyle(document.forms).mp("<+",node).ef("-").ef(">");
+		//jStyle("#elementText").manipulate({op:'-',content:'none1'});		
+	};
+</script>
+<div style="text-align:center">
+	<P id=js-copyright>© 2009 <A href="http://creativor.spaces.live.com/">Nick Zhang</A> (<a href="mailto:creativor@gmail.com">Contact me</a>) and the Creativor Studio</P>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>jStyle, An Easy-to-Use JavaScript Based Advanced CSS  Render  Engine</TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="">
+<META NAME="Description" CONTENT="">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script language="javascript" src="js/jstyle/jstyle.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<link rel="stylesheet" type="text/css" href="css/jstyle.css" />
+</HEAD>
+<style>
+ .logobg{background:transparent url(img/logo.gif) no-repeat scroll 100% 0;}
+</style>
+<!--Begin Google Analytics -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-10098093-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+<!--End Google Analytics -->
+<BODY>
+<div id=header>
+<img src="img/logo.gif" />
+</div>
+<DIV>
+<DIV>
+<h4><SPAN>jStyle,</SPAN> An Easy-to-Use JavaScript Based Advanced CSS  Render  Engine.</h4>
+<P>jStyle is a fast and easy-to-use JavaScript Engine that make you can easily to  develope web applications which have advanced UI and logic. It is also easy to extend by other developers.<br/><STRONG>jStyle is designed to help you rapidly develope web applications.</STRONG></P>
+<UL>
+  <LI><Strong>Easy-To-Use</Strong> 
+  <DIV>
+  <P>With jStyle,you can easy to develope web applications which have advanced UI and logic.</EM></P></DIV></LI>
+  <LI><Strong>CSS3 Compliant</Strong> 
+  <DIV>
+  <P>jStyle uses  Sizzle  as the engine of css selectors. So it supports CSS 3 selectors!</P></DIV></LI>
+  <LI><Strong>Cross-browser</Strong> 
+  <DIV>
+  <P>IE 6.0+, FF 2+, Safari 3.0+, Opera 9.0+, Chrome</P></DIV></LI></UL></DIV>
+<DIV>
+<h4>Grab the latest version!</h4>
+<DIV>
+<A href="http://code.google.com/p/jstylejs/downloads/detail?name=jstyle-1.0.0.min.js.zip">jstyle-1.0.0.min.js.zip (Minified version)</A> <br/>
+<A href="http://code.google.com/p/jstylejs/downloads/detail?name=jstyle-1.0.0.js.zip">jstyle-1.0.0.js.zip</A> 
+<P><STRONG>Current Release:</STRONG> v.1.0.0</P>
+<a href="http://code.google.com/p/jstylejs/downloads/list">All downloads from<img src=http://www.gstatic.com/codesite/ph/images/google_code_tiny.png border=0 title="Google Code" alt="Google Code" width=50 height=12 /></a>
+</DIV>
+<DIV id=js-learnjStyle>
+<DIV id=js-learnNow>
+<h4>Learn <SPAN><SPAN>jStyle</SPAN></SPAN> Now!</h4>
+<P>What does jStyle code look like? Here's the quick and dirty:</P>
+<DIV>
+<fieldset>
+	<legend>code</legend>
+	<CODE>
+	&lt;form&gt;<br/>
+	&lt;input type="text" value="" id="test_input" width=250 <br/> jstyle="render:{getvalue:{url:'getvalue_example.html'}},validation:{name:'the test element',email:true,required:true}"  /&gt;<br/>
+	&lt;input type="button" id="test_code_input"  value="test code"  onclick="test_code();" /&gt;<br/>
+	&lt;input type="submit" value="submit me!" /&gt;
+	&lt;/form&gt;<br/>
+	&lt;script&gt;<br/>
+	cs$("#test_code_input","event.click",function(){alert("You just click the "+this.id);});<br/>
+	function testcode(){<br/>
+		cs$(cs$.find("fieldset")).css({border:'solid 1px black'});<br/>
+		cs$("fieldset","css.fontWeight", 'bold');<br/>
+		cs$("fieldset").classes('+','logobg');<br/>
+		cs$("#test_input").message("&nbsp;Can you see the effects?");<br/>
+	}
+	&lt;/script&gt;
+	</CODE>
+</fieldset>
+<fieldset>
+	<legend>effects</legend>
+	<form style="margin:0px;">
+	<input type="text" value="" id="test_input" width=250 
+	jstyle="render:{getvalue:{url:'getvalue_example.html'}},validation:{name:'the test element',email:true,required:true}" /> <br/>
+	<input type="button" id="test_code_input" value="test code" onclick="test_code();" /><input type="submit" value="submit me!" />
+	</form>
+	<script>
+	cs$("#test_code_input","event.click",function(){alert("You just click the "+this.id);});
+	function test_code(){
+		cs$(cs$.find("fieldset")).css({border:'solid 1px black'});
+		cs$("fieldset","css.fontWeight", 'bold');
+		cs$("fieldset").classes('+','logobg');
+	}
+	</script> 
+</fieldset>
+<P><STRONG>Congratulations!</STRONG> You just ran a snippet of jStyle 
+code. Wasn't that easy? There is a quick start of jStyle here <STRONG><A 
+href="docs/quick_start.html">Quick Start</A></STRONG>. Be sure 
+to give all the code a test run to see what happens.</P></DIV></DIV><!-- /#learnNow -->
+<DIV>
+<h4>jStyle Resources</h4>
+<DIV>
+<h5>Getting Started With jStyle</h5>
+<UL>
+  <LI><A href="docs/quick_start.html">Quick Start</A></LI>
+  <LI><A href="example.html">Example page</A></LI>
+  <LI><A href="docs/validation_doc.html">validation rule  reference</A></LI>
+  <LI><A href="docs/render_doc.html">render rule  reference</A></LI>
+ </UL>
+<DIV>
+<h5>Developer Resources</h5>
+<UL>
+  <LI><A href="http://code.google.com/p/jstylejs/">Project Home in <img src=http://www.gstatic.com/codesite/ph/images/google_code_tiny.png border=0 title="Google Code" alt="Google Code" width=50 height=12  /></A></LI>
+  <LI><A href="docs/jsdoc/index.html">jStyle API reference (JsDoc)</A></LI>
+  <LI><A href="docs/jstyle.extend.js.html">Extend jStyle example javascript file</A></LI>
+  <LI><A href="http://wiki.github.com/jeresig/sizzle">CSS Selector Sizzle reference</A></LI>
+</UL></DIV></DIV></DIV>
+<div style="text-align:center">
+	<P id=js-copyright>© 2009 <A href="http://creativor.spaces.live.com/">Nick Zhang</A> (<a href="mailto:creativor@gmail.com">Contact me</a>) and the Creativor Studio</P>
+</div>
+</BODY>
+</HTML>
