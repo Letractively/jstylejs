@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+  <HEAD>
+    <TITLE>
+      jStyle Quick Start
+    </TITLE>
+    <META name="Generator" content="EditPlus">
+    <META name="Author" content="Nick Zhang">
+    <META name="Keywords" content="">
+    <META name="Description" content="">
+    <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <SCRIPT language="javascript" src="../js/jstyle/jstyle.min.js"   type="text/javascript">
+</SCRIPT>
+    <LINK rel="stylesheet" type="text/css" href="../css/main.css">
+    <LINK rel="stylesheet" type="text/css" href= "../css/jstyle.css">
+    <LINK rel="stylesheet" type="text/css" href= "css/quick_start.css">
+  </HEAD>
+  <BODY>
+    <DIV id="header" style="background:url(../img/logo.gif) no-repeat;padding-left:64px;height:30px;">
+    <A href="../index.html">Back to home</A>
+    </DIV>
+	<h1>jStyle Quick Start</h1>
+	<a name="table_conetens_anchor"></a>
+	<OL id="table_conetens">
+	      Table of contents
+	</OL>
+	<br/>
+    <DIV class="chapter jstyle">
+      Core
+    </DIV><br/>
+	There are two ways to take jstyle into affects.
+    <OL>
+      <LI>By html<br/>
+      In this way ,we can set the dom
+      element's attribute called "jstyle". And the format of the
+      jstyle attribute should be an javascript object.<br/>
+	  The jstyle of elements will be applied when the window loaded.
+        <DIV class="example">
+          For example:
+			<DIV class="code" source="demo1"></DIV>
+			<DIV class="demo" id="demo1"><FORM>
+				<INPUT type="text" jstyle=
+				"validation:{required:true,email:true}"><INPUT type=
+				"submit" class="testcode" value="test code">
+			  </FORM>
+			</DIV>
+	     </DIV>
+
+      </LI>
+      <LI>By javascript<br/>
+	    In this way, the jstyle of elements will be applied after the javascript codes ran.
+		There still are two way of writing javascript in
+        jstyle.<br/>
+        <OL type="A">
+          <LI>Way 1:<BR>
+            Using the function of <B>cs$({string | DomElement |
+            [DomElement]} selector,{string} stylepath,{fixed}
+            jstyle);</B>
+
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo2_1"></DIV>
+				<DIV class="demo" id="demo2_1"><FORM>
+					<INPUT type="text" id="demo2_1_input1"><INPUT type=
+					"submit" class="testcode" value="test code">
+				  </FORM>
+				  <SCRIPT type="text/javascript">cs$.addEvent(window,"load",function(){
+					cs$("#demo2_1_input1","validation.required",true);
+					cs$("#demo2_1_input1","validation.email",true);
+					});</SCRIPT>
+				</DIV>
+            </DIV>
+          </LI>
+          <LI>Way 2:<BR>
+		  Using the function of <B>cs$({string |
+          DomElement | [DomElement]} selector).aStyle(arguments);</B> here "aStyle" means the name of one style , the word "arguments" means this function may has  variable arguments.
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo2_2"></DIV>
+				<DIV class="demo" id="demo2_2"><FORM>
+					<INPUT type="text" id="demo2_2_input1"><INPUT type=
+					"submit" class="testcode" value="test code">
+				  </FORM><SCRIPT type="text/javascript">cs$.addEvent(window,"load",function(){
+					cs$("#demo2_2_input1").validation({required:true,email:true});
+					});</SCRIPT>
+				</DIV>
+            </DIV>
+          </LI>
+        </OL>
+      </LI>
+    </OL>
+    <DIV class="chapter jstyle">
+      css
+    </DIV><br/>
+	This style is use to set the specified elemenet(s)'s css style
+	<ol>
+		<li>Way 1:
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo3_1"></DIV>
+				<DIV class="demo" id="demo3_1"><div id="demo3_1_div">A Div</div>
+					<INPUT type="button" class="testcode" value="test code" onclick="test_code_3_1();">
+				   <SCRIPT type="text/javascript">function test_code_3_1(){
+						cs$("#demo3_1_div","css","background-color:green;"); //or cs$("#demo3_1_div","css.backgroundColor","green");
+					 }</SCRIPT>
+				</DIV>
+            </DIV>
+		</li>
+		<li>Way 2:
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo3_2"></DIV>
+				<DIV class="demo" id="demo3_2"><div id="demo3_2_div">A Div</div>
+					<INPUT type="button" class="testcode" value="test code" onclick="test_code_3_2();">
+				   <SCRIPT type="text/javascript">function test_code_3_2(){
+						cs$("#demo3_2_div").css({backgroundColor:"green"});
+					 }</SCRIPT>
+				</DIV>
+            </DIV>
+		</li>
+
+	</ol>
+	    <DIV class="chapter jstyle">
+      classes
+    </DIV><br/>
+	This style is use to set the specified elemenet(s)'s className attribute.<br>
+	There are four operators：<br/>
+	<strong>"+"</strong> means add classes <br/>
+	<strong>"-"</strong> means delete classes <br/>
+	<strong>">"</strong> means toggle classes <br/>
+	<strong>"="</strong> means set the classes 
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo4_1"></DIV>
+				<DIV class="demo" id="demo4_1"><style>.demo4_1_temp_class{color:red;}
+				.demo4_1_class{background-color:green;}</style>
+				<div id="demo4_1_div" class="demo4_1_temp_class">A Div</div>
+					<INPUT type="button" class="testcode" value="+" onclick="test_code_3_1('+');">
+					<INPUT type="button" class="testcode" value="-" onclick="test_code_3_1('-');">
+					<INPUT type="button" class="testcode" value=">" onclick="test_code_3_1('>');">
+					<INPUT type="button" class="testcode" value="=" onclick="test_code_3_1('=');">
+				   <SCRIPT type="text/javascript">function test_code_3_1(op){
+						cs$("#demo4_1_div").cls(op,"demo4_1_class");
+					 }</SCRIPT>
+				</DIV>
+            </DIV>
+    <SCRIPT type="text/javascript">
+//set the code divs's innerHtml
+    var code_elements=jStyle.find(".code");
+    var code_element;
+    var source_element;
+    for (var i=0;i<code_elements.length ;i++ )
+    {
+		code_element=code_elements[i];
+		source_element=cs$.find("#"+code_element.getAttribute("source"))[0];
+		if(source_element) code_element.innerHTML=source_element.innerHTML;
+		else {code_element.innerHTML="Can not find the source!";continue;}
+		code_element.innerHTML=code_element.innerHTML.replace(/([^"]?)(<)/gm,"$1&lt;");
+		code_element.innerHTML=code_element.innerHTML.replace(/([^"]?)(>)/gm,"$1&gt;");
+		code_element.innerHTML=code_element.innerHTML.replace(/\n/gm,"<br/>");
+    }
+//make table of contents
+  var table_conetens=cs$.find("#table_conetens")[0];
+  var chapters=cs$.find(".chapter");
+  var chapter_index=0;
+  for (var i=0; i<chapters.length;i++ )
+  {	
+		cs$(table_conetens).mp("+>","<li class='table_conetens_item'><A href=\"#chapter_"+chapter_index+"\">"+chapters[i].innerHTML+"</A><li>");
+		cs$(chapters[i]).mp("+<","<A NAME=chapter_"+chapter_index+" />");
+		cs$(chapters[i]).mp(">+","<A href=\"#table_conetens_anchor\" class='back_to_table_conetens'>Back to table conetens.</a>");
+		chapter_index++;
+	}
+
+    </SCRIPT>
+<div style="text-align:center">
+	<P id=js-copyright>© 2009 <A href="http://creativor.spaces.live.com/">Nick Zhang</A> (<a href="mailto:creativor@gmail.com">Contact me</a>) and the Creativor Studio</P>
+</div>
+  </BODY>
+</HTML>

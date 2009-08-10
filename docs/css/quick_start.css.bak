@@ -1,0 +1,66 @@
+.code{
+border:1px solid slateGray;
+background:url(../img/code.gif) no-repeat;
+background-color:antiqueWhite;
+padding:12px;
+padding-bottom:2px;
+margin:1px;
+font-size:12px;
+font-weight:normal;
+color:black;
+}
+.demo{
+border:1px solid silver;
+background:url(../img/demo.gif) no-repeat;
+background-color:transparent;
+padding:12px;
+padding-bottom:2px;
+margin:1px;
+font-size:12px;
+font-weight:normal;
+color:black;
+}
+.jstyle {
+display:inline;
+font-size:14px;
+font-weight:bold;
+background:url(../img/jstyle.gif) no-repeat;
+border:1px solid silver;
+background-color:Gold;
+padding-left:70px;
+}
+.chapter{
+	font-size:18px;
+	font-weight:bold;
+	color:red;
+}
+.example{
+	font-size:15px;
+	font-weight:bold;
+	color:Brown;
+	padding:2px;
+	border:1px solid;
+	border-color:black;
+}
+.testcode{
+	color:DarkRed;
+	font-size:13px;
+	padding:0px;
+}
+form{
+	margin:2px;
+}
+#table_conetens{
+	font-size:14px;
+	font-weight:bold;
+	border:1px solid seaGreen;padding-left:20px;margin-left:20px;
+}
+.table_conetens_item{
+list-style-image:none;
+list-style-position:outside;
+list-style-type:disc;
+}
+.back_to_table_conetens{
+	color:DeepPink;
+	padding-left:10px;
+}
