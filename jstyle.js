@@ -19,23 +19,33 @@ if (typeof(Sizzle)=="undefined")
 
 //***************End Sizzle CSS Selector Engine  Inline****************/
 (function() {
-    if (window.Node && !HTMLElement.insertAdjacentElement) {
+    if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentElement) {
         HTMLElement.prototype.insertAdjacentElement = function(a, b) {
             switch (a) {
-            case "beforeBegin":
+            case 'beforeBegin':
                 this.parentNode.insertBefore(b, this);
                 break;
-            case "afterBegin":
+            case 'afterBegin':
                 this.insertBefore(b, this.firstChild);
                 break;
-            case "beforeEnd":
+            case 'beforeEnd':
                 this.appendChild(b);
                 break;
-            case "afterEnd":
+            case 'afterEnd':
                 if (this.nextSibling) this.parentNode.insertBefore(b, this.nextSibling);
                 else this.parentNode.appendChild(b);
                 break
             }
+        };
+        HTMLElement.prototype.insertAdjacentHTML = function(a, b) {
+            var r = this.ownerDocument.createRange();
+            r.setStartBefore(this);
+            var c = r.createContextualFragment(b);
+            this.insertAdjacentElement(a, c)
+        };
+        HTMLElement.prototype.insertAdjacentText = function(a, b) {
+            var c = document.createTextNode(b);
+            this.insertAdjacentElement(a, c)
         }
     }
     var t = function() {
@@ -157,7 +167,10 @@ if (typeof(Sizzle)=="undefined")
     var A;
     var B;
     z = window.jStyle = window.cs$ = function(f, g, h) {
-        f = f || document;
+        if (f && f.nodeType === 9) {
+            z.console.error("Don't suppport document as the selector");
+            return null
+        }
         B = f;
         var j = [];
         if (typeof(g) == "string") {
@@ -632,8 +645,8 @@ if (typeof(Sizzle)=="undefined")
         var e = [];
         var f;
         if (c != "-" && c != "delete") {
-            if (content.nodeType && content.nodeType == 1) f = content;
-            else f = document.createTextNode(content)
+            if (content.nodeType && content.nodeType == 1) f = content.innerHTML;
+            else f = content
         }
         switch (c) {
         case "-":
@@ -649,16 +662,16 @@ if (typeof(Sizzle)=="undefined")
             }
             break;
         case "+<":
-            b.insertAdjacentElement("beforeBegin", f);
+            b.insertAdjacentHTML("beforeBegin", f);
             break;
         case ">+":
-            b.insertAdjacentElement("afterEnd", f);
+            b.insertAdjacentHTML("afterEnd", f);
             break;
         case "+>":
-            b.insertAdjacentElement("beforeEnd", f);
+            b.insertAdjacentHTML("beforeEnd", f);
             break;
         case "<+":
-            b.insertAdjacentElement("afterBegin", f);
+            b.insertAdjacentHTML("afterBegin", f);
             break;
         default:
             z.console.error("the manipulate's op: \"" + c + "\" is wrong!");
@@ -697,7 +710,6 @@ if (typeof(Sizzle)=="undefined")
         case "toggle":
             (b.style.display == "none") ? b.style.display = "": b.style.display = "none";
             break;
-        case "=":
         default:
             break
         }
