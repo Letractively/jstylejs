@@ -45,17 +45,13 @@ margin-top: 3px;margin-left: 15px;
 	font-size:18px;
 	font-weight:bold;
 	background-color:GhostWhite;
-	border-bottom:1px solid black;
+	text-decoration:underline;
 }
 .example{
-	font-size:15px;
 	font-weight:bold;
-	color:Brown;
 	padding:2px;
 }
 .testcode{
-	color:DarkRed;
-	font-size:13px;
 	padding:0px;
 }
 form{
