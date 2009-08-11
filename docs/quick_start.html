@@ -9,8 +9,7 @@
     <META name="Keywords" content="">
     <META name="Description" content="">
     <META http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <SCRIPT language="javascript" src="../js/jstyle/jstyle.min.js"   type="text/javascript">
-</SCRIPT>
+    <SCRIPT language="javascript" src="../js/jstyle/jstyle.min.js"   type="text/javascript"></SCRIPT>
     <LINK rel="stylesheet" type="text/css" href="../css/main.css">
     <LINK rel="stylesheet" type="text/css" href= "../css/jstyle.css">
     <LINK rel="stylesheet" type="text/css" href= "css/quick_start.css">
@@ -25,12 +24,12 @@
 	      Table of contents
 	</OL>
 	<br/>
-    <DIV class="chapter jstyle">
-      core
+    <DIV class="chapter core">
+      jstyle, cs$
     </DIV><br/>
 	There are two ways to take jstyle into affects.
     <OL>
-      <LI>By html<br/>
+      <LI>By html (Way 1)<br/>
       In this way ,we can set the dom
       element's attribute called "jstyle". And the format of the
       jstyle attribute should be an javascript object.<br/>
@@ -52,12 +51,15 @@
 		There still are two way of writing javascript in
         jstyle.<br/>
         <OL type="A">
-          <LI>Way 1:<BR>
-            Using the function of <B>cs$({string | DomElement |
-            [DomElement]} selector,{string} stylepath,{fixed}
-            jstyle);</B>
-
-            <DIV class="example">
+          <LI>Way 2:<BR/>
+            Using the function of <B>cs$</B> to
+			Make jstyle to selector elements <BR/>
+			<div class="definition">
+			@param {String|DOMElement|DOMElement[]} selector css selector string or an DOMElement array<BR/>
+			@param {String} [stylepath] the jstyle  path , which split by "." <BR/>
+			cs$=function(selector,stylepath,jstyle);
+			</div>
+			<DIV class="example">
               For example:
 				<DIV class="code" source="demo2_1"></DIV>
 				<DIV class="demo" id="demo2_1"><FORM>
@@ -71,9 +73,11 @@
 				</DIV>
             </DIV>
           </LI>
-          <LI>Way 2:<BR>
-		  Using the function of <B>cs$({string |
-          DomElement | [DomElement]} selector).aStyle(arguments);</B> here "aStyle" means the name of one style , the word "arguments" means this function may has  variable arguments.
+          <LI>Way 3:<BR/>
+		  Using the function of 
+		  <div class="definition">
+		  cs$({string |
+          DomElement | [DomElement]} selector).aStyle(arguments);</div> here "aStyle" means the name of one style , the word "arguments" means this function may has  variable arguments.
             <DIV class="example">
               For example:
 				<DIV class="code" source="demo2_2"></DIV>
@@ -122,64 +126,67 @@
 	</ol>
 	    <DIV class="chapter jstyle">
       classes
-    </DIV><br/>
-	This style is use to set the specified elemenet(s)'s className attribute.<br>
-	There are four operators：<br/>
+    </DIV>
+	<div class="synonym">cls</div>
+	This style is use to set the specified elemenet(s)'s className attribute.<BR/>
+	<div class="definition">There are four operators：<br/>
 	<strong>"+"</strong> means add classes <br/>
 	<strong>"-"</strong> means delete classes <br/>
 	<strong>">"</strong> means toggle classes <br/>
-	<strong>"="</strong> means set the classes 
+	<strong>"="</strong> means set the classes </div>
             <DIV class="example">
               For example:
 				<DIV class="code" source="demo4_1"></DIV>
-				<DIV class="demo" id="demo4_1"><style>.demo4_1_temp_class{color:red;}.demo4_1_class{background-color:green;}</style><div id="demo4_1_div" class="demo4_1_temp_class">A Div</div>
+				<DIV class="demo" id="demo4_1"><style>.demo4_1_temp_class{color:red;}</style><div id="demo4_1_div" class="demo4_1_temp_class">A Div</div><br/>
 					<INPUT type="button" class="testcode" value="+" onclick="test_code_4_1('+');">
 					<INPUT type="button" class="testcode" value="-" onclick="test_code_4_1('-');">
 					<INPUT type="button" class="testcode" value=">" onclick="test_code_4_1('>');">
 					<INPUT type="button" class="testcode" value='=' onclick="test_code_4_1('=');">
 				   <SCRIPT type="text/javascript">function test_code_4_1(op){
-						cs$("#demo4_1_div").cls(op,"demo4_1_class");
+						cs$("#demo4_1_div").cls(op,"demo_elment");
 					 }</SCRIPT>
 				</DIV>
             </DIV>
 	<br/>
     <DIV class="chapter jstyle">
       manipulate
-    </DIV><br/>
-	This style is use to manipulate the specified elemenet(s).<br>
+    </DIV><div class="synonym">mp</div>
+	This style is use to manipulate the specified elemenet(s).<BR/>
+<div class="definition">
 There are five operators：<br/>
 <strong>"-"</strong> means delete content<br/>
 <strong>"+<"</strong> means add content at beforeBegin<br/>
 <strong>">+"</strong> means add content at afterEnd<br/>
 <strong>"+>"</strong> means add content at beforeEnd<br/>
-<strong>"<+"</strong> means add content at afterBegin
+<strong>"<+"</strong> means add content at afterBegin</div>
             <DIV class="example">
               For example:
 				<DIV class="code" source="demo5_1"></DIV>
-				<DIV class="demo" id="demo5_1"><div>Outer div, Begin the target div.<div id="demo5_1_div" class="demo4_1_class">Target Div<div>Inside div1</div><div>Inside div2</div></div>After the target div.</div>
+				<DIV class="demo" id="demo5_1"><div style="background-color:DarkGray;">Outer div, Begin the target div.<div id="demo5_1_div" class="demo_elment" style="display:block;">Target Div<div>Inside div1</div><div>Inside div2</div></div>After the target div.</div>
 				<INPUT type="button" class="testcode" value="-" onclick="cs$('#demo5_1_div').mp('-','div');">
 					<INPUT type="button" class="testcode" value="+<" onclick="test_code_5_1('+<');">
 					<INPUT type="button" class="testcode" value=">+" onclick="test_code_5_1('>+');">
 					<INPUT type="button" class="testcode" value="+>" onclick="test_code_5_1('+>');">
 					<INPUT type="button" class="testcode" value="<+" onclick="test_code_5_1('<+');">
 				   <SCRIPT type="text/javascript">function test_code_5_1(op){
-						cs$("#demo5_1_div").mp(op,"<div>Insered div</div>");
+						cs$("#demo5_1_div").mp(op,"<div>Inserted div</div>");
 					 }</SCRIPT>
 				</DIV>
             </DIV>
 <br/>
 	    <DIV class="chapter jstyle">
       effects
-    </DIV><br/>
-	This style is use to make the effects of the element(s).<br>
+    </DIV><div class="synonym">ef</div>
+	This style is use to make the effects of the element(s).<BR/>
+	<div class="definition">
 	There are three operators by this time：<br/>
 	<strong>"+"</strong> means show  the element(s). <br/>
 	<strong>"-"</strong> means hidden  the element(s). <br/>
-	<strong>">"</strong> means toggle  the element(s). <br/>
+	<strong>">"</strong> means toggle  the element(s). </div>
             <DIV class="example">
               For example:
 				<DIV class="code" source="demo6_1"></DIV>
-				<DIV class="demo" id="demo6_1"><div id="demo6_1_div" class="demo4_1_class">A Element</div>
+				<DIV class="demo" id="demo6_1"><div id="demo6_1_div" class="demo_elment">A Element</div>
 					<INPUT type="button" class="testcode" value="+" onclick="test_code_6_1('+');">
 					<INPUT type="button" class="testcode" value="-" onclick="test_code_6_1('-');">
 					<INPUT type="button" class="testcode" value=">" onclick="test_code_6_1('>');">
@@ -192,7 +199,7 @@ There are five operators：<br/>
 	    <DIV class="chapter jstyle">
       event
     </DIV><br/>
-	This style is use to add events and its handlers to the specified elemenet(s).<br>
+	This style is use to add events and its handlers to the specified elemenet(s).<BR/>
             <DIV class="example">
               For example:
 				<DIV class="code" source="demo7_1"></DIV>
@@ -206,12 +213,12 @@ There are five operators：<br/>
 	    <DIV class="chapter jstyle">
       alert
     </DIV><br/>
-	This style is use to alert message on the specified elemenet(s).<br>
+	This style is use to alert message on the specified elemenet(s).<BR/>
             <DIV class="example">
               For example:
 				<DIV class="code" source="demo8_1"></DIV>
-				<DIV class="demo" id="demo8_1"><span class="demo8_1_class_1">Element 1</span>
-				<span class="demo8_1_class_1">Element 2</span><br/>
+				<DIV class="demo" id="demo8_1"><span class="demo8_1_class_1 demo_elment">Element 1</span>
+				<span class="demo8_1_class_1 demo_elment">Element 2</span><br/>
 				<INPUT type="button" class="testcode" value="test code" onclick="test_code_8_1();"/>
 				<SCRIPT type="text/javascript">
 				   function test_code_8_1(){
@@ -221,13 +228,13 @@ There are five operators：<br/>
 <br/>
   <DIV class="chapter jstyle">
       message
-    </DIV><br/>
-	This style is use to show message on the specified elemenet(s).<br>
+    </DIV><div class="synonym">msg</div>
+	This style is use to show message on the specified elemenet(s).<BR/>
             <DIV class="example">
               For example:
 				<DIV class="code" source="demo9_1"></DIV>
-				<DIV class="demo" id="demo9_1"><span class="demo9_1_class_1">Element 1</span>
-				<span class="demo9_1_class_1">Element 2</span><br/>
+				<DIV class="demo" id="demo9_1"><span class="demo9_1_class_1 demo_elment">Element 1</span>
+				<span class="demo9_1_class_1 demo_elment">Element 2</span><br/>
 				<INPUT type="button" class="testcode" value="test code" onclick="test_code_9_1();"/>
 				<SCRIPT type="text/javascript">
 				   function test_code_9_1(){
@@ -237,24 +244,43 @@ There are five operators：<br/>
 <br/>
   <DIV class="chapter jstyle">
       validation
-    </DIV><br/>
-	This style is use to  validation the value of specified elemenet(s) when the form (which contain the elemenet(s)) is submiting.<br>
+    </DIV><div class="synonym">val</div>
+	This style is use to  validation the value of specified elemenet(s) when the form (which contain the elemenet(s)) is submiting.<BR/>
 	About the validation rule detail, please refer to the <a href="validation_doc.html" >validation rule reference document</a>.
-            <DIV class="example">
-              For example:
-				<DIV class="code" source="demo10_1"></DIV>
-				<DIV class="demo" id="demo10_1"><FORM>
-				<INPUT type="text" jstyle=
-				"validation:{required:true,integer:true}"><INPUT type=
-				"submit" class="testcode" value="test code">
-			  </FORM>
+           <ol>
+			 <li>Example1
+				<DIV class="example">
+				  For example:
+					<DIV class="code" source="demo10_1"></DIV>
+					<DIV class="demo" id="demo10_1"><FORM>
+					<INPUT type="text" jstyle=
+					"validation:{required:true,integer:true}"><INPUT type=
+					"submit" class="testcode" value="test code">
+				  </FORM>
+					</DIV>
 				</DIV>
-            </DIV>
+			 </li>
+			 <li>Example2
+				<DIV class="example">
+				  For example:
+					<DIV class="code" source="demo10_2"></DIV>
+					<DIV class="demo" id="demo10_2"><FORM>
+					<INPUT type="text" id="demo10_2_input1"><INPUT type=
+					"submit" class="testcode" value="test code">
+				  </FORM>
+<SCRIPT type="text/javascript">cs$.addEvent(window,"load",function(){
+					cs$("#demo10_2_input1").val({required:true,integer:true});
+					});</SCRIPT></DIV>
+				</DIV>
+			 </li>
+
+		   </ol>
+			
 <br/>
 <DIV class="chapter jstyle">
       render
     </DIV><br/>
-	This style is use to  render the UI of get (or validation) the value of specified elemenet(s).<br>
+	This style is use to  render the UI of get (or validation) the value of specified elemenet(s).<BR/>
 	About the render rule detail, please refer to the <a href="render_doc.html" >render rule reference document</a>.
             <DIV class="example">
               For example:
@@ -268,6 +294,106 @@ There are five operators：<br/>
 			</SCRIPT></DIV>
             </DIV>
 <br/>
+<DIV class="chapter function">
+      cs$.find()
+    </DIV><br/>
+	This function taking a selector and a context, finds a set of matching elements. The return result from the method is an array of the DOM elements found..<br/>
+	<div class="definition">
+	@param {String} selector <br/>
+	@param {DOMElement} context<br/>
+	@returns [DOMElement]<br/>
+	jStyle.find=function(selector, context){;}</div>
+            <DIV class="example">
+              For example:
+				<DIV class="code" source="demo12_1"></DIV>
+				<DIV class="demo" id="demo12_1"><span class="demo12_1_class demo_elment">demo12_1 span 1</span>
+					<span class="demo12_1_class demo_elment">demo12_1 span 2</span>
+					<INPUT type="button" class="testcode" value="test code" onclick="test_code_12_1();"/>
+				<SCRIPT type="text/javascript">
+				   function test_code_12_1(){
+						var foundElements=cs$.find(".demo12_1_class");
+						cs$(foundElements).alert("Found span!");
+				}</SCRIPT></DIV>
+            </DIV>
+<br/>
+<DIV class="chapter function">
+      cs$.matches()
+    </DIV><br/>
+	This function takes in a set of DOMElements, filters them against the specified selector, and returns the results. <br/>
+    The selector can be a full selector (e.g. “div > span.foo”) and not just a fragment.<br/>
+<div class="definition">
+@param {String} selector <br/>
+ @param  {[DOMElement]} set<br/>
+ @returns {[DOMElement]} <br/>
+jStyle.matches=function(selector, set ){;}</div>
+<DIV class="example">
+              For example:
+				<DIV class="code" source="demo13_1"></DIV>
+				<DIV class="demo" id="demo13_1"><span class="demo13_1_class demo_elment" id="demo13_1_span_1">demo13_1 span 1</span>
+					<span class="demo13_1_class demo_elment">demo13_1 span 2</span>
+					<INPUT type="button" class="testcode" value="test code" onclick="test_code_13_1();"/>
+				<SCRIPT type="text/javascript">
+				   function test_code_13_1(){
+						var foundElements=cs$.matches(".demo13_1_class");
+						var matchedElements=cs$.matches("#demo13_1_span_1",foundElements);
+						cs$(matchedElements).alert("Matched span!");
+				}</SCRIPT></DIV>
+            </DIV>
+<br/>
+<DIV class="chapter function">
+      cs$.ajax()
+    </DIV><br/>
+	The ajax function of jStyle.<br/>
+	<div class="definition">
+ @param {object} options ajax options<br/>
+ @param {string} options.url the url to request<br/>
+ @param {string} [options.type="GET"]<br/>
+ @param {function} [options.success=null] the hander do after the ajax request loaded<br/>
+ @param {boolean} [options.async="true"]<br/>
+ @param {boolean} [options.cache="false"]<br/>
+ @returns {XMLHttpRequest|null} <br/>
+cs$.ajax=function(options){;}</div>
+<DIV class="example">
+              For example:
+				<DIV class="code" source="demo14_1"></DIV>
+				<DIV class="demo" id="demo14_1"><span class="demo_elment"   id="demo14_1_span_1">Return text from ajax: </span>
+					<INPUT type="button" class="testcode" value="test code" onclick="test_code_14_1();"/>
+				<SCRIPT type="text/javascript">
+				   function test_code_14_1(){
+				      cs$.ajax({url:'../getvalue_example.html',
+						success:function(date) {var sdata=date;cs$('#demo14_1_span_1').mp("+>",sdata);}
+					  });
+				}</SCRIPT></DIV>
+            </DIV>
+<br/>
+
+<div class="help chapter">
+	help</div>
+	<ol>   
+		<li >
+		<div class="help_item"><a name="synonym_help"></a>
+			Synonym:
+		</div>
+		
+		As the synonym of one jstyle's name ,synonym can be used in way 3 of writing jStyle code to make it  faster.
+		But synonym can not be used in the other two ways of jstyle code writing.
+			<DIV class="example">
+				  For example:
+					<DIV class="code" source="help1_1"></DIV>
+					<DIV class="demo" id="help1_1"><span class="demo_elment"   id="help1_1_span_1" jstyle="manipulate:{op:'+<',content:'synonym name code work on mode 5!'},mp:{op:'+<',content:'synonym name code work on mode 6!'}">element 1</span><br/>
+						<INPUT type="button" class="testcode" value="test basic name" onclick="test_code_14_basci_name();"/>
+						<INPUT type="button" class="testcode" value="test synonym name" onclick="test_code_14_synonym_name();"/>
+					<SCRIPT type="text/javascript">
+					function test_code_14_basci_name(){
+								cs$("#help1_1_span_1").manipulate("+<","basic name code work on mode 1!");//work
+								cs$("#help1_1_span_1",'manipulate',{op:"+<",content:"synonym name code work on mode 2!"});//work
+								}
+					function test_code_14_synonym_name(){
+								cs$("#help1_1_span_1").mp(">+","synonym name code work on mode 3!");//work 
+								cs$("#help1_1_span_1",'mp',{op:">+",content:"synonym name code work on mode 4!"});//not work
+								}</SCRIPT></DIV>
+	   </li>
+	</ol>
 	<SCRIPT type="text/javascript">
 	  function HTMLEncode(str)
 	   {  
@@ -302,13 +428,14 @@ There are five operators：<br/>
   var chapter_index=0;
   for (var i=0; i<chapters.length;i++ )
   {	
-		cs$(table_conetens).mp("+>","<li class='table_conetens_item'><A href=\"#chapter_"+chapter_index+"\">"+chapters[i].innerHTML+"</A><li>");
+		cs$(table_conetens).mp("+>","<li class='table_conetens_item'><a href=\"#chapter_"+chapter_index+"\">"+chapters[i].innerHTML+"</a></li>");
 		cs$(chapters[i]).mp("+<","<A NAME=chapter_"+chapter_index+" />");
-		cs$(chapters[i]).mp(">+","<A href=\"#table_conetens_anchor\" class='back_to_table_conetens'>Back to table conetens.</a>");
+		cs$(chapters[i]).mp(">+","<A href=\"#table_conetens_anchor\" class='back_to_table_conetens'>Back to table contents.</a>");
 		chapter_index++;
 	}
-
-    </SCRIPT>
+//make the synonym tips
+	cs$(".synonym").mp("+>","&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"#synonym_help\">?</a>");
+	</SCRIPT>
 <div style="text-align:center">
 	<P id=js-copyright>© 2009 <A href="http://creativor.spaces.live.com/">Nick Zhang</A> (<a href="mailto:creativor@gmail.com">Contact me</a>) and the Creativor Studio</P>
 </div>

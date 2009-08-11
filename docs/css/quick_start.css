@@ -12,7 +12,7 @@ color:black;
 .demo{
 border:1px solid silver;
 background:url(../img/demo.gif) no-repeat;
-background-color:transparent;
+background-color:aliceBlue;
 padding:12px;
 padding-bottom:2px;
 margin:1px;
@@ -21,26 +21,37 @@ font-weight:normal;
 color:black;
 }
 .jstyle {
-display:inline;
-font-size:14px;
-font-weight:bold;
 background:url(../img/jstyle.gif) no-repeat;
-border:1px solid silver;
-background-color:Gold;
-padding-left:70px;
+padding-left:80px;
 }
+.core {
+background:url(../img/core.gif) no-repeat;
+padding-left:60px;
+}
+.function {
+background:url(../img/function.gif) no-repeat;
+padding-left:110px;
+}
+
+.synonym {
+font-size:16px;
+font-weight:bold;
+background:url(../img/synonym.gif) no-repeat;
+padding-left:90px;
+margin-top: 3px;margin-left: 15px;
+}
+
 .chapter{
 	font-size:18px;
 	font-weight:bold;
-	color:red;
+	background-color:GhostWhite;
+	border-bottom:1px solid black;
 }
 .example{
 	font-size:15px;
 	font-weight:bold;
 	color:Brown;
 	padding:2px;
-	border:1px solid;
-	border-color:black;
 }
 .testcode{
 	color:DarkRed;
@@ -53,7 +64,7 @@ form{
 #table_conetens{
 	font-size:14px;
 	font-weight:bold;
-	border:1px solid seaGreen;padding-left:20px;margin-left:20px;
+	padding-left:20px;margin-left:20px;
 }
 .table_conetens_item{
 list-style-image:none;
@@ -61,6 +72,15 @@ list-style-position:outside;
 list-style-type:disc;
 }
 .back_to_table_conetens{
-	color:DeepPink;
 	padding-left:10px;
 }
+.demo_elment{
+	background-color:yellowGreen;display:inline;
+}
+.definition{
+	font-style:italic;font-size:13px;
+}
+.help{;}
+
+.help_item{font-size:14px;
+	font-weight:bold;}
