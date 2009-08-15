@@ -59,7 +59,25 @@ if (typeof(Sizzle)=="undefined")
     function isArray(a) {
         return Object.prototype.toString.apply(a) === '[object Array]'
     }
-    function serialize(a) {
+    function deSerializeObject(a) {
+        var b = function(s) {
+            var n = ["\\", "\"", "'", "\/", "\r", "\n"];
+            var o = [/\\u005C/g, /\\u0022/g, /\\u0027/g, /\\u002F/g, /\\u000A/g, /\\u000D/g];
+            for (var i = 0; i < o.length; i++) {
+                s = s.replace(o[i], n[i])
+            }
+            return s
+        };
+        var c = null;
+        var d = "(" + b(a) + ")";
+        try {
+            c = eval(d)
+        } catch(e) {
+            ;
+        }
+        return c
+    }
+    function serializeObject(a) {
         var b = typeof(a);
         switch (b) {
         case "number":
@@ -83,7 +101,7 @@ if (typeof(Sizzle)=="undefined")
             var d;
             for (var i = 0; i < a.length; ++i) {
                 d = '';
-                if (a[i]) d = serialize(a[i]);
+                if (a[i]) d = serializeObject(a[i]);
                 c += d + (i == a.length - 1) ? "": ","
             }
             c += ']';
@@ -95,8 +113,8 @@ if (typeof(Sizzle)=="undefined")
             for (var g in a) {
                 f = 'null';
                 if (a[g] != undefined) {
-                    if (a[g].nodeType) f = serialize(a[g].toString());
-                    else f = serialize(a[g])
+                    if (a[g].nodeType) f = serializeObject(a[g].toString());
+                    else f = serializeObject(a[g])
                 }
                 e += g + ' : ' + f + ','
             }
@@ -244,7 +262,7 @@ if (typeof(Sizzle)=="undefined")
                 var d = c.shift();
                 return n(a[d], c.join("."))
             };
-            if (typeof(f) == "string") j = z.cssSelector(f);
+            if (typeof(f) == "string") j = z.find(f);
             else if (f.length) j = f;
             else j = [f];
             var o;
@@ -257,7 +275,7 @@ if (typeof(Sizzle)=="undefined")
             for (var i = 0; i < j.length; i++) {
                 l.length = 0;
                 l = l.concat(k);
-                if (" " > j[i].getAttribute("jstyle")) j[i].setAttribute("jstyle", "");
+                if (!j[i].getAttribute("jstyle")) j[i].setAttribute("jstyle", "{}");
                 o = z.getOrCreateElementJStyle(j[i]);
                 m(o, g);
                 var r = l.pop();
@@ -268,8 +286,7 @@ if (typeof(Sizzle)=="undefined")
                     s[r] = h
                 }
                 p.build_parameters(o[p.styleName], j[i]);
-                p.render(o[p.styleName], j[i]);
-                if (z.serializable) j[i].setAttribute("jstyle", serialize(o))
+                p.render(o[p.styleName], j[i])
             }
         }
         delete j;
@@ -277,7 +294,7 @@ if (typeof(Sizzle)=="undefined")
     };
     z.loader = function() {
         z.loadLanguage(z.language);
-        var a = z.cssSelector("*[" + "jstyle" + "]", document);
+        var a = z.find("*[" + "jstyle" + "]", document);
         var b;
         var c;
         for (var i = 0; i < z.styles.length; i++) {
@@ -306,7 +323,6 @@ if (typeof(Sizzle)=="undefined")
     z.find = function(a, b) {
         return z.cssSelector(a, b)
     };
-    z.serializable = true;
     z.debug = true;
     z.console = {
         error: function() {},
@@ -322,6 +338,22 @@ if (typeof(Sizzle)=="undefined")
     z.t = function(a) {
         if (z.lang[a]) return z.lang[a];
         else return a
+    };
+    z.serialize = function() {
+        var a = function(s) {
+            var o = [/\\/g, /"/g, /'/g, /\//g, /\r/g, /\n/g];
+            var n = ["\\u005C", "\\u0022", "\\u0027", "\\u002F", "\\u000A", "\\u000D"];
+            for (var i = 0; i < o.length; i++) {
+                s = s.replace(o[i], n[i])
+            }
+            return s
+        };
+        var b = z.find("*[" + "jstyle" + "]", document);
+        var c;
+        for (var i = 0; i < b.length; i++) {
+            element_jstyle = b[i].jStyle;
+            if (element_jstyle) b[i].setAttribute("jstyle", a(serializeObject(element_jstyle)))
+        }
     };
     var D = function() {
         return window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest()
@@ -539,13 +571,9 @@ if (typeof(Sizzle)=="undefined")
                 b = "{" + b;
                 b += "}"
             }
-            try {
-                var d;
-                d = eval('(' + b + ')')
-            } catch(e) {
-                z.console.error(a.id + "'s format of " + "jStyle" + ":\n\"" + b + "\"\n is wrong,\n please note that it shoulde be an JavaScript object's description!")
-            }
-            t(c, d)
+            tempjStyle = deSerializeObject(b);
+            if (!tempjStyle) z.console.error(a.id + "'s format of " + "jStyle" + ":\n\"" + b + "\"\n is wrong,\n please note that it shoulde be an JavaScript object's description!");
+            t(c, tempjStyle)
         }
         c.srcElement = a;
         if (!c.uid) c.uid = z.getUid();
@@ -773,7 +801,6 @@ if (typeof(Sizzle)=="undefined")
             if (typeof(a[c]) != "function") continue;
             z.addEvent(b, c, z.closureListener(a[c], b))
         }
-        delete b.jStyle.event
     };
     z.addStyle("alert");
     z.styles.alert.filter = "*";
@@ -960,7 +987,7 @@ if (typeof(Sizzle)=="undefined")
                 input_match;
                 for (var i = 0; i < b.length; i++) {
                     c = b[i];
-                    input_match = z.cssSelector("#" + c, a.form)[0];
+                    input_match = z.find("#" + c, a.form)[0];
                     if (!input_match) {
                         alert(z.t("Can not find the element to match ") + c);
                         return false
@@ -974,7 +1001,7 @@ if (typeof(Sizzle)=="undefined")
             if (this.disabled) return false;
             var c = function(e) {
                 var a = true;
-                var b = z.cssSelector(z.styles.validation.filter.replace("form ", ""), this);
+                var b = z.find(z.styles.validation.filter.replace("form ", ""), this);
                 for (var i = 0; i < b.length; i++) {
                     if (b[i].jStyle && b[i].jStyle.validation) {
                         if (!z.styles.validation.validater(b[i])) a = false
