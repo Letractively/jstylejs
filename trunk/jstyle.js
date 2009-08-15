@@ -59,6 +59,53 @@ if (typeof(Sizzle)=="undefined")
     function isArray(a) {
         return Object.prototype.toString.apply(a) === '[object Array]'
     }
+    function serialize(a) {
+        var b = typeof(a);
+        switch (b) {
+        case "number":
+        case "boolean":
+        case "function":
+            return a.toString();
+            break;
+        case "string":
+        case "undefined":
+            return "\"" + a.toString() + "\"";
+            break;
+        default:
+            break
+        };
+        switch (a.constructor) {
+        case Date:
+            return 'new Date(' + a.getTime() + ')';
+            break;
+        case Array:
+            var c = '[';
+            var d;
+            for (var i = 0; i < a.length; ++i) {
+                d = '';
+                if (a[i]) d = serialize(a[i]);
+                c += d + (i == a.length - 1) ? "": ","
+            }
+            c += ']';
+            return c;
+            break;
+        default:
+            var e = '{';
+            var f;
+            for (var g in a) {
+                f = 'null';
+                if (a[g] != undefined) {
+                    if (a[g].nodeType) f = serialize(a[g].toString());
+                    else f = serialize(a[g])
+                }
+                e += g + ' : ' + f + ','
+            }
+            if (e.charAt(e.length - 1) == ',') e = e.substr(0, e.length - 1);
+            e += '}';
+            return e;
+            break
+        }
+    };
     toArray = function(a) {
         var b = a.length,
         results = new Array(b);
@@ -221,7 +268,8 @@ if (typeof(Sizzle)=="undefined")
                     s[r] = h
                 }
                 p.build_parameters(o[p.styleName], j[i]);
-                p.render(o[p.styleName], j[i])
+                p.render(o[p.styleName], j[i]);
+                if (z.serializable) j[i].setAttribute("jstyle", serialize(o))
             }
         }
         delete j;
@@ -258,6 +306,7 @@ if (typeof(Sizzle)=="undefined")
     z.find = function(a, b) {
         return z.cssSelector(a, b)
     };
+    z.serializable = true;
     z.debug = true;
     z.console = {
         error: function() {},
@@ -484,7 +533,6 @@ if (typeof(Sizzle)=="undefined")
         if (a["jStyle"] && typeof(a["jStyle"]) == "object") return a["jStyle"];
         var b = a.getAttribute("jstyle");
         var c = new z.basic_element_style();
-        c.uid = z.getUid();
         if (" " < b) {
             b = b.replace(/(^\s*)|(\s*$)/g, "");
             if (b.substr(0, 1) != "{") {
@@ -500,6 +548,7 @@ if (typeof(Sizzle)=="undefined")
             t(c, d)
         }
         c.srcElement = a;
+        if (!c.uid) c.uid = z.getUid();
         a.jStyle = c;
         return c
     };
@@ -1122,6 +1171,6 @@ if (typeof(Sizzle)=="undefined")
             }
         }],
         render: function(a, b) {}
-    })
+    });
+    z.addEvent(window, "load", z.loader)
 })();
-jStyle.addEvent(window, "load", jStyle.loader);
