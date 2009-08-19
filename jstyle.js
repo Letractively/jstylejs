@@ -61,24 +61,17 @@ if (typeof(Sizzle)=="undefined")
         return Object.prototype.toString.apply(a) === '[object Array]'
     }
     function deSerializeObject(a) {
-        var b = function(s) {
-            var n = ["\\", "\"", "'", "\/"];
-            var o = [/\\u005C/g, /\\u0022/g, /\\u0027/g, /\\u002F/g];
-            for (var i = 0; i < o.length; i++) {
-                s = s.replace(o[i], n[i])
-            }
-            return s
-        };
-        var c = null;
-        var d = "(" + b(a) + ")";
+        var b = null;
+        var c = "(" + a + ")";
         try {
-            c = eval(d)
+            b = eval(c)
         } catch(e) {}
-        return c
+        return b
     }
-    function serializeObject(a) {
-        var b = typeof(a);
-        switch (b) {
+    function serializeObject(a, b) {
+        b = b || "";
+        var c = typeof(a);
+        switch (c) {
         case "number":
         case "boolean":
         case "function":
@@ -96,30 +89,34 @@ if (typeof(Sizzle)=="undefined")
             return 'new Date(' + a.getTime() + ')';
             break;
         case Array:
-            var c = '[';
-            var d;
+            var d = '[';
+            var e;
             for (var i = 0; i < a.length; ++i) {
-                d = '';
-                if (a[i]) d = serializeObject(a[i]);
-                c += d + (i == a.length - 1) ? "": ","
+                e = '';
+                if (a[i]) e = serializeObject(a[i]);
+                d += e + (i == a.length - 1) ? "": ","
             }
-            c += ']';
-            return c;
+            d += ']';
+            return d;
             break;
         default:
-            var e = '{';
-            var f;
-            for (var g in a) {
-                f = 'null';
-                if (a[g] != undefined) {
-                    if (a[g].nodeType) f = serializeObject(a[g].toString());
-                    else f = serializeObject(a[g])
+            var f = '{';
+            var g;
+            var h;
+            for (var j in a) {
+                var k;
+                k = b + ((b) ? "." + j: j);
+                g = 'null';
+                if (a[j] != undefined) {
+                    h = z.getStyle(k);
+                    if (a[j].nodeType) g = serializeObject(a[j].toString());
+                    else g = (h) ? serializeObject(h.serialize(a[j])) : serializeObject(a[j], k)
                 }
-                e += g + ' : ' + f + ','
+                f += j + ' : ' + g + ','
             }
-            if (e.charAt(e.length - 1) == ',') e = e.substr(0, e.length - 1);
-            e += '}';
-            return e;
+            if (f.charAt(f.length - 1) == ',') f = f.substr(0, f.length - 1);
+            f += '}';
+            return f;
             break
         }
     };
@@ -291,28 +288,42 @@ if (typeof(Sizzle)=="undefined")
         delete d;
         return z.styles
     };
-    z.loader = function() {
-        z.loadLanguage(z.language);
-        var a = z.find("*[" + "jstyle" + "]", document);
+    z.loadElementJStyle = function(a) {
         var b;
         var c;
+        var d;
+        c = z.getOrCreateElementJStyle(a);
         for (var i = 0; i < z.styles.length; i++) {
-            c = z.styles[i];
-            if (c.disabled) continue;
-            b = z.matches(c.filter, a);
-            var d;
-            for (var j = 0; j < b.length; j++) {
-                d = z.getOrCreateElementJStyle(b[j]);
-                var e;
-                e = y(d, c.styleName);
-                if (!e) {
-                    continue
-                }
-                c.build_parameters(e, b[j]);
-                if (c.render) c.render(e, b[j])
+            b = z.styles[i];
+            if (b.disabled) continue;
+            d = y(c, b.styleName);
+            if (!d) {
+                continue
             }
-            if (c.register) c.register()
+            b.build_parameters(d, a);
+            if (b.render) b.render(d, a)
         }
+        return true
+    };
+    z.loadTreeJStyle = function(a) {
+        a = a || document.body;
+        var b = new Array();
+        for (var i = 0; i < a.children.length; i++) b.push(a.children[i]);
+        for (i = 0; i < b.length; i++) {
+            z.loadTreeJStyle(b[i])
+        }
+        if (a.getAttribute("jstyle")) z.loadElementJStyle(a);
+        return true
+    };
+    z.loader = function() {
+        var a;
+        for (var i = 0; i < z.styles.length; i++) {
+            a = z.styles[i];
+            if (a.disabled) continue;
+            if (a.register) a.register()
+        }
+        z.loadTreeJStyle(document.body);
+        return true
     };
     z.version = "1.00";
     z.cssSelector = Sizzle;
@@ -348,10 +359,13 @@ if (typeof(Sizzle)=="undefined")
             return s
         };
         var b = z.find("*[" + "jstyle" + "]", document);
-        var c;
+        var c = "";
+        var d;
         for (var i = 0; i < b.length; i++) {
+            d = "";
             element_jstyle = b[i].jStyle;
-            if (element_jstyle) b[i].setAttribute("jstyle", a(serializeObject(element_jstyle)))
+            if (!element_jstyle) continue;
+            b[i].setAttribute("jstyle", a(serializeObject(element_jstyle)))
         }
     };
     var D = function() {
@@ -499,6 +513,9 @@ if (typeof(Sizzle)=="undefined")
         this.disabled = false;
         this.parameterCount = 0;
         this.filter = "*";
+        this.serialize = function(a) {
+            return serializeObject(a, this.styleName)
+        };
         this.applyStyle = function() {
             var a = B;
             var b;
@@ -561,23 +578,31 @@ if (typeof(Sizzle)=="undefined")
         }
     };
     z.getOrCreateElementJStyle = function(a) {
-        if (a["jStyle"] && typeof(a["jStyle"]) == "object") return a["jStyle"];
-        var b = a.getAttribute("jstyle");
-        var c = new z.basic_element_style();
-        if (" " < b) {
-            b = b.replace(/(^\s*)|(\s*$)/g, "");
-            if (b.substr(0, 1) != "{") {
-                b = "{" + b;
-                b += "}"
+        var b = function(s) {
+            var n = ["\\", "\"", "'", "\/"];
+            var o = [/\\u005C/g, /\\u0022/g, /\\u0027/g, /\\u002F/g];
+            for (var i = 0; i < o.length; i++) {
+                s = s.replace(o[i], n[i])
             }
-            tempjStyle = deSerializeObject(b);
-            if (!tempjStyle) z.console.error(a.id + "'s format of " + "jStyle" + ":\n\"" + b + "\"\n is wrong,\n please note that it shoulde be an JavaScript object's description!");
-            p(c, tempjStyle)
+            return s
+        };
+        if (a["jStyle"] && typeof(a["jStyle"]) == "object") return a["jStyle"];
+        var c = a.getAttribute("jstyle");
+        var d = new z.basic_element_style();
+        if (" " < c) {
+            c = c.replace(/(^\s*)|(\s*$)/g, "");
+            if (c.substr(0, 1) != "{") {
+                c = "{" + c;
+                c += "}"
+            }
+            tempjStyle = deSerializeObject(b(c));
+            if (!tempjStyle) z.console.error(a.id + "'s format of " + "jStyle" + ":\n\"" + c + "\"\n is wrong,\n please note that it shoulde be an JavaScript object's description!");
+            p(d, tempjStyle)
         }
-        c.srcElement = a;
-        if (!c.uid) c.uid = z.getUid();
-        a.jStyle = c;
-        return c
+        d.srcElement = a;
+        if (!d.uid) d.uid = z.getUid();
+        a.jStyle = d;
+        return d
     };
     z.addEvent = function(a, b, c) {
         if (typeof(b) != "string") return false;
@@ -656,6 +681,7 @@ if (typeof(Sizzle)=="undefined")
         e[g] = d;
         return true
     };
+    z.loadLanguage(z.language);
     z.addStyle("css");
     z.styles.css.filter = "*";
     z.styles.css.render = function(a, b) {
@@ -732,38 +758,46 @@ if (typeof(Sizzle)=="undefined")
         if (typeof(c) != "string") return false;
         content = a.content;
         var d = "";
-        var e = [];
+        var f = [];
         if (c == "-" || c == "delete") {
             d = content;
             if (!d) b.parentNode.removeChild(b);
             if (typeof(d) == "string" && " " < d) {
-                e = z.find(d, b);
-                var f = e.length;
-                for (var i = 0; i < f; i++) {
-                    e[i].parentNode.removeChild(e[i])
+                f = z.find(d, b);
+                var g = f.length;
+                for (var i = 0; i < g; i++) {
+                    f[i].parentNode.removeChild(f[i])
                 }
             }
+        } else if (c == "<>" || c == "wrap") {
+            if (typeof(content) == "string") {
+                try {
+                    var h = document.createElement(content);
+                    h.appendChild(b.cloneNode(true));
+                    b.parentNode.replaceChild(h, b)
+                } catch(e) {}
+            }
         } else {
-            var g = "afterBegin";
+            var j = "afterBegin";
             switch (c) {
             case "+<":
-                g = "beforeBegin";
+                j = "beforeBegin";
                 break;
             case ">+":
-                g = "afterEnd";
+                j = "afterEnd";
                 break;
             case "+>":
-                g = "beforeEnd";
+                j = "beforeEnd";
                 break;
             case "<+":
-                g = "afterBegin";
+                j = "afterBegin";
                 break;
             default:
                 z.console.error("the manipulate's op: \"" + c + "\" is wrong!");
                 break
             }
-            if (typeof(content) == "string") b.insertAdjacentHTML(g, content);
-            else b.insertAdjacentElement(g, content)
+            if (typeof(content) == "string") b.insertAdjacentHTML(j, content);
+            else b.insertAdjacentElement(j, content)
         }
         delete b.jStyle.manipulate;
         return true
