@@ -237,6 +237,8 @@ ul.inheritsList
 	
 	<li><a href="../symbols/jStyle.styles.render.parameters.validation.html">jStyle.styles.render.parameters.validation</a></li>
 	
+	<li><a href="../symbols/jStyle.styles.unbind.html">jStyle.styles.unbind</a></li>
+	
 	<li><a href="../symbols/jStyle.styles.validation.html">jStyle.styles.validation</a></li>
 	
 	<li><a href="../symbols/jStyle.styles.validation.parameters.html">jStyle.styles.validation.parameters</a></li>
@@ -405,7 +407,7 @@ ul.inheritsList
 							<td class="nameDescription">
 								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.createElement">createElement</a></b>(jStyleId, tag_name)
 								</div>
-								<div class="description">Add event event_name to element ,the hanlder is the third argumentIf the jStyleId element is exists, then return it</div>
+								<div class="description">Create Element by id jStyleId and tag name tag_nameIf the jStyleId element is exists, then return it</div>
 							</td>
 						</tr>
 					
@@ -424,6 +426,15 @@ ul.inheritsList
 								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.find">find</a></b>(selector, context)
 								</div>
 								<div class="description">Taking a selector and a context, finds a set of matching elements.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.getElementsByStyleName">getElementsByStyleName</a></b>(styleName)
+								</div>
+								<div class="description">Get the dom elements array by style name</div>
 							</td>
 						</tr>
 					
@@ -466,6 +477,15 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.loadTreeJStyle">loadTreeJStyle</a></b>(rootElement)
+								</div>
+								<div class="description">render jStyle from the root element dom tree.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.matches">matches</a></b>(selector, set)
 								</div>
 								<div class="description">Takes in a set of DOMElements, filters them against the specified selector, and returns the results.</div>
@@ -475,9 +495,36 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.ready">ready</a></b>(fn)
+								</div>
+								<div class="description">fire events when dom tree is ready<br/>the whole code get from jQuery library</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.serialize">serialize</a></b>()
+								</div>
+								<div class="description">serialize all jStyle element , set their whole jstyle attribute string.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.t">t</a></b>(string_id)
 								</div>
 								<div class="description">translate function</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">jStyle.<b><a href="../symbols/jStyle.html#.unbind">unbind</a></b>(element, event_name, handler)
+								</div>
+								<div class="description">unbind event event_name to element ,the hanlder is the third argument</div>
 							</td>
 						</tr>
 					
@@ -716,6 +763,12 @@ ul.inheritsList
 								<dd>the url to request</dd>
 							
 								<dt>
+									<span class="light fixedFont">{object | string}</span> <b>options.data</b>
+									
+								</dt>
+								<dd>the data to post</dd>
+							
+								<dt>
 									<span class="light fixedFont">{string}</span> <b>options.type</b>
 									<i>Optional, Default: "GET"</i>
 								</dt>
@@ -736,6 +789,18 @@ ul.inheritsList
 								<dt>
 									<span class="light fixedFont">{boolean}</span> <b>options.cache</b>
 									<i>Optional, Default: "false"</i>
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{boolean}</span> <b>options.processData</b>
+									<i>Optional, Default: "true"</i>
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>options.contentType</b>
+									<i>Optional, Default: "application/x-www-form-urlencoded"</i>
 								</dt>
 								<dd></dd>
 							
@@ -843,7 +908,7 @@ ul.inheritsList
 					
 					</div>
 					<div class="description">
-						Add event event_name to element ,the hanlder is the third argumentIf the jStyleId element is exists, then return it
+						Create Element by id jStyleId and tag name tag_nameIf the jStyleId element is exists, then return it
 						
 						
 					</div>
@@ -957,6 +1022,49 @@ ul.inheritsList
 									
 								</dt>
 								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>[DOMElement]</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".getElementsByStyleName"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">jStyle.</span><b>getElementsByStyleName</b>(styleName)
+					
+					</div>
+					<div class="description">
+						Get the dom elements array by style name
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>styleName</b>
+									
+								</dt>
+								<dd>the jstyle name</dd>
 							
 							</dl>
 						
@@ -1135,6 +1243,42 @@ ul.inheritsList
 
 					<hr />
 				
+					<a name=".loadTreeJStyle"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">jStyle.</span><b>loadTreeJStyle</b>(rootElement)
+					
+					</div>
+					<div class="description">
+						render jStyle from the root element dom tree.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{DomElement}</span> <b>rootElement</b>
+									
+								</dt>
+								<dd>the root element of jstyle tree on dom tree</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
 					<a name=".matches"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -1184,6 +1328,67 @@ ul.inheritsList
 
 					<hr />
 				
+					<a name=".ready"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">jStyle.</span><b>ready</b>(fn)
+					
+					</div>
+					<div class="description">
+						fire events when dom tree is ready<br/>the whole code get from jQuery library
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{function}</span> <b>fn</b>
+									
+								</dt>
+								<dd>the function to be fired  when dom tree is ready</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".serialize"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">jStyle.</span><b>serialize</b>()
+					
+					</div>
+					<div class="description">
+						serialize all jStyle element , set their whole jstyle attribute string.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
 					<a name=".t"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -1225,6 +1430,54 @@ ul.inheritsList
 						
 						
 
+					<hr />
+				
+					<a name=".unbind"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">jStyle.</span><b>unbind</b>(element, event_name, handler)
+					
+					</div>
+					<div class="description">
+						unbind event event_name to element ,the hanlder is the third argument
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/_global_.html#DOMElement">DOMElement</a>}</span> <b>element</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>event_name</b>
+									
+								</dt>
+								<dd>the event name</dd>
+							
+								<dt>
+									<span class="light fixedFont">{function}</span> <b>handler</b>
+									
+								</dt>
+								<dd>then event's hanlder function</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
 					
 				
 			
@@ -1239,7 +1492,7 @@ ul.inheritsList
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			&copy;Creativor Studio 2009<br />
-			Documentation generated by <a href='http://www.jsdoctoolkit.org/' target='_blank'>JsDoc Toolkit</a> 2.3.0 on Tue Aug 11 2009 20:25:18 GMT+0800 (CST)
+			Documentation generated by <a href='http://www.jsdoctoolkit.org/' target='_blank'>JsDoc Toolkit</a> 2.3.0 on Sat Sep 12 2009 02:35:30 GMT+0800 (CST)
 		</div>
 	</body>
 </html>
