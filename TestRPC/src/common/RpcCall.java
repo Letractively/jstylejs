@@ -3,7 +3,7 @@ package common;
 public abstract class RpcCall {
 	private long id;
 
-	RpcCall(long id) {
+	protected RpcCall(long id) {
 		this.id = id;
 	}
 
