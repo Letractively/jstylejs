@@ -5,57 +5,19 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-import common.Connection;
-import common.PacketWriter;
+import common.AbstractConnection;
 import common.RpcCall;
-import common.RpcPacket;
 import common.ThreadSafe;
 
 @ThreadSafe(false)
-class ClientConnection implements Connection {
+class ClientConnection extends AbstractConnection {
 
 	private SocketAddress serverSocket;
-	private SocketChannel channel;
-
-	private PacketWriter packetWriter;
 
 	ClientConnection(SocketAddress serverSocket) {
+		super();
 		this.serverSocket = serverSocket;
-	}
-
-	@Override
-	public void close() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void addRpcCall(RpcCall call) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public boolean isTimeOut() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void read() throws IOException {
-		// TODO Auto-generated method stub
-		return;
-	}
-
-	@Override
-	public void write() throws IOException {
-	}
-
-	@Override
-	public void touch() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -66,13 +28,17 @@ class ClientConnection implements Connection {
 		return;
 	}
 
-	@Override
 	public void build() throws IOException {
 		// do connect to remote server.
-		this.channel = SocketChannel.open(this.serverSocket);
-		this.channel.configureBlocking(false);
-		this.packetWriter = new PacketWriter(channel);
+		SocketChannel socketChannel = SocketChannel.open(this.serverSocket);
+		socketChannel.configureBlocking(false);
+		this.setSocketChannel(socketChannel);
 
+	}
+
+	@Override
+	protected RpcCall readNewCallId(long newCallId) {
+		return new ClientCall(newCallId, this);
 	}
 
 }

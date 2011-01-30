@@ -5,31 +5,28 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 @ThreadSafe(false)
-public class PacketWriter {
-	private enum WriteStep {
-		CALL_ID, CHECKSUM, DATA_LENGTH, DATA
-	}
+class PacketWriter {
 
 	private SocketChannel socketChannel;
 
 	private ByteBuffer longByteBuffer;
 
 	private ByteBuffer dataByteBuffer;
-	private WriteStep step;
+	private PacketOperation operation;
 
 	private RpcPacket lastPacket;
 
 	public PacketWriter(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
-		this.step = WriteStep.CALL_ID;
+		this.operation = PacketOperation.CALL_ID;
 		longByteBuffer = ByteBuffer.allocate(8);
 	}
 
 	public void submitPacket(RpcPacket packet) {
-		this.step = WriteStep.CALL_ID;
+		this.operation = PacketOperation.CALL_ID;
 		this.lastPacket = packet;
 		this.longByteBuffer.clear();
-		this.longByteBuffer.putLong(packet.getCallId());
+		this.longByteBuffer.putLong(packet.getCall().getId());
 		this.dataByteBuffer = ByteBuffer.allocate(packet.getDataLength());
 		this.dataByteBuffer.put(packet.getData());
 		this.dataByteBuffer.flip();
@@ -37,7 +34,7 @@ public class PacketWriter {
 	}
 
 	public boolean write() throws IOException {
-		switch (step) {
+		switch (operation) {
 		case CALL_ID:
 			if (this.longByteBuffer.hasRemaining())
 				this.socketChannel.write(longByteBuffer);
@@ -45,7 +42,7 @@ public class PacketWriter {
 				this.longByteBuffer.clear();
 				this.longByteBuffer.putLong(lastPacket.getChecksum());
 				this.longByteBuffer.flip();
-				step = WriteStep.CHECKSUM;
+				operation = PacketOperation.CHECKSUM;
 			}
 			return false;
 
@@ -58,7 +55,7 @@ public class PacketWriter {
 				short dataLength = lastPacket.getDataLength();
 				this.longByteBuffer.putShort(dataLength);
 				this.longByteBuffer.flip();
-				step = WriteStep.DATA_LENGTH;
+				operation = PacketOperation.DATA_LENGTH;
 			}
 			return false;
 
@@ -68,7 +65,7 @@ public class PacketWriter {
 				this.socketChannel.write(longByteBuffer);
 			if (!this.longByteBuffer.hasRemaining()) {
 				this.longByteBuffer.clear();
-				step = WriteStep.DATA;
+				operation = PacketOperation.DATA;
 			}
 			return false;
 
@@ -78,7 +75,7 @@ public class PacketWriter {
 				this.socketChannel.write(dataByteBuffer);
 			if (!this.dataByteBuffer.hasRemaining()) {
 				this.dataByteBuffer.clear();
-				step = WriteStep.CALL_ID;
+				operation = PacketOperation.CALL_ID;
 				return true;
 			}
 			return false;

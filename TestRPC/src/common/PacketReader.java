@@ -5,75 +5,79 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 @ThreadSafe(false)
-public class PacketReader {
-	private enum ReadStep {
-		CALL_ID, CHECKSUM, DATA_LENGTH, DATA
-	}
+class PacketReader {
 
-	private ReadStep step;
+	private PacketOperation operation;
 	private ByteBuffer longByteBuffer;
-	private Connection connection;
+	private SocketChannel socketChannel;
 
-	private RpcPacket currentPacket;
+	private RpcPacket lastPaket;
 
 	private ByteBuffer lastDataBuffer;
 
-	public PacketReader(Connection connection) {
-		this.connection = connection;
-		step = ReadStep.CALL_ID;
+	public PacketReader(SocketChannel socketChannel) {
+		this.socketChannel = socketChannel;
+		operation = PacketOperation.CALL_ID;
 		this.longByteBuffer = ByteBuffer.allocate(8);
+	}
+
+	public Long readNewCall() throws IOException {
+		if (this.operation != PacketOperation.CALL_ID)
+			throw new IllegalStateException();
+		if (this.longByteBuffer.hasRemaining())
+			this.socketChannel.read(longByteBuffer);
+		if (!this.longByteBuffer.hasRemaining()) {
+			this.longByteBuffer.flip();
+			long callId = this.longByteBuffer.getLong();
+			operation = PacketOperation.CHECKSUM;
+			return callId;
+		}
+		return null;
+	}
+
+	public PacketOperation getOperation() {
+		return operation;
 	}
 
 	public RpcPacket read() throws IOException, ChecksumNotMatchException {
 
-		switch (step) {
-		case CALL_ID:
-
-			if (this.longByteBuffer.hasRemaining())
-				this.connection.readData(this.longByteBuffer);
-			if (!this.longByteBuffer.hasRemaining()) {
-				this.longByteBuffer.flip();
-				long callId = this.longByteBuffer.getLong();
-				
-				this.currentPacket = new RpcPacket(callId);
-				this.longByteBuffer.clear();
-				step = ReadStep.CHECKSUM;
-			}
-			return null;
+		if (this.operation == PacketOperation.CALL_ID)
+			throw new IllegalStateException();
+		switch (operation) {
 
 		case CHECKSUM:
 
 			if (this.longByteBuffer.hasRemaining())
-				this.clientChannel.read(longByteBuffer);
+				this.socketChannel.read(longByteBuffer);
 			if (!this.longByteBuffer.hasRemaining()) {
 				this.longByteBuffer.flip();
 				long checksum = this.longByteBuffer.getLong();
-				this.currentPacket.setChecksum(checksum);
+				this.lastPaket.setChecksum(checksum);
 				this.longByteBuffer.clear();
 				this.longByteBuffer.limit(4);
-				step = ReadStep.DATA_LENGTH;
+				operation = PacketOperation.DATA_LENGTH;
 			}
 			return null;
 		case DATA_LENGTH:
 			if (this.longByteBuffer.hasRemaining())
-				this.clientChannel.read(longByteBuffer);
+				this.socketChannel.read(longByteBuffer);
 			if (!this.longByteBuffer.hasRemaining()) {
 				this.longByteBuffer.flip();
 				short lastDataLength = this.longByteBuffer.getShort();
 				this.lastDataBuffer = ByteBuffer.allocate(lastDataLength);
 				this.longByteBuffer.clear();
-				step = ReadStep.DATA;
+				operation = PacketOperation.DATA;
 			}
 			return null;
 
 		case DATA:
 			if (this.lastDataBuffer.hasRemaining())
-				this.clientChannel.read(lastDataBuffer);
+				this.socketChannel.read(lastDataBuffer);
 			if (!this.lastDataBuffer.hasRemaining()) {
 				this.lastDataBuffer.flip();
-				this.currentPacket.setData(this.lastDataBuffer.array());
-				step = ReadStep.CALL_ID;
-				return this.currentPacket;
+				this.lastPaket.setData(this.lastDataBuffer.array());
+				operation = PacketOperation.CALL_ID;
+				return this.lastPaket;
 			}
 			return null;
 
@@ -81,5 +85,9 @@ public class PacketReader {
 			break;
 		}
 		return null;
+	}
+
+	public void submitLastPacket(RpcPacket requestPacket) {
+		this.lastPaket = requestPacket;
 	}
 }
