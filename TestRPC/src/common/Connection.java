@@ -8,4 +8,12 @@ public interface Connection {
 	public void addRpcCall(RpcCall call);
 
 	public boolean isTimeOut();
+
+	public void read() throws IOException;
+
+	public void touch();
+
+	public void build() throws IOException;
+
+	public void write() throws IOException;
 }

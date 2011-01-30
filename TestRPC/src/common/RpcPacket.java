@@ -3,16 +3,16 @@ package common;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public abstract class RpcPacket {
+public class RpcPacket {
 
 	private long callId;
 	private byte[] data;
 	private short dataLength;
-	private long checkSum;
+	private long checksum;
 
 	RpcPacket(long callId, long checkSum, short dataLength) {
 		this.callId = callId;
-		this.checkSum = checkSum;
+		this.checksum = checkSum;
 		this.dataLength = dataLength;
 	}
 
@@ -20,12 +20,19 @@ public abstract class RpcPacket {
 		return dataLength;
 	}
 
-	public void setData(byte[] data) throws ChecksumNotMatchException {
-		this.data = data;
+	public long getChecksum() {
+		return checksum;
 	}
 
-	RpcPacket(long callId, byte[] data) {
+	RpcPacket(long callId) {
 		this.callId = callId;
+	}
+
+	void setChecksum(long checkSum) {
+		this.checksum = checkSum;
+	}
+
+	void setData(byte[] data) throws ChecksumNotMatchException {
 		this.data = data;
 		this.dataLength = (short) data.length;
 	}
@@ -38,12 +45,24 @@ public abstract class RpcPacket {
 		return data;
 	}
 
-	public abstract Writable readParameter() throws IOException;
-
 	public void write(DataOutput out) throws IOException {
 		out.writeLong(this.callId);
-		out.writeLong(this.checkSum);
+		out.writeLong(this.checksum);
 		out.writeShort(this.dataLength);
 		out.write(data);
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("Call id: ");
+		sb.append(this.callId);
+		sb.append(", Checksum: ");
+		sb.append(this.checksum);
+		sb.append(", Data length: ");
+		sb.append(this.dataLength);
+		sb.append("}");
+		return sb.toString();
 	}
 }

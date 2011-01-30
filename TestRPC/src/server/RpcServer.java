@@ -4,7 +4,7 @@ import java.io.IOException;
 
 abstract class RpcServer {
 
-	private int portNumer;
+	protected int portNumer;
 
 	public abstract void start() throws IOException;
 
@@ -15,4 +15,5 @@ abstract class RpcServer {
 	public int getPortNumer() {
 		return portNumer;
 	}
+
 }
