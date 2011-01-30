@@ -5,13 +5,13 @@ import java.io.IOException;
 
 public class RpcPacket {
 
-	private long callId;
 	private byte[] data;
 	private short dataLength;
 	private long checksum;
+	private RpcCall call;
 
-	RpcPacket(long callId, long checkSum, short dataLength) {
-		this.callId = callId;
+	RpcPacket(RpcCall call, long checkSum, short dataLength) {
+		this.call = call;
 		this.checksum = checkSum;
 		this.dataLength = dataLength;
 	}
@@ -24,8 +24,8 @@ public class RpcPacket {
 		return checksum;
 	}
 
-	RpcPacket(long callId) {
-		this.callId = callId;
+	RpcPacket(RpcCall call) {
+		this.call = call;
 	}
 
 	void setChecksum(long checkSum) {
@@ -37,8 +37,8 @@ public class RpcPacket {
 		this.dataLength = (short) data.length;
 	}
 
-	public long getCallId() {
-		return callId;
+	public RpcCall getCall() {
+		return call;
 	}
 
 	public byte[] getData() {
@@ -46,7 +46,7 @@ public class RpcPacket {
 	}
 
 	public void write(DataOutput out) throws IOException {
-		out.writeLong(this.callId);
+		out.writeLong(this.call.getId());
 		out.writeLong(this.checksum);
 		out.writeShort(this.dataLength);
 		out.write(data);
@@ -57,7 +57,7 @@ public class RpcPacket {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
 		sb.append("Call id: ");
-		sb.append(this.callId);
+		sb.append(this.call.getId());
 		sb.append(", Checksum: ");
 		sb.append(this.checksum);
 		sb.append(", Data length: ");

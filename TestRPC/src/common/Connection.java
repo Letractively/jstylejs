@@ -1,6 +1,7 @@
 package common;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public interface Connection {
 	public void close() throws IOException;
@@ -16,4 +17,6 @@ public interface Connection {
 	public void build() throws IOException;
 
 	public void write() throws IOException;
+
+	public void readData(ByteBuffer longByteBuffer);
 }

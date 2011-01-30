@@ -19,15 +19,10 @@ class ClientConnection implements Connection {
 	private SocketAddress serverSocket;
 	private SocketChannel channel;
 
-	private ConcurrentLinkedQueue<RpcPacket> requestPackets;
-
-	private RpcPacket currentRequst;
-
 	private PacketWriter packetWriter;
 
 	ClientConnection(SocketAddress serverSocket) {
 		this.serverSocket = serverSocket;
-		this.requestPackets = new ConcurrentLinkedQueue<RpcPacket>();
 	}
 
 	@Override
@@ -38,7 +33,7 @@ class ClientConnection implements Connection {
 
 	@Override
 	public void addRpcCall(RpcCall call) {
-		this.requestPackets.add(call.toPacket());
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -55,13 +50,6 @@ class ClientConnection implements Connection {
 
 	@Override
 	public void write() throws IOException {
-		if (currentRequst == null) {
-			currentRequst = requestPackets.remove();
-			this.packetWriter.submitPacket(currentRequst);
-		}
-		if (this.packetWriter.write()) {
-			this.currentRequst = null;
-		}
 	}
 
 	@Override

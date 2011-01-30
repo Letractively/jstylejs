@@ -12,13 +12,14 @@ public class PacketReader {
 
 	private ReadStep step;
 	private ByteBuffer longByteBuffer;
-	private SocketChannel clientChannel;
+	private Connection connection;
 
 	private RpcPacket currentPacket;
 
 	private ByteBuffer lastDataBuffer;
 
-	public PacketReader(SocketChannel clientChannel) {
+	public PacketReader(Connection connection) {
+		this.connection = connection;
 		step = ReadStep.CALL_ID;
 		this.longByteBuffer = ByteBuffer.allocate(8);
 	}
@@ -29,10 +30,11 @@ public class PacketReader {
 		case CALL_ID:
 
 			if (this.longByteBuffer.hasRemaining())
-				this.clientChannel.read(longByteBuffer);
+				this.connection.readData(this.longByteBuffer);
 			if (!this.longByteBuffer.hasRemaining()) {
 				this.longByteBuffer.flip();
 				long callId = this.longByteBuffer.getLong();
+				
 				this.currentPacket = new RpcPacket(callId);
 				this.longByteBuffer.clear();
 				step = ReadStep.CHECKSUM;
