@@ -7,10 +7,15 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
+import common.PacketManager;
+
 public class Listener extends Thread {
 	private Selector selector;
+	private PacketManager packetManager;
 
-	public Listener(ServerSocketChannel socketChannel) throws IOException {
+	public Listener(ServerSocketChannel socketChannel,
+			PacketManager packetManager) throws IOException {
+		this.packetManager = packetManager;
 		this.selector = Selector.open();
 		socketChannel.register(selector, SelectionKey.OP_ACCEPT);
 	}
@@ -62,7 +67,7 @@ public class Listener extends Thread {
 
 			SocketChannel clientChannel = channel.accept();
 			clientChannel.configureBlocking(false);
-			connection = new ServerConnection(clientChannel);
+			connection = new ServerConnection(clientChannel, packetManager);
 			// register read events for the new connection.
 			clientChannel.register(selector, SelectionKey.OP_READ, connection);
 

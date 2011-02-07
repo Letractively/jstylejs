@@ -24,7 +24,8 @@ class RpcServerImpl extends RpcServer {
 		InetSocketAddress socketAddress = new InetSocketAddress(getPortNumer());
 		this.socketChannel.socket().bind(socketAddress);
 		this.portNumer = socketAddress.getPort();
-		this.listener = new Listener(this.socketChannel);
+		this.listener = new Listener(this.socketChannel,
+				this.getPacketManager());
 		this.listener.start();
 	}
 

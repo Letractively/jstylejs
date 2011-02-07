@@ -1,16 +1,29 @@
 package common;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class AbstractConnection implements Connection {
+	private enum DataState {
+		HEADER, DATA;
+	}
+
 	private SocketChannel socketChannel;
 	private long id;
+	private RpcPacket lastReadPacket;
+	private DataState readState;
+	private ByteBuffer readHeaderBuffer;
+	private ByteBuffer readDataBuffer;
+	private PacketManager packetManager;
 	private static AtomicLong UID = new AtomicLong(0);
 
-	protected AbstractConnection() {
+	protected AbstractConnection(PacketManager packetManager) {
 		this.id = UID.getAndIncrement();
+		readState = DataState.HEADER;
+		readHeaderBuffer = ByteBuffer.allocate(RpcPacket.HEADER_SIZE);
+		this.packetManager = packetManager;
 	}
 
 	public long getId() {
@@ -34,6 +47,39 @@ public abstract class AbstractConnection implements Connection {
 
 	@Override
 	public void read() throws IOException {
+		switch (readState) {
+		case DATA:
+			this.socketChannel.read(readHeaderBuffer);
+			if (!readHeaderBuffer.hasRemaining()) {
+				readHeaderBuffer.flip();
+				long callId = readHeaderBuffer.getLong();
+				long checksum = readHeaderBuffer.getLong();
+				short dataLength = readHeaderBuffer.getShort();
+				readDataBuffer = ByteBuffer.allocate(dataLength);
+				lastReadPacket = new RpcPacket(this, callId, checksum,
+						dataLength);
+				readHeaderBuffer.clear();
+				readState = DataState.DATA;
+			}
+			break;
+		case HEADER:
+			this.socketChannel.read(readDataBuffer);
+			if (!readDataBuffer.hasRemaining()) {
+				readDataBuffer.flip();
+				try {
+					lastReadPacket.setData(readDataBuffer.array());
+					// add packet to manager
+					this.packetManager.addReceived(lastReadPacket);
+				} catch (ChecksumNotMatchException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				readState = DataState.HEADER;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override

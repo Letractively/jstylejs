@@ -10,12 +10,13 @@ public class RpcPacket {
 	private long checksum;
 	private long callId;
 	private Connection connection;
+	public static final int HEADER_SIZE = 8 + 8 + 4;
 
-	RpcPacket(Connection connection, long callId, long checkSum,
+	RpcPacket(Connection connection, long callId, long checksum,
 			short dataLength) {
 		this.connection = connection;
 		this.callId = callId;
-		this.checksum = checkSum;
+		this.checksum = checksum;
 		this.dataLength = dataLength;
 	}
 
@@ -49,6 +50,10 @@ public class RpcPacket {
 		out.writeLong(this.checksum);
 		out.writeShort(this.dataLength);
 		out.write(data);
+	}
+
+	Connection getConnection() {
+		return connection;
 	}
 
 	@Override
