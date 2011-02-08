@@ -48,7 +48,7 @@ public abstract class AbstractConnection implements Connection {
 	@Override
 	public void read() throws IOException {
 		switch (readState) {
-		case DATA:
+		case HEADER:
 			this.socketChannel.read(readHeaderBuffer);
 			if (!readHeaderBuffer.hasRemaining()) {
 				readHeaderBuffer.flip();
@@ -62,7 +62,7 @@ public abstract class AbstractConnection implements Connection {
 				readState = DataState.DATA;
 			}
 			break;
-		case HEADER:
+		case DATA:
 			this.socketChannel.read(readDataBuffer);
 			if (!readDataBuffer.hasRemaining()) {
 				readDataBuffer.flip();

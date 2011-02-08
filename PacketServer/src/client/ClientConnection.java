@@ -21,7 +21,7 @@ class ClientConnection extends AbstractConnection {
 	public static void main(String[] args) throws IOException {
 		PacketManager packetManager = new PacketManager();
 		SocketAddress serverSocket = new InetSocketAddress(
-				InetAddress.getLocalHost(), 4465);
+				InetAddress.getLocalHost(), 4466);
 		ClientConnection connection = new ClientConnection(serverSocket,
 				packetManager);
 		connection.build();

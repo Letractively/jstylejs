@@ -34,11 +34,12 @@ public class Listener extends Thread {
 					key = iterator.next();
 					iterator.remove();
 					if (key.isValid()) {
-
 						if (key.isAcceptable())
 							accept(key);
 						else if (key.isReadable())
 							read(key);
+						else if (key.isWritable())
+							write(key);
 						else
 							;
 					}
@@ -49,8 +50,19 @@ public class Listener extends Thread {
 		}
 	}
 
+	private void write(SelectionKey key) {
+		ServerConnection connection = (ServerConnection) key.attachment();
+		System.out.println("got write key");
+		try {
+			connection.write();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void read(SelectionKey key) {
 		ServerConnection connection = (ServerConnection) key.attachment();
+		System.out.println("got read key");
 		try {
 			connection.read();
 		} catch (IOException e) {
