@@ -22,6 +22,7 @@ public class Listener extends Thread {
 
 	@Override
 	public void run() {
+
 		SelectionKey key;
 		Iterator<SelectionKey> iterator;
 		while (true) {
@@ -64,7 +65,9 @@ public class Listener extends Thread {
 		ServerConnection connection = (ServerConnection) key.attachment();
 		System.out.println("got read key");
 		try {
-			connection.read();
+			int readCount = connection.read();
+			if (readCount == -1)
+				connection.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -12,7 +12,7 @@ public interface Connection {
 	 * 
 	 * @throws IOException
 	 */
-	public void read() throws IOException;
+	public int read() throws IOException;
 
 	public void touch();
 

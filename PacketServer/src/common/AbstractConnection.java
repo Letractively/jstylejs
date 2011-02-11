@@ -32,6 +32,7 @@ public abstract class AbstractConnection implements Connection {
 
 	@Override
 	public void close() throws IOException {
+		this.socketChannel.close();
 
 	}
 
@@ -46,10 +47,11 @@ public abstract class AbstractConnection implements Connection {
 	}
 
 	@Override
-	public void read() throws IOException {
+	public int read() throws IOException {
+		int readCount = 0;
 		switch (readState) {
 		case HEADER:
-			this.socketChannel.read(readHeaderBuffer);
+			readCount = this.socketChannel.read(readHeaderBuffer);
 			if (!readHeaderBuffer.hasRemaining()) {
 				readHeaderBuffer.flip();
 				long callId = readHeaderBuffer.getLong();
@@ -63,7 +65,7 @@ public abstract class AbstractConnection implements Connection {
 			}
 			break;
 		case DATA:
-			this.socketChannel.read(readDataBuffer);
+			readCount = this.socketChannel.read(readDataBuffer);
 			if (!readDataBuffer.hasRemaining()) {
 				readDataBuffer.flip();
 				try {
@@ -80,6 +82,7 @@ public abstract class AbstractConnection implements Connection {
 		default:
 			break;
 		}
+		return readCount;
 	}
 
 	@Override
