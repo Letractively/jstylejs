@@ -7,7 +7,9 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
+import common.ChecksumNotMatchException;
 import common.PacketManager;
+import common.RpcPacket;
 
 public class Listener extends Thread {
 	private Selector selector;
@@ -51,7 +53,7 @@ public class Listener extends Thread {
 		}
 	}
 
-	private void write(SelectionKey key) {
+	private void write(SelectionKey key) throws IOException {
 		ServerConnection connection = (ServerConnection) key.attachment();
 		System.out.println("got write key");
 		try {
@@ -61,17 +63,23 @@ public class Listener extends Thread {
 		}
 	}
 
-	private void read(SelectionKey key) {
+	private void read(SelectionKey key) throws IOException {
 		ServerConnection connection = (ServerConnection) key.attachment();
 		System.out.println("got read key");
+
+		// add test response packet
+		RpcPacket testPacket = new RpcPacket(connection, 0, 0, (short) 14);
 		try {
-			int readCount = connection.read();
-			if (readCount == -1)
-				connection.close();
-		} catch (IOException e) {
+			testPacket.setData(new byte[14]);
+		} catch (ChecksumNotMatchException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		connection.addResponsePacket(testPacket);
+		int readCount = connection.read();
+		if (readCount == -1)
+			connection.close();
+
 	}
 
 	private void accept(SelectionKey key) {
@@ -82,9 +90,12 @@ public class Listener extends Thread {
 
 			SocketChannel clientChannel = channel.accept();
 			clientChannel.configureBlocking(false);
-			connection = new ServerConnection(clientChannel, packetManager);
 			// register read events for the new connection.
-			clientChannel.register(selector, SelectionKey.OP_READ, connection);
+			SelectionKey clientKey = clientChannel.register(selector,
+					SelectionKey.OP_READ);
+			connection = new ServerConnection(clientChannel, packetManager,
+					clientKey);
+			clientKey.attach(connection);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

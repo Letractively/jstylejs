@@ -2,7 +2,10 @@ package common;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class AbstractConnection implements Connection {
@@ -15,15 +18,22 @@ public abstract class AbstractConnection implements Connection {
 	private RpcPacket lastReadPacket;
 	private DataState readState;
 	private ByteBuffer readHeaderBuffer;
+	private ByteBuffer writeDataBuffer;
 	private ByteBuffer readDataBuffer;
 	private PacketManager packetManager;
 	private static AtomicLong UID = new AtomicLong(0);
+	private RpcPacket lastWritePacket;
+	private ConcurrentLinkedQueue<RpcPacket> responsePackets;
+	private SelectionKey selectionKey;
 
-	protected AbstractConnection(PacketManager packetManager) {
+	protected AbstractConnection(PacketManager packetManager,
+			SelectionKey selectionKey) {
 		this.id = UID.getAndIncrement();
+		this.selectionKey = selectionKey;
 		readState = DataState.HEADER;
 		readHeaderBuffer = ByteBuffer.allocate(RpcPacket.HEADER_SIZE);
 		this.packetManager = packetManager;
+		responsePackets = new ConcurrentLinkedQueue<RpcPacket>();
 	}
 
 	public long getId() {
@@ -38,6 +48,15 @@ public abstract class AbstractConnection implements Connection {
 
 	protected SocketChannel getSocketChannel() {
 		return socketChannel;
+	}
+
+	@Override
+	public void addResponsePacket(RpcPacket responsePacket)
+			throws ClosedChannelException {
+		this.responsePackets.add(responsePacket);
+		this.selectionKey.interestOps(this.selectionKey.interestOps()
+				| SelectionKey.OP_WRITE);
+		System.out.println("add response packet:" + responsePacket.toString());
 	}
 
 	@Override
@@ -70,6 +89,8 @@ public abstract class AbstractConnection implements Connection {
 				readDataBuffer.flip();
 				try {
 					lastReadPacket.setData(readDataBuffer.array());
+					System.out.println("Read packet:"
+							+ lastReadPacket.toString());
 					// add packet to manager
 					this.packetManager.addReceived(lastReadPacket);
 				} catch (ChecksumNotMatchException e) {
@@ -97,7 +118,27 @@ public abstract class AbstractConnection implements Connection {
 
 	@Override
 	public void write() throws IOException {
-		// TODO Auto-generated method stub
+
+		if (lastWritePacket == null) {
+			lastWritePacket = responsePackets.remove();
+			this.writeDataBuffer = ByteBuffer.allocate(lastWritePacket
+					.getDataLength() + RpcPacket.HEADER_SIZE);
+			this.writeDataBuffer.putLong(lastWritePacket.getCallId());
+			this.writeDataBuffer.putLong(lastWritePacket.getChecksum());
+			this.writeDataBuffer.putShort(lastWritePacket.getDataLength());
+			this.writeDataBuffer.put(this.lastWritePacket.getData());
+			this.writeDataBuffer.flip();
+		}
+		this.socketChannel.write(this.writeDataBuffer);
+		if (!this.writeDataBuffer.hasRemaining()) {
+			System.out.println("Write packet "
+					+ this.lastWritePacket.toString() + " out!");
+			this.lastWritePacket = null;
+			// test if we need to unregister the write event.
+			if (this.responsePackets.size() == 0)
+				selectionKey.interestOps(SelectionKey.OP_READ);
+		}
+
 	}
 
 	@Override

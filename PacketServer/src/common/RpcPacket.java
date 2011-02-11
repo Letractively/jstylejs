@@ -10,9 +10,9 @@ public class RpcPacket {
 	private long checksum;
 	private long callId;
 	private Connection connection;
-	public static final int HEADER_SIZE = 8 + 8 + 4;
+	public static final int HEADER_SIZE = 8 + 8 + 2;
 
-	RpcPacket(Connection connection, long callId, long checksum,
+	public RpcPacket(Connection connection, long callId, long checksum,
 			short dataLength) {
 		this.connection = connection;
 		this.callId = callId;
@@ -32,7 +32,7 @@ public class RpcPacket {
 		this.checksum = checkSum;
 	}
 
-	void setData(byte[] data) throws ChecksumNotMatchException {
+	public void setData(byte[] data) throws ChecksumNotMatchException {
 		this.data = data;
 		this.dataLength = (short) data.length;
 	}
