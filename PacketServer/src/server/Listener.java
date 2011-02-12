@@ -25,9 +25,10 @@ public class Listener extends Thread {
 
 		SelectionKey key;
 		Iterator<SelectionKey> iterator;
-		while (true) {
-			try {
 
+		while (true) {
+
+			try {
 				selector.select();
 
 				for (iterator = selector.selectedKeys().iterator(); iterator

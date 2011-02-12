@@ -1,16 +1,22 @@
 package client;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class Listener extends Thread {
 	private Selector selector;
 
+	private AtomicBoolean registering;
+
 	Listener(Selector selector) {
 		this.setName("Client listener");
 		this.selector = selector;
+		registering = new AtomicBoolean(false);
 	}
 
 	@Override
@@ -22,7 +28,16 @@ class Listener extends Thread {
 			try {
 
 				selector.select();
-
+				synchronized (registering) {
+					while (registering.get()) {
+						try {
+							registering.wait();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
 				for (iterator = selector.selectedKeys().iterator(); iterator
 						.hasNext();) {
 					key = iterator.next();
@@ -59,5 +74,18 @@ class Listener extends Thread {
 		if (readCount == -1)
 			connection.close();
 
+	}
+
+	public SelectionKey register(SocketChannel socketChannel, int ops,
+			ClientConnection clientConnection) throws ClosedChannelException {
+		SelectionKey key;
+		synchronized (registering) {
+			registering.set(true);
+			selector.wakeup();
+			key = socketChannel.register(selector, ops, clientConnection);
+			registering.set(false);
+			registering.notifyAll();
+		}
+		return key;
 	}
 }

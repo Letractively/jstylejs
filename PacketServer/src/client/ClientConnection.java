@@ -34,7 +34,7 @@ class ClientConnection extends AbstractConnection {
 		listener.start();
 		ClientConnection connection = new ClientConnection(serverSocket,
 				packetManager);
-		connection.build(selector);
+		connection.build(listener);
 		RpcPacket testPacket = new RpcPacket(connection, 233, 324324234,
 				(short) 344);
 		testPacket.setData(new byte[344]);
@@ -57,12 +57,12 @@ class ClientConnection extends AbstractConnection {
 		System.out.println("Write packet out:" + rpcPacket.toString());
 	}
 
-	public void build(Selector selector) throws IOException {
+	public void build(Listener listener) throws IOException {
 		// do connect to remote server.
 		SocketChannel socketChannel = SocketChannel.open(this.serverSocket);
 		socketChannel.configureBlocking(false);
 		this.socketChannel = socketChannel;
-		this.selectionKey = this.socketChannel.register(selector,
+		this.selectionKey = listener.register(this.socketChannel,
 				SelectionKey.OP_READ, this);
 		System.out.println(this.toString() + " builded");
 	}
