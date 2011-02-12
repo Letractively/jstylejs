@@ -54,7 +54,6 @@ public class Listener extends Thread {
 
 	private void write(SelectionKey key) throws IOException {
 		ServerConnection connection = (ServerConnection) key.attachment();
-		System.out.println("got write key");
 		try {
 			connection.write();
 		} catch (IOException e) {
@@ -64,7 +63,6 @@ public class Listener extends Thread {
 
 	private void read(SelectionKey key) throws IOException {
 		ServerConnection connection = (ServerConnection) key.attachment();
-		System.out.println("got read key");
 		int readCount = connection.read();
 		if (readCount == -1)
 			connection.close();
@@ -89,7 +87,6 @@ public class Listener extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		System.out.println("new connection: " + connection + " accepted.");
 
 	}

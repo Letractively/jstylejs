@@ -59,7 +59,6 @@ class Listener extends Thread {
 
 	private void write(SelectionKey key) {
 		ClientConnection connection = (ClientConnection) key.attachment();
-		System.out.println("got write key");
 		try {
 			connection.write();
 		} catch (IOException e) {
@@ -69,14 +68,13 @@ class Listener extends Thread {
 
 	private void read(SelectionKey key) throws IOException {
 		ClientConnection connection = (ClientConnection) key.attachment();
-		System.out.println("got read key");
 		int readCount = connection.read();
 		if (readCount == -1)
 			connection.close();
 
 	}
 
-	public SelectionKey register(SocketChannel socketChannel, int ops,
+	SelectionKey register(SocketChannel socketChannel, int ops,
 			ClientConnection clientConnection) throws ClosedChannelException {
 		SelectionKey key;
 		synchronized (registering) {

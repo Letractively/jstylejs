@@ -94,7 +94,12 @@ public abstract class AbstractConnection implements Connection {
 					// add packet to manager
 					this.packetManager.addReceived(lastReadPacket);
 					// TODO: test add packet to response
-					this.addResponsePacket(lastReadPacket);
+					RpcPacket testPacket = new RpcPacket(this,
+							this.lastReadPacket.getCallId() + 1,
+							this.lastReadPacket.getChecksum(),
+							this.lastReadPacket.getDataLength());
+					testPacket.setData(this.lastReadPacket.getData());
+					this.addResponsePacket(testPacket);
 				} catch (ChecksumNotMatchException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -127,6 +132,7 @@ public abstract class AbstractConnection implements Connection {
 			this.writeDataBuffer.put(this.lastWritePacket.getData());
 			this.writeDataBuffer.flip();
 		}
+
 		this.socketChannel.write(this.writeDataBuffer);
 		if (!this.writeDataBuffer.hasRemaining()) {
 			System.out.println("Write packet "
