@@ -5,7 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class AbstractConnection implements Connection {
@@ -13,6 +14,11 @@ public abstract class AbstractConnection implements Connection {
 		HEADER, DATA;
 	}
 
+	/**
+	 * Time out interval, in milli-seconds.
+	 */
+	private static final int TIME_OUT_INTERVAL = 1000 * 60;
+	private long lastContact;
 	protected SocketChannel socketChannel;
 	private long id;
 	private RpcPacket lastReadPacket;
@@ -23,7 +29,7 @@ public abstract class AbstractConnection implements Connection {
 	private PacketManager packetManager;
 	private static AtomicLong UID = new AtomicLong(0);
 	private RpcPacket lastWritePacket;
-	private ConcurrentLinkedQueue<RpcPacket> responsePackets;
+	private Queue<RpcPacket> responsePackets;
 	protected SelectionKey selectionKey;
 
 	protected AbstractConnection(PacketManager packetManager,
@@ -33,9 +39,11 @@ public abstract class AbstractConnection implements Connection {
 		readState = DataState.HEADER;
 		readHeaderBuffer = ByteBuffer.allocate(RpcPacket.HEADER_SIZE);
 		this.packetManager = packetManager;
-		responsePackets = new ConcurrentLinkedQueue<RpcPacket>();
+		responsePackets = new LinkedList<RpcPacket>();
+		lastContact = System.currentTimeMillis();
 	}
 
+	@Override
 	public long getId() {
 		return id;
 	}
@@ -43,7 +51,7 @@ public abstract class AbstractConnection implements Connection {
 	@Override
 	public void close() throws IOException {
 		this.socketChannel.close();
-
+		System.out.println(this.toString() + " closed!");
 	}
 
 	protected SocketChannel getSocketChannel() {
@@ -53,7 +61,9 @@ public abstract class AbstractConnection implements Connection {
 	@Override
 	public void addResponsePacket(RpcPacket responsePacket)
 			throws ClosedChannelException {
-		this.responsePackets.add(responsePacket);
+		synchronized (responsePackets) {
+			this.responsePackets.add(responsePacket);
+		}
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
 		System.out.println("add response packet:" + responsePacket.toString());
@@ -61,8 +71,7 @@ public abstract class AbstractConnection implements Connection {
 
 	@Override
 	public boolean isTimeOut() {
-		// TODO Auto-generated method stub
-		return false;
+		return System.currentTimeMillis() - lastContact > TIME_OUT_INTERVAL;
 	}
 
 	@Override
@@ -115,15 +124,16 @@ public abstract class AbstractConnection implements Connection {
 
 	@Override
 	public void touch() {
-		// TODO Auto-generated method stub
-
+		this.lastContact = System.currentTimeMillis();
 	}
 
 	@Override
 	public void write() throws IOException {
-
 		if (lastWritePacket == null) {
-			lastWritePacket = responsePackets.remove();
+			synchronized (responsePackets) {
+
+				lastWritePacket = responsePackets.remove();
+			}
 			this.writeDataBuffer = ByteBuffer.allocate(lastWritePacket
 					.getDataLength() + RpcPacket.HEADER_SIZE);
 			this.writeDataBuffer.putLong(lastWritePacket.getCallId());
@@ -139,8 +149,10 @@ public abstract class AbstractConnection implements Connection {
 					+ this.lastWritePacket.toString() + " out!");
 			this.lastWritePacket = null;
 			// test if we need to unregister the write event.
-			if (this.responsePackets.size() == 0)
-				selectionKey.interestOps(SelectionKey.OP_READ);
+			synchronized (responsePackets) {
+				if (this.responsePackets.size() == 0)
+					selectionKey.interestOps(SelectionKey.OP_READ);
+			}
 		}
 
 	}

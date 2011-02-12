@@ -13,9 +13,9 @@ class Listener extends Thread {
 
 	private AtomicBoolean registering;
 
-	Listener(Selector selector) {
+	Listener() throws IOException {
 		this.setName("Client listener");
-		this.selector = selector;
+		this.selector = Selector.open();
 		registering = new AtomicBoolean(false);
 	}
 

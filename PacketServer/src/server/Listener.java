@@ -7,69 +7,86 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
-import common.PacketManager;
-
-public class Listener extends Thread {
+class Listener extends Thread {
 	private Selector selector;
-	private PacketManager packetManager;
+	private PacketServer server;
 
-	public Listener(ServerSocketChannel socketChannel,
-			PacketManager packetManager) throws IOException {
-		this.packetManager = packetManager;
+	public Listener(PacketServer server) throws IOException {
+		this.server = server;
 		this.selector = Selector.open();
-		socketChannel.register(selector, SelectionKey.OP_ACCEPT);
+		server.getSocketChannel().register(selector, SelectionKey.OP_ACCEPT);
 	}
 
 	@Override
 	public void run() {
 
 		SelectionKey key;
+
 		Iterator<SelectionKey> iterator;
 
 		while (true) {
 
 			try {
 				selector.select();
-
-				for (iterator = selector.selectedKeys().iterator(); iterator
-						.hasNext();) {
-					key = iterator.next();
-					iterator.remove();
-					if (key.isValid()) {
-						if (key.isAcceptable())
-							accept(key);
-						else if (key.isReadable())
-							read(key);
-						else if (key.isWritable())
-							write(key);
-						else
-							;
-					}
-				}
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return;
 			}
+
+			for (iterator = selector.selectedKeys().iterator(); iterator
+					.hasNext();) {
+				key = iterator.next();
+				iterator.remove();
+				if (key.isValid()) {
+					if (key.isAcceptable())
+						accept(key);
+					else if (key.isReadable())
+						read(key);
+					else if (key.isWritable())
+						write(key);
+					else
+						;
+				}
+			}
+
 		}
 	}
 
-	private void write(SelectionKey key) throws IOException {
+	private void write(SelectionKey key) {
 		ServerConnection connection = (ServerConnection) key.attachment();
 		try {
 			connection.write();
 		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				connection.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			this.server.getConnectionManager().remove(connection);
 		}
 	}
 
-	private void read(SelectionKey key) throws IOException {
+	private void read(SelectionKey key) {
 		ServerConnection connection = (ServerConnection) key.attachment();
-		int readCount = connection.read();
-		if (readCount == -1)
-			connection.close();
+		int readCount = -1;
+		try {
+			readCount = connection.read();
+		} catch (IOException e) {
+		}
+		if (readCount == -1) {
+			try {
+				connection.close();
+			} catch (IOException e) {
+			}
+			this.server.getConnectionManager().remove(connection);
+		}
 
 	}
 
 	private void accept(SelectionKey key) {
+
 		ServerSocketChannel channel = (ServerSocketChannel) key.channel();
 		ServerConnection connection = null;
 
@@ -80,9 +97,10 @@ public class Listener extends Thread {
 			// register read events for the new connection.
 			SelectionKey clientKey = clientChannel.register(selector,
 					SelectionKey.OP_READ);
-			connection = new ServerConnection(clientChannel, packetManager,
-					clientKey);
+			connection = new ServerConnection(clientChannel,
+					this.server.getPacketManager(), clientKey);
 			clientKey.attach(connection);
+			this.server.getConnectionManager().accept(connection);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -90,5 +108,4 @@ public class Listener extends Thread {
 		System.out.println("new connection: " + connection + " accepted.");
 
 	}
-
 }
