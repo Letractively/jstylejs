@@ -7,9 +7,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 
-import common.ChecksumNotMatchException;
 import common.PacketManager;
-import common.RpcPacket;
 
 public class Listener extends Thread {
 	private Selector selector;
@@ -66,16 +64,6 @@ public class Listener extends Thread {
 	private void read(SelectionKey key) throws IOException {
 		ServerConnection connection = (ServerConnection) key.attachment();
 		System.out.println("got read key");
-
-		// add test response packet
-		RpcPacket testPacket = new RpcPacket(connection, 0, 0, (short) 14);
-		try {
-			testPacket.setData(new byte[14]);
-		} catch (ChecksumNotMatchException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		connection.addResponsePacket(testPacket);
 		int readCount = connection.read();
 		if (readCount == -1)
 			connection.close();
@@ -96,7 +84,6 @@ public class Listener extends Thread {
 			connection = new ServerConnection(clientChannel, packetManager,
 					clientKey);
 			clientKey.attach(connection);
-
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

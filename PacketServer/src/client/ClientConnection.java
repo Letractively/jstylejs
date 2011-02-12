@@ -5,6 +5,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 import common.AbstractConnection;
@@ -27,9 +29,12 @@ class ClientConnection extends AbstractConnection {
 		PacketManager packetManager = new PacketManager();
 		SocketAddress serverSocket = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
+		Selector selector = Selector.open();
+		Listener listener = new Listener(selector);
+		listener.start();
 		ClientConnection connection = new ClientConnection(serverSocket,
 				packetManager);
-		connection.build();
+		connection.build(selector);
 		RpcPacket testPacket = new RpcPacket(connection, 233, 324324234,
 				(short) 344);
 		testPacket.setData(new byte[344]);
@@ -49,14 +54,16 @@ class ClientConnection extends AbstractConnection {
 		while (this.writeDataBuffer.hasRemaining()) {
 			this.getSocketChannel().write(writeDataBuffer);
 		}
+		System.out.println("Write packet out:" + rpcPacket.toString());
 	}
 
-	public void build() throws IOException {
+	public void build(Selector selector) throws IOException {
 		// do connect to remote server.
 		SocketChannel socketChannel = SocketChannel.open(this.serverSocket);
 		socketChannel.configureBlocking(false);
-		this.setSocketChannel(socketChannel);
+		this.socketChannel = socketChannel;
+		this.selectionKey = this.socketChannel.register(selector,
+				SelectionKey.OP_READ, this);
 		System.out.println(this.toString() + " builded");
 	}
-
 }

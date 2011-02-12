@@ -13,7 +13,7 @@ public abstract class AbstractConnection implements Connection {
 		HEADER, DATA;
 	}
 
-	private SocketChannel socketChannel;
+	protected SocketChannel socketChannel;
 	private long id;
 	private RpcPacket lastReadPacket;
 	private DataState readState;
@@ -24,7 +24,7 @@ public abstract class AbstractConnection implements Connection {
 	private static AtomicLong UID = new AtomicLong(0);
 	private RpcPacket lastWritePacket;
 	private ConcurrentLinkedQueue<RpcPacket> responsePackets;
-	private SelectionKey selectionKey;
+	protected SelectionKey selectionKey;
 
 	protected AbstractConnection(PacketManager packetManager,
 			SelectionKey selectionKey) {
@@ -93,6 +93,8 @@ public abstract class AbstractConnection implements Connection {
 							+ lastReadPacket.toString());
 					// add packet to manager
 					this.packetManager.addReceived(lastReadPacket);
+					// TODO: test add packet to response
+					this.addResponsePacket(lastReadPacket);
 				} catch (ChecksumNotMatchException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -110,10 +112,6 @@ public abstract class AbstractConnection implements Connection {
 	public void touch() {
 		// TODO Auto-generated method stub
 
-	}
-
-	protected void setSocketChannel(SocketChannel socketChannel) {
-		this.socketChannel = socketChannel;
 	}
 
 	@Override

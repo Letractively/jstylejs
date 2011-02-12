@@ -11,7 +11,7 @@ class ServerConnection extends AbstractConnection {
 	ServerConnection(SocketChannel clientChannel, PacketManager packetManager,
 			SelectionKey selectionKey) {
 		super(packetManager, selectionKey);
-		this.setSocketChannel(clientChannel);
+		this.socketChannel = clientChannel;
 	}
 
 }
