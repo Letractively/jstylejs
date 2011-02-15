@@ -11,6 +11,7 @@ class ConnectionManager {
 	}
 
 	public void accept(ServerConnection connection) throws DenyServiceException {
+		// throw new DenyServiceException();
 		this.connections.put(connection.getId(), connection);
 	}
 

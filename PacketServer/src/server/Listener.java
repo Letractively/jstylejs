@@ -58,6 +58,7 @@ class Listener extends Thread {
 		try {
 			connection.write();
 		} catch (IOException e) {
+			e.printStackTrace();
 			try {
 				connection.close();
 			} catch (IOException e1) {
@@ -103,7 +104,7 @@ class Listener extends Thread {
 			try {
 				this.server.getConnectionManager().accept(connection);
 			} catch (DenyServiceException e) {
-				connection.denyed();
+				connection.denyToAccept();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

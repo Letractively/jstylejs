@@ -1,10 +1,12 @@
-package common;
+package client;
+
+import java.io.IOException;
 
 /**
  * Signals that the client connection to remote server was refuesed by remote
  * server
  */
-public class ConnectException extends Exception {
+class ConnectException extends IOException {
 
 	public ConnectException(String message) {
 		super(message);

@@ -6,7 +6,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import common.AbstractConnection;
-import common.ConnectException;
 import common.ConnectionCode;
 import common.PacketManager;
 
@@ -16,8 +15,9 @@ class ServerConnection extends AbstractConnection {
 
 	private boolean writeConnectCode = false;
 
-	private boolean denyed = false;
 	private byte protocol;
+
+	private ConnectionCode connectionCode;
 
 	private ByteBuffer connectionCodeBuffer;
 
@@ -29,6 +29,7 @@ class ServerConnection extends AbstractConnection {
 		this.selectionKey = selectionKey;
 		this.socketChannel = clientChannel;
 		connectionCodeBuffer = ByteBuffer.allocate(1);
+		setConnectionCode(ConnectionCode.OK);
 	}
 
 	@Override
@@ -36,11 +37,7 @@ class ServerConnection extends AbstractConnection {
 		if (readHeader)
 			return super.read();
 		else {
-			try {
-				connect();
-			} catch (ConnectException e) {
-				throw new IOException(e);
-			}
+			init();
 			return 0;
 		}
 	}
@@ -56,40 +53,50 @@ class ServerConnection extends AbstractConnection {
 				this.selectionKey.interestOps(SelectionKey.OP_READ);
 				writeConnectCode = true;
 				// try close this connection itself.
-				if (denyed) {
+				switch (connectionCode) {
+				case SERVICE_UNAVALIABLE:
 					try {
 						this.close();
 					} catch (IOException e) {
 						// Ignore.
 					}
+					break;
+				case WRONG_VERSION:
+					throw new IOException("Wrong version");
+
+				default:
+					break;
 				}
+
 			}
 		}
 	}
 
+	public void setConnectionCode(ConnectionCode connectionCode) {
+		this.connectionCode = connectionCode;
+		this.connectionCodeBuffer.clear();
+		this.connectionCodeBuffer.put(connectionCode.getCode());
+		this.connectionCodeBuffer.flip();
+	}
+
 	@Override
-	protected void connect() throws IOException, ConnectException {
+	protected void init() throws IOException {
 		this.socketChannel.read(connectHeaderBuffer);
 		if (!connectHeaderBuffer.hasRemaining()) {
 			connectHeaderBuffer.flip();
 			protocol = connectHeaderBuffer.get();
 			short gotVersion = connectHeaderBuffer.getShort();
 			if (gotVersion > version)
-				throw new ConnectException("Got version " + gotVersion
-						+ " larger than sever version " + version);
+				setConnectionCode(connectionCode.WRONG_VERSION);
 			this.selectionKey.interestOps(SelectionKey.OP_WRITE
 					| SelectionKey.OP_READ);
-			connectionCodeBuffer.put(ConnectionCode.OK.getCode());
-			connectionCodeBuffer.flip();
 			readHeader = true;
 		}
 	}
 
-	void denyed() {
+	void denyToAccept() {
 		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
-		connectionCodeBuffer.put(ConnectionCode.SERVICE_UNAVALIABLE.getCode());
-		connectionCodeBuffer.flip();
-		denyed = true;
+		setConnectionCode(ConnectionCode.SERVICE_UNAVALIABLE);
 	}
 
 	@Override

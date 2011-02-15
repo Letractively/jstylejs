@@ -159,7 +159,7 @@ public abstract class AbstractConnection implements Connection {
 
 	}
 
-	abstract protected void connect() throws IOException, ConnectException;
+	abstract protected void init() throws IOException;
 
 	@Override
 	public String toString() {

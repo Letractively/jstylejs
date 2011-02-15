@@ -10,7 +10,6 @@ import java.nio.channels.SocketChannel;
 
 import common.AbstractConnection;
 import common.ChecksumNotMatchException;
-import common.ConnectException;
 import common.ConnectionCode;
 import common.PacketManager;
 import common.RpcPacket;
@@ -43,7 +42,7 @@ class ClientConnection extends AbstractConnection {
 		ClientConnection connection = new ClientConnection(serverSocket,
 				packetManager, listener);
 		try {
-			connection.connect();
+			connection.init();
 		} catch (ConnectException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -71,7 +70,7 @@ class ClientConnection extends AbstractConnection {
 	}
 
 	@Override
-	public void connect() throws IOException, ConnectException {
+	public void init() throws IOException, ConnectException {
 		// do connect to remote server.
 		SocketChannel socketChannel = SocketChannel.open(this.serverSocket);
 		this.socketChannel = socketChannel;
