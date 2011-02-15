@@ -18,7 +18,6 @@ public abstract class AbstractConnection implements Connection {
 	private static final int CONNECT_RESPONSE_LENGTH = 128;// connection code
 															// + reserved.
 	protected ByteBuffer connectHeaderBuffer;
-
 	/**
 	 * Time out interval, in milli-seconds.
 	 */

@@ -10,7 +10,7 @@ import common.PacketManager;
 
 class ServerConnection extends AbstractConnection {
 
-	private boolean readHeader = false;
+	private boolean readConnectHeader = false;
 
 	private boolean writeConnectCode = false;
 
@@ -30,7 +30,7 @@ class ServerConnection extends AbstractConnection {
 
 	@Override
 	public int read() throws IOException {
-		if (readHeader)
+		if (readConnectHeader)
 			return super.read();
 		else {
 			init();
@@ -86,7 +86,7 @@ class ServerConnection extends AbstractConnection {
 				setConnectionCode(ConnectionCode.WRONG_VERSION);
 			this.selectionKey.interestOps(SelectionKey.OP_WRITE
 					| SelectionKey.OP_READ);
-			readHeader = true;
+			readConnectHeader = true;
 		}
 	}
 
