@@ -15,6 +15,8 @@ public abstract class AbstractConnection implements Connection {
 	}
 
 	private static final int HEADER_LENGTH = 128;// protocol+version+reserved.
+	private static final int CONNECT_RESPONSE_LENGTH = 128;// connection code
+															// + reserved.
 	protected ByteBuffer connectHeaderBuffer;
 
 	/**
@@ -35,11 +37,14 @@ public abstract class AbstractConnection implements Connection {
 	private Queue<RpcPacket> responsePackets;
 	protected SelectionKey selectionKey;
 
+	protected ByteBuffer connectResponseBuffer;
+
 	protected AbstractConnection(PacketManager packetManager) {
 		this.id = UID.getAndIncrement();
 		readState = DataState.HEADER;
 		readHeaderBuffer = ByteBuffer.allocate(RpcPacket.HEADER_SIZE);
 		connectHeaderBuffer = ByteBuffer.allocate(HEADER_LENGTH);
+		connectResponseBuffer = ByteBuffer.allocate(CONNECT_RESPONSE_LENGTH);
 		this.packetManager = packetManager;
 		responsePackets = new LinkedList<RpcPacket>();
 		lastContact = System.currentTimeMillis();

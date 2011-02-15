@@ -15,7 +15,7 @@ import common.PacketManager;
 import common.RpcPacket;
 
 class ClientConnection extends AbstractConnection {
-	private static final short version = 3;
+	private static final short version = 1;
 	private static final byte protocol = 1;
 
 	private SocketAddress serverSocket;
@@ -50,8 +50,7 @@ class ClientConnection extends AbstractConnection {
 		RpcPacket testPacket = new RpcPacket(connection, 233, 324324234,
 				(short) 344);
 		testPacket.setData(new byte[344]);
-		// connection.writeTestPacket(testPacket);
-		Thread.sleep(100000);
+		connection.writeTestPacket(testPacket);
 		return;
 	}
 
@@ -76,12 +75,11 @@ class ClientConnection extends AbstractConnection {
 		this.socketChannel = socketChannel;
 		// write connection header to remote server.
 		this.socketChannel.write(connectHeaderBuffer);
-		// read response
-		this.connectHeaderBuffer.clear();
-		this.connectHeaderBuffer.limit(1);
-		this.socketChannel.read(connectHeaderBuffer);
-		connectHeaderBuffer.flip();
-		ConnectionCode code = ConnectionCode.valueOf(connectHeaderBuffer.get());
+		// read response.
+		this.socketChannel.read(connectResponseBuffer);
+		connectResponseBuffer.flip();
+		ConnectionCode code = ConnectionCode.valueOf(connectResponseBuffer
+				.get());
 		if (code != ConnectionCode.OK)
 			throw new ConnectException(code.name());
 		socketChannel.configureBlocking(false);

@@ -1,7 +1,6 @@
 package server;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -19,8 +18,6 @@ class ServerConnection extends AbstractConnection {
 
 	private ConnectionCode connectionCode;
 
-	private ByteBuffer connectionCodeBuffer;
-
 	private static final short version = 1;
 
 	ServerConnection(SocketChannel clientChannel, PacketManager packetManager,
@@ -28,7 +25,6 @@ class ServerConnection extends AbstractConnection {
 		super(packetManager);
 		this.selectionKey = selectionKey;
 		this.socketChannel = clientChannel;
-		connectionCodeBuffer = ByteBuffer.allocate(1);
 		setConnectionCode(ConnectionCode.OK);
 	}
 
@@ -48,8 +44,8 @@ class ServerConnection extends AbstractConnection {
 			super.write();
 		else {
 			// write response code.
-			this.socketChannel.write(connectionCodeBuffer);
-			if (!this.connectionCodeBuffer.hasRemaining()) {
+			this.socketChannel.write(connectResponseBuffer);
+			if (!this.connectResponseBuffer.hasRemaining()) {
 				this.selectionKey.interestOps(SelectionKey.OP_READ);
 				writeConnectCode = true;
 				// try close this connection itself.
@@ -74,9 +70,9 @@ class ServerConnection extends AbstractConnection {
 
 	public void setConnectionCode(ConnectionCode connectionCode) {
 		this.connectionCode = connectionCode;
-		this.connectionCodeBuffer.clear();
-		this.connectionCodeBuffer.put(connectionCode.getCode());
-		this.connectionCodeBuffer.flip();
+		this.connectResponseBuffer.clear();
+		this.connectResponseBuffer.put(connectionCode.getCode());
+		this.connectResponseBuffer.clear();
 	}
 
 	@Override
@@ -87,7 +83,7 @@ class ServerConnection extends AbstractConnection {
 			protocol = connectHeaderBuffer.get();
 			short gotVersion = connectHeaderBuffer.getShort();
 			if (gotVersion > version)
-				setConnectionCode(connectionCode.WRONG_VERSION);
+				setConnectionCode(ConnectionCode.WRONG_VERSION);
 			this.selectionKey.interestOps(SelectionKey.OP_WRITE
 					| SelectionKey.OP_READ);
 			readHeader = true;
