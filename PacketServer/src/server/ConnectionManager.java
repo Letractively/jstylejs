@@ -10,7 +10,7 @@ class ConnectionManager {
 		connections = new ConcurrentHashMap<Long, ServerConnection>();
 	}
 
-	public void accept(ServerConnection connection) {
+	public void accept(ServerConnection connection) throws DenyServiceException {
 		this.connections.put(connection.getId(), connection);
 	}
 

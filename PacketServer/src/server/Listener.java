@@ -100,7 +100,11 @@ class Listener extends Thread {
 			connection = new ServerConnection(clientChannel,
 					this.server.getPacketManager(), clientKey);
 			clientKey.attach(connection);
-			this.server.getConnectionManager().accept(connection);
+			try {
+				this.server.getConnectionManager().accept(connection);
+			} catch (DenyServiceException e) {
+				connection.denyed();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

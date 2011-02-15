@@ -3,6 +3,7 @@ package common;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class PacketManager {
+
 	private LinkedBlockingQueue<RpcPacket> receives;
 
 	public PacketManager() {

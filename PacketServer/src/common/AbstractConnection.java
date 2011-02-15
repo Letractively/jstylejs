@@ -14,6 +14,9 @@ public abstract class AbstractConnection implements Connection {
 		HEADER, DATA;
 	}
 
+	private static final int HEADER_LENGTH = 128;// protocol+version+reserved.
+	protected ByteBuffer connectHeaderBuffer;
+
 	/**
 	 * Time out interval, in milli-seconds.
 	 */
@@ -32,12 +35,11 @@ public abstract class AbstractConnection implements Connection {
 	private Queue<RpcPacket> responsePackets;
 	protected SelectionKey selectionKey;
 
-	protected AbstractConnection(PacketManager packetManager,
-			SelectionKey selectionKey) {
+	protected AbstractConnection(PacketManager packetManager) {
 		this.id = UID.getAndIncrement();
-		this.selectionKey = selectionKey;
 		readState = DataState.HEADER;
 		readHeaderBuffer = ByteBuffer.allocate(RpcPacket.HEADER_SIZE);
+		connectHeaderBuffer = ByteBuffer.allocate(HEADER_LENGTH);
 		this.packetManager = packetManager;
 		responsePackets = new LinkedList<RpcPacket>();
 		lastContact = System.currentTimeMillis();
@@ -59,7 +61,7 @@ public abstract class AbstractConnection implements Connection {
 	}
 
 	@Override
-	public void addResponsePacket(RpcPacket responsePacket)
+	public void addSendPacket(RpcPacket responsePacket)
 			throws ClosedChannelException {
 		synchronized (responsePackets) {
 			this.responsePackets.add(responsePacket);
@@ -108,7 +110,7 @@ public abstract class AbstractConnection implements Connection {
 							this.lastReadPacket.getChecksum(),
 							this.lastReadPacket.getDataLength());
 					testPacket.setData(this.lastReadPacket.getData());
-					this.addResponsePacket(testPacket);
+					this.addSendPacket(testPacket);
 				} catch (ChecksumNotMatchException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -157,12 +159,18 @@ public abstract class AbstractConnection implements Connection {
 
 	}
 
+	abstract protected void connect() throws IOException, ConnectException;
+
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
 		sb.append("id: ");
 		sb.append(this.id);
+		sb.append(", protocol: ");
+		sb.append(this.getProtocol());
+		sb.append(", version: ");
+		sb.append(this.getVersion());
 		sb.append(", address: ");
 		sb.append(this.socketChannel.socket().toString());
 		sb.append("}");

@@ -17,6 +17,10 @@ public interface Connection {
 
 	public void touch();
 
+	public byte getProtocol();
+
+	public int getVersion();
+
 	/**
 	 * Try to write last {@link RpcPacket} to socket of this connection.
 	 * 
@@ -26,7 +30,7 @@ public interface Connection {
 
 	public long getId();
 
-	public void addResponsePacket(RpcPacket responsePacket)
+	public void addSendPacket(RpcPacket responsePacket)
 			throws ClosedChannelException;
 
 }
