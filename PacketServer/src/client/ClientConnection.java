@@ -58,7 +58,7 @@ class ClientConnection extends AbstractConnection {
 		System.out.println("Write packet out:" + rpcPacket.toString());
 	}
 
-	public void build() throws IOException {
+	public void build() throws IOException, ConnectException {
 		// do connect to remote server.
 		SocketChannel socketChannel = SocketChannel.open(this.serverSocket);
 		socketChannel.configureBlocking(false);
