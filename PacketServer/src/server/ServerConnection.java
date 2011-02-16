@@ -30,9 +30,10 @@ class ServerConnection extends AbstractConnection {
 
 	@Override
 	public int read() throws IOException {
-		if (readConnectHeader)
+		if (readConnectHeader) {
+			// add threshold here.
 			return super.read();
-		else {
+		} else {
 			init();
 			return 0;
 		}
@@ -68,7 +69,7 @@ class ServerConnection extends AbstractConnection {
 		}
 	}
 
-	public void setConnectionCode(ConnectionCode connectionCode) {
+	private void setConnectionCode(ConnectionCode connectionCode) {
 		this.connectionCode = connectionCode;
 		this.connectResponseBuffer.clear();
 		this.connectResponseBuffer.put(connectionCode.getCode());
@@ -90,6 +91,9 @@ class ServerConnection extends AbstractConnection {
 		}
 	}
 
+	/**
+	 * Deny to accept this connection into {@link PacketManager}.
+	 */
 	void denyToAccept() {
 		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
 		setConnectionCode(ConnectionCode.SERVICE_UNAVALIABLE);
