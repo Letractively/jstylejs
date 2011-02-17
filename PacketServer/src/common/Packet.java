@@ -1,22 +1,25 @@
 package common;
 
 public class Packet {
+	private long checksum;
 	private byte[] data;
 	private short dataLength;
-	private long checksum;
-	public static final int HEADER_SIZE = 8 + 2;
 
 	public Packet(long checksum, short dataLength) {
 		this.checksum = checksum;
 		this.dataLength = dataLength;
 	}
 
-	public short getDataLength() {
-		return dataLength;
-	}
-
 	public long getChecksum() {
 		return checksum;
+	}
+
+	public byte[] getData() {
+		return data;
+	}
+
+	public short getDataLength() {
+		return dataLength;
 	}
 
 	void setChecksum(long checkSum) {
@@ -26,10 +29,6 @@ public class Packet {
 	public void setData(byte[] data) throws ChecksumNotMatchException {
 		this.data = data;
 		this.dataLength = (short) data.length;
-	}
-
-	public byte[] getData() {
-		return data;
 	}
 
 	@Override

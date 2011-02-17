@@ -3,9 +3,21 @@ package common;
 import java.io.IOException;
 
 public interface Connection {
+	public void addSendPacket(Packet responsePacket) throws IOException;
+
 	public void close() throws IOException;
 
+	public long getId();
+
+	public byte getProtocol();
+
+	public int getVersion();
+
+	void init() throws IOException;
+
 	public boolean isTimeOut();
+
+	int pendingPacketCount();
 
 	/**
 	 * Try to read {@link Packet} out from this connection.
@@ -16,19 +28,11 @@ public interface Connection {
 
 	public void touch();
 
-	public byte getProtocol();
-
-	public int getVersion();
-
 	/**
 	 * Try to write last {@link Packet} to socket of this connection.
 	 * 
 	 * @throws IOException
 	 */
 	public void write() throws IOException;
-
-	public long getId();
-
-	public void addSendPacket(Packet responsePacket) throws IOException;
 
 }

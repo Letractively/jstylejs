@@ -8,10 +8,10 @@ import java.io.IOException;
  */
 class ConnectException extends IOException {
 
+	private static final long serialVersionUID = 1L;
+
 	public ConnectException(String message) {
 		super(message);
 	}
-
-	private static final long serialVersionUID = 1L;
 
 }

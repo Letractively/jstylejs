@@ -9,14 +9,35 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class Listener extends Thread {
-	private Selector selector;
-
 	private AtomicBoolean registering;
+
+	private Selector selector;
 
 	Listener() throws IOException {
 		this.setName("Client listener");
 		this.selector = Selector.open();
 		registering = new AtomicBoolean(false);
+	}
+
+	private void read(SelectionKey key) throws IOException {
+		ClientConnection connection = (ClientConnection) key.attachment();
+		int readCount = connection.read();
+		if (readCount == -1)
+			connection.close();
+
+	}
+
+	SelectionKey register(SocketChannel socketChannel, int ops,
+			ClientConnection clientConnection) throws ClosedChannelException {
+		SelectionKey key;
+		synchronized (registering) {
+			registering.set(true);
+			selector.wakeup();
+			key = socketChannel.register(selector, ops, clientConnection);
+			registering.set(false);
+			registering.notifyAll();
+		}
+		return key;
 	}
 
 	@Override
@@ -64,26 +85,5 @@ class Listener extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void read(SelectionKey key) throws IOException {
-		ClientConnection connection = (ClientConnection) key.attachment();
-		int readCount = connection.read();
-		if (readCount == -1)
-			connection.close();
-
-	}
-
-	SelectionKey register(SocketChannel socketChannel, int ops,
-			ClientConnection clientConnection) throws ClosedChannelException {
-		SelectionKey key;
-		synchronized (registering) {
-			registering.set(true);
-			selector.wakeup();
-			key = socketChannel.register(selector, ops, clientConnection);
-			registering.set(false);
-			registering.notifyAll();
-		}
-		return key;
 	}
 }

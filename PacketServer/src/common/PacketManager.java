@@ -10,10 +10,6 @@ public class PacketManager {
 		receives = new LinkedBlockingQueue<Packet>();
 	}
 
-	public Packet takeReceived() throws InterruptedException {
-		return receives.take();
-	}
-
 	public void addReceived(Packet received) {
 		try {
 			this.receives.put(received);
@@ -21,6 +17,10 @@ public class PacketManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public Packet takeReceived() throws InterruptedException {
+		return receives.take();
 	}
 
 }

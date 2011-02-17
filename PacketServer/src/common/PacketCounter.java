@@ -4,23 +4,15 @@ public class PacketCounter {
 	private long readCount = 0;
 	private long writeCount = 0;
 
-	PacketCounter() {
-	}
-
-	void readOne() {
-		readCount++;
-	}
-
-	void writeOne() {
-		writeCount++;
+	public PacketCounter() {
 	}
 
 	public long readCount() {
 		return readCount;
 	}
 
-	public long writeCount() {
-		return writeCount;
+	public void readOne() {
+		readCount++;
 	}
 
 	@Override
@@ -33,5 +25,13 @@ public class PacketCounter {
 		sb.append(writeCount);
 		sb.append("}");
 		return sb.toString();
+	}
+
+	public long writeCount() {
+		return writeCount;
+	}
+
+	public void writeOne() {
+		writeCount++;
 	}
 }

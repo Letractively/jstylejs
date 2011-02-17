@@ -7,12 +7,10 @@ import common.PacketManager;
 
 abstract class PacketServer {
 
-	protected int portNumer;
-	private PacketManager packetManager;
 	private ConnectionManager connectionManager;
+	private PacketManager packetManager;
+	protected int portNumer;
 	protected ServerSocketChannel socketChannel;
-
-	public abstract void start() throws IOException;
 
 	PacketServer(int portNum) {
 		this.portNumer = portNum;
@@ -20,19 +18,21 @@ abstract class PacketServer {
 		connectionManager = new ConnectionManager();
 	}
 
-	public int getPortNumer() {
-		return portNumer;
+	ConnectionManager getConnectionManager() {
+		return connectionManager;
 	}
 
 	PacketManager getPacketManager() {
 		return packetManager;
 	}
 
-	ConnectionManager getConnectionManager() {
-		return connectionManager;
+	public int getPortNumer() {
+		return portNumer;
 	}
 
 	ServerSocketChannel getSocketChannel() {
 		return socketChannel;
 	}
+
+	public abstract void start() throws IOException;
 }

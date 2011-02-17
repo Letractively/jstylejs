@@ -8,6 +8,11 @@ class PacketServerImpl extends PacketServer {
 
 	public static final int PORT_NUMBER = 4465;
 
+	public static void main(String[] args) throws IOException {
+		PacketServerImpl server = new PacketServerImpl(PORT_NUMBER);
+		server.start();
+	}
+
 	private Listener listener;
 
 	PacketServerImpl(int portNum) {
@@ -24,11 +29,6 @@ class PacketServerImpl extends PacketServer {
 		this.portNumer = socketAddress.getPort();
 		this.listener = new Listener(this);
 		this.listener.start();
-	}
-
-	public static void main(String[] args) throws IOException {
-		PacketServerImpl server = new PacketServerImpl(PORT_NUMBER);
-		server.start();
 	}
 
 }
