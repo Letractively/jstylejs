@@ -12,7 +12,7 @@ import common.AbstractConnection;
 import common.ChecksumNotMatchException;
 import common.ConnectionCode;
 import common.PacketManager;
-import common.RpcPacket;
+import common.Packet;
 
 class ClientConnection extends AbstractConnection {
 	private static final short version = 1;
@@ -41,7 +41,7 @@ class ClientConnection extends AbstractConnection {
 	}
 
 	@Override
-	public void addSendPacket(RpcPacket packet) throws IOException {
+	public void addSendPacket(Packet packet) throws IOException {
 		// add threshold control here.
 		synchronized (thresholdLock) {
 			while (isTooManyPendingPackets()) {
@@ -82,17 +82,15 @@ class ClientConnection extends AbstractConnection {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		RpcPacket testPacket = new RpcPacket(connection, 233, 324324234,
-				(short) 344);
+		Packet testPacket = new Packet(324324234, (short) 344);
 		testPacket.setData(new byte[344]);
 		connection.writeTestPacket(testPacket);
 		return;
 	}
 
-	private void writeTestPacket(RpcPacket rpcPacket) throws IOException {
+	private void writeTestPacket(Packet rpcPacket) throws IOException {
 		this.writeDataBuffer = ByteBuffer.allocate(rpcPacket.getDataLength()
-				+ RpcPacket.HEADER_SIZE);
-		this.writeDataBuffer.putLong(rpcPacket.getCallId());
+				+ Packet.HEADER_SIZE);
 		this.writeDataBuffer.putLong(rpcPacket.getChecksum());
 		this.writeDataBuffer.putShort(rpcPacket.getDataLength());
 		this.writeDataBuffer.put(rpcPacket.getData());

@@ -1,7 +1,7 @@
 package common;
 
 public enum ResponseCode {
-	OK((byte) 8), CRC_ERROR((byte) 1), EXECEPTION((byte) 3), UNKNOWN((byte) 0);
+	OK((byte) 8), CRC_ERROR((byte) 1), UNKNOWN((byte) 0);
 	private byte code;
 
 	private ResponseCode(byte code) {

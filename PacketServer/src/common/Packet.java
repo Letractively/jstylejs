@@ -1,21 +1,12 @@
 package common;
 
-import java.io.DataOutput;
-import java.io.IOException;
-
-public class RpcPacket {
-
+public class Packet {
 	private byte[] data;
 	private short dataLength;
 	private long checksum;
-	private long callId;
-	private Connection connection;
-	public static final int HEADER_SIZE = 8 + 8 + 2;
+	public static final int HEADER_SIZE = 8 + 2;
 
-	public RpcPacket(Connection connection, long callId, long checksum,
-			short dataLength) {
-		this.connection = connection;
-		this.callId = callId;
+	public Packet(long checksum, short dataLength) {
 		this.checksum = checksum;
 		this.dataLength = dataLength;
 	}
@@ -37,31 +28,14 @@ public class RpcPacket {
 		this.dataLength = (short) data.length;
 	}
 
-	public long getCallId() {
-		return callId;
-	}
-
 	public byte[] getData() {
 		return data;
-	}
-
-	public void write(DataOutput out) throws IOException {
-		out.writeLong(this.callId);
-		out.writeLong(this.checksum);
-		out.writeShort(this.dataLength);
-		out.write(data);
-	}
-
-	Connection getConnection() {
-		return connection;
 	}
 
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
-		sb.append("Call id: ");
-		sb.append(this.callId);
 		sb.append(", Checksum: ");
 		sb.append(this.checksum);
 		sb.append(", Data length: ");

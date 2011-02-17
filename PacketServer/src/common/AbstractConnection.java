@@ -26,26 +26,26 @@ public abstract class AbstractConnection implements Connection {
 	private long lastContact;
 	protected SocketChannel socketChannel;
 	private long id;
-	private RpcPacket lastReadPacket;
+	private Packet lastReadPacket;
 	private DataState readState;
 	private ByteBuffer readHeaderBuffer;
 	private ByteBuffer writeDataBuffer;
 	private ByteBuffer readDataBuffer;
 	private PacketManager globalPacketManager;
 	private static AtomicLong UID = new AtomicLong(0);
-	private RpcPacket lastWritePacket;
-	private Queue<RpcPacket> sendPackets;
+	private Packet lastWritePacket;
+	private Queue<Packet> sendPackets;
 	protected SelectionKey selectionKey;
 	protected ByteBuffer connectResponseBuffer;
 
 	protected AbstractConnection(PacketManager packetManager) {
 		this.id = UID.getAndIncrement();
 		readState = DataState.HEADER;
-		readHeaderBuffer = ByteBuffer.allocate(RpcPacket.HEADER_SIZE);
+		readHeaderBuffer = ByteBuffer.allocate(Packet.HEADER_SIZE);
 		connectHeaderBuffer = ByteBuffer.allocate(HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer.allocate(CONNECT_RESPONSE_LENGTH);
 		this.globalPacketManager = packetManager;
-		sendPackets = new LinkedList<RpcPacket>();
+		sendPackets = new LinkedList<Packet>();
 		lastContact = System.currentTimeMillis();
 		packetManager = new PacketManager();
 		packetCounter = new PacketCounter();
@@ -67,7 +67,7 @@ public abstract class AbstractConnection implements Connection {
 	}
 
 	@Override
-	public void addSendPacket(RpcPacket packet) throws IOException {
+	public void addSendPacket(Packet packet) throws IOException {
 		synchronized (sendPackets) {
 			this.sendPackets.add(packet);
 		}
@@ -89,12 +89,10 @@ public abstract class AbstractConnection implements Connection {
 			readCount = this.socketChannel.read(readHeaderBuffer);
 			if (!readHeaderBuffer.hasRemaining()) {
 				readHeaderBuffer.flip();
-				long callId = readHeaderBuffer.getLong();
 				long checksum = readHeaderBuffer.getLong();
 				short dataLength = readHeaderBuffer.getShort();
 				readDataBuffer = ByteBuffer.allocate(dataLength);
-				lastReadPacket = new RpcPacket(this, callId, checksum,
-						dataLength);
+				lastReadPacket = new Packet(checksum, dataLength);
 				readHeaderBuffer.clear();
 				readState = DataState.DATA;
 			}
@@ -111,8 +109,7 @@ public abstract class AbstractConnection implements Connection {
 					// add packet to manager
 					this.globalPacketManager.addReceived(lastReadPacket);
 					// TODO: test add packet to response
-					RpcPacket testPacket = new RpcPacket(this,
-							this.lastReadPacket.getCallId() + 1,
+					Packet testPacket = new Packet(
 							this.lastReadPacket.getChecksum(),
 							this.lastReadPacket.getDataLength());
 					testPacket.setData(this.lastReadPacket.getData());
@@ -145,8 +142,7 @@ public abstract class AbstractConnection implements Connection {
 				lastWritePacket = sendPackets.remove();
 			}
 			this.writeDataBuffer = ByteBuffer.allocate(lastWritePacket
-					.getDataLength() + RpcPacket.HEADER_SIZE);
-			this.writeDataBuffer.putLong(lastWritePacket.getCallId());
+					.getDataLength() + Packet.HEADER_SIZE);
 			this.writeDataBuffer.putLong(lastWritePacket.getChecksum());
 			this.writeDataBuffer.putShort(lastWritePacket.getDataLength());
 			this.writeDataBuffer.put(this.lastWritePacket.getData());

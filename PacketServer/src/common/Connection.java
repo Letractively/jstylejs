@@ -8,7 +8,7 @@ public interface Connection {
 	public boolean isTimeOut();
 
 	/**
-	 * Try to read {@link RpcPacket} out from this connection.
+	 * Try to read {@link Packet} out from this connection.
 	 * 
 	 * @throws IOException
 	 */
@@ -21,7 +21,7 @@ public interface Connection {
 	public int getVersion();
 
 	/**
-	 * Try to write last {@link RpcPacket} to socket of this connection.
+	 * Try to write last {@link Packet} to socket of this connection.
 	 * 
 	 * @throws IOException
 	 */
@@ -29,6 +29,6 @@ public interface Connection {
 
 	public long getId();
 
-	public void addSendPacket(RpcPacket responsePacket) throws IOException;
+	public void addSendPacket(Packet responsePacket) throws IOException;
 
 }
