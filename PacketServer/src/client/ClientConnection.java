@@ -17,6 +17,9 @@ import common.RpcPacket;
 class ClientConnection extends AbstractConnection {
 	private static final short version = 1;
 	private static final byte protocol = 1;
+	private static final int MAX_PENDING_PACKETS = 1000;
+
+	private Object thresholdLock;
 
 	private SocketAddress serverSocket;
 	private ByteBuffer writeDataBuffer;
@@ -30,6 +33,38 @@ class ClientConnection extends AbstractConnection {
 		this.connectHeaderBuffer.put(protocol);
 		this.connectHeaderBuffer.putShort(version);
 		this.connectHeaderBuffer.clear();
+		thresholdLock = new Object();
+	}
+
+	private boolean isTooManyPendingPackets() {
+		return this.pendingPacketCount() > MAX_PENDING_PACKETS;
+	}
+
+	@Override
+	public void addSendPacket(RpcPacket packet) throws IOException {
+		// add threshold control here.
+		synchronized (thresholdLock) {
+			while (isTooManyPendingPackets()) {
+				try {
+					System.out.println("Wati on two many pending packets");
+					thresholdLock.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		super.addSendPacket(packet);
+	}
+
+	@Override
+	public void write() throws IOException {
+		super.write();
+		// add threshold control here.
+		synchronized (thresholdLock) {
+			if (!isTooManyPendingPackets())
+				thresholdLock.notifyAll();
+		}
 	}
 
 	public static void main(String[] args) throws IOException,
@@ -98,5 +133,11 @@ class ClientConnection extends AbstractConnection {
 	public int getVersion() {
 
 		return version;
+	}
+
+	@Override
+	protected int pendingPacketCount() {
+		return (int) (this.packetCounter.writeCount() - this.packetCounter
+				.readCount());
 	}
 }

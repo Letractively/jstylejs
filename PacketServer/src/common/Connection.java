@@ -1,7 +1,6 @@
 package common;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 
 public interface Connection {
 	public void close() throws IOException;
@@ -30,7 +29,6 @@ public interface Connection {
 
 	public long getId();
 
-	public void addSendPacket(RpcPacket responsePacket)
-			throws ClosedChannelException;
+	public void addSendPacket(RpcPacket responsePacket) throws IOException;
 
 }

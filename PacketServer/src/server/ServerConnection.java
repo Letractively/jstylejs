@@ -14,6 +14,8 @@ class ServerConnection extends AbstractConnection {
 
 	private boolean writeConnectCode = false;
 
+	private static final int MAX_PENDING_PACKETS = 1000;
+
 	private byte protocol;
 
 	private ConnectionCode connectionCode;
@@ -31,7 +33,9 @@ class ServerConnection extends AbstractConnection {
 	@Override
 	public int read() throws IOException {
 		if (readConnectHeader) {
-			// add threshold here.
+			// add threshold control here.
+			if (this.pendingPacketCount() >= MAX_PENDING_PACKETS)
+				return 0;
 			return super.read();
 		} else {
 			init();
@@ -109,4 +113,9 @@ class ServerConnection extends AbstractConnection {
 		return version;
 	}
 
+	@Override
+	protected int pendingPacketCount() {
+		return (int) (this.packetCounter.readCount() - this.packetCounter
+				.writeCount());
+	}
 }

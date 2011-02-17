@@ -2,13 +2,10 @@ package common;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class AbstractConnection implements Connection {
@@ -16,45 +13,12 @@ public abstract class AbstractConnection implements Connection {
 		HEADER, DATA;
 	}
 
-	private static class ConnectionPacketManager {
-		private AtomicInteger pendingIn;
-		private AtomicInteger pendingOut;
-
-		ConnectionPacketManager() {
-			pendingIn = new AtomicInteger();
-			pendingOut = new AtomicInteger();
-		}
-
-		public void incPendingIn() {
-			pendingIn.incrementAndGet();
-		}
-
-		public void incPendingOut() {
-			pendingOut.incrementAndGet();
-		}
-
-		public void decPendingIn() {
-			pendingIn.decrementAndGet();
-
-		}
-
-		public void decPendingOut() {
-			pendingOut.decrementAndGet();
-		}
-
-		public int getPendingIn() {
-			return pendingIn.get();
-		}
-
-		public int getPendingOut() {
-			return pendingOut.get();
-		}
-	}
-
-	private static final int HEADER_LENGTH = 128;// protocol+version+reserved.
-	private static final int CONNECT_RESPONSE_LENGTH = 128;// connection code
+	private static final int HEADER_LENGTH = 512;// protocol+version+reserved.
+	private static final int CONNECT_RESPONSE_LENGTH = 512;// connection code
 															// + reserved.
 	protected ByteBuffer connectHeaderBuffer;
+
+	protected PacketCounter packetCounter;
 	/**
 	 * Time out interval, in milli-seconds.
 	 */
@@ -62,7 +26,6 @@ public abstract class AbstractConnection implements Connection {
 	private long lastContact;
 	protected SocketChannel socketChannel;
 	private long id;
-	private ConnectionPacketManager packetManager;
 	private RpcPacket lastReadPacket;
 	private DataState readState;
 	private ByteBuffer readHeaderBuffer;
@@ -72,12 +35,10 @@ public abstract class AbstractConnection implements Connection {
 	private static AtomicLong UID = new AtomicLong(0);
 	private RpcPacket lastWritePacket;
 	private Queue<RpcPacket> sendPackets;
-	private HashMap<Long, RpcPacket> receivePackets;
 	protected SelectionKey selectionKey;
 	protected ByteBuffer connectResponseBuffer;
 
 	protected AbstractConnection(PacketManager packetManager) {
-
 		this.id = UID.getAndIncrement();
 		readState = DataState.HEADER;
 		readHeaderBuffer = ByteBuffer.allocate(RpcPacket.HEADER_SIZE);
@@ -87,7 +48,7 @@ public abstract class AbstractConnection implements Connection {
 		sendPackets = new LinkedList<RpcPacket>();
 		lastContact = System.currentTimeMillis();
 		packetManager = new PacketManager();
-
+		packetCounter = new PacketCounter();
 	}
 
 	@Override
@@ -106,7 +67,7 @@ public abstract class AbstractConnection implements Connection {
 	}
 
 	@Override
-	public void addSendPacket(RpcPacket packet) throws ClosedChannelException {
+	public void addSendPacket(RpcPacket packet) throws IOException {
 		synchronized (sendPackets) {
 			this.sendPackets.add(packet);
 		}
@@ -146,7 +107,7 @@ public abstract class AbstractConnection implements Connection {
 					lastReadPacket.setData(readDataBuffer.array());
 					System.out.println("Read packet:"
 							+ lastReadPacket.toString());
-					this.packetManager.incPendingIn();
+					this.packetCounter.readOne();
 					// add packet to manager
 					this.globalPacketManager.addReceived(lastReadPacket);
 					// TODO: test add packet to response
@@ -168,6 +129,8 @@ public abstract class AbstractConnection implements Connection {
 		}
 		return readCount;
 	}
+
+	protected abstract int pendingPacketCount();
 
 	@Override
 	public void touch() {
@@ -194,6 +157,7 @@ public abstract class AbstractConnection implements Connection {
 		if (!this.writeDataBuffer.hasRemaining()) {
 			System.out.println("Write packet "
 					+ this.lastWritePacket.toString() + " out!");
+			this.packetCounter.writeOne();
 			this.lastWritePacket = null;
 			// test if we need to unregister the write event.
 			synchronized (sendPackets) {
@@ -214,6 +178,10 @@ public abstract class AbstractConnection implements Connection {
 		sb.append(this.id);
 		sb.append(", protocol: ");
 		sb.append(this.getProtocol());
+		sb.append(", packet counter: ");
+		sb.append(this.packetCounter.toString());
+		sb.append(", pending packets: ");
+		sb.append(this.pendingPacketCount());
 		sb.append(", version: ");
 		sb.append(this.getVersion());
 		sb.append(", address: ");
