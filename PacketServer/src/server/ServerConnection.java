@@ -37,8 +37,6 @@ class ServerConnection implements Connection {
 		}
 	}
 
-	private static final int MAX_PENDING_PACKETS = 1000;
-
 	/**
 	 * Time out interval, in milli-seconds.
 	 */
@@ -54,7 +52,7 @@ class ServerConnection implements Connection {
 
 	private Packet lastWritePacket;
 
-	protected PacketCounter packetCounter;
+	private PacketCounter packetCounter;
 
 	private AtomicBoolean packetErrorOccurred;
 
@@ -180,7 +178,7 @@ class ServerConnection implements Connection {
 	public int read() throws IOException {
 		if (readConnectHeader) {
 			// add threshold control here.
-			if (this.pendingPacketCount() >= MAX_PENDING_PACKETS)
+			if (this.pendingPacketCount() >= ConnectionProtocol.MAX_PENDING_PACKETS)
 				return 0;
 			return readPacket();
 		} else {

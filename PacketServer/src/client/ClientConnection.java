@@ -40,7 +40,6 @@ class ClientConnection implements Connection {
 		}
 	}
 
-	private static final int MAX_PENDING_PACKETS = 1000;
 	private static final byte protocol = 1;
 	/**
 	 * Time out interval, in milli-seconds.
@@ -216,7 +215,7 @@ class ClientConnection implements Connection {
 	}
 
 	private boolean isTooManyPendingPackets() {
-		return this.pendingPacketCount() > MAX_PENDING_PACKETS;
+		return this.pendingPacketCount() > ConnectionProtocol.MAX_PENDING_PACKETS;
 	}
 
 	@Override
