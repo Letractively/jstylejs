@@ -16,9 +16,13 @@ import common.ConnectionProtocol;
 import common.Packet;
 import common.PacketCounter;
 import common.PacketManager;
-import common.PacketReadState;
+import common.ResponseCode;
 
 class ServerConnection implements Connection {
+	private enum PacketReadState {
+		DATA, HEADER;
+	}
+
 	private static class ReceivedPacketWrapper {
 		private long checksum;
 		private byte[] data;
@@ -286,8 +290,11 @@ class ServerConnection implements Connection {
 
 				lastWritePacket = sendPackets.remove();
 			}
-			this.writeDataBuffer = ByteBuffer.allocate(lastWritePacket
-					.getDataLength() + ConnectionProtocol.PACKET_HEADER_SIZE);
+			this.writeDataBuffer = ByteBuffer
+					.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE
+							+ ConnectionProtocol.PACKET_HEADER_SIZE
+							+ lastWritePacket.getDataLength());
+			this.writeDataBuffer.put(ResponseCode.OK.getCode());
 			this.writeDataBuffer.putLong(lastWritePacket.getChecksum());
 			this.writeDataBuffer.putShort(lastWritePacket.getDataLength());
 			this.writeDataBuffer.put(this.lastWritePacket.getData());
@@ -300,7 +307,7 @@ class ServerConnection implements Connection {
 					+ this.lastWritePacket.toString() + " out!");
 			this.packetCounter.writeOne();
 			this.lastWritePacket = null;
-			// test if we need to unregister the write event.
+			// we need to unregister the write event.
 			synchronized (sendPackets) {
 				if (this.sendPackets.size() == 0)
 					selectionKey.interestOps(SelectionKey.OP_READ);

@@ -19,9 +19,13 @@ import common.ConnectionProtocol;
 import common.Packet;
 import common.PacketCounter;
 import common.PacketManager;
-import common.PacketReadState;
+import common.ResponseCode;
 
 class ClientConnection implements Connection {
+	private enum PacketReadState {
+		RESPONSE_CODE, DATA, HEADER;
+	}
+
 	private static class ReceivedPacketWrapper {
 		private long checksum;
 		private byte[] data;
@@ -85,6 +89,7 @@ class ClientConnection implements Connection {
 	private PacketManager packetManager;
 	private ByteBuffer readDataBuffer;
 	private ByteBuffer readHeaderBuffer;
+	private ByteBuffer readResponseCodeBuffer;
 	private PacketReadState readState;
 	private ReceivedPacketWrapper receivedPacketWrapper;
 	private SelectionKey selectionKey;
@@ -99,13 +104,15 @@ class ClientConnection implements Connection {
 			Listener listener) {
 
 		this.id = UID.getAndIncrement();
-		readState = PacketReadState.HEADER;
+		readState = PacketReadState.RESPONSE_CODE;
 		readHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.PACKET_HEADER_SIZE);
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
+		readResponseCodeBuffer = ByteBuffer
+				.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE);
 		this.packetManager = packetManager;
 		sendPackets = new LinkedList<Packet>();
 		lastContact = System.currentTimeMillis();
@@ -228,6 +235,20 @@ class ClientConnection implements Connection {
 	public int read() throws IOException {
 		int readCount = 0;
 		switch (readState) {
+		case RESPONSE_CODE:
+			readCount = this.socketChannel.read(readResponseCodeBuffer);
+			if (!readResponseCodeBuffer.hasRemaining()) {
+				readResponseCodeBuffer.flip();
+				ResponseCode responseCode = ResponseCode
+						.valueOf(readResponseCodeBuffer.get());
+				if (responseCode != ResponseCode.OK) {
+					throw new IOException("Get packet response code: "
+							+ responseCode.name());
+				}
+				readResponseCodeBuffer.clear();
+				readState = PacketReadState.HEADER;
+			}
+			break;
 		case HEADER:
 			readCount = this.socketChannel.read(readHeaderBuffer);
 			if (!readHeaderBuffer.hasRemaining()) {
@@ -247,7 +268,7 @@ class ClientConnection implements Connection {
 				receivedPacketWrapper.setData(readDataBuffer.array());
 				addReceivedPacket(receivedPacketWrapper.checksum,
 						receivedPacketWrapper.data);
-				readState = PacketReadState.HEADER;
+				readState = PacketReadState.RESPONSE_CODE;
 			}
 			break;
 		default:
