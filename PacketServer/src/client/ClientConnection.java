@@ -69,8 +69,8 @@ class ClientConnection implements Connection {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Packet testPacket = new Packet(324324234, (short) 344);
-		testPacket.setData(new byte[344]);
+		byte[] bytes = new byte[344];
+		Packet testPacket = new Packet(bytes);
 		connection.writeTestPacket(testPacket);
 		return;
 	}
@@ -85,7 +85,7 @@ class ClientConnection implements Connection {
 	private Packet lastWritePacket;
 	private Listener listener;
 	private PacketCounter packetCounter;
-	private AtomicBoolean packetErrorOccurred;
+	private AtomicBoolean gotErrorPacket;
 	private PacketManager packetManager;
 	private ByteBuffer readDataBuffer;
 	private ByteBuffer readHeaderBuffer;
@@ -119,7 +119,7 @@ class ClientConnection implements Connection {
 		packetManager = new PacketManager();
 		packetCounter = new PacketCounter();
 		receivedPacketWrapper = new ReceivedPacketWrapper();
-		packetErrorOccurred = new AtomicBoolean(false);
+		gotErrorPacket = new AtomicBoolean(false);
 
 		this.listener = listener;
 		this.serverSocket = serverSocket;
@@ -136,7 +136,8 @@ class ClientConnection implements Connection {
 			packet.setData(data);
 		} catch (ChecksumNotMatchException e) {
 			e.printStackTrace();
-			packetErrorOccurred.set(true);
+			gotErrorPacket();
+			return;
 		}
 		System.out.println("Read packet:" + packet.toString());
 		this.packetCounter.readOne();
@@ -145,6 +146,12 @@ class ClientConnection implements Connection {
 		// TODO: test add packet to response
 		this.addSendPacket(packet);
 
+	}
+
+	private void gotErrorPacket() throws IOException {
+		gotErrorPacket.set(true);
+		// do not read any packet any more.
+		this.socketChannel.socket().shutdownInput();
 	}
 
 	@Override
@@ -304,12 +311,21 @@ class ClientConnection implements Connection {
 
 	@Override
 	public void write() throws IOException {
-		writePacket();
+		if (gotErrorPacket.get()) {
+			stopWritePacket();
+			return;
+		} else
+			writePacket();
 		// add threshold control here.
 		synchronized (thresholdLock) {
 			if (!isTooManyPendingPackets())
 				thresholdLock.notifyAll();
 		}
+	}
+
+	private void stopWritePacket() {
+		// dot net accept write event.
+		this.selectionKey.interestOps(SelectionKey.OP_READ);
 	}
 
 	private void writePacket() throws IOException {

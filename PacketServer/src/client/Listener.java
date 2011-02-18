@@ -19,11 +19,21 @@ class Listener extends Thread {
 		registering = new AtomicBoolean(false);
 	}
 
-	private void read(SelectionKey key) throws IOException {
+	private void read(SelectionKey key) {
 		ClientConnection connection = (ClientConnection) key.attachment();
-		int readCount = connection.read();
+		int readCount = -1;
+		try {
+			readCount = connection.read();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		if (readCount == -1)
-			connection.close();
+			try {
+				connection.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 	}
 
@@ -46,35 +56,38 @@ class Listener extends Thread {
 		SelectionKey key;
 		Iterator<SelectionKey> iterator;
 		while (true) {
-			try {
 
+			try {
 				selector.select();
-				synchronized (registering) {
-					while (registering.get()) {
-						try {
-							registering.wait();
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-				for (iterator = selector.selectedKeys().iterator(); iterator
-						.hasNext();) {
-					key = iterator.next();
-					iterator.remove();
-					if (key.isValid()) {
-						if (key.isReadable())
-							read(key);
-						else if (key.isWritable())
-							write(key);
-						else
-							;
-					}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return;
 			}
+			synchronized (registering) {
+				while (registering.get()) {
+					try {
+						registering.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			for (iterator = selector.selectedKeys().iterator(); iterator
+					.hasNext();) {
+				key = iterator.next();
+				iterator.remove();
+				if (key.isValid()) {
+					if (key.isReadable())
+						read(key);
+					else if (key.isWritable())
+						write(key);
+					else
+						;
+				}
+			}
+
 		}
 	}
 
@@ -83,7 +96,12 @@ class Listener extends Thread {
 		try {
 			connection.write();
 		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				connection.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 }

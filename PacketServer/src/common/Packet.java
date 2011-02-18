@@ -1,8 +1,12 @@
 package common;
 
+import java.util.zip.CRC32;
+
 public class Packet {
 	private long checksum;
 	private byte[] data;
+
+	private static CRC32 crc32 = new CRC32();
 	private short dataLength;
 
 	public Packet(long checksum, short dataLength) {
@@ -10,8 +14,24 @@ public class Packet {
 		this.dataLength = dataLength;
 	}
 
+	public Packet(byte[] data) {
+		if (data == null || data.length == 0)
+			throw new IllegalArgumentException();
+		this.data = data;
+		this.dataLength = (short) data.length;
+		this.checksum = computeChecksum(data);
+	}
+
 	public long getChecksum() {
 		return checksum;
+	}
+
+	private static long computeChecksum(byte[] data) {
+		synchronized (crc32) {
+			crc32.reset();
+			crc32.update(data);
+			return crc32.getValue();
+		}
 	}
 
 	public byte[] getData() {
@@ -27,6 +47,8 @@ public class Packet {
 	}
 
 	public void setData(byte[] data) throws ChecksumNotMatchException {
+		if (computeChecksum(data) != checksum)
+			throw new ChecksumNotMatchException();
 		this.data = data;
 		this.dataLength = (short) data.length;
 	}

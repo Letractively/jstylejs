@@ -58,12 +58,14 @@ class ServerConnection implements Connection {
 
 	private PacketCounter packetCounter;
 
-	private AtomicBoolean packetErrorOccurred;
+	private AtomicBoolean gotErrorPacket;
 
 	private PacketManager packetManager;
+
+	private ByteBuffer errorResponseBuffer;
 	private byte protocol;
 
-	private boolean readConnectHeader = false;
+	private boolean readedConnectHeader = false;
 
 	private ByteBuffer readDataBuffer;
 	private ByteBuffer readHeaderBuffer;
@@ -72,7 +74,7 @@ class ServerConnection implements Connection {
 	private SelectionKey selectionKey;
 	private Queue<Packet> sendPackets;
 	private SocketChannel socketChannel;
-	private boolean writeConnectCode = false;
+	private boolean wroteConnectCode = false;
 	private ByteBuffer writeDataBuffer;
 
 	ServerConnection(SocketChannel clientChannel, PacketManager packetManager,
@@ -85,12 +87,16 @@ class ServerConnection implements Connection {
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
+		errorResponseBuffer = ByteBuffer
+				.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE);
+		errorResponseBuffer.put(ResponseCode.CRC_ERROR.getCode());
+		errorResponseBuffer.flip();
 		this.packetManager = packetManager;
 		sendPackets = new LinkedList<Packet>();
 		lastContact = System.currentTimeMillis();
 		packetCounter = new PacketCounter();
 		receivedPacketWrapper = new ReceivedPacketWrapper();
-		packetErrorOccurred = new AtomicBoolean(false);
+		gotErrorPacket = new AtomicBoolean(false);
 		this.selectionKey = selectionKey;
 		this.socketChannel = clientChannel;
 		setConnectionCode(ConnectionCode.OK);
@@ -103,7 +109,8 @@ class ServerConnection implements Connection {
 			packet.setData(data);
 		} catch (ChecksumNotMatchException e) {
 			e.printStackTrace();
-			packetErrorOccurred.set(true);
+			gotErrorPacket();
+			return;
 		}
 		System.out.println("Read packet:" + packet.toString());
 		this.packetCounter.readOne();
@@ -111,6 +118,13 @@ class ServerConnection implements Connection {
 		this.packetManager.addReceived(packet);
 		// TODO: test add packet to response
 		this.addSendPacket(packet);
+	}
+
+	private void gotErrorPacket() throws IOException {
+		gotErrorPacket.set(true);
+		// do not accept any packet any more.
+		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
+		this.socketChannel.socket().shutdownInput();
 	}
 
 	@Override
@@ -163,7 +177,7 @@ class ServerConnection implements Connection {
 				setConnectionCode(ConnectionCode.WRONG_VERSION);
 			this.selectionKey.interestOps(SelectionKey.OP_WRITE
 					| SelectionKey.OP_READ);
-			readConnectHeader = true;
+			readedConnectHeader = true;
 		}
 	}
 
@@ -180,7 +194,7 @@ class ServerConnection implements Connection {
 
 	@Override
 	public int read() throws IOException {
-		if (readConnectHeader) {
+		if (readedConnectHeader) {
 			// add threshold control here.
 			if (this.pendingPacketCount() >= ConnectionProtocol.MAX_PENDING_PACKETS)
 				return 0;
@@ -256,14 +270,18 @@ class ServerConnection implements Connection {
 
 	@Override
 	public void write() throws IOException {
-		if (writeConnectCode)
-			writePacket();
-		else {
+		if (wroteConnectCode) {
+			if (shouldWriteErrorResponse())
+				writeErrorResponse();
+			else
+				writePacket();
+
+		} else {
 			// write response code.
 			this.socketChannel.write(connectResponseBuffer);
 			if (!this.connectResponseBuffer.hasRemaining()) {
 				this.selectionKey.interestOps(SelectionKey.OP_READ);
-				writeConnectCode = true;
+				wroteConnectCode = true;
 				// try close this connection itself.
 				switch (connectionCode) {
 				case SERVICE_UNAVALIABLE:
@@ -282,6 +300,20 @@ class ServerConnection implements Connection {
 
 			}
 		}
+	}
+
+	private void writeErrorResponse() throws IOException {
+		this.socketChannel.write(errorResponseBuffer);
+		if (!errorResponseBuffer.hasRemaining()) {
+			// unregister the write event, and make this connection can read
+			// EOF.
+			this.selectionKey.interestOps(SelectionKey.OP_READ);
+			this.socketChannel.socket().shutdownOutput();
+		}
+	}
+
+	private boolean shouldWriteErrorResponse() {
+		return gotErrorPacket.get() && this.sendPackets.isEmpty();
 	}
 
 	private void writePacket() throws IOException {
@@ -307,6 +339,8 @@ class ServerConnection implements Connection {
 					+ this.lastWritePacket.toString() + " out!");
 			this.packetCounter.writeOne();
 			this.lastWritePacket = null;
+			if (gotErrorPacket.get())
+				return;
 			// we need to unregister the write event.
 			synchronized (sendPackets) {
 				if (this.sendPackets.size() == 0)

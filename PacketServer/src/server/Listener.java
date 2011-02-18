@@ -51,6 +51,7 @@ class Listener extends Thread {
 		try {
 			readCount = connection.read();
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		if (readCount == -1) {
 			try {
