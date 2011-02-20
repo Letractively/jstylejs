@@ -57,7 +57,7 @@ public class Packet {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
-		sb.append(", Checksum: ");
+		sb.append("Checksum: ");
 		sb.append(this.checksum);
 		sb.append(", Data length: ");
 		sb.append(this.dataLength);

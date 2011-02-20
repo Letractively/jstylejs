@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
 
 import common.ChecksumNotMatchException;
 import common.Connection;
@@ -22,8 +23,131 @@ import common.PacketManager;
 import common.ResponseCode;
 
 class ClientConnection implements Connection {
+
+	private class PacketReader {
+		private ByteBuffer readDataBuffer;
+		private ByteBuffer readHeaderBuffer;
+		private ByteBuffer readResponseCodeBuffer;
+		private PacketReadState readState;
+		private ReceivedPacketWrapper receivedPacketWrapper;
+
+		PacketReader() {
+			readState = PacketReadState.RESPONSE_CODE;
+			readHeaderBuffer = ByteBuffer
+					.allocate(ConnectionProtocol.PACKET_HEADER_SIZE);
+
+			readResponseCodeBuffer = ByteBuffer
+					.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE);
+
+			receivedPacketWrapper = new ReceivedPacketWrapper();
+		}
+
+		public int read() throws IOException {
+			int readCount = 0;
+			switch (this.readState) {
+			case RESPONSE_CODE:
+				readCount = ClientConnection.this.socketChannel
+						.read(this.readResponseCodeBuffer);
+				if (!this.readResponseCodeBuffer.hasRemaining()) {
+					this.readResponseCodeBuffer.flip();
+					ResponseCode responseCode = ResponseCode
+							.valueOf(this.readResponseCodeBuffer.get());
+					if (responseCode != ResponseCode.OK) {
+						throw new IOException("Get packet response code: "
+								+ responseCode.name());
+					}
+					this.readResponseCodeBuffer.clear();
+					this.readState = PacketReadState.HEADER;
+				}
+				break;
+			case HEADER:
+				readCount = ClientConnection.this.socketChannel
+						.read(this.readHeaderBuffer);
+				if (!this.readHeaderBuffer.hasRemaining()) {
+					this.readHeaderBuffer.flip();
+					long checksum = this.readHeaderBuffer.getLong();
+					short dataLength = this.readHeaderBuffer.getShort();
+					this.readDataBuffer = ByteBuffer.allocate(dataLength);
+					this.receivedPacketWrapper.setChecksum(checksum);
+					this.readHeaderBuffer.clear();
+					this.readState = PacketReadState.DATA;
+				}
+				break;
+			case DATA:
+				readCount = ClientConnection.this.socketChannel
+						.read(this.readDataBuffer);
+				if (!this.readDataBuffer.hasRemaining()) {
+					this.readDataBuffer.flip();
+					this.receivedPacketWrapper.setData(this.readDataBuffer
+							.array());
+					addReceivedPacket(this.receivedPacketWrapper.checksum,
+							this.receivedPacketWrapper.data);
+					this.readState = PacketReadState.RESPONSE_CODE;
+				}
+				break;
+			default:
+				break;
+			}
+			return readCount;
+		}
+	}
+
 	private enum PacketReadState {
-		RESPONSE_CODE, DATA, HEADER;
+		DATA, HEADER, RESPONSE_CODE;
+	}
+
+	private class PacketWriter {
+		private Packet lastWritePacket;
+		private ByteBuffer writeDataBuffer;
+
+		PacketWriter() {
+
+		}
+
+		public void write() throws IOException {
+			if (this.lastWritePacket == null) {
+				synchronized (sendPackets) {
+
+					this.lastWritePacket = sendPackets.remove();
+				}
+				this.writeDataBuffer = ByteBuffer.allocate(this.lastWritePacket
+						.getDataLength()
+						+ ConnectionProtocol.PACKET_HEADER_SIZE);
+				this.writeDataBuffer
+						.putLong(this.lastWritePacket.getChecksum());
+				this.writeDataBuffer.putShort(this.lastWritePacket
+						.getDataLength());
+				this.writeDataBuffer.put(this.lastWritePacket.getData());
+				this.writeDataBuffer.flip();
+			}
+
+			ClientConnection.this.socketChannel.write(this.writeDataBuffer);
+			if (!this.writeDataBuffer.hasRemaining()) {
+				LOGGER.info("Write packet " + this.lastWritePacket.toString()
+						+ " out!");
+				packetCounter.writeOne();
+				this.lastWritePacket = null;
+				// test if we need to unregister the write event.
+				synchronized (sendPackets) {
+					if (sendPackets.size() == 0)
+						selectionKey.interestOps(SelectionKey.OP_READ);
+				}
+			}
+
+		}
+
+		private void writeTestPacket(Packet packet) throws IOException {
+			this.writeDataBuffer = ByteBuffer.allocate(packet.getDataLength()
+					+ ConnectionProtocol.PACKET_HEADER_SIZE);
+			this.writeDataBuffer.putLong(packet.getChecksum());
+			this.writeDataBuffer.putShort(packet.getDataLength());
+			this.writeDataBuffer.put(packet.getData());
+			this.writeDataBuffer.flip();
+			while (this.writeDataBuffer.hasRemaining()) {
+				ClientConnection.this.socketChannel.write(writeDataBuffer);
+			}
+			LOGGER.info("Write packet out:" + packet.toString());
+		}
 	}
 
 	private static class ReceivedPacketWrapper {
@@ -79,46 +203,40 @@ class ClientConnection implements Connection {
 
 	private ByteBuffer connectResponseBuffer;
 
+	private AtomicBoolean gotErrorPacket;
+
 	private long id;
 
+	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
 	private long lastContact;
-	private Packet lastWritePacket;
 	private Listener listener;
 	private PacketCounter packetCounter;
-	private AtomicBoolean gotErrorPacket;
 	private PacketManager packetManager;
-	private ByteBuffer readDataBuffer;
-	private ByteBuffer readHeaderBuffer;
-	private ByteBuffer readResponseCodeBuffer;
-	private PacketReadState readState;
-	private ReceivedPacketWrapper receivedPacketWrapper;
+	private PacketReader packetReader;
+
+	private PacketWriter packetWriter;
 	private SelectionKey selectionKey;
 	private Queue<Packet> sendPackets;
 	private SocketAddress serverSocket;
 	private SocketChannel socketChannel;
-	private Object thresholdLock;
 
-	private ByteBuffer writeDataBuffer;
+	private Object thresholdLock;
 
 	ClientConnection(SocketAddress serverSocket, PacketManager packetManager,
 			Listener listener) {
 
 		this.id = UID.getAndIncrement();
-		readState = PacketReadState.RESPONSE_CODE;
-		readHeaderBuffer = ByteBuffer
-				.allocate(ConnectionProtocol.PACKET_HEADER_SIZE);
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
-		readResponseCodeBuffer = ByteBuffer
-				.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE);
 		this.packetManager = packetManager;
 		sendPackets = new LinkedList<Packet>();
 		lastContact = System.currentTimeMillis();
 		packetManager = new PacketManager();
 		packetCounter = new PacketCounter();
-		receivedPacketWrapper = new ReceivedPacketWrapper();
+
 		gotErrorPacket = new AtomicBoolean(false);
 
 		this.listener = listener;
@@ -127,6 +245,8 @@ class ClientConnection implements Connection {
 		this.connectHeaderBuffer.putShort(version);
 		this.connectHeaderBuffer.clear();
 		thresholdLock = new Object();
+		packetReader = new PacketReader();
+		packetWriter = new PacketWriter();
 	}
 
 	private void addReceivedPacket(long checksum, byte[] data)
@@ -139,7 +259,7 @@ class ClientConnection implements Connection {
 			gotErrorPacket();
 			return;
 		}
-		System.out.println("Read packet:" + packet.toString());
+		LOGGER.info("Read packet:" + packet.toString());
 		this.packetCounter.readOne();
 		// add packet to manager
 		this.packetManager.addReceived(packet);
@@ -148,19 +268,13 @@ class ClientConnection implements Connection {
 
 	}
 
-	private void gotErrorPacket() throws IOException {
-		gotErrorPacket.set(true);
-		// do not read any packet any more.
-		this.socketChannel.socket().shutdownInput();
-	}
-
 	@Override
 	public void addSendPacket(Packet packet) throws IOException {
 		// add threshold control here.
 		synchronized (thresholdLock) {
 			while (isTooManyPendingPackets()) {
 				try {
-					System.out.println("Wati on two many pending packets");
+					LOGGER.info("Wati on two many pending packets");
 					thresholdLock.wait();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -177,13 +291,13 @@ class ClientConnection implements Connection {
 		}
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
-		System.out.println("add  packet " + packet.toString() + " to send");
+		LOGGER.info("add  packet " + packet.toString() + " to send");
 	}
 
 	@Override
 	public void close() throws IOException {
 		this.socketChannel.close();
-		System.out.println(this.toString() + " closed!");
+		LOGGER.info(this.toString() + " closed!");
 	}
 
 	@Override
@@ -203,6 +317,12 @@ class ClientConnection implements Connection {
 		return version;
 	}
 
+	private void gotErrorPacket() throws IOException {
+		gotErrorPacket.set(true);
+		// do not read any packet any more.
+		this.socketChannel.socket().shutdownInput();
+	}
+
 	@Override
 	public void init() throws IOException, ConnectException {
 		// do connect to remote server.
@@ -220,7 +340,7 @@ class ClientConnection implements Connection {
 		socketChannel.configureBlocking(false);
 		this.selectionKey = listener.register(this.socketChannel,
 				SelectionKey.OP_READ, this);
-		System.out.println(this.toString() + " builded");
+		LOGGER.info(this.toString() + " builded");
 	}
 
 	@Override
@@ -240,48 +360,12 @@ class ClientConnection implements Connection {
 
 	@Override
 	public int read() throws IOException {
-		int readCount = 0;
-		switch (readState) {
-		case RESPONSE_CODE:
-			readCount = this.socketChannel.read(readResponseCodeBuffer);
-			if (!readResponseCodeBuffer.hasRemaining()) {
-				readResponseCodeBuffer.flip();
-				ResponseCode responseCode = ResponseCode
-						.valueOf(readResponseCodeBuffer.get());
-				if (responseCode != ResponseCode.OK) {
-					throw new IOException("Get packet response code: "
-							+ responseCode.name());
-				}
-				readResponseCodeBuffer.clear();
-				readState = PacketReadState.HEADER;
-			}
-			break;
-		case HEADER:
-			readCount = this.socketChannel.read(readHeaderBuffer);
-			if (!readHeaderBuffer.hasRemaining()) {
-				readHeaderBuffer.flip();
-				long checksum = readHeaderBuffer.getLong();
-				short dataLength = readHeaderBuffer.getShort();
-				readDataBuffer = ByteBuffer.allocate(dataLength);
-				receivedPacketWrapper.setChecksum(checksum);
-				readHeaderBuffer.clear();
-				readState = PacketReadState.DATA;
-			}
-			break;
-		case DATA:
-			readCount = this.socketChannel.read(readDataBuffer);
-			if (!readDataBuffer.hasRemaining()) {
-				readDataBuffer.flip();
-				receivedPacketWrapper.setData(readDataBuffer.array());
-				addReceivedPacket(receivedPacketWrapper.checksum,
-						receivedPacketWrapper.data);
-				readState = PacketReadState.RESPONSE_CODE;
-			}
-			break;
-		default:
-			break;
-		}
-		return readCount;
+		return packetReader.read();
+	}
+
+	private void stopWritePacket() {
+		// dot net accept write event.
+		this.selectionKey.interestOps(SelectionKey.OP_READ);
 	}
 
 	@Override
@@ -315,7 +399,7 @@ class ClientConnection implements Connection {
 			stopWritePacket();
 			return;
 		} else
-			writePacket();
+			this.packetWriter.write();
 		// add threshold control here.
 		synchronized (thresholdLock) {
 			if (!isTooManyPendingPackets())
@@ -323,51 +407,8 @@ class ClientConnection implements Connection {
 		}
 	}
 
-	private void stopWritePacket() {
-		// dot net accept write event.
-		this.selectionKey.interestOps(SelectionKey.OP_READ);
-	}
-
-	private void writePacket() throws IOException {
-		if (lastWritePacket == null) {
-			synchronized (sendPackets) {
-
-				lastWritePacket = sendPackets.remove();
-			}
-			this.writeDataBuffer = ByteBuffer.allocate(lastWritePacket
-					.getDataLength() + ConnectionProtocol.PACKET_HEADER_SIZE);
-			this.writeDataBuffer.putLong(lastWritePacket.getChecksum());
-			this.writeDataBuffer.putShort(lastWritePacket.getDataLength());
-			this.writeDataBuffer.put(this.lastWritePacket.getData());
-			this.writeDataBuffer.flip();
-		}
-
-		this.socketChannel.write(this.writeDataBuffer);
-		if (!this.writeDataBuffer.hasRemaining()) {
-			System.out.println("Write packet "
-					+ this.lastWritePacket.toString() + " out!");
-			this.packetCounter.writeOne();
-			this.lastWritePacket = null;
-			// test if we need to unregister the write event.
-			synchronized (sendPackets) {
-				if (this.sendPackets.size() == 0)
-					selectionKey.interestOps(SelectionKey.OP_READ);
-			}
-		}
-
-	}
-
-	private void writeTestPacket(Packet rpcPacket) throws IOException {
-		this.writeDataBuffer = ByteBuffer.allocate(rpcPacket.getDataLength()
-				+ ConnectionProtocol.PACKET_HEADER_SIZE);
-		this.writeDataBuffer.putLong(rpcPacket.getChecksum());
-		this.writeDataBuffer.putShort(rpcPacket.getDataLength());
-		this.writeDataBuffer.put(rpcPacket.getData());
-		this.writeDataBuffer.flip();
-		while (this.writeDataBuffer.hasRemaining()) {
-			this.socketChannel.write(writeDataBuffer);
-		}
-		System.out.println("Write packet out:" + rpcPacket.toString());
+	private void writeTestPacket(Packet packet) throws IOException {
+		this.packetWriter.writeTestPacket(packet);
 	}
 
 }

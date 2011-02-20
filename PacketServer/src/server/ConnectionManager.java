@@ -17,7 +17,6 @@ class ConnectionManager {
 
 	public void remove(ServerConnection connection) {
 		this.connections.remove(connection.getId());
-		System.out.println(connection.toString() + " removed!");
 	}
 
 	public int size() {

@@ -3,8 +3,10 @@ package server;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
+import java.util.logging.Logger;
 
 class PacketServerImpl extends PacketServer {
+	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	public static final int PORT_NUMBER = 4465;
 
@@ -21,7 +23,7 @@ class PacketServerImpl extends PacketServer {
 
 	@Override
 	public void start() throws IOException {
-		System.out.println("Server starting....");
+		LOGGER.info("Server starting....");
 		this.socketChannel = ServerSocketChannel.open();
 		this.socketChannel.configureBlocking(false);
 		InetSocketAddress socketAddress = new InetSocketAddress(getPortNumer());

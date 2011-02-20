@@ -6,10 +6,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 class Listener extends Thread {
 	private Selector selector;
 	private PacketServer server;
+	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	public Listener(PacketServer server) throws IOException {
 		this.server = server;
@@ -41,8 +43,8 @@ class Listener extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("new connection: " + connection + " accepted.");
 
+		LOGGER.info("new connection: " + connection + " accepted.");
 	}
 
 	private void read(SelectionKey key) {
@@ -59,6 +61,8 @@ class Listener extends Thread {
 			} catch (IOException e) {
 			}
 			this.server.getConnectionManager().remove(connection);
+			LOGGER.info(connection.toString() + " removed!");
+
 		}
 
 	}
@@ -112,6 +116,7 @@ class Listener extends Thread {
 				e1.printStackTrace();
 			}
 			this.server.getConnectionManager().remove(connection);
+			LOGGER.info(connection.toString() + " removed!");
 		}
 	}
 }

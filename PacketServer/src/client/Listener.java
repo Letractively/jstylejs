@@ -7,11 +7,13 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 class Listener extends Thread {
 	private AtomicBoolean registering;
 
 	private Selector selector;
+	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	Listener() throws IOException {
 		this.setName("Client listener");
