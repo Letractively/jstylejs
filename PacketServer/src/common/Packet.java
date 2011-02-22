@@ -2,15 +2,28 @@ package common;
 
 public class Packet {
 	private byte[] data;
+	private short dataLength;
 
-	public Packet(byte[] data) {
-		if (data == null || data.length == 0)
-			throw new IllegalArgumentException();
+	Packet(short dataLength) throws PacketException {
+		if (dataLength < 0
+				|| dataLength > ConnectionProtocol.MAX_PACKET_DATA_LENGTH)
+			throw new PacketException("Wrong packet data length: " + dataLength);
+		this.dataLength = dataLength;
+	}
+
+	void setData(byte[] data) {
+		this.data = data;
+	}
+
+	public Packet(byte[] data) throws PacketException {
+		if (data == null)
+			throw new PacketException("Packet data should not be null");
 		if (this.data.length > ConnectionProtocol.MAX_PACKET_DATA_LENGTH)
-			throw new IllegalStateException(
+			throw new PacketException(
 					"Data length largar than max packet data length:"
 							+ ConnectionProtocol.MAX_PACKET_DATA_LENGTH);
 		this.data = data;
+		this.dataLength = (short) data.length;
 	}
 
 	public byte[] getData() {
@@ -18,7 +31,7 @@ public class Packet {
 	}
 
 	public short getDataLength() {
-		return (short) data.length;
+		return dataLength;
 	}
 
 	@Override
@@ -26,7 +39,7 @@ public class Packet {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
 		sb.append(", Data length: ");
-		sb.append(this.getDataLength());
+		sb.append(dataLength);
 		sb.append("}");
 		return sb.toString();
 	}

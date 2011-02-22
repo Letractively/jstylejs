@@ -1,5 +1,7 @@
 package common;
 
+import java.util.Arrays;
+
 public final class CRC16 {
 
 	private static int[] table = { 0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301,
@@ -36,11 +38,23 @@ public final class CRC16 {
 			0x47C0, 0x4680, 0x8641, 0x8201, 0x42C0, 0x4380, 0x8341, 0x4100,
 			0x81C1, 0x8081, 0x4040, };
 
-	public static int compute(byte bytes[]) {
+	private static int compute(byte bytes[]) {
 		int crc = 0x0000;
 		for (byte b : bytes) {
 			crc = (crc >>> 8) ^ table[(crc ^ b) & 0xff];
 		}
 		return crc;
 	}
+
+	public static short compute(byte code, short dataLength, byte[] data) {
+		if (data == null)
+			throw new NullPointerException("Data can not be null");
+		byte[] allData = new byte[3 + data.length];
+		allData[0] = code;
+		allData[1] = (byte) ((dataLength >>> 8) & 0xFF);
+		allData[2] = (byte) ((dataLength >>> 0) & 0xFF);
+		System.arraycopy(data, 0, allData, 3, data.length);
+		return (short) compute(allData);
+	}
+
 }

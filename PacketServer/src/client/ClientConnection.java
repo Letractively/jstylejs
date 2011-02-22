@@ -13,88 +13,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-import common.ChecksumErrorException;
+import common.ChecksumMatchException;
 import common.Connection;
 import common.ConnectionCode;
 import common.ConnectionProtocol;
 import common.Packet;
 import common.PacketCounter;
+import common.PacketException;
 import common.PacketManager;
-import common.ResponseCode;
+import common.PacketReader;
 
 class ClientConnection implements Connection {
-
-	private class PacketReader {
-		private ByteBuffer readDataBuffer;
-		private ByteBuffer readHeaderBuffer;
-		private ByteBuffer readResponseCodeBuffer;
-		private PacketReadState readState;
-		private ReceivedPacketWrapper receivedPacketWrapper;
-
-		PacketReader() {
-			readState = PacketReadState.RESPONSE_CODE;
-			readHeaderBuffer = ByteBuffer
-					.allocate(ConnectionProtocol.PACKET_HEADER_LENGTH);
-
-			readResponseCodeBuffer = ByteBuffer
-					.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE);
-
-			receivedPacketWrapper = new ReceivedPacketWrapper();
-		}
-
-		public int read() throws IOException {
-			int readCount = 0;
-			switch (this.readState) {
-			case RESPONSE_CODE:
-				readCount = ClientConnection.this.socketChannel
-						.read(this.readResponseCodeBuffer);
-				if (!this.readResponseCodeBuffer.hasRemaining()) {
-					this.readResponseCodeBuffer.flip();
-					ResponseCode responseCode = ResponseCode
-							.valueOf(this.readResponseCodeBuffer.get());
-					if (responseCode != ResponseCode.OK) {
-						throw new IOException("Get packet response code: "
-								+ responseCode.name());
-					}
-					this.readResponseCodeBuffer.clear();
-					this.readState = PacketReadState.HEADER;
-				}
-				break;
-			case HEADER:
-				readCount = ClientConnection.this.socketChannel
-						.read(this.readHeaderBuffer);
-				if (!this.readHeaderBuffer.hasRemaining()) {
-					this.readHeaderBuffer.flip();
-					long checksum = this.readHeaderBuffer.getLong();
-					short dataLength = this.readHeaderBuffer.getShort();
-					this.readDataBuffer = ByteBuffer.allocate(dataLength);
-					this.receivedPacketWrapper.setChecksum(checksum);
-					this.readHeaderBuffer.clear();
-					this.readState = PacketReadState.DATA;
-				}
-				break;
-			case DATA:
-				readCount = ClientConnection.this.socketChannel
-						.read(this.readDataBuffer);
-				if (!this.readDataBuffer.hasRemaining()) {
-					this.readDataBuffer.flip();
-					this.receivedPacketWrapper.setData(this.readDataBuffer
-							.array());
-					addReceivedPacket(this.receivedPacketWrapper.checksum,
-							this.receivedPacketWrapper.data);
-					this.readState = PacketReadState.RESPONSE_CODE;
-				}
-				break;
-			default:
-				break;
-			}
-			return readCount;
-		}
-	}
-
-	private enum PacketReadState {
-		DATA, HEADER, RESPONSE_CODE;
-	}
 
 	private class PacketWriter {
 		private Packet lastWritePacket;
@@ -179,7 +108,7 @@ class ClientConnection implements Connection {
 	private static final short version = 1;
 
 	public static void main(String[] args) throws IOException,
-			InterruptedException, ChecksumErrorException {
+			InterruptedException, ChecksumMatchException {
 		PacketManager packetManager = new PacketManager();
 		SocketAddress serverSocket = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
@@ -245,20 +174,10 @@ class ClientConnection implements Connection {
 		this.connectHeaderBuffer.putShort(version);
 		this.connectHeaderBuffer.clear();
 		thresholdLock = new Object();
-		packetReader = new PacketReader();
 		packetWriter = new PacketWriter();
 	}
 
-	private void addReceivedPacket(long checksum, byte[] data)
-			throws IOException {
-		Packet packet = new Packet(checksum, (short) data.length);
-		try {
-			packet.setData(data);
-		} catch (ChecksumErrorException e) {
-			e.printStackTrace();
-			gotErrorPacket();
-			return;
-		}
+	private void addReceivedPacket(Packet packet) throws IOException {
 		LOGGER.info("Read packet:" + packet.toString());
 		this.packetCounter.readOne();
 		// add packet to manager
@@ -340,6 +259,7 @@ class ClientConnection implements Connection {
 		socketChannel.configureBlocking(false);
 		this.selectionKey = listener.register(this.socketChannel,
 				SelectionKey.OP_READ, this);
+		packetReader = new ClientPacketReader(this.socketChannel);
 		LOGGER.info(this.toString() + " builded");
 	}
 
@@ -360,7 +280,16 @@ class ClientConnection implements Connection {
 
 	@Override
 	public int read() throws IOException {
-		return packetReader.read();
+		int readCount;
+		try {
+			readCount = packetReader.read();
+			if (packetReader.isReady()) {
+				addReceivedPacket(packetReader.takeLastPacket());
+			}
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+		return readCount;
 	}
 
 	private void stopWritePacket() {

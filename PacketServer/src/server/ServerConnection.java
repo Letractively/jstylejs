@@ -10,68 +10,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-import common.ChecksumErrorException;
+import common.ChecksumMatchException;
 import common.Connection;
 import common.ConnectionCode;
 import common.ConnectionProtocol;
 import common.Packet;
 import common.PacketCounter;
 import common.PacketManager;
+import common.PacketReader;
 import common.ResponseCode;
 
 class ServerConnection implements Connection {
-
-	private class PacketReader {
-		private ByteBuffer readDataBuffer;
-		private ByteBuffer readHeaderBuffer;
-		private PacketReadState readState;
-		private ReceivedPacketWrapper receivedPacketWrapper;
-
-		PacketReader() {
-			receivedPacketWrapper = new ReceivedPacketWrapper();
-			readState = PacketReadState.HEADER;
-			readHeaderBuffer = ByteBuffer
-					.allocate(ConnectionProtocol.PACKET_HEADER_LENGTH);
-		}
-
-		public int read() throws IOException {
-			int readCount = 0;
-			switch (this.readState) {
-			case HEADER:
-				readCount = ServerConnection.this.socketChannel
-						.read(this.readHeaderBuffer);
-				if (!this.readHeaderBuffer.hasRemaining()) {
-					this.readHeaderBuffer.flip();
-					long checksum = this.readHeaderBuffer.getLong();
-					short dataLength = this.readHeaderBuffer.getShort();
-					this.readDataBuffer = ByteBuffer.allocate(dataLength);
-					this.receivedPacketWrapper.setChecksum(checksum);
-					this.readHeaderBuffer.clear();
-					this.readState = PacketReadState.DATA;
-				}
-				break;
-			case DATA:
-				readCount = ServerConnection.this.socketChannel
-						.read(this.readDataBuffer);
-				if (!this.readDataBuffer.hasRemaining()) {
-					this.readDataBuffer.flip();
-					this.receivedPacketWrapper.setData(this.readDataBuffer
-							.array());
-					addReceivedPacket(this.receivedPacketWrapper.checksum,
-							this.receivedPacketWrapper.data);
-					this.readState = PacketReadState.HEADER;
-				}
-				break;
-			default:
-				break;
-			}
-			return readCount;
-		}
-	}
-
-	private enum PacketReadState {
-		DATA, HEADER;
-	}
 
 	private class PacketWriter {
 		private Packet lastWritePacket;
@@ -110,24 +59,6 @@ class ServerConnection implements Connection {
 						selectionKey.interestOps(SelectionKey.OP_READ);
 				}
 			}
-
-		}
-	}
-
-	private static class ReceivedPacketWrapper {
-		private long checksum;
-		private byte[] data;
-
-		ReceivedPacketWrapper() {
-
-		}
-
-		void setChecksum(long checksum) {
-			this.checksum = checksum;
-		}
-
-		void setData(byte[] data) {
-			this.data = data;
 
 		}
 	}
@@ -187,7 +118,7 @@ class ServerConnection implements Connection {
 		this.socketChannel = clientChannel;
 		setConnectionCode(ConnectionCode.OK);
 		packetWriter = new PacketWriter();
-		packetReader = new PacketReader();
+		packetReader = new ServerPacketReader(this.socketChannel);
 	}
 
 	protected void addReceivedPacket(long checksum, byte[] data)
@@ -195,7 +126,7 @@ class ServerConnection implements Connection {
 		Packet packet = new Packet(checksum, (short) data.length);
 		try {
 			packet.setData(data);
-		} catch (ChecksumErrorException e) {
+		} catch (ChecksumMatchException e) {
 			e.printStackTrace();
 			gotErrorPacket();
 			return;
