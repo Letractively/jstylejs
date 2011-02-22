@@ -39,7 +39,7 @@ package common;
  * Please notes, all size unit is <b>Byte</b>.
  * 
  */
-public interface ConnectionProtocol {
+public final class ConnectionProtocol {
 	public static final int HEADER_LENGTH = 128;// protocol+version+reserved.
 	public static final int PACKET_HEADER_SIZE = 5; // type+data length+checksum
 	public static final int RESPONSE_LENGTH = 128;// connection code_reserved
