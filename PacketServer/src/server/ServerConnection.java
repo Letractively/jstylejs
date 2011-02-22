@@ -372,5 +372,4 @@ class ServerConnection implements Connection {
 			this.socketChannel.socket().shutdownOutput();
 		}
 	}
-
 }
