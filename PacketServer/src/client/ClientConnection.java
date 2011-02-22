@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-import common.ChecksumNotMatchException;
+import common.ChecksumErrorException;
 import common.Connection;
 import common.ConnectionCode;
 import common.ConnectionProtocol;
@@ -34,7 +34,7 @@ class ClientConnection implements Connection {
 		PacketReader() {
 			readState = PacketReadState.RESPONSE_CODE;
 			readHeaderBuffer = ByteBuffer
-					.allocate(ConnectionProtocol.PACKET_HEADER_SIZE);
+					.allocate(ConnectionProtocol.PACKET_HEADER_LENGTH);
 
 			readResponseCodeBuffer = ByteBuffer
 					.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE);
@@ -112,7 +112,7 @@ class ClientConnection implements Connection {
 				}
 				this.writeDataBuffer = ByteBuffer.allocate(this.lastWritePacket
 						.getDataLength()
-						+ ConnectionProtocol.PACKET_HEADER_SIZE);
+						+ ConnectionProtocol.PACKET_HEADER_LENGTH);
 				this.writeDataBuffer
 						.putLong(this.lastWritePacket.getChecksum());
 				this.writeDataBuffer.putShort(this.lastWritePacket
@@ -138,7 +138,7 @@ class ClientConnection implements Connection {
 
 		private void writeTestPacket(Packet packet) throws IOException {
 			this.writeDataBuffer = ByteBuffer.allocate(packet.getDataLength()
-					+ ConnectionProtocol.PACKET_HEADER_SIZE);
+					+ ConnectionProtocol.PACKET_HEADER_LENGTH);
 			this.writeDataBuffer.putLong(packet.getChecksum());
 			this.writeDataBuffer.putShort(packet.getDataLength());
 			this.writeDataBuffer.put(packet.getData());
@@ -179,7 +179,7 @@ class ClientConnection implements Connection {
 	private static final short version = 1;
 
 	public static void main(String[] args) throws IOException,
-			InterruptedException, ChecksumNotMatchException {
+			InterruptedException, ChecksumErrorException {
 		PacketManager packetManager = new PacketManager();
 		SocketAddress serverSocket = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
@@ -254,7 +254,7 @@ class ClientConnection implements Connection {
 		Packet packet = new Packet(checksum, (short) data.length);
 		try {
 			packet.setData(data);
-		} catch (ChecksumNotMatchException e) {
+		} catch (ChecksumErrorException e) {
 			e.printStackTrace();
 			gotErrorPacket();
 			return;

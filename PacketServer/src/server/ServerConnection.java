@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-import common.ChecksumNotMatchException;
+import common.ChecksumErrorException;
 import common.Connection;
 import common.ConnectionCode;
 import common.ConnectionProtocol;
@@ -31,7 +31,7 @@ class ServerConnection implements Connection {
 			receivedPacketWrapper = new ReceivedPacketWrapper();
 			readState = PacketReadState.HEADER;
 			readHeaderBuffer = ByteBuffer
-					.allocate(ConnectionProtocol.PACKET_HEADER_SIZE);
+					.allocate(ConnectionProtocol.PACKET_HEADER_LENGTH);
 		}
 
 		public int read() throws IOException {
@@ -85,7 +85,7 @@ class ServerConnection implements Connection {
 				}
 				this.writeDataBuffer = ByteBuffer
 						.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE
-								+ ConnectionProtocol.PACKET_HEADER_SIZE
+								+ ConnectionProtocol.PACKET_HEADER_LENGTH
 								+ this.lastWritePacket.getDataLength());
 				this.writeDataBuffer.put(ResponseCode.OK.getCode());
 				this.writeDataBuffer
@@ -195,7 +195,7 @@ class ServerConnection implements Connection {
 		Packet packet = new Packet(checksum, (short) data.length);
 		try {
 			packet.setData(data);
-		} catch (ChecksumNotMatchException e) {
+		} catch (ChecksumErrorException e) {
 			e.printStackTrace();
 			gotErrorPacket();
 			return;

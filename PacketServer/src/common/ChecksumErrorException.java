@@ -1,6 +1,6 @@
 package common;
 
-public class ChecksumNotMatchException extends Exception {
+public class ChecksumErrorException extends Exception {
 
 	/**
 	 */
