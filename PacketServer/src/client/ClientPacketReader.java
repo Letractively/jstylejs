@@ -22,6 +22,7 @@ final class ClientPacketReader extends PacketReader {
 					+ responseCode.name());
 		short computedChecksum = CRC16.compute(code, dataLength, data);
 		if (computedChecksum != checksum)
-			throw new ChecksumMatchException("Response packet chesum not match");
+			throw new ChecksumMatchException(
+					"Response packet checksum not match");
 	}
 }
