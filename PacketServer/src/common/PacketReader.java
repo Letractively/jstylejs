@@ -12,9 +12,6 @@ public abstract class PacketReader {
 
 	private ByteBuffer readDataBuffer;
 	private ByteBuffer readHeaderBuffer;
-
-	private Exception error;
-
 	private State state;
 	private SocketChannel socketChannel;
 
@@ -34,8 +31,7 @@ public abstract class PacketReader {
 	public int read() throws IOException, ChecksumMatchException,
 			PacketException {
 		int readCount = 0;
-		if (this.error != null)
-			return 0;
+
 		switch (this.state) {
 		case HEADER:
 			readCount = this.socketChannel.read(this.readHeaderBuffer);
@@ -43,7 +39,7 @@ public abstract class PacketReader {
 				this.readHeaderBuffer.flip();
 				this.lastCode = this.readHeaderBuffer.get();
 				short dataLength = this.readHeaderBuffer.getShort();
-				this.lastChecksum = this.readDataBuffer.getShort();
+				this.lastChecksum = this.readHeaderBuffer.getShort();
 				this.lastPacket = new Packet(dataLength);
 				this.readHeaderBuffer.clear();
 				this.readDataBuffer = ByteBuffer.allocate(this.lastPacket
@@ -78,16 +74,11 @@ public abstract class PacketReader {
 		return this.state == State.READY;
 	}
 
-	public byte getLastCode() {
-		return this.lastCode;
-	}
-
-	public Packet takeLastPacket() {
+	public PacketCarrier takeLastCarrier() {
 		if (!isReady())
 			throw new IllegalStateException("Read stat must be ready");
-		Packet packet = lastPacket;
 		this.state = State.HEADER;
-		return packet;
+		return new PacketCarrier(lastCode, lastPacket);
 
 	}
 }

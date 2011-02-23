@@ -10,12 +10,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
+import common.CRC16;
 import common.ChecksumMatchException;
 import common.Connection;
 import common.ConnectionCode;
 import common.ConnectionProtocol;
 import common.Packet;
+import common.PacketCarrier;
 import common.PacketCounter;
+import common.PacketException;
 import common.PacketManager;
 import common.PacketReader;
 import common.ResponseCode;
@@ -23,34 +26,37 @@ import common.ResponseCode;
 class ServerConnection implements Connection {
 
 	private class PacketWriter {
-		private Packet lastWritePacket;
+		private PacketCarrier lastPacketCarrier;
 		private ByteBuffer writeDataBuffer;
 
 		private void write() throws IOException {
-			if (this.lastWritePacket == null) {
+			if (this.lastPacketCarrier == null) {
 				synchronized (sendPackets) {
 
-					this.lastWritePacket = sendPackets.remove();
+					this.lastPacketCarrier = sendPackets.remove();
 				}
+				byte code = this.lastPacketCarrier.getCode();
+				short dataLength = this.lastPacketCarrier.getPacket()
+						.getDataLength();
+				byte[] data = this.lastPacketCarrier.getPacket().getData();
+				short checksum = CRC16.compute(code, dataLength, data);
 				this.writeDataBuffer = ByteBuffer
-						.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE
-								+ ConnectionProtocol.PACKET_HEADER_LENGTH
-								+ this.lastWritePacket.getDataLength());
-				this.writeDataBuffer.put(ResponseCode.OK.getCode());
-				this.writeDataBuffer
-						.putLong(this.lastWritePacket.getChecksum());
-				this.writeDataBuffer.putShort(this.lastWritePacket
-						.getDataLength());
-				this.writeDataBuffer.put(this.lastWritePacket.getData());
+						.allocate(this.lastPacketCarrier.getPacket()
+								.getDataLength()
+								+ ConnectionProtocol.PACKET_HEADER_LENGTH);
+				this.writeDataBuffer.put(code);
+				this.writeDataBuffer.putShort(dataLength);
+				this.writeDataBuffer.putShort(checksum);
+				this.writeDataBuffer.put(data);
 				this.writeDataBuffer.flip();
 			}
 
 			ServerConnection.this.socketChannel.write(this.writeDataBuffer);
 			if (!this.writeDataBuffer.hasRemaining()) {
-				LOGGER.info("Write packet " + this.lastWritePacket.toString()
+				LOGGER.info("Write packet " + this.lastPacketCarrier.toString()
 						+ " out!");
 				packetCounter.writeOne();
-				this.lastWritePacket = null;
+				this.lastPacketCarrier = null;
 				if (gotErrorPacket.get())
 					return;
 				// we need to unregister the write event.
@@ -74,7 +80,6 @@ class ServerConnection implements Connection {
 	private ByteBuffer connectHeaderBuffer;
 	private ConnectionCode connectionCode;
 	private ByteBuffer connectResponseBuffer;
-	private ByteBuffer errorResponseBuffer;
 
 	private AtomicBoolean gotErrorPacket;
 
@@ -93,9 +98,10 @@ class ServerConnection implements Connection {
 	private boolean readedConnectHeader = false;
 
 	private SelectionKey selectionKey;
-	private Queue<Packet> sendPackets;
+	private Queue<PacketCarrier> sendPackets;
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
+	private ByteBuffer errorResponseBuffer;
 
 	ServerConnection(SocketChannel clientChannel, PacketManager packetManager,
 			SelectionKey selectionKey) {
@@ -105,12 +111,8 @@ class ServerConnection implements Connection {
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
-		errorResponseBuffer = ByteBuffer
-				.allocate(ConnectionProtocol.PACKET_RESPONSE_CODE_SIZE);
-		errorResponseBuffer.put(ResponseCode.CRC_ERROR.getCode());
-		errorResponseBuffer.flip();
 		this.packetManager = packetManager;
-		sendPackets = new LinkedList<Packet>();
+		sendPackets = new LinkedList<PacketCarrier>();
 		lastContact = System.currentTimeMillis();
 		packetCounter = new PacketCounter();
 		gotErrorPacket = new AtomicBoolean(false);
@@ -121,16 +123,7 @@ class ServerConnection implements Connection {
 		packetReader = new ServerPacketReader(this.socketChannel);
 	}
 
-	protected void addReceivedPacket(long checksum, byte[] data)
-			throws IOException {
-		Packet packet = new Packet(checksum, (short) data.length);
-		try {
-			packet.setData(data);
-		} catch (ChecksumMatchException e) {
-			e.printStackTrace();
-			gotErrorPacket();
-			return;
-		}
+	protected void addReceivedPacket(Packet packet) throws IOException {
 		LOGGER.info("Read packet:" + packet.toString());
 		this.packetCounter.readOne();
 		// add packet to manager
@@ -142,7 +135,8 @@ class ServerConnection implements Connection {
 	@Override
 	public void addSendPacket(Packet packet) throws IOException {
 		synchronized (sendPackets) {
-			this.sendPackets.add(packet);
+			this.sendPackets.add(new PacketCarrier(ResponseCode.OK.getCode(),
+					packet));
 		}
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
@@ -180,6 +174,17 @@ class ServerConnection implements Connection {
 
 	private void gotErrorPacket() throws IOException {
 		gotErrorPacket.set(true);
+		// Initialize error response buffer.
+		byte code = ResponseCode.CRC_ERROR.getCode();
+		short dataLength = 0;
+		byte[] data = new byte[dataLength];
+		short checksum = CRC16.compute(code, dataLength, data);
+		errorResponseBuffer = ByteBuffer
+				.allocate(ConnectionProtocol.PACKET_HEADER_LENGTH);
+		errorResponseBuffer.put(code);
+		errorResponseBuffer.putShort(dataLength);
+		errorResponseBuffer.putShort(checksum);
+		errorResponseBuffer.flip();
 		// do not accept any packet any more.
 		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
 		this.socketChannel.socket().shutdownInput();
@@ -213,11 +218,25 @@ class ServerConnection implements Connection {
 
 	@Override
 	public int read() throws IOException {
+
 		if (readedConnectHeader) {
 			// add threshold control here.
 			if (this.pendingPacketCount() >= ConnectionProtocol.MAX_PENDING_PACKETS)
 				return 0;
-			return this.packetReader.read();
+			int readCount = 0;
+			try {
+				readCount = packetReader.read();
+			} catch (ChecksumMatchException e) {
+				gotErrorPacket();
+				return 0;
+			} catch (PacketException e) {
+				gotErrorPacket();
+				return 0;
+			}
+			if (packetReader.isReady()) {
+				addReceivedPacket(packetReader.takeLastCarrier().getPacket());
+			}
+			return readCount;
 		} else {
 			init();
 			return 0;

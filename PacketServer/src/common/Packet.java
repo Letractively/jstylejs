@@ -18,7 +18,7 @@ public class Packet {
 	public Packet(byte[] data) throws PacketException {
 		if (data == null)
 			throw new PacketException("Packet data should not be null");
-		if (this.data.length > ConnectionProtocol.MAX_PACKET_DATA_LENGTH)
+		if (data.length > ConnectionProtocol.MAX_PACKET_DATA_LENGTH)
 			throw new PacketException(
 					"Data length largar than max packet data length:"
 							+ ConnectionProtocol.MAX_PACKET_DATA_LENGTH);
@@ -38,7 +38,7 @@ public class Packet {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
-		sb.append(", Data length: ");
+		sb.append("Data length: ");
 		sb.append(dataLength);
 		sb.append("}");
 		return sb.toString();

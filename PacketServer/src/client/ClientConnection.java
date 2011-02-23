@@ -13,20 +13,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
+import common.CRC16;
 import common.ChecksumMatchException;
 import common.Connection;
 import common.ConnectionCode;
 import common.ConnectionProtocol;
 import common.Packet;
+import common.PacketCarrier;
 import common.PacketCounter;
 import common.PacketException;
 import common.PacketManager;
 import common.PacketReader;
+import common.RequestCode;
 
 class ClientConnection implements Connection {
 
 	private class PacketWriter {
-		private Packet lastWritePacket;
+		private PacketCarrier lastPacketCarrier;
 		private ByteBuffer writeDataBuffer;
 
 		PacketWriter() {
@@ -34,28 +37,33 @@ class ClientConnection implements Connection {
 		}
 
 		public void write() throws IOException {
-			if (this.lastWritePacket == null) {
+			if (this.lastPacketCarrier == null) {
 				synchronized (sendPackets) {
 
-					this.lastWritePacket = sendPackets.remove();
+					this.lastPacketCarrier = sendPackets.remove();
 				}
-				this.writeDataBuffer = ByteBuffer.allocate(this.lastWritePacket
-						.getDataLength()
-						+ ConnectionProtocol.PACKET_HEADER_LENGTH);
-				this.writeDataBuffer
-						.putLong(this.lastWritePacket.getChecksum());
-				this.writeDataBuffer.putShort(this.lastWritePacket
-						.getDataLength());
-				this.writeDataBuffer.put(this.lastWritePacket.getData());
+				byte code = this.lastPacketCarrier.getCode();
+				short dataLength = this.lastPacketCarrier.getPacket()
+						.getDataLength();
+				byte[] data = this.lastPacketCarrier.getPacket().getData();
+				short checksum = CRC16.compute(code, dataLength, data);
+				this.writeDataBuffer = ByteBuffer
+						.allocate(this.lastPacketCarrier.getPacket()
+								.getDataLength()
+								+ ConnectionProtocol.PACKET_HEADER_LENGTH);
+				this.writeDataBuffer.put(code);
+				this.writeDataBuffer.putShort(dataLength);
+				this.writeDataBuffer.putShort(checksum);
+				this.writeDataBuffer.put(data);
 				this.writeDataBuffer.flip();
 			}
 
 			ClientConnection.this.socketChannel.write(this.writeDataBuffer);
 			if (!this.writeDataBuffer.hasRemaining()) {
-				LOGGER.info("Write packet " + this.lastWritePacket.toString()
+				LOGGER.info("Write packet " + this.lastPacketCarrier.toString()
 						+ " out!");
 				packetCounter.writeOne();
-				this.lastWritePacket = null;
+				this.lastPacketCarrier = null;
 				// test if we need to unregister the write event.
 				synchronized (sendPackets) {
 					if (sendPackets.size() == 0)
@@ -68,32 +76,20 @@ class ClientConnection implements Connection {
 		private void writeTestPacket(Packet packet) throws IOException {
 			this.writeDataBuffer = ByteBuffer.allocate(packet.getDataLength()
 					+ ConnectionProtocol.PACKET_HEADER_LENGTH);
-			this.writeDataBuffer.putLong(packet.getChecksum());
-			this.writeDataBuffer.putShort(packet.getDataLength());
+			byte code = RequestCode.NORMAL.getCode();
+			short dataLength = packet.getDataLength();
+			byte[] data = packet.getData();
+
+			this.writeDataBuffer.put(code);
+			this.writeDataBuffer.putShort(dataLength);
+			this.writeDataBuffer
+					.putShort(CRC16.compute(code, dataLength, data));
 			this.writeDataBuffer.put(packet.getData());
 			this.writeDataBuffer.flip();
 			while (this.writeDataBuffer.hasRemaining()) {
 				ClientConnection.this.socketChannel.write(writeDataBuffer);
 			}
 			LOGGER.info("Write packet out:" + packet.toString());
-		}
-	}
-
-	private static class ReceivedPacketWrapper {
-		private long checksum;
-		private byte[] data;
-
-		ReceivedPacketWrapper() {
-
-		}
-
-		void setChecksum(long checksum) {
-			this.checksum = checksum;
-		}
-
-		void setData(byte[] data) {
-			this.data = data;
-
 		}
 	}
 
@@ -108,7 +104,7 @@ class ClientConnection implements Connection {
 	private static final short version = 1;
 
 	public static void main(String[] args) throws IOException,
-			InterruptedException, ChecksumMatchException {
+			InterruptedException, ChecksumMatchException, PacketException {
 		PacketManager packetManager = new PacketManager();
 		SocketAddress serverSocket = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
@@ -146,7 +142,7 @@ class ClientConnection implements Connection {
 
 	private PacketWriter packetWriter;
 	private SelectionKey selectionKey;
-	private Queue<Packet> sendPackets;
+	private Queue<PacketCarrier> sendPackets;
 	private SocketAddress serverSocket;
 	private SocketChannel socketChannel;
 
@@ -161,7 +157,7 @@ class ClientConnection implements Connection {
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 		this.packetManager = packetManager;
-		sendPackets = new LinkedList<Packet>();
+		sendPackets = new LinkedList<PacketCarrier>();
 		lastContact = System.currentTimeMillis();
 		packetManager = new PacketManager();
 		packetCounter = new PacketCounter();
@@ -201,16 +197,16 @@ class ClientConnection implements Connection {
 				}
 			}
 		}
-		addSendPacket1(packet);
+		addSendPacket1(new PacketCarrier(RequestCode.NORMAL.getCode(), packet));
 	}
 
-	private void addSendPacket1(Packet packet) throws IOException {
+	private void addSendPacket1(PacketCarrier packetCarrier) throws IOException {
 		synchronized (sendPackets) {
-			this.sendPackets.add(packet);
+			this.sendPackets.add(packetCarrier);
 		}
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
-		LOGGER.info("add  packet " + packet.toString() + " to send");
+		LOGGER.info("add  packet " + packetCarrier.toString() + " to send");
 	}
 
 	@Override
@@ -284,7 +280,7 @@ class ClientConnection implements Connection {
 		try {
 			readCount = packetReader.read();
 			if (packetReader.isReady()) {
-				addReceivedPacket(packetReader.takeLastPacket());
+				addReceivedPacket(packetReader.takeLastCarrier().getPacket());
 			}
 		} catch (Exception e) {
 			throw new IOException(e);
