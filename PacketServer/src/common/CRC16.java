@@ -55,4 +55,22 @@ public final class CRC16 {
 		return (short) compute(allData);
 	}
 
+	public static void main(String[] args) {
+		// test the performance.
+		int dataLength = 1024 * 5;
+		byte[] bytes = new byte[dataLength];
+		int testTime = 10000;
+		long startTime = System.nanoTime();
+		for (int i = 0; i < testTime; i++) {
+			CRC16.compute(bytes);
+		}
+		long endTime = System.nanoTime();
+		System.out.println("Run times: " + testTime + ", data length: "
+				+ dataLength);
+		System.out.println("Take times (millis): " + (endTime - startTime)
+				/ (1000 * 1000));
+		System.out.println("Each compute take time (nano): "
+				+ (endTime - startTime) / testTime);
+
+	}
 }
