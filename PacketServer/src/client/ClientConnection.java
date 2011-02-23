@@ -31,16 +31,23 @@ class ClientConnection implements Connection {
 	private class PacketWriter {
 		private PacketCarrier lastPacketCarrier;
 		private ByteBuffer writeDataBuffer;
+		private Queue<PacketCarrier> sendPackets;
 
 		PacketWriter() {
+			sendPackets = new LinkedList<PacketCarrier>();
+		}
 
+		void addSendPacket(PacketCarrier packetCarrier) throws IOException {
+			synchronized (this.sendPackets) {
+				this.sendPackets.add(packetCarrier);
+			}
 		}
 
 		public void write() throws IOException {
 			if (this.lastPacketCarrier == null) {
-				synchronized (sendPackets) {
+				synchronized (this.sendPackets) {
 
-					this.lastPacketCarrier = sendPackets.remove();
+					this.lastPacketCarrier = this.sendPackets.remove();
 				}
 				byte code = this.lastPacketCarrier.getCode();
 				short dataLength = this.lastPacketCarrier.getPacket()
@@ -58,15 +65,15 @@ class ClientConnection implements Connection {
 				this.writeDataBuffer.flip();
 			}
 
-			ClientConnection.this.socketChannel.write(this.writeDataBuffer);
+			socketChannel.write(this.writeDataBuffer);
 			if (!this.writeDataBuffer.hasRemaining()) {
 				LOGGER.info("Write packet " + this.lastPacketCarrier.toString()
 						+ " out!");
 				packetCounter.writeOne();
 				this.lastPacketCarrier = null;
 				// test if we need to unregister the write event.
-				synchronized (sendPackets) {
-					if (sendPackets.size() == 0)
+				synchronized (this.sendPackets) {
+					if (this.sendPackets.size() == 0)
 						selectionKey.interestOps(SelectionKey.OP_READ);
 				}
 			}
@@ -87,7 +94,7 @@ class ClientConnection implements Connection {
 			this.writeDataBuffer.put(packet.getData());
 			this.writeDataBuffer.flip();
 			while (this.writeDataBuffer.hasRemaining()) {
-				ClientConnection.this.socketChannel.write(writeDataBuffer);
+				socketChannel.write(writeDataBuffer);
 			}
 			LOGGER.info("Write packet out:" + packet.toString());
 		}
@@ -142,7 +149,6 @@ class ClientConnection implements Connection {
 
 	private PacketWriter packetWriter;
 	private SelectionKey selectionKey;
-	private Queue<PacketCarrier> sendPackets;
 	private SocketAddress serverSocket;
 	private SocketChannel socketChannel;
 
@@ -157,10 +163,10 @@ class ClientConnection implements Connection {
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 		this.packetManager = packetManager;
-		sendPackets = new LinkedList<PacketCarrier>();
 		lastContact = System.currentTimeMillis();
 		packetManager = new PacketManager();
 		packetCounter = new PacketCounter();
+		packetWriter = new PacketWriter();
 
 		gotErrorPacket = new AtomicBoolean(false);
 
@@ -170,7 +176,6 @@ class ClientConnection implements Connection {
 		this.connectHeaderBuffer.putShort(version);
 		this.connectHeaderBuffer.clear();
 		thresholdLock = new Object();
-		packetWriter = new PacketWriter();
 	}
 
 	private void addReceivedPacket(Packet packet) throws IOException {
@@ -201,9 +206,7 @@ class ClientConnection implements Connection {
 	}
 
 	private void addSendPacket1(PacketCarrier packetCarrier) throws IOException {
-		synchronized (sendPackets) {
-			this.sendPackets.add(packetCarrier);
-		}
+		this.packetWriter.addSendPacket(packetCarrier);
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
 		LOGGER.info("add  packet " + packetCarrier.toString() + " to send");
@@ -243,9 +246,9 @@ class ClientConnection implements Connection {
 		// do connect to remote server.
 		SocketChannel socketChannel = SocketChannel.open(this.serverSocket);
 		this.socketChannel = socketChannel;
-		// write connection header to remote server.
+		// write connection header to remote server in blocked mode。
 		this.socketChannel.write(connectHeaderBuffer);
-		// read response.
+		// read response in blocked mode.
 		this.socketChannel.read(connectResponseBuffer);
 		connectResponseBuffer.flip();
 		ConnectionCode code = ConnectionCode.valueOf(connectResponseBuffer
@@ -282,7 +285,11 @@ class ClientConnection implements Connection {
 			if (packetReader.isReady()) {
 				addReceivedPacket(packetReader.takeLastCarrier().getPacket());
 			}
-		} catch (Exception e) {
+		} catch (ChecksumMatchException e) {
+			stopWritePacket();
+			throw new IOException(e);
+		} catch (PacketException e) {
+			stopWritePacket();
 			throw new IOException(e);
 		}
 		return readCount;

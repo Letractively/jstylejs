@@ -15,6 +15,8 @@ class PacketServerImpl extends PacketServer {
 		server.start();
 	}
 
+	private static final int version = 1;
+
 	private Listener listener;
 
 	PacketServerImpl(int portNum) {
@@ -23,7 +25,6 @@ class PacketServerImpl extends PacketServer {
 
 	@Override
 	public void start() throws IOException {
-		LOGGER.info("Server starting....");
 		this.socketChannel = ServerSocketChannel.open();
 		this.socketChannel.configureBlocking(false);
 		InetSocketAddress socketAddress = new InetSocketAddress(getPortNumer());
@@ -31,6 +32,23 @@ class PacketServerImpl extends PacketServer {
 		this.portNumer = socketAddress.getPort();
 		this.listener = new Listener(this);
 		this.listener.start();
+		LOGGER.info("Server " + this.toString() + " started....");
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("version: ");
+		sb.append(version);
+		sb.append(", port number: ");
+		sb.append(portNumer);
+		sb.append("}");
+		return sb.toString();
+	}
+
+	@Override
+	public int getVersion() {
+		return version;
+	}
 }

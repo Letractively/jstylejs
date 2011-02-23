@@ -35,4 +35,6 @@ abstract class PacketServer {
 	}
 
 	public abstract void start() throws IOException;
+
+	public abstract int getVersion();
 }

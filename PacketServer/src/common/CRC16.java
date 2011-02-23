@@ -1,6 +1,5 @@
 package common;
 
-import java.util.Arrays;
 
 public final class CRC16 {
 
