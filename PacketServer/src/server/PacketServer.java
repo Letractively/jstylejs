@@ -34,7 +34,7 @@ abstract class PacketServer {
 		return socketChannel;
 	}
 
-	public abstract void start() throws IOException;
-
 	public abstract int getVersion();
+
+	public abstract void start() throws IOException;
 }

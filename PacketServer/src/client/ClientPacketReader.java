@@ -1,11 +1,8 @@
 package client;
 
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
-
 import common.CRC16;
 import common.ChecksumMatchException;
-import common.ConnectionProtocol;
 import common.PacketException;
 import common.PacketReader;
 import common.ResponseCode;
@@ -25,7 +22,6 @@ final class ClientPacketReader extends PacketReader {
 					+ responseCode.name());
 		short computedChecksum = CRC16.compute(code, dataLength, data);
 		if (computedChecksum != checksum)
-			throw new ChecksumMatchException();
+			throw new ChecksumMatchException("Response packet chesum not match");
 	}
-
 }

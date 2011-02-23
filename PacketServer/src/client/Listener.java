@@ -10,10 +10,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 class Listener extends Thread {
-	private AtomicBoolean registering;
-
-	private Selector selector;
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+	private AtomicBoolean registering;
+	private Selector selector;
 
 	Listener() throws IOException {
 		this.setName("Client listener");

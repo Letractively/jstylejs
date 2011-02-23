@@ -23,7 +23,8 @@ class ServerPacketReader extends PacketReader {
 					+ requestCode.name());
 		short computedChecksum = CRC16.compute(code, dataLength, data);
 		if (computedChecksum != checksum)
-			throw new ChecksumMatchException();
+			throw new ChecksumMatchException(
+					"Request packet checksum not match");
 	}
 
 }

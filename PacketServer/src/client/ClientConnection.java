@@ -30,8 +30,8 @@ class ClientConnection implements Connection {
 
 	private class PacketWriter {
 		private PacketCarrier lastPacketCarrier;
-		private ByteBuffer writeDataBuffer;
 		private Queue<PacketCarrier> sendPackets;
+		private ByteBuffer writeDataBuffer;
 
 		PacketWriter() {
 			sendPackets = new LinkedList<PacketCarrier>();
@@ -100,7 +100,9 @@ class ClientConnection implements Connection {
 		}
 	}
 
+	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private static final byte protocol = 1;
+
 	/**
 	 * Time out interval, in milli-seconds.
 	 */
@@ -138,8 +140,6 @@ class ClientConnection implements Connection {
 	private AtomicBoolean gotErrorPacket;
 
 	private long id;
-
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	private long lastContact;
 	private Listener listener;

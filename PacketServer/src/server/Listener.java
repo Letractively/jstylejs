@@ -9,9 +9,9 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 class Listener extends Thread {
+	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private Selector selector;
 	private PacketServer server;
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	public Listener(PacketServer server) throws IOException {
 		this.server = server;

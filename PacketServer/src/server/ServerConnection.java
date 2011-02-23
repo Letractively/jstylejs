@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import common.CRC16;
@@ -81,14 +82,16 @@ class ServerConnection implements Connection {
 	private ConnectionCode connectionCode;
 	private ByteBuffer connectResponseBuffer;
 
-	private AtomicBoolean gotErrorPacket;
+	private ByteBuffer errorResponseBuffer;
 
+	private AtomicBoolean gotErrorPacket;
 	private long id;
+
 	private long lastContact;
 
 	private PacketCounter packetCounter;
-
 	private PacketManager packetManager;
+
 	private PacketReader packetReader;
 
 	private PacketWriter packetWriter;
@@ -96,12 +99,10 @@ class ServerConnection implements Connection {
 	private byte protocol;
 
 	private boolean readedConnectHeader = false;
-
 	private SelectionKey selectionKey;
 	private Queue<PacketCarrier> sendPackets;
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
-	private ByteBuffer errorResponseBuffer;
 
 	ServerConnection(SocketChannel clientChannel, PacketManager packetManager,
 			SelectionKey selectionKey) {
@@ -172,10 +173,10 @@ class ServerConnection implements Connection {
 		return version;
 	}
 
-	private void gotErrorPacket() throws IOException {
+	private void gotErrorPacket(ResponseCode responseCode) throws IOException {
 		gotErrorPacket.set(true);
 		// Initialize error response buffer.
-		byte code = ResponseCode.CRC_ERROR.getCode();
+		byte code = responseCode.getCode();
 		short dataLength = 0;
 		byte[] data = new byte[dataLength];
 		short checksum = CRC16.compute(code, dataLength, data);
@@ -227,10 +228,12 @@ class ServerConnection implements Connection {
 			try {
 				readCount = packetReader.read();
 			} catch (ChecksumMatchException e) {
-				gotErrorPacket();
+				LOGGER.log(Level.SEVERE, "Read packet error: " + e.getMessage());
+				gotErrorPacket(ResponseCode.CRC_ERROR);
 				return 0;
 			} catch (PacketException e) {
-				gotErrorPacket();
+				LOGGER.log(Level.SEVERE, "Read packet error: " + e.getMessage());
+				gotErrorPacket(ResponseCode.UNKNOW_REQUEST_CODE);
 				return 0;
 			}
 			if (packetReader.isReady()) {

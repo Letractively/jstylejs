@@ -10,17 +10,22 @@ class PacketServerImpl extends PacketServer {
 
 	public static final int PORT_NUMBER = 4465;
 
+	private static final int version = 1;
+
 	public static void main(String[] args) throws IOException {
 		PacketServerImpl server = new PacketServerImpl(PORT_NUMBER);
 		server.start();
 	}
 
-	private static final int version = 1;
-
 	private Listener listener;
 
 	PacketServerImpl(int portNum) {
 		super(portNum);
+	}
+
+	@Override
+	public int getVersion() {
+		return version;
 	}
 
 	@Override
@@ -45,10 +50,5 @@ class PacketServerImpl extends PacketServer {
 		sb.append(portNumer);
 		sb.append("}");
 		return sb.toString();
-	}
-
-	@Override
-	public int getVersion() {
-		return version;
 	}
 }

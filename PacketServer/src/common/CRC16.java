@@ -1,6 +1,5 @@
 package common;
 
-
 public final class CRC16 {
 
 	private static int[] table = { 0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301,

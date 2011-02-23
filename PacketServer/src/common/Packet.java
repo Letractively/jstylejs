@@ -4,17 +4,6 @@ public class Packet {
 	private byte[] data;
 	private short dataLength;
 
-	Packet(short dataLength) throws PacketException {
-		if (dataLength < 0
-				|| dataLength > ConnectionProtocol.MAX_PACKET_DATA_LENGTH)
-			throw new PacketException("Wrong packet data length: " + dataLength);
-		this.dataLength = dataLength;
-	}
-
-	void setData(byte[] data) {
-		this.data = data;
-	}
-
 	public Packet(byte[] data) throws PacketException {
 		if (data == null)
 			throw new PacketException("Packet data should not be null");
@@ -26,12 +15,23 @@ public class Packet {
 		this.dataLength = (short) data.length;
 	}
 
+	Packet(short dataLength) throws PacketException {
+		if (dataLength < 0
+				|| dataLength > ConnectionProtocol.MAX_PACKET_DATA_LENGTH)
+			throw new PacketException("Wrong packet data length: " + dataLength);
+		this.dataLength = dataLength;
+	}
+
 	public byte[] getData() {
 		return data;
 	}
 
 	public short getDataLength() {
 		return dataLength;
+	}
+
+	void setData(byte[] data) {
+		this.data = data;
 	}
 
 	@Override

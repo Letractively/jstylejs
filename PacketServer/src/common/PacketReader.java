@@ -7,18 +7,18 @@ import java.nio.channels.SocketChannel;
 public abstract class PacketReader {
 
 	private enum State {
-		HEADER, DATA, READY;
+		DATA, HEADER, READY;
 	}
 
-	private ByteBuffer readDataBuffer;
-	private ByteBuffer readHeaderBuffer;
-	private State state;
-	private SocketChannel socketChannel;
-
-	private Packet lastPacket;
-
-	private byte lastCode;
 	private short lastChecksum;
+	private byte lastCode;
+	private Packet lastPacket;
+	private ByteBuffer readDataBuffer;
+
+	private ByteBuffer readHeaderBuffer;
+
+	private SocketChannel socketChannel;
+	private State state;
 
 	public PacketReader(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
@@ -26,6 +26,10 @@ public abstract class PacketReader {
 		readHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.PACKET_HEADER_LENGTH);
 
+	}
+
+	public boolean isReady() {
+		return this.state == State.READY;
 	}
 
 	public int read() throws IOException, ChecksumMatchException,
@@ -66,14 +70,6 @@ public abstract class PacketReader {
 		return readCount;
 	}
 
-	abstract protected void verifyPacket(byte code, short dataLength,
-			short checksum, byte[] data) throws ChecksumMatchException,
-			PacketException;
-
-	public boolean isReady() {
-		return this.state == State.READY;
-	}
-
 	public PacketCarrier takeLastCarrier() {
 		if (!isReady())
 			throw new IllegalStateException("Read stat must be ready");
@@ -81,4 +77,8 @@ public abstract class PacketReader {
 		return new PacketCarrier(lastCode, lastPacket);
 
 	}
+
+	abstract protected void verifyPacket(byte code, short dataLength,
+			short checksum, byte[] data) throws ChecksumMatchException,
+			PacketException;
 }
