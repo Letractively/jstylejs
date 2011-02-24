@@ -2,6 +2,7 @@ package server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
@@ -72,12 +73,10 @@ class ServerConnection implements Connection {
 	}
 
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	/**
-	 * Time out interval, in milli-seconds.
-	 */
-	private static final int TIME_OUT_INTERVAL = 1000 * 60;
 	private static AtomicLong UID = new AtomicLong(0);
 	private static final short version = 1;
+
+	private AtomicBoolean closed;
 
 	private ByteBuffer connectHeaderBuffer;
 	private ConnectionCode connectionCode;
@@ -114,6 +113,7 @@ class ServerConnection implements Connection {
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 		this.packetManager = packetManager;
+		closed = new AtomicBoolean(false);
 		sendPackets = new LinkedList<PacketCarrier>();
 		lastContact = System.currentTimeMillis();
 		packetCounter = new PacketCounter();
@@ -147,7 +147,9 @@ class ServerConnection implements Connection {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public synchronized void close() throws IOException {
+		if (!closed.compareAndSet(false, true))
+			return;
 		this.socketChannel.close();
 		LOGGER.info(this.toString() + " closed!");
 	}
@@ -210,7 +212,7 @@ class ServerConnection implements Connection {
 
 	@Override
 	public boolean isTimeOut() {
-		return System.currentTimeMillis() - lastContact > TIME_OUT_INTERVAL;
+		return System.currentTimeMillis() - lastContact > ConnectionProtocol.TIME_OUT_INTERVAL;
 	}
 
 	@Override
@@ -267,12 +269,14 @@ class ServerConnection implements Connection {
 		sb.append(this.id);
 		sb.append(", protocol: ");
 		sb.append(this.getProtocol());
+		sb.append(", version: ");
+		sb.append(this.getVersion());
+		sb.append(", last contact: ");
+		sb.append(lastContact);
 		sb.append(", packet counter: ");
 		sb.append(this.packetCounter.toString());
 		sb.append(", pending packets: ");
 		sb.append(this.pendingPacketCount());
-		sb.append(", version: ");
-		sb.append(this.getVersion());
 		sb.append(", address: ");
 		sb.append(this.socketChannel.socket().toString());
 		sb.append("}");

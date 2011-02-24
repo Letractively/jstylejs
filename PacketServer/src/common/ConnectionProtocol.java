@@ -46,4 +46,6 @@ public final class ConnectionProtocol {
 	public static final int PACKET_HEADER_LENGTH = 5; // type+data
 	// length+checksum
 	public static final int RESPONSE_LENGTH = 128;// connection code_reserved
+	public static final int TIME_OUT_INTERVAL = 6 * 1000;
+
 }

@@ -154,6 +154,7 @@ class ClientConnection implements Connection {
 	private SocketChannel socketChannel;
 
 	private Object thresholdLock;
+	private AtomicBoolean closed;
 
 	ClientConnection(SocketAddress serverSocket, PacketManager packetManager,
 			Listener listener) {
@@ -164,6 +165,7 @@ class ClientConnection implements Connection {
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 		this.packetManager = packetManager;
+		closed = new AtomicBoolean(false);
 		lastContact = System.currentTimeMillis();
 		packetManager = new PacketManager();
 		packetCounter = new PacketCounter();
@@ -215,7 +217,9 @@ class ClientConnection implements Connection {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public synchronized void close() throws IOException {
+		if (!closed.compareAndSet(false, true))
+			return;
 		this.socketChannel.close();
 		LOGGER.info(this.toString() + " closed!");
 	}
@@ -310,12 +314,14 @@ class ClientConnection implements Connection {
 		sb.append(this.id);
 		sb.append(", protocol: ");
 		sb.append(this.getProtocol());
+		sb.append(", version: ");
+		sb.append(this.getVersion());
+		sb.append(", last contact: ");
+		sb.append(lastContact);
 		sb.append(", packet counter: ");
 		sb.append(this.packetCounter.toString());
 		sb.append(", pending packets: ");
 		sb.append(this.pendingPacketCount());
-		sb.append(", version: ");
-		sb.append(this.getVersion());
 		sb.append(", address: ");
 		sb.append(this.socketChannel.socket().toString());
 		sb.append("}");

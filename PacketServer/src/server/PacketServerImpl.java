@@ -37,6 +37,7 @@ class PacketServerImpl extends PacketServer {
 		this.portNumer = socketAddress.getPort();
 		this.listener = new Listener(this);
 		this.listener.start();
+		this.getConnectionManager().start();
 		LOGGER.info("Server " + this.toString() + " started....");
 	}
 
