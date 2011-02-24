@@ -1,6 +1,7 @@
-package server;
+package client;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -9,26 +10,25 @@ import java.util.logging.Logger;
 import common.ConnectionProtocol;
 
 class ConnectionManager extends Thread {
-
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL / 2;
+	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL * 2;
 
-	private ConcurrentHashMap<Long, ServerConnection> connections;
+	private ConcurrentHashMap<SocketAddress, ClientConnection> connections;
 
 	ConnectionManager() {
-		setName("Server connection manager");
-		connections = new ConcurrentHashMap<Long, ServerConnection>();
+		setName("Client connection manager");
+		connections = new ConcurrentHashMap<SocketAddress, ClientConnection>();
 	}
 
-	public void accept(ServerConnection connection) throws DenyServiceException {
+	public void accept(ClientConnection connection) {
 		// throw new DenyServiceException();
-		this.connections.put(connection.getId(), connection);
+		this.connections.put(connection.getServerSocket(), connection);
 	}
 
 	private void checkTimeouts() {
-		for (Iterator<ServerConnection> iterator = this.connections.values()
+		for (Iterator<ClientConnection> iterator = this.connections.values()
 				.iterator(); iterator.hasNext();) {
-			ServerConnection conn = iterator.next();
+			ClientConnection conn = iterator.next();
 			if (conn.isTimeOut())
 				try {
 					LOGGER.info("Remove and close time out conection: "
@@ -45,8 +45,13 @@ class ConnectionManager extends Thread {
 		}
 	}
 
-	public void remove(ServerConnection connection) {
-		this.connections.remove(connection.getId());
+	public ClientConnection getConnection(SocketAddress serverAddress) {
+		return this.connections.get(serverAddress);
+
+	}
+
+	public void remove(ClientConnection connection) {
+		this.connections.remove(connection.getServerSocket());
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package client;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -16,7 +15,7 @@ class Listener extends Thread {
 	private Selector selector;
 
 	Listener() throws IOException {
-		this.setName("Client listener");
+		setName("Client listener");
 		this.selector = Selector.open();
 		registering = new AtomicBoolean(false);
 	}
@@ -38,7 +37,7 @@ class Listener extends Thread {
 	}
 
 	SelectionKey register(SocketChannel socketChannel, int ops,
-			ClientConnection clientConnection) throws ClosedChannelException {
+			ClientConnection clientConnection) throws IOException {
 		SelectionKey key;
 		synchronized (registering) {
 			registering.set(true);
@@ -52,7 +51,7 @@ class Listener extends Thread {
 
 	@Override
 	public void run() {
-
+		LOGGER.info(getName() + " starting...");
 		SelectionKey key;
 		Iterator<SelectionKey> iterator;
 		while (true) {
@@ -76,6 +75,7 @@ class Listener extends Thread {
 			}
 			for (iterator = selector.selectedKeys().iterator(); iterator
 					.hasNext();) {
+
 				key = iterator.next();
 				iterator.remove();
 				if (key.isValid()) {

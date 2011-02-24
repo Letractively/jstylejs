@@ -1,8 +1,6 @@
 package client;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -81,24 +79,6 @@ class ClientConnection implements Connection {
 
 		}
 
-		private void writeTestPacket(Packet packet) throws IOException {
-			this.writeDataBuffer = ByteBuffer.allocate(packet.getDataLength()
-					+ ConnectionProtocol.PACKET_HEADER_LENGTH);
-			byte code = RequestCode.NORMAL.getCode();
-			short dataLength = packet.getDataLength();
-			byte[] data = packet.getData();
-
-			this.writeDataBuffer.put(code);
-			this.writeDataBuffer.putShort(dataLength);
-			this.writeDataBuffer
-					.putShort(CRC16.compute(code, dataLength, data));
-			this.writeDataBuffer.put(packet.getData());
-			this.writeDataBuffer.flip();
-			while (this.writeDataBuffer.hasRemaining()) {
-				socketChannel.write(writeDataBuffer);
-			}
-			LOGGER.info("Write packet out:" + packet.toString());
-		}
 	}
 
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -113,32 +93,11 @@ class ClientConnection implements Connection {
 
 	private static final short version = 1;
 
-	public static void main(String[] args) throws IOException,
-			InterruptedException, ChecksumMatchException, PacketException {
-		PacketManager packetManager = new PacketManager();
-		SocketAddress serverSocket = new InetSocketAddress(
-				InetAddress.getLocalHost(), 4465);
-		Listener listener = new Listener();
-		listener.start();
-		ClientConnection connection = new ClientConnection(serverSocket,
-				packetManager, listener);
-		try {
-			connection.init();
-		} catch (ConnectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		byte[] bytes = new byte[344];
-		Packet testPacket = new Packet(bytes);
-		connection.writeTestPacket(testPacket);
-		return;
-	}
+	private AtomicBoolean closed;
 
 	private ByteBuffer connectHeaderBuffer;
 
 	private ByteBuffer connectResponseBuffer;
-
-	private AtomicBoolean readErrorPacket;
 
 	private long id;
 
@@ -149,12 +108,12 @@ class ClientConnection implements Connection {
 	private PacketReader packetReader;
 
 	private PacketWriter packetWriter;
+	private AtomicBoolean readErrorPacket;
 	private SelectionKey selectionKey;
 	private SocketAddress serverSocket;
-	private SocketChannel socketChannel;
 
+	private SocketChannel socketChannel;
 	private Object thresholdLock;
-	private AtomicBoolean closed;
 
 	ClientConnection(SocketAddress serverSocket, PacketManager packetManager,
 			Listener listener) {
@@ -217,6 +176,7 @@ class ClientConnection implements Connection {
 		this.packetWriter.addSendPacket(packetCarrier);
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
+		this.selectionKey.selector().wakeup();
 		LOGGER.info("add  packet " + packetCarrier.toString() + " to send");
 	}
 
@@ -239,18 +199,14 @@ class ClientConnection implements Connection {
 		return protocol;
 	}
 
+	public SocketAddress getServerSocket() {
+		return serverSocket;
+	}
+
 	@Override
 	public int getVersion() {
 
 		return version;
-	}
-
-	private void readErrorPacket() throws IOException {
-		readErrorPacket.set(true);
-		// do not read any packet any more.
-		this.socketChannel.socket().shutdownInput();
-		// dot not accept write event.
-		this.selectionKey.interestOps(SelectionKey.OP_READ);
 	}
 
 	@Override
@@ -307,6 +263,14 @@ class ClientConnection implements Connection {
 		return readCount;
 	}
 
+	private void readErrorPacket() throws IOException {
+		readErrorPacket.set(true);
+		// do not read any packet any more.
+		this.socketChannel.socket().shutdownInput();
+		// dot not accept write event.
+		this.selectionKey.interestOps(SelectionKey.OP_READ);
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
@@ -346,10 +310,6 @@ class ClientConnection implements Connection {
 			if (!isTooManyPendingPackets())
 				thresholdLock.notifyAll();
 		}
-	}
-
-	private void writeTestPacket(Packet packet) throws IOException {
-		this.packetWriter.writeTestPacket(packet);
 	}
 
 }
