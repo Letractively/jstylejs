@@ -138,7 +138,7 @@ class ClientConnection implements Connection {
 
 	private ByteBuffer connectResponseBuffer;
 
-	private AtomicBoolean gotErrorPacket;
+	private AtomicBoolean readErrorPacket;
 
 	private long id;
 
@@ -171,7 +171,7 @@ class ClientConnection implements Connection {
 		packetCounter = new PacketCounter();
 		packetWriter = new PacketWriter();
 
-		gotErrorPacket = new AtomicBoolean(false);
+		readErrorPacket = new AtomicBoolean(false);
 
 		this.listener = listener;
 		this.serverSocket = serverSocket;
@@ -194,6 +194,10 @@ class ClientConnection implements Connection {
 
 	@Override
 	public void addSendPacket(Packet packet) throws IOException {
+		if (readErrorPacket.get()) {
+			// do not accept new packet any more.
+			return;
+		}
 		// add threshold control here.
 		synchronized (thresholdLock) {
 			while (isTooManyPendingPackets()) {
@@ -241,10 +245,12 @@ class ClientConnection implements Connection {
 		return version;
 	}
 
-	private void gotErrorPacket() throws IOException {
-		gotErrorPacket.set(true);
+	private void readErrorPacket() throws IOException {
+		readErrorPacket.set(true);
 		// do not read any packet any more.
 		this.socketChannel.socket().shutdownInput();
+		// dot not accept write event.
+		this.selectionKey.interestOps(SelectionKey.OP_READ);
 	}
 
 	@Override
@@ -292,18 +298,13 @@ class ClientConnection implements Connection {
 				addReceivedPacket(packetReader.takeLastCarrier().getPacket());
 			}
 		} catch (ChecksumMatchException e) {
-			stopWritePacket();
+			readErrorPacket();
 			throw new IOException(e);
 		} catch (PacketException e) {
-			stopWritePacket();
+			readErrorPacket();
 			throw new IOException(e);
 		}
 		return readCount;
-	}
-
-	private void stopWritePacket() {
-		// dot net accept write event.
-		this.selectionKey.interestOps(SelectionKey.OP_READ);
 	}
 
 	@Override
@@ -335,8 +336,8 @@ class ClientConnection implements Connection {
 
 	@Override
 	public void write() throws IOException {
-		if (gotErrorPacket.get()) {
-			stopWritePacket();
+		if (readErrorPacket.get()) {
+			// do not write any more.
 			return;
 		} else
 			this.packetWriter.write();
