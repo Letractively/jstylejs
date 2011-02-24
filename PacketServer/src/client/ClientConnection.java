@@ -69,6 +69,7 @@ class ClientConnection implements Connection {
 			if (!this.writeDataBuffer.hasRemaining()) {
 				LOGGER.info("Write packet " + this.lastPacketCarrier.toString()
 						+ " out!");
+				touch();
 				packetCounter.writeOne();
 				this.lastPacketCarrier = null;
 				// test if we need to unregister the write event.
@@ -180,6 +181,7 @@ class ClientConnection implements Connection {
 
 	private void addReceivedPacket(Packet packet) throws IOException {
 		LOGGER.info("Read packet:" + packet.toString());
+		this.touch();
 		this.packetCounter.readOne();
 		// add packet to manager
 		this.packetManager.addReceived(packet);

@@ -56,6 +56,7 @@ class ServerConnection implements Connection {
 			if (!this.writeDataBuffer.hasRemaining()) {
 				LOGGER.info("Write packet " + this.lastPacketCarrier.toString()
 						+ " out!");
+				touch();
 				packetCounter.writeOne();
 				this.lastPacketCarrier = null;
 				if (gotErrorPacket.get())
@@ -126,6 +127,7 @@ class ServerConnection implements Connection {
 
 	protected void addReceivedPacket(Packet packet) throws IOException {
 		LOGGER.info("Read packet:" + packet.toString());
+		this.touch();
 		this.packetCounter.readOne();
 		// add packet to manager
 		this.packetManager.addReceived(packet);
@@ -285,13 +287,14 @@ class ServerConnection implements Connection {
 	@Override
 	public void write() throws IOException {
 		if (wroteConnectCode) {
-			if (shouldWriteErrorResponse())
+			if (shouldWriteErrorResponse()) {
 				writeErrorResponse();
-			else
+			} else {
 				packetWriter.write();
+			}
 
 		} else {
-			// write response code.
+			// write connection response code.
 			this.socketChannel.write(connectResponseBuffer);
 			if (!this.connectResponseBuffer.hasRemaining()) {
 				this.selectionKey.interestOps(SelectionKey.OP_READ);
