@@ -13,8 +13,8 @@ public class Invocation implements Writable {
 	private RpcObject[] parameters;
 	private Class<?>[] paraTypes;
 
-	Invocation(RpcService service, Method method, Object[] parObjects) {
-		
+	Invocation(String serviceName, Method method, Object[] parObjects) {
+
 	}
 
 	@Override
