@@ -17,6 +17,9 @@ package common;
  * <td>reserved(127)</td>
  * </tr>
  * </table>
+ * <br/>
+ * See {@link ConnectionCode} about connection code. <br/>
+ * 
  * <h4>Request packet format:</h4>
  * <table border="1">
  * <tr>
@@ -26,6 +29,9 @@ package common;
  * <td>data</td>
  * </tr>
  * </table>
+ * <br/>
+ * See {@link ResponseCode} about packet response code. <br/>
+ * 
  * <h4>Response packet format:</h4>
  * <table border="1">
  * <tr>
@@ -35,6 +41,9 @@ package common;
  * <td>data</td>
  * </tr>
  * </table>
+ * <br/>
+ * See {@link RequestCode} about packet request code. <br/>
+ * 
  * <br>
  * Please notes, all size unit is <b>Byte</b>.
  * 

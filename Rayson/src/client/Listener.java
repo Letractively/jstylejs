@@ -14,8 +14,11 @@ class Listener extends Thread {
 	private AtomicBoolean registering;
 	private Selector selector;
 
-	Listener() throws IOException {
+	private ConnectionManager connectionManager;
+
+	Listener(ConnectionManager connectionManager) throws IOException {
 		setName("Client listener");
+		this.connectionManager = connectionManager;
 		this.selector = Selector.open();
 		registering = new AtomicBoolean(false);
 	}
@@ -33,6 +36,8 @@ class Listener extends Thread {
 			} catch (IOException e) {
 
 			}
+		connectionManager.remove(connection);
+		LOGGER.info(connection.toString() + " removed!");
 
 	}
 
@@ -102,6 +107,10 @@ class Listener extends Thread {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+
+			connectionManager.remove(connection);
+			LOGGER.info(connection.toString() + " removed!");
+
 		}
 	}
 }

@@ -10,7 +10,7 @@ import common.Packet;
 import common.PacketException;
 import common.PacketManager;
 
-public final class Client {
+final class Client {
 
 	private static ConnectionManager connectionManager;
 	private static Listener listener;
@@ -39,11 +39,11 @@ public final class Client {
 	}
 
 	private static void lazyLoad() throws IOException {
-		listener = new Listener();
-		listener.start();
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
 		connectionManager.start();
+		listener = new Listener(connectionManager);
+		listener.start();
 	}
 
 	public static void main(String[] args) throws ConnectException,

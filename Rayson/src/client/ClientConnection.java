@@ -98,10 +98,8 @@ class ClientConnection implements Connection {
 	private ByteBuffer connectHeaderBuffer;
 
 	private ByteBuffer connectResponseBuffer;
-
 	private long id;
-
-	private long lastContact;
+	private volatile long lastContact;
 	private Listener listener;
 	private PacketCounter packetCounter;
 	private PacketManager packetManager;

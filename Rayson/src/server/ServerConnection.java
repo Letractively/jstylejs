@@ -85,9 +85,7 @@ class ServerConnection implements Connection {
 
 	private AtomicBoolean gotErrorPacket;
 	private long id;
-
-	private long lastContact;
-
+	private volatile long lastContact;
 	private PacketCounter packetCounter;
 	private PacketManager packetManager;
 
@@ -142,6 +140,7 @@ class ServerConnection implements Connection {
 		}
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
+		this.selectionKey.selector().wakeup();
 		LOGGER.info("add  packet " + packet.toString() + " to send");
 	}
 
