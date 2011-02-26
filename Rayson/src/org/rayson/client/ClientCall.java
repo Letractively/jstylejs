@@ -2,20 +2,17 @@ package org.rayson.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.rayson.io.PortableObject;
 import org.rayson.io.Invocation;
-import org.rayson.io.RemoteExceptionHandler;
+import org.rayson.io.PortableObject;
+import org.rayson.io.PortableRemoteException;
 import org.rayson.io.ResponseState;
-import org.rayson.io.UnsupportedIOObjectException;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
-import org.rayson.util.Reflection;
 
 public class ClientCall<V> {
 	private static final AtomicLong UID = new AtomicLong(0);
@@ -59,16 +56,10 @@ public class ClientCall<V> {
 		ResponseState responseState = ResponseState.valueOf(in.readByte());
 		switch (responseState) {
 		case SUCCESSFUL:
-			try {
-				PortableObject iiIoObject = PortableObject.objectOf(in
-						.readShort());
-				this.future.set((V) iiIoObject.read(in));
-			} catch (UnsupportedIOObjectException e) {
-				throw new IOException(e);
-			}
+			this.future.set((V) PortableObject.readObject(in));
 			break;
 		case EXCEPTION:
-			RemoteExceptionHandler remoteExceptionHandler = new RemoteExceptionHandler();
+			PortableRemoteException remoteExceptionHandler = new PortableRemoteException();
 			remoteExceptionHandler.read(in);
 			this.future
 					.setException(remoteExceptionHandler.getThrowException());

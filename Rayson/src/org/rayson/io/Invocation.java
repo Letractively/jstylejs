@@ -26,9 +26,6 @@ public class Invocation implements Transportable {
 		this.methodName = method.getName();
 		this.parameters = parameters;
 		this.paraTypes = method.getParameterTypes();
-		for (int i = 0; i < parameters.length; i++) {
-			PortableObject.objectOf(parameters[i]);
-		}
 	}
 
 	public String getServiceName() {
@@ -75,16 +72,8 @@ public class Invocation implements Transportable {
 			}
 		}
 		// read parameter object
-		short paraObjectType;
-		PortableObject paraIoObject;
 		for (int i = 0; i < paraLength; i++) {
-			paraObjectType = in.readShort();
-			try {
-				paraIoObject = PortableObject.objectOf(paraObjectType);
-				this.parameters[i] = paraIoObject.read(in);
-			} catch (UnsupportedIOObjectException e) {
-				throw new IOException(e);
-			}
+			this.parameters[i] = PortableObject.readObject(in);
 		}
 	}
 
@@ -100,14 +89,7 @@ public class Invocation implements Transportable {
 		}
 		// write paramter objects.
 		for (int i = 0; i < paraLenth; i++) {
-			try {
-				PortableObject ioObject = PortableObject.objectOf(parameters[i]);
-				// write io object type
-				out.writeShort(ioObject.getType());
-				ioObject.write(out, this.parameters[i]);
-			} catch (UnsupportedIOObjectException e) {
-				throw new IOException(e);
-			}
+			PortableObject.writeObject(out, this.parameters[i]);
 		}
 	}
 

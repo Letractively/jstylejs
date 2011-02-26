@@ -7,11 +7,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.rayson.io.PortableObject;
 import org.rayson.io.Invocation;
-import org.rayson.io.RemoteExceptionHandler;
+import org.rayson.io.PortableObject;
+import org.rayson.io.PortableRemoteException;
 import org.rayson.io.ResponseState;
-import org.rayson.io.UnsupportedIOObjectException;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
@@ -24,7 +23,7 @@ public class ServerCall {
 	private Invocation invocation;
 	private Object result;
 	private Packet responsePacket;
-	private RemoteExceptionHandler remoteExceptionHandler;
+	private PortableRemoteException remoteExceptionHandler;
 
 	private ServerCall() {
 		this.id = UID.getAndIncrement();
@@ -58,16 +57,14 @@ public class ServerCall {
 		return serverCall;
 	}
 
-	public Packet getResponsePacket() throws UnsupportedIOObjectException,
-			PacketException {
+	public Packet getResponsePacket() throws PacketException {
 		if (responsePacket == null) {
 			responsePacket = toResponsePacket();
 		}
 		return responsePacket;
 	}
 
-	private Packet toResponsePacket() throws UnsupportedIOObjectException,
-			PacketException {
+	private Packet toResponsePacket() throws PacketException {
 		Packet packet = null;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
 				BUFFER_SIZE);
@@ -82,11 +79,7 @@ public class ServerCall {
 				remoteExceptionHandler.write(dataOutputStream);
 			} else {
 				dataOutputStream.writeByte(ResponseState.SUCCESSFUL.getState());
-				PortableObject ioObject = PortableObject.objectOf(result);
-				// write io object type.
-				dataOutputStream.writeShort(ioObject.getType());
-				// write result it self.
-				ioObject.write(dataOutputStream, result);
+				PortableObject.writeObject(dataOutputStream, result);
 			}
 			packet = new Packet(byteArrayOutputStream.toByteArray());
 		} catch (IOException e) {
@@ -101,7 +94,7 @@ public class ServerCall {
 	}
 
 	void setException(boolean unDeclaredException, Throwable t) {
-		this.remoteExceptionHandler = new RemoteExceptionHandler(
+		this.remoteExceptionHandler = new PortableRemoteException(
 				unDeclaredException, t);
 	}
 }

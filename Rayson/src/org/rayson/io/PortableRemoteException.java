@@ -8,17 +8,17 @@ import org.rayson.api.RpcException;
 import org.rayson.api.Transportable;
 import org.rayson.util.Reflection;
 
-public class RemoteExceptionHandler implements Transportable {
+public class PortableRemoteException implements Transportable {
 	private Throwable throwException;
 	private boolean unDeclaredException;
 
 	private static final Class[] DEFAULT_CONSTRUCTOR_PARAMETER_TYPES = new Class[] { String.class };
 
-	public RemoteExceptionHandler() {
+	public PortableRemoteException() {
 
 	}
 
-	public RemoteExceptionHandler(boolean unDeclaredException,
+	public PortableRemoteException(boolean unDeclaredException,
 			Throwable thrownException) {
 		this.unDeclaredException = unDeclaredException;
 		if (unDeclaredException) {

@@ -3,6 +3,9 @@ package org.rayson.server;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rayson.api.RpcException;
@@ -55,9 +58,13 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceDescription[] listServices() throws RpcException {
-		// TODO Auto-generated method stub
-		return null;
+	public ServiceDescription[] getServices() throws RpcException {
+		List<ServiceDescription> list = new ArrayList<ServiceDescription>();
+		for (Entry<String, RpcService> entry : services.entrySet()) {
+			list.add(new ServiceDescriptionImpl(entry.getKey(), entry
+					.getValue().getClass()));
+		}
+		return list.toArray(new ServiceDescriptionImpl[0]);
 	}
 
 	public void invokeCall(ServerCall call) {
@@ -80,13 +87,10 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	@Override
 	public ServiceDescription getDescription(String serviceName)
 			throws RpcException, ServiceNotFoundException {
-		throw new NullPointerException();
-
-		// RpcService rpcService = getService(serviceName);
-		// ServiceDescriptionImpl serviceDescription = new
-		// ServiceDescriptionImpl(
-		// serviceName, rpcService.getClass());
-		// return serviceDescription;
+		RpcService rpcService = getService(serviceName);
+		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
+				serviceName, rpcService.getClass());
+		return serviceDescription;
 
 	}
 
