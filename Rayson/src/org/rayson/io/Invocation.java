@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.rayson.RpcService;
+import org.rayson.api.RpcService;
+import org.rayson.api.Transportable;
 
-public class Invocation implements Writable {
+public class Invocation implements Transportable {
 	private String methodName;
 	private Class<?>[] paraTypes;
 	private String serviceName;

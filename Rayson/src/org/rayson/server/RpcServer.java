@@ -3,9 +3,10 @@ package org.rayson.server;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.rayson.RpcException;
-import org.rayson.RpcService;
-import org.rayson.ServiceDescription;
+import org.rayson.api.RpcException;
+import org.rayson.api.RpcService;
+import org.rayson.api.ServiceDescription;
+import org.rayson.impl.ServiceDescriptionImpl;
 import org.rayson.io.Invocation;
 import org.rayson.transport.server.TransportServerImpl;
 
@@ -74,7 +75,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 			throws RpcException {
 		try {
 			RpcService rpcService = getService(serviceName);
-			ServiceDescription serviceDescription = new ServiceDescription(
+			ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
 					serviceName, rpcService.getClass());
 			return serviceDescription;
 		} catch (ServiceNotFoundException e) {

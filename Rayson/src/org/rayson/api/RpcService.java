@@ -1,4 +1,4 @@
-package org.rayson;
+package org.rayson.api;
 
 public interface RpcService {
 }

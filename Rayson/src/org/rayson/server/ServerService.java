@@ -1,8 +1,8 @@
 package org.rayson.server;
 
-import org.rayson.RpcException;
-import org.rayson.RpcService;
-import org.rayson.ServiceDescription;
+import org.rayson.api.RpcException;
+import org.rayson.api.RpcService;
+import org.rayson.api.ServiceDescription;
 
 public interface ServerService extends RpcService {
 

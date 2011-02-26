@@ -1,18 +1,20 @@
-package org.rayson;
+package org.rayson.impl;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.rayson.io.Writable;
+import org.rayson.api.RpcService;
+import org.rayson.api.ServiceDescription;
+import org.rayson.api.Transportable;
 
-public class ServiceDescription implements Writable {
+public class ServiceDescriptionImpl implements ServiceDescription, Transportable {
 
-	private ServiceDescription() {
+	private ServiceDescriptionImpl() {
 
 	}
 
-	public ServiceDescription(String serviceName,
+	public ServiceDescriptionImpl(String serviceName,
 			Class<? extends RpcService> serviceClass) {
 		this.name = serviceName;
 	}
@@ -20,10 +22,12 @@ public class ServiceDescription implements Writable {
 	private String name;
 	private String[] protocols;
 
+	@Override
 	public String[] getProtocols() {
 		return protocols;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}

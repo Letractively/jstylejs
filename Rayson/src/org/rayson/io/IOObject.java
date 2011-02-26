@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
-import org.rayson.tool.ReflectionTool;
+import org.rayson.api.Transportable;
+import org.rayson.util.Reflection;
 
 public abstract class IOObject<T> {
 	private short type;
@@ -61,17 +62,17 @@ public abstract class IOObject<T> {
 			return "ARRAY";
 		}
 	};
-	private static final IOObject<Writable> WRITABLE = new IOObject<Writable>(
+	private static final IOObject<Transportable> WRITABLE = new IOObject<Transportable>(
 			WRITABLE_TYPE) {
 
 		@Override
-		public Writable read(DataInput in) throws IOException {
+		public Transportable read(DataInput in) throws IOException {
 			// Read class name.
 			String className = in.readUTF();
 			// Read value.
-			Writable writable = null;
+			Transportable writable = null;
 			try {
-				writable = (Writable) ReflectionTool.newInstance(className);
+				writable = (Transportable) Reflection.newInstance(className);
 			} catch (Exception e) {
 				new IOException(e);
 			}
@@ -80,7 +81,7 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		public void write(DataOutput out, Writable value) throws IOException {
+		public void write(DataOutput out, Transportable value) throws IOException {
 			// Write class name.
 			out.writeUTF(value.getClass().getName());
 			// Write value.
@@ -278,7 +279,7 @@ public abstract class IOObject<T> {
 		Class klass = value.getClass();
 		if (klass.isArray())
 			return ARRAY;
-		if (Writable.class.isAssignableFrom(klass))
+		if (Transportable.class.isAssignableFrom(klass))
 			return WRITABLE;
 		IOObject ioObject = CLASS_OBJECTS.get(klass);
 		if (ioObject == null)

@@ -1,10 +1,10 @@
-package org.rayson.io;
+package org.rayson.api;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public interface Writable {
+public interface Transportable {
 
 	public void read(DataInput in) throws IOException;
 
