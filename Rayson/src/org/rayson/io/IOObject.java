@@ -79,8 +79,7 @@ public abstract class IOObject<T> {
 		}
 
 	};
-	private static final IOObject<Object> NULL = new IOObject<Object>(
-			NULL_TYPE) {
+	private static final IOObject<Object> NULL = new IOObject<Object>(NULL_TYPE) {
 
 		@Override
 		Object read(DataInput in) throws IOException {
@@ -134,8 +133,7 @@ public abstract class IOObject<T> {
 		}
 	};
 
-	private static final IOObject<Short> SHORT = new IOObject<Short>(
-			SHORT_TYPE) {
+	private static final IOObject<Short> SHORT = new IOObject<Short>(SHORT_TYPE) {
 
 		@Override
 		public String getName() {
@@ -188,8 +186,7 @@ public abstract class IOObject<T> {
 			out.writeDouble(value);
 		}
 	};
-	private static final IOObject<Float> FLOAT = new IOObject<Float>(
-			FLOAT_TYPE) {
+	private static final IOObject<Float> FLOAT = new IOObject<Float>(FLOAT_TYPE) {
 
 		@Override
 		public String getName() {
@@ -207,8 +204,7 @@ public abstract class IOObject<T> {
 		}
 	};
 
-	private static final IOObject<Integer> INT = new IOObject<Integer>(
-			INT_TYPE) {
+	private static final IOObject<Integer> INT = new IOObject<Integer>(INT_TYPE) {
 
 		@Override
 		Integer read(DataInput in) throws IOException {
@@ -254,15 +250,15 @@ public abstract class IOObject<T> {
 	}
 
 	public static IOObject valueOf(short type)
-			throws UnsupportedRpcObjectException {
-		IOObject rpcObject = TYPE_OBJECTS.get(type);
-		if (rpcObject == null)
-			throw new UnsupportedRpcObjectException();
-		return rpcObject;
+			throws UnsupportedIOObjectException {
+		IOObject ioObject = TYPE_OBJECTS.get(type);
+		if (ioObject == null)
+			throw new UnsupportedIOObjectException();
+		return ioObject;
 	}
 
 	public static IOObject valueOf(Object value)
-			throws UnsupportedRpcObjectException {
+			throws UnsupportedIOObjectException {
 		if (value == null)
 			return NULL;
 		Class klass = value.getClass();
@@ -270,10 +266,10 @@ public abstract class IOObject<T> {
 			return ARRAY;
 		if (Writable.class.isAssignableFrom(klass))
 			return WRITABLE;
-		IOObject rpcObject = CLASS_OBJECTS.get(klass);
-		if (rpcObject == null)
-			throw new UnsupportedRpcObjectException();
-		return rpcObject;
+		IOObject ioObject = CLASS_OBJECTS.get(klass);
+		if (ioObject == null)
+			throw new UnsupportedIOObjectException();
+		return ioObject;
 	}
 
 	private IOObject(short type) {
@@ -284,7 +280,7 @@ public abstract class IOObject<T> {
 		return type;
 	}
 
-	public static void main(String[] args) throws UnsupportedRpcObjectException {
+	public static void main(String[] args) throws UnsupportedIOObjectException {
 		System.out.println(valueOf((byte) 1));
 		System.out.println(valueOf('c'));
 		System.out.println(valueOf(1));
@@ -292,6 +288,9 @@ public abstract class IOObject<T> {
 		System.out.println(valueOf(3F));
 		System.out.println(valueOf(4D));
 		System.out.println(valueOf(""));
+		System.out.println(valueOf(new byte[] {}));
+		System.out.println(valueOf(new Invocation("", null, null)));
+
 	}
 
 	public abstract String getName();

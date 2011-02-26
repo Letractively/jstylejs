@@ -132,11 +132,11 @@ class ServerConnection implements Connection {
 		// add packet to manager
 		this.packetManager.addReceived(packet);
 		// TODO: test add packet to response
-		this.addReqeustPacket(packet);
+		this.addSendPacket(packet);
 	}
 
 	@Override
-	public void addReqeustPacket(Packet packet) throws IOException {
+	public void addSendPacket(Packet packet) throws IOException {
 		synchronized (sendPackets) {
 			this.sendPackets.add(new PacketCarrier(ResponseCode.OK.getCode(),
 					packet));

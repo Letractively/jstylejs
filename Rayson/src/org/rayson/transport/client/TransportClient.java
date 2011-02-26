@@ -70,12 +70,12 @@ public class TransportClient {
 				.getConnection(serverAddress);
 		byte[] bytes = new byte[344];
 		Packet testPacket = new Packet(bytes);
-		connection.addReqeustPacket(testPacket);
+		connection.addSendPacket(testPacket);
 	}
 
 	void submitCall(SocketAddress serverAddress, Packet requestPacket)
 			throws ConnectException, IOException {
 		ClientConnection connection = getConnection(serverAddress);
-		connection.addReqeustPacket(requestPacket);
+		connection.addSendPacket(requestPacket);
 	}
 }

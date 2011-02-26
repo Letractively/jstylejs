@@ -148,12 +148,12 @@ class ClientConnection implements Connection {
 		// add packet to manager
 		this.packetManager.addReceived(packet);
 		// TODO: test add packet to response
-		this.addReqeustPacket(packet);
+		this.addSendPacket(packet);
 
 	}
 
 	@Override
-	public void addReqeustPacket(Packet packet) throws IOException {
+	public void addSendPacket(Packet packet) throws IOException {
 		if (readErrorPacket.get()) {
 			// do not accept new packet any more.
 			return;

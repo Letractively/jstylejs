@@ -22,7 +22,7 @@ public abstract class PacketServer {
 		return connectionManager;
 	}
 
-	PacketManager getPacketManager() {
+	public PacketManager getPacketManager() {
 		return packetManager;
 	}
 

@@ -3,7 +3,7 @@ package org.rayson.transport.common;
 import java.io.IOException;
 
 public interface Connection {
-	public void addReqeustPacket(Packet responsePacket) throws IOException;
+	public void addSendPacket(Packet responsePacket) throws IOException;
 
 	public void close() throws IOException;
 

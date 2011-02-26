@@ -1,6 +1,6 @@
 package org.rayson.io;
 
-public class UnsupportedRpcObjectException extends Exception {
+public class UnsupportedIOObjectException extends Exception {
 
 	/**
 	 * 
