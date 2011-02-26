@@ -54,4 +54,10 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		return null;
 	}
 
+	public static void main(String[] args) throws IOException {
+
+		RpcServer server = new RpcServer(PORT_NUMBER);
+		server.start();
+	}
+
 }

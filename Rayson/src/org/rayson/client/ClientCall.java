@@ -1,21 +1,39 @@
 package org.rayson.client;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.io.Invocation;
 import org.rayson.transport.common.Packet;
+import org.rayson.transport.common.PacketException;
 
 public class ClientCall<V> {
 	private static final AtomicLong UID = new AtomicLong(0);
 	private CallFuture<V> future;
 	private long id;
 	private Invocation invocation;
+	private static final int BUFFER_SIZE = 1024;
+	private Packet requestPacket;
 
-	public ClientCall(Invocation invocation) {
+	public ClientCall(Invocation invocation) throws PacketException {
+		this.id = UID.getAndIncrement();
 		this.invocation = invocation;
 		this.future = new CallFuture<V>();
-		this.id = UID.getAndIncrement();
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
+				BUFFER_SIZE);
+		DataOutputStream dataOutputStream = new DataOutputStream(
+				byteArrayOutputStream);
+		try {
+			dataOutputStream.writeLong(id);
+			invocation.write(dataOutputStream);
+			requestPacket = new Packet(byteArrayOutputStream.toByteArray());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public long getId() {
@@ -23,8 +41,7 @@ public class ClientCall<V> {
 	}
 
 	public Packet getRequestPacket() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.requestPacket;
 	}
 
 	public V getResult() throws InterruptedException, ExecutionException {

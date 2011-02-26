@@ -4,13 +4,18 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.rayson.RpcException;
 import org.rayson.RpcService;
 import org.rayson.io.Invocation;
+import org.rayson.server.ServerService;
 import org.rayson.transport.client.TransportClient;
 
 public class RpcClient {
@@ -111,5 +116,15 @@ public class RpcClient {
 		calls.put(call.getId(), call);
 		TransportClient.getInstance().getConnector()
 				.sumbitCall(serverAddress, call);
+	}
+
+	public static void main(String[] args) throws UnknownHostException,
+			RpcException {
+		SocketAddress serverAddress = new InetSocketAddress(
+				InetAddress.getLocalHost(), 4465);
+
+		ServerService rpcService = RpcClient.getInstance().createProxy(
+				ServerService.class, "server", serverAddress);
+		System.out.println(rpcService.getDescription("server").toString());
 	}
 }

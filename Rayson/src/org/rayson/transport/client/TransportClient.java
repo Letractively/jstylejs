@@ -39,13 +39,16 @@ public class TransportClient {
 
 	}
 
-	ClientConnection getConnection(SocketAddress serverAddress)
-			throws IOException, ConnectException {
-
+	private void tryLoad() throws IOException {
 		synchronized (loaded) {
 			if (loaded.compareAndSet(false, true))
 				lazyLoad();
 		}
+	}
+
+	ClientConnection getConnection(SocketAddress serverAddress)
+			throws IOException, ConnectException {
+		tryLoad();
 		ClientConnection connection;
 		synchronized (connectionManager) {
 			connection = connectionManager.getConnection(serverAddress);
@@ -60,7 +63,8 @@ public class TransportClient {
 		return connection;
 	}
 
-	public TransportConnector getConnector() {
+	public TransportConnector getConnector() throws IOException {
+		tryLoad();
 		return connector;
 	}
 
