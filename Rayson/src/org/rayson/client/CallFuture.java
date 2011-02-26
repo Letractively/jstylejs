@@ -14,18 +14,6 @@ public class CallFuture<V> implements Future<V> {
 	}
 
 	@Override
-	public boolean isCancelled() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isDone() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public V get() throws InterruptedException, ExecutionException {
 		// TODO Auto-generated method stub
 		return null;
@@ -36,6 +24,18 @@ public class CallFuture<V> implements Future<V> {
 			ExecutionException, TimeoutException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean isCancelled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isDone() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

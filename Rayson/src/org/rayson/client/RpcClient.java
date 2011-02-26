@@ -16,19 +16,14 @@ import org.rayson.transport.client.TransportClient;
 public class RpcClient {
 
 	private static class RpcServiceKey {
-		private SocketAddress serverAddress;
 		private int hash;
+		private SocketAddress serverAddress;
 		private String serviceName;
 
 		public RpcServiceKey(String serviceName, SocketAddress serverAddress) {
 			this.serverAddress = serverAddress;
 			this.serviceName = serviceName;
 			this.hash = serviceName.hashCode() + serverAddress.hashCode();
-		}
-
-		@Override
-		public int hashCode() {
-			return hash;
 		}
 
 		@Override
@@ -42,12 +37,17 @@ public class RpcClient {
 					&& to.serviceName.equals(this.serviceName);
 		}
 
+		@Override
+		public int hashCode() {
+			return hash;
+		}
+
 	}
 
 	private static class RpcServiceProxy implements InvocationHandler {
 
-		private String serviceName;
 		private SocketAddress serverAddress;
+		private String serviceName;
 
 		public RpcServiceProxy(String serviceName, SocketAddress serverAddress) {
 			this.serviceName = serviceName;
@@ -66,22 +66,17 @@ public class RpcClient {
 	}
 
 	private static RpcClient instance = new RpcClient();
-	private ConcurrentHashMap<Long, ClientCall<?>> calls;
-	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
-	private AtomicBoolean loaded = new AtomicBoolean(false);
-
-	private RpcClient() {
-	}
-
-	private void submitCall(SocketAddress serverAddress, ClientCall call)
-			throws IOException {
-		calls.put(call.getId(), call);
-		TransportClient.getInstance().getConnector()
-				.sumbitCall(serverAddress, call);
-	}
 
 	public static RpcClient getInstance() {
 		return instance;
+	}
+
+	private ConcurrentHashMap<Long, ClientCall<?>> calls;
+	private AtomicBoolean loaded = new AtomicBoolean(false);
+
+	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
+
+	private RpcClient() {
 	}
 
 	public <T extends RpcService> T createProxy(Class<T> service,
@@ -109,5 +104,12 @@ public class RpcClient {
 	private void lazyLoad() {
 		calls = new ConcurrentHashMap<Long, ClientCall<?>>();
 		serviceProxys = new WeakHashMap<RpcClient.RpcServiceKey, RpcService>();
+	}
+
+	private void submitCall(SocketAddress serverAddress, ClientCall call)
+			throws IOException {
+		calls.put(call.getId(), call);
+		TransportClient.getInstance().getConnector()
+				.sumbitCall(serverAddress, call);
 	}
 }

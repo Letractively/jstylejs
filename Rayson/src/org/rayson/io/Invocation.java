@@ -7,9 +7,9 @@ import java.lang.reflect.Method;
 
 public class Invocation implements Writable {
 	private String methodName;
-	private String serviceName;
 	private IOObject[] parameters;
 	private Class<?>[] paraTypes;
+	private String serviceName;
 
 	public Invocation(String serviceName, Method method, Object[] parObjects) {
 

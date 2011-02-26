@@ -3,13 +3,11 @@ package org.rayson.server;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-import org.rayson.transport.common.Packet;
-
 class CallWorker extends Thread {
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	private RpcServer server;
-	private long id;
 	private static AtomicLong UID = new AtomicLong(0);
+	private long id;
+	private RpcServer server;
 
 	CallWorker(RpcServer server) {
 		this.server = server;

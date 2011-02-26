@@ -6,18 +6,18 @@ import org.rayson.transport.common.Packet;
 
 class PacketManager {
 
-	private LinkedBlockingQueue<ConnectionPacket> receives;
+	private LinkedBlockingQueue<ConnectionPacketLink> receives;
 
 	PacketManager() {
 
-		receives = new LinkedBlockingQueue<ConnectionPacket>();
+		receives = new LinkedBlockingQueue<ConnectionPacketLink>();
 	}
 
 	public void addReceived(ServerConnection connection, Packet packet) {
-		receives.add(new ConnectionPacket(connection, packet));
+		receives.add(new ConnectionPacketLink(connection, packet));
 	}
 
-	public ConnectionPacket takeReceived() throws InterruptedException {
+	public ConnectionPacketLink takeReceived() throws InterruptedException {
 		return receives.take();
 	}
 }

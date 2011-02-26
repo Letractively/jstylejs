@@ -2,11 +2,11 @@ package org.rayson.transport.server;
 
 import org.rayson.transport.common.Packet;
 
-class ConnectionPacket {
+class ConnectionPacketLink {
 	private ServerConnection connection;
 	private Packet packet;
 
-	ConnectionPacket(ServerConnection connection, Packet packet) {
+	ConnectionPacketLink(ServerConnection connection, Packet packet) {
 		this.connection = connection;
 		this.packet = packet;
 	}

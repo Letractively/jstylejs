@@ -9,9 +9,6 @@ import java.util.logging.Logger;
 
 import org.rayson.transport.common.ConnectionProtocol;
 
-
-
-
 class ConnectionManager extends Thread {
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL * 2;

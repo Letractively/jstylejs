@@ -12,19 +12,32 @@ import org.rayson.transport.common.PacketException;
 public class TransportClient {
 	private static TransportClient instance = new TransportClient();
 
-	private TransportClient() {
-
-	}
-
 	public static TransportClient getInstance() {
 		return instance;
 	}
 
-	private TransportConnector connector;
+	public static void main(String[] args) throws ConnectException,
+			IOException, PacketException {
+		SocketAddress serverAddress = new InetSocketAddress(
+				InetAddress.getLocalHost(), 4465);
+
+		ClientConnection connection = TransportClient.getInstance()
+				.getConnection(serverAddress);
+		byte[] bytes = new byte[344];
+		Packet testPacket = new Packet(bytes);
+		connection.addSendPacket(testPacket);
+
+	}
+
 	private ConnectionManager connectionManager;
+	private TransportConnector connector;
 	private Listener listener;
 	private AtomicBoolean loaded = new AtomicBoolean(false);
 	private PacketManager packetManager;
+
+	private TransportClient() {
+
+	}
 
 	ClientConnection getConnection(SocketAddress serverAddress)
 			throws IOException, ConnectException {
@@ -47,6 +60,10 @@ public class TransportClient {
 		return connection;
 	}
 
+	public TransportConnector getConnector() {
+		return connector;
+	}
+
 	private void lazyLoad() throws IOException {
 		connector = new TransportConnector(this);
 		packetManager = new PacketManager();
@@ -54,22 +71,5 @@ public class TransportClient {
 		connectionManager.start();
 		listener = new Listener(connectionManager);
 		listener.start();
-	}
-
-	public TransportConnector getConnector() {
-		return connector;
-	}
-
-	public static void main(String[] args) throws ConnectException,
-			IOException, PacketException {
-		SocketAddress serverAddress = new InetSocketAddress(
-				InetAddress.getLocalHost(), 4465);
-
-		ClientConnection connection = TransportClient.getInstance()
-				.getConnection(serverAddress);
-		byte[] bytes = new byte[344];
-		Packet testPacket = new Packet(bytes);
-		connection.addSendPacket(testPacket);
-
 	}
 }

@@ -8,8 +8,6 @@ import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.ResponseCode;
 
-
-
 final class ClientPacketReader extends PacketReader {
 
 	public ClientPacketReader(SocketChannel socketChannel) {

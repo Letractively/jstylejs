@@ -6,10 +6,10 @@ import java.nio.channels.ServerSocketChannel;
 public abstract class TransportServer {
 
 	private ConnectionManager connectionManager;
+	private TransportConnector connector;
 	private PacketManager packetManager;
 	protected int portNumer;
 	protected ServerSocketChannel socketChannel;
-	private TransportConnector connector;
 
 	TransportServer(int portNum) {
 		this.portNumer = portNum;

@@ -23,9 +23,6 @@ import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.RequestCode;
 
-
-
-
 class ClientConnection implements Connection {
 
 	private class PacketWriter {
@@ -151,6 +148,15 @@ class ClientConnection implements Connection {
 
 	}
 
+	private void addReqeustPacket1(PacketCarrier packetCarrier)
+			throws IOException {
+		this.packetWriter.addSendPacket(packetCarrier);
+		this.selectionKey.interestOps(this.selectionKey.interestOps()
+				| SelectionKey.OP_WRITE);
+		this.selectionKey.selector().wakeup();
+		LOGGER.info("add  packet " + packetCarrier.toString() + " to send");
+	}
+
 	@Override
 	public void addSendPacket(Packet packet) throws IOException {
 		if (readErrorPacket.get()) {
@@ -169,15 +175,8 @@ class ClientConnection implements Connection {
 				}
 			}
 		}
-		addReqeustPacket1(new PacketCarrier(RequestCode.NORMAL.getCode(), packet));
-	}
-
-	private void addReqeustPacket1(PacketCarrier packetCarrier) throws IOException {
-		this.packetWriter.addSendPacket(packetCarrier);
-		this.selectionKey.interestOps(this.selectionKey.interestOps()
-				| SelectionKey.OP_WRITE);
-		this.selectionKey.selector().wakeup();
-		LOGGER.info("add  packet " + packetCarrier.toString() + " to send");
+		addReqeustPacket1(new PacketCarrier(RequestCode.NORMAL.getCode(),
+				packet));
 	}
 
 	@Override
