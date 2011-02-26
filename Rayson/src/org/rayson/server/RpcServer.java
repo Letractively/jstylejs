@@ -1,11 +1,15 @@
 package org.rayson.server;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rayson.api.RpcException;
 import org.rayson.api.RpcService;
+import org.rayson.api.ServerService;
 import org.rayson.api.ServiceDescription;
+import org.rayson.api.ServiceNotFoundException;
 import org.rayson.impl.ServiceDescriptionImpl;
 import org.rayson.io.Invocation;
 import org.rayson.transport.server.TransportServerImpl;
@@ -46,7 +50,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	RpcService getService(String serviceName) throws ServiceNotFoundException {
 		RpcService service = services.get(serviceName);
 		if (service == null)
-			throw new ServiceNotFoundException(serviceName);
+			throw new ServiceNotFoundException(serviceName + " not found");
 		return service;
 	}
 
@@ -63,24 +67,27 @@ class RpcServer extends TransportServerImpl implements ServerService {
 			serviceObject = getService(invocation.getServiceName());
 			Object result = invocation.invoke(serviceObject);
 			call.setResult(result);
+		} catch (UndeclaredThrowableException e) {
+			// Log the error.
+			e.printStackTrace();
+			call.setException(true, e.getUndeclaredThrowable());
 		} catch (Throwable t) {
-			t.printStackTrace();
-			call.setException(t);
+			call.setException(false, t);
 		}
 
 	}
 
 	@Override
 	public ServiceDescription getDescription(String serviceName)
-			throws RpcException {
-		try {
-			RpcService rpcService = getService(serviceName);
-			ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
-					serviceName, rpcService.getClass());
-			return serviceDescription;
-		} catch (ServiceNotFoundException e) {
-			return null;
-		}
+			throws RpcException, ServiceNotFoundException {
+		throw new NullPointerException();
+
+		// RpcService rpcService = getService(serviceName);
+		// ServiceDescriptionImpl serviceDescription = new
+		// ServiceDescriptionImpl(
+		// serviceName, rpcService.getClass());
+		// return serviceDescription;
+
 	}
 
 	public static void main(String[] args) throws IOException {

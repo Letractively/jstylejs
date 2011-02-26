@@ -19,15 +19,15 @@ public class CallFuture<V> implements Future<V> {
 	}
 
 	void set(V v) {
+		this.result = v;
 		this.done.set(true);
 		notifyDone();
-		this.result = v;
 	}
 
 	protected void setException(Throwable t) {
+		this.exception = t;
 		this.done.set(true);
 		notifyDone();
-		this.exception = t;
 	}
 
 	@Override

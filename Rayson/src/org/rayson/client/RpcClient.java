@@ -10,12 +10,14 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.rayson.api.RpcException;
 import org.rayson.api.RpcService;
+import org.rayson.api.ServerService;
+import org.rayson.api.ServiceNotFoundException;
 import org.rayson.io.Invocation;
-import org.rayson.server.ServerService;
 import org.rayson.transport.client.TransportClient;
 
 public class RpcClient {
@@ -24,11 +26,16 @@ public class RpcClient {
 		private int hash;
 		private SocketAddress serverAddress;
 		private String serviceName;
+		private Class<? extends RpcService> serviceClass;
 
-		public RpcServiceKey(String serviceName, SocketAddress serverAddress) {
+		public RpcServiceKey(String serviceName,
+				Class<? extends RpcService> serviceClass,
+				SocketAddress serverAddress) {
 			this.serverAddress = serverAddress;
 			this.serviceName = serviceName;
-			this.hash = serviceName.hashCode() + serverAddress.hashCode();
+			this.serviceClass = serviceClass;
+			this.hash = serviceClass.getName().hashCode()
+					+ serviceName.hashCode() + serverAddress.hashCode();
 		}
 
 		@Override
@@ -39,7 +46,9 @@ public class RpcClient {
 				return false;
 			RpcServiceKey to = (RpcServiceKey) obj;
 			return to.serverAddress.equals(this.serverAddress)
-					&& to.serviceName.equals(this.serviceName);
+					&& to.serviceName.equals(this.serviceName)
+					&& to.serviceClass.getName().equals(
+							this.serviceClass.getName());
 		}
 
 		@Override
@@ -65,7 +74,17 @@ public class RpcClient {
 			Invocation invocation = new Invocation(serviceName, method, args);
 			ClientCall call = new ClientCall(invocation);
 			RpcClient.getInstance().submitCall(serverAddress, call);
-			return call.getResult();
+			Object result;
+			try {
+
+				result = call.getResult();
+
+			} catch (ExecutionException e) {
+				throw e.getCause();
+			} catch (Exception e) {
+				throw e;
+			}
+			return result;
 		}
 
 	}
@@ -77,29 +96,28 @@ public class RpcClient {
 	}
 
 	private ResponseWorker responseWorker;
-
 	private ConcurrentHashMap<Long, ClientCall<?>> calls;
 	private AtomicBoolean loaded = new AtomicBoolean(false);
-
 	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
 
 	private RpcClient() {
 	}
 
-	public <T extends RpcService> T createProxy(Class<T> service,
+	public <T extends RpcService> T createProxy(Class<T> serviceClass,
 			String serviceName, SocketAddress serverAddress) {
 		synchronized (loaded) {
 			if (loaded.compareAndSet(false, true))
 				lazyLoad();
 		}
 
-		RpcServiceKey serviceKey = new RpcServiceKey(serviceName, serverAddress);
+		RpcServiceKey serviceKey = new RpcServiceKey(serviceName, serviceClass,
+				serverAddress);
 		RpcService rpcService;
 		synchronized (serviceProxys) {
 			rpcService = serviceProxys.get(serviceKey);
 			if (rpcService == null) {
-				rpcService = (RpcService) Proxy.newProxyInstance(
-						service.getClassLoader(), new Class[] { service },
+				rpcService = (RpcService) Proxy.newProxyInstance(serviceClass
+						.getClassLoader(), new Class[] { serviceClass },
 						new RpcServiceProxy(serviceName, serverAddress));
 				serviceProxys.put(serviceKey, rpcService);
 			}
@@ -123,12 +141,12 @@ public class RpcClient {
 	}
 
 	public static void main(String[] args) throws UnknownHostException,
-			RpcException {
+			RpcException, ServiceNotFoundException {
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
 		ServerService rpcService = RpcClient.getInstance().createProxy(
 				ServerService.class, "server", serverAddress);
-		System.out.println(rpcService.getDescription("server").toString());
+		System.out.println(rpcService.getDescription("server2").toString());
 	}
 }

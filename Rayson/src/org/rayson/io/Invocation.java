@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 
 import org.rayson.api.RpcService;
 import org.rayson.api.Transportable;
@@ -26,7 +27,7 @@ public class Invocation implements Transportable {
 		this.parameters = parameters;
 		this.paraTypes = method.getParameterTypes();
 		for (int i = 0; i < parameters.length; i++) {
-			IOObject.valueOf(parameters[i]);
+			PortableObject.objectOf(parameters[i]);
 		}
 	}
 
@@ -34,13 +35,24 @@ public class Invocation implements Transportable {
 		return serviceName;
 	}
 
-	public Object invoke(RpcService serviceObject) throws SecurityException,
-			NoSuchMethodException, IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException {
+	public Object invoke(RpcService serviceObject)
+			throws UndeclaredThrowableException, Throwable {
 		Method method = serviceObject.getClass().getMethod(methodName,
 				paraTypes);
 		method.setAccessible(true);
-		return method.invoke(serviceObject, parameters);
+		Object result = null;
+		try {
+			result = method.invoke(serviceObject, parameters);
+		} catch (InvocationTargetException e) {
+			Throwable targetException = e.getTargetException();
+			Class[] exceptionTypes = method.getExceptionTypes();
+			for (Class exceptionType : exceptionTypes) {
+				if (exceptionType.isAssignableFrom(targetException.getClass()))
+					throw targetException;
+			}
+			throw new UndeclaredThrowableException(targetException);
+		}
+		return result;
 	}
 
 	@Override
@@ -64,11 +76,11 @@ public class Invocation implements Transportable {
 		}
 		// read parameter object
 		short paraObjectType;
-		IOObject paraIoObject;
+		PortableObject paraIoObject;
 		for (int i = 0; i < paraLength; i++) {
 			paraObjectType = in.readShort();
 			try {
-				paraIoObject = IOObject.valueOf(paraObjectType);
+				paraIoObject = PortableObject.objectOf(paraObjectType);
 				this.parameters[i] = paraIoObject.read(in);
 			} catch (UnsupportedIOObjectException e) {
 				throw new IOException(e);
@@ -89,7 +101,7 @@ public class Invocation implements Transportable {
 		// write paramter objects.
 		for (int i = 0; i < paraLenth; i++) {
 			try {
-				IOObject ioObject = IOObject.valueOf(parameters[i]);
+				PortableObject ioObject = PortableObject.objectOf(parameters[i]);
 				// write io object type
 				out.writeShort(ioObject.getType());
 				ioObject.write(out, this.parameters[i]);

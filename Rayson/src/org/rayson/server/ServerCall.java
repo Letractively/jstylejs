@@ -7,8 +7,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.rayson.io.IOObject;
+import org.rayson.io.PortableObject;
 import org.rayson.io.Invocation;
+import org.rayson.io.RemoteExceptionHandler;
 import org.rayson.io.ResponseState;
 import org.rayson.io.UnsupportedIOObjectException;
 import org.rayson.transport.common.Packet;
@@ -21,9 +22,9 @@ public class ServerCall {
 	private long clientCallId;
 	private static final AtomicLong UID = new AtomicLong(0);
 	private Invocation invocation;
-	private Throwable exception;
 	private Object result;
 	private Packet responsePacket;
+	private RemoteExceptionHandler remoteExceptionHandler;
 
 	private ServerCall() {
 		this.id = UID.getAndIncrement();
@@ -73,17 +74,20 @@ public class ServerCall {
 		DataOutputStream dataOutputStream = new DataOutputStream(
 				byteArrayOutputStream);
 		try {
+
 			dataOutputStream.writeLong(clientCallId);
-			boolean error = (exception == null) ? false : true;
-			if (error)
+
+			if (remoteExceptionHandler != null) {
 				dataOutputStream.writeByte(ResponseState.EXCEPTION.getState());
-			else
+				remoteExceptionHandler.write(dataOutputStream);
+			} else {
 				dataOutputStream.writeByte(ResponseState.SUCCESSFUL.getState());
-			IOObject ioObject = IOObject.valueOf(result);
-			// write io object type.
-			dataOutputStream.writeShort(ioObject.getType());
-			// write result it self.
-			ioObject.write(dataOutputStream, result);
+				PortableObject ioObject = PortableObject.objectOf(result);
+				// write io object type.
+				dataOutputStream.writeShort(ioObject.getType());
+				// write result it self.
+				ioObject.write(dataOutputStream, result);
+			}
 			packet = new Packet(byteArrayOutputStream.toByteArray());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -96,7 +100,8 @@ public class ServerCall {
 		this.result = result;
 	}
 
-	void setException(Throwable t) {
-		this.exception = t;
+	void setException(boolean unDeclaredException, Throwable t) {
+		this.remoteExceptionHandler = new RemoteExceptionHandler(
+				unDeclaredException, t);
 	}
 }

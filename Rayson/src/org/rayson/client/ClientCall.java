@@ -8,12 +8,14 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.rayson.io.IOObject;
+import org.rayson.io.PortableObject;
 import org.rayson.io.Invocation;
+import org.rayson.io.RemoteExceptionHandler;
 import org.rayson.io.ResponseState;
 import org.rayson.io.UnsupportedIOObjectException;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
+import org.rayson.util.Reflection;
 
 public class ClientCall<V> {
 	private static final AtomicLong UID = new AtomicLong(0);
@@ -58,14 +60,18 @@ public class ClientCall<V> {
 		switch (responseState) {
 		case SUCCESSFUL:
 			try {
-				IOObject iiIoObject = IOObject.valueOf(in.readShort());
+				PortableObject iiIoObject = PortableObject.objectOf(in
+						.readShort());
 				this.future.set((V) iiIoObject.read(in));
 			} catch (UnsupportedIOObjectException e) {
 				throw new IOException(e);
 			}
 			break;
 		case EXCEPTION:
-			// TODO: handling exception.
+			RemoteExceptionHandler remoteExceptionHandler = new RemoteExceptionHandler();
+			remoteExceptionHandler.read(in);
+			this.future
+					.setException(remoteExceptionHandler.getThrowException());
 			break;
 		default:
 			break;

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import org.rayson.api.Transportable;
 import org.rayson.util.Reflection;
 
-public abstract class IOObject<T> {
+public abstract class PortableObject<T> {
 	private short type;
 
 	private static final short BYTE_TYPE = 1;
@@ -24,7 +24,7 @@ public abstract class IOObject<T> {
 	private static final short WRITABLE_TYPE = 30;
 	private static final short NULL_TYPE = 0;
 	private static final short ARRAY_TYPE = 19;
-	private static final IOObject<String> STRING = new IOObject<String>(
+	private static final PortableObject<String> STRING = new PortableObject<String>(
 			STRING_TYPE) {
 		@Override
 		public String getName() {
@@ -42,7 +42,7 @@ public abstract class IOObject<T> {
 		}
 	};
 
-	private static final IOObject<Object> ARRAY = new IOObject<Object>(
+	private static final PortableObject<Object> ARRAY = new PortableObject<Object>(
 			ARRAY_TYPE) {
 
 		@Override
@@ -62,7 +62,7 @@ public abstract class IOObject<T> {
 			return "ARRAY";
 		}
 	};
-	private static final IOObject<Transportable> WRITABLE = new IOObject<Transportable>(
+	private static final PortableObject<Transportable> WRITABLE = new PortableObject<Transportable>(
 			WRITABLE_TYPE) {
 
 		@Override
@@ -81,7 +81,8 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		public void write(DataOutput out, Transportable value) throws IOException {
+		public void write(DataOutput out, Transportable value)
+				throws IOException {
 			// Write class name.
 			out.writeUTF(value.getClass().getName());
 			// Write value.
@@ -94,7 +95,8 @@ public abstract class IOObject<T> {
 		}
 
 	};
-	private static final IOObject<Object> NULL = new IOObject<Object>(NULL_TYPE) {
+	private static final PortableObject<Object> NULL = new PortableObject<Object>(
+			NULL_TYPE) {
 
 		@Override
 		public Object read(DataInput in) throws IOException {
@@ -112,7 +114,8 @@ public abstract class IOObject<T> {
 		}
 
 	};
-	private static final IOObject<Byte> BYTE = new IOObject<Byte>(BYTE_TYPE) {
+	private static final PortableObject<Byte> BYTE = new PortableObject<Byte>(
+			BYTE_TYPE) {
 
 		@Override
 		public String getName() {
@@ -129,7 +132,7 @@ public abstract class IOObject<T> {
 			out.writeByte(value);
 		}
 	};
-	private static final IOObject<Character> CHAR = new IOObject<Character>(
+	private static final PortableObject<Character> CHAR = new PortableObject<Character>(
 			CHAR_TYPE) {
 
 		@Override
@@ -148,7 +151,8 @@ public abstract class IOObject<T> {
 		}
 	};
 
-	private static final IOObject<Short> SHORT = new IOObject<Short>(SHORT_TYPE) {
+	private static final PortableObject<Short> SHORT = new PortableObject<Short>(
+			SHORT_TYPE) {
 
 		@Override
 		public String getName() {
@@ -166,7 +170,8 @@ public abstract class IOObject<T> {
 		}
 	};
 
-	private static final IOObject<Long> LONG = new IOObject<Long>(LONG_TYPE) {
+	private static final PortableObject<Long> LONG = new PortableObject<Long>(
+			LONG_TYPE) {
 
 		@Override
 		public String getName() {
@@ -183,7 +188,7 @@ public abstract class IOObject<T> {
 			out.writeLong(value);
 		}
 	};
-	private static final IOObject<Double> DOUBLE = new IOObject<Double>(
+	private static final PortableObject<Double> DOUBLE = new PortableObject<Double>(
 			DOUBLE_TYPE) {
 
 		@Override
@@ -201,7 +206,8 @@ public abstract class IOObject<T> {
 			out.writeDouble(value);
 		}
 	};
-	private static final IOObject<Float> FLOAT = new IOObject<Float>(FLOAT_TYPE) {
+	private static final PortableObject<Float> FLOAT = new PortableObject<Float>(
+			FLOAT_TYPE) {
 
 		@Override
 		public String getName() {
@@ -219,7 +225,8 @@ public abstract class IOObject<T> {
 		}
 	};
 
-	private static final IOObject<Integer> INT = new IOObject<Integer>(INT_TYPE) {
+	private static final PortableObject<Integer> INT = new PortableObject<Integer>(
+			INT_TYPE) {
 
 		@Override
 		public Integer read(DataInput in) throws IOException {
@@ -237,7 +244,7 @@ public abstract class IOObject<T> {
 		}
 	};
 
-	private static HashMap<Short, IOObject> TYPE_OBJECTS = new HashMap<Short, IOObject>();
+	private static HashMap<Short, PortableObject> TYPE_OBJECTS = new HashMap<Short, PortableObject>();
 	static {
 		TYPE_OBJECTS.put(BYTE_TYPE, BYTE);
 		TYPE_OBJECTS.put(CHAR_TYPE, CHAR);
@@ -252,7 +259,7 @@ public abstract class IOObject<T> {
 		TYPE_OBJECTS.put(STRING_TYPE, STRING);
 	}
 
-	private static HashMap<Class, IOObject> CLASS_OBJECTS = new HashMap<Class, IOObject>();
+	private static HashMap<Class, PortableObject> CLASS_OBJECTS = new HashMap<Class, PortableObject>();
 	static {
 		CLASS_OBJECTS.put(Byte.class, BYTE);
 		CLASS_OBJECTS.put(Character.class, CHAR);
@@ -264,15 +271,38 @@ public abstract class IOObject<T> {
 		CLASS_OBJECTS.put(String.class, STRING);
 	}
 
-	public static IOObject valueOf(short type)
+	public static void writeObject(DataOutput out, Object value)
+			throws IOException {
+		PortableObject object;
+		try {
+			object = objectOf(value);
+		} catch (UnsupportedIOObjectException e) {
+			throw new IOException(e);
+		}
+		out.writeShort(object.getType());
+		object.write(out, value);
+	}
+
+	public static Object readObject(DataInput in) throws IOException {
+		short type = in.readShort();
+		PortableObject object;
+		try {
+			object = objectOf(type);
+		} catch (UnsupportedIOObjectException e) {
+			throw new IOException(e);
+		}
+		return object.read(in);
+	}
+
+	public static PortableObject objectOf(short type)
 			throws UnsupportedIOObjectException {
-		IOObject ioObject = TYPE_OBJECTS.get(type);
+		PortableObject ioObject = TYPE_OBJECTS.get(type);
 		if (ioObject == null)
 			throw new UnsupportedIOObjectException();
 		return ioObject;
 	}
 
-	public static IOObject valueOf(Object value)
+	public static PortableObject objectOf(Object value)
 			throws UnsupportedIOObjectException {
 		if (value == null)
 			return NULL;
@@ -281,13 +311,13 @@ public abstract class IOObject<T> {
 			return ARRAY;
 		if (Transportable.class.isAssignableFrom(klass))
 			return WRITABLE;
-		IOObject ioObject = CLASS_OBJECTS.get(klass);
+		PortableObject ioObject = CLASS_OBJECTS.get(klass);
 		if (ioObject == null)
 			throw new UnsupportedIOObjectException();
 		return ioObject;
 	}
 
-	private IOObject(short type) {
+	private PortableObject(short type) {
 		this.type = type;
 	}
 
@@ -296,15 +326,15 @@ public abstract class IOObject<T> {
 	}
 
 	public static void main(String[] args) throws UnsupportedIOObjectException {
-		System.out.println(valueOf((byte) 1));
-		System.out.println(valueOf('c'));
-		System.out.println(valueOf(1));
-		System.out.println(valueOf(2L));
-		System.out.println(valueOf(3F));
-		System.out.println(valueOf(4D));
-		System.out.println(valueOf(""));
-		System.out.println(valueOf(new byte[] {}));
-		System.out.println(valueOf(new Invocation("", null, null)));
+		System.out.println(objectOf((byte) 1));
+		System.out.println(objectOf('c'));
+		System.out.println(objectOf(1));
+		System.out.println(objectOf(2L));
+		System.out.println(objectOf(3F));
+		System.out.println(objectOf(4D));
+		System.out.println(objectOf(""));
+		System.out.println(objectOf(new byte[] {}));
+		System.out.println(objectOf(new Invocation("", null, null)));
 
 	}
 
