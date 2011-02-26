@@ -11,9 +11,9 @@ import java.util.logging.Logger;
 class Listener extends Thread {
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private Selector selector;
-	private PacketServer server;
+	private TransportServer server;
 
-	public Listener(PacketServer server) throws IOException {
+	public Listener(TransportServer server) throws IOException {
 		this.server = server;
 		this.selector = Selector.open();
 		server.getSocketChannel().register(selector, SelectionKey.OP_ACCEPT);

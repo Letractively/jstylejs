@@ -20,7 +20,6 @@ import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketCarrier;
 import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
-import org.rayson.transport.common.PacketManager;
 import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.RequestCode;
 

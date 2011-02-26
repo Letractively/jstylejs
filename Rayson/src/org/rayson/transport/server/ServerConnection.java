@@ -20,12 +20,8 @@ import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketCarrier;
 import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
-import org.rayson.transport.common.PacketManager;
 import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.ResponseCode;
-
-
-
 
 class ServerConnection implements Connection {
 
@@ -130,7 +126,7 @@ class ServerConnection implements Connection {
 		this.touch();
 		this.packetCounter.readOne();
 		// add packet to manager
-		this.packetManager.addReceived(packet);
+		this.packetManager.addReceived(this, packet);
 		// TODO: test add packet to response
 		this.addSendPacket(packet);
 	}

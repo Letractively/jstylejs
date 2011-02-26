@@ -3,26 +3,30 @@ package org.rayson.transport.server;
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 
-import org.rayson.transport.common.PacketManager;
-
-public abstract class PacketServer {
+public abstract class TransportServer {
 
 	private ConnectionManager connectionManager;
 	private PacketManager packetManager;
 	protected int portNumer;
 	protected ServerSocketChannel socketChannel;
+	private TransportConnector connector;
 
-	PacketServer(int portNum) {
+	TransportServer(int portNum) {
 		this.portNumer = portNum;
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
+		connector = new TransportConnector(this);
 	}
 
 	ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}
 
-	public PacketManager getPacketManager() {
+	public TransportConnector getConnector() {
+		return connector;
+	}
+
+	PacketManager getPacketManager() {
 		return packetManager;
 	}
 

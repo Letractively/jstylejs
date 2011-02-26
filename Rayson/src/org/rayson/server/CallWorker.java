@@ -28,7 +28,7 @@ class CallWorker extends Thread {
 
 		while (true) {
 			try {
-				Packet requestPacket = server.getPacketManager().takeReceived();
+				ServerCall call = this.server.getConnector().takeCall();
 				// TODO: run call.
 			} catch (InterruptedException e) {
 				break;

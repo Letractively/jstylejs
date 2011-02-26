@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
-import org.rayson.transport.common.PacketManager;
 
 public class TransportClient {
 	private static TransportClient instance = new TransportClient();
@@ -71,11 +70,6 @@ public class TransportClient {
 		byte[] bytes = new byte[344];
 		Packet testPacket = new Packet(bytes);
 		connection.addSendPacket(testPacket);
-	}
 
-	void submitCall(SocketAddress serverAddress, Packet requestPacket)
-			throws ConnectException, IOException {
-		ClientConnection connection = getConnection(serverAddress);
-		connection.addSendPacket(requestPacket);
 	}
 }

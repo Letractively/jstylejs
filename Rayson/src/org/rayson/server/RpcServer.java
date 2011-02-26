@@ -2,9 +2,9 @@ package org.rayson.server;
 
 import java.io.IOException;
 
-import org.rayson.transport.server.PacketServerImpl;
+import org.rayson.transport.server.TransportServerImpl;
 
-class RpcServer extends PacketServerImpl {
+class RpcServer extends TransportServerImpl {
 
 	RpcServer(int portNum) {
 		super(portNum);

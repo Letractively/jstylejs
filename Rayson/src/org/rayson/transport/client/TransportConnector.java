@@ -9,59 +9,37 @@ import org.rayson.transport.common.Packet;
 
 public class TransportConnector {
 
-	private HashMap<Long, SocketAddress> callServerAddresses;
+	private static class CallWrapper {
+		private ClientConnection connection;
+		private ClientCall call;
 
-	private HashMap<SocketAddress, ServerCalls> serverCalls;
-
-	private static class ServerCalls {
-		private SocketAddress serverAddress;
-		private HashMap<Long, ClientCall> calls;
-
-		ServerCalls(SocketAddress serverAddress) {
-			this.serverAddress = serverAddress;
-			calls = new HashMap<Long, ClientCall>();
+		public CallWrapper(ClientConnection connection, ClientCall call) {
+			this.connection = connection;
+			this.call = call;
 		}
-
-		public void remove(long callId) {
-			this.calls.remove(callId);
-		}
-
-		public boolean isEmpty() {
-			return this.calls.isEmpty();
-		}
-
-		public void addCall(ClientCall call) {
-			this.calls.put(call.getId(), call);
-
-		}
-
 	}
 
+	private HashMap<Long, CallWrapper> calls;
 	private TransportClient client;
 
 	TransportConnector(TransportClient client) {
 		this.client = client;
-		callServerAddresses = new HashMap<Long, SocketAddress>();
-		serverCalls = new HashMap<SocketAddress, TransportConnector.ServerCalls>();
+		calls = new HashMap<Long, CallWrapper>();
 	}
 
-	public synchronized void sumbitCall(SocketAddress serverAddress,
-			ClientCall call) throws ConnectException, IOException {
-		ServerCalls serverCalls = this.serverCalls.get(serverAddress);
-		if (serverCalls == null) {
-			serverCalls = new ServerCalls(serverAddress);
-			this.serverCalls.put(serverAddress, serverCalls);
-		}
-		serverCalls.addCall(call);
-		this.callServerAddresses.put(call.getId(), serverAddress);
-		this.client.submitCall(serverAddress, call.getRequestPacket());
+	public void sumbitCall(SocketAddress serverAddress, ClientCall call)
+			throws ConnectException, IOException {
+		ClientConnection connection = client.getConnection(serverAddress);
+		connection.addSendPacket(call.getRequestPacket());
+		CallWrapper callWrapper = new CallWrapper(connection, call);
+		this.calls.put(call.getId(), callWrapper);
 	}
 
-	public synchronized void returnCall(Packet responsePacket) {
+	public void returnCall(Packet responsePacket) {
 		// TODO:
 	}
 
-	public synchronized void notifyServerError(SocketAddress serverAddress) {
+	public void notifyConnectionError(ClientConnection connection) {
 		// TODO:
 	}
 }

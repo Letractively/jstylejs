@@ -1,8 +1,10 @@
-package org.rayson.transport.common;
+package org.rayson.transport.client;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class PacketManager {
+import org.rayson.transport.common.Packet;
+
+class PacketManager {
 
 	private LinkedBlockingQueue<Packet> receives;
 

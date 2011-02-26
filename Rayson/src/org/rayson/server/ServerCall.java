@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.rayson.io.Invocation;
 import org.rayson.transport.common.Packet;
 
-class ServerCall {
+public class ServerCall {
 
 	private Invocation invocation;
 	private static final AtomicLong UID = new AtomicLong(0);
