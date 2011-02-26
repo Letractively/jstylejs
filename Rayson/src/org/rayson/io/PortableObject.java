@@ -9,7 +9,8 @@ import java.util.HashMap;
 import org.rayson.api.Transportable;
 import org.rayson.util.Reflection;
 
-public abstract class PortableObject<T> {
+abstract class PortableObject<T> {
+
 	private byte type;
 
 	private static final byte BYTE_TYPE = 1;
@@ -56,7 +57,7 @@ public abstract class PortableObject<T> {
 			PortableObject portableObject;
 			try {
 				portableObject = objectOf(itemType);
-			} catch (UnsupportedIOObjectException e) {
+			} catch (UnsupportedPortableObjectException e) {
 				throw new IOException(e);
 			}
 			if (portableObject == TRANSPORTABLE)
@@ -94,7 +95,7 @@ public abstract class PortableObject<T> {
 				out.writeByte(commponentObject.getType());
 				if (commponentObject == TRANSPORTABLE)
 					portableArray = true;
-			} catch (UnsupportedIOObjectException e) {
+			} catch (UnsupportedPortableObjectException e) {
 				throw new IOException(e);
 			}
 			// write array length
@@ -334,7 +335,7 @@ public abstract class PortableObject<T> {
 		PortableObject object;
 		try {
 			object = objectOf(value);
-		} catch (UnsupportedIOObjectException e) {
+		} catch (UnsupportedPortableObjectException e) {
 			throw new IOException(e);
 		}
 		out.writeByte(object.getType());
@@ -346,34 +347,34 @@ public abstract class PortableObject<T> {
 		PortableObject object;
 		try {
 			object = objectOf(type);
-		} catch (UnsupportedIOObjectException e) {
+		} catch (UnsupportedPortableObjectException e) {
 			throw new IOException(e);
 		}
 		return object.read(in);
 	}
 
 	private static PortableObject objectOf(Class klass)
-			throws UnsupportedIOObjectException {
+			throws UnsupportedPortableObjectException {
 		if (klass.isArray())
 			return ARRAY;
 		if (Transportable.class.isAssignableFrom(klass))
 			return TRANSPORTABLE;
 		PortableObject ioObject = CLASS_OBJECTS.get(klass);
 		if (ioObject == null)
-			throw new UnsupportedIOObjectException();
+			throw new UnsupportedPortableObjectException();
 		return ioObject;
 	}
 
 	private static PortableObject objectOf(byte type)
-			throws UnsupportedIOObjectException {
+			throws UnsupportedPortableObjectException {
 		PortableObject ioObject = TYPE_OBJECTS.get(type);
 		if (ioObject == null)
-			throw new UnsupportedIOObjectException();
+			throw new UnsupportedPortableObjectException();
 		return ioObject;
 	}
 
 	private static PortableObject objectOf(Object value)
-			throws UnsupportedIOObjectException {
+			throws UnsupportedPortableObjectException {
 		if (value == null)
 			return NULL;
 		return objectOf(value.getClass());
@@ -387,7 +388,7 @@ public abstract class PortableObject<T> {
 		return type;
 	}
 
-	public static void main(String[] args) throws UnsupportedIOObjectException {
+	public static void main(String[] args) throws UnsupportedPortableObjectException {
 		System.out.println(objectOf((byte) 1));
 		System.out.println(objectOf('c'));
 		System.out.println(objectOf(1));

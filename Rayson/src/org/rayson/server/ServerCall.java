@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.io.Invocation;
-import org.rayson.io.PortableObject;
 import org.rayson.io.PortableRemoteException;
 import org.rayson.io.ResponseState;
+import org.rayson.io.Streamer;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
@@ -79,7 +79,7 @@ public class ServerCall {
 				remoteExceptionHandler.write(dataOutputStream);
 			} else {
 				dataOutputStream.writeByte(ResponseState.SUCCESSFUL.getState());
-				PortableObject.writeObject(dataOutputStream, result);
+				Streamer.writePortable(dataOutputStream, result);
 			}
 			packet = new Packet(byteArrayOutputStream.toByteArray());
 		} catch (IOException e) {

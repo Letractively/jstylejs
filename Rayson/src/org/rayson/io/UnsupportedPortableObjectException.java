@@ -1,6 +1,6 @@
 package org.rayson.io;
 
-class UnsupportedIOObjectException extends Exception {
+class UnsupportedPortableObjectException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 

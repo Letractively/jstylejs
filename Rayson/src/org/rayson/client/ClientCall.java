@@ -8,9 +8,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.io.Invocation;
-import org.rayson.io.PortableObject;
 import org.rayson.io.PortableRemoteException;
 import org.rayson.io.ResponseState;
+import org.rayson.io.Streamer;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
@@ -56,7 +56,7 @@ public class ClientCall<V> {
 		ResponseState responseState = ResponseState.valueOf(in.readByte());
 		switch (responseState) {
 		case SUCCESSFUL:
-			this.future.set((V) PortableObject.readObject(in));
+			this.future.set((V) Streamer.readPortable(in));
 			break;
 		case EXCEPTION:
 			PortableRemoteException remoteExceptionHandler = new PortableRemoteException();
