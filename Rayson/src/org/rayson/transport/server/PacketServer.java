@@ -5,10 +5,7 @@ import java.nio.channels.ServerSocketChannel;
 
 import org.rayson.transport.common.PacketManager;
 
-
-
-
-abstract class PacketServer {
+public abstract class PacketServer {
 
 	private ConnectionManager connectionManager;
 	private PacketManager packetManager;

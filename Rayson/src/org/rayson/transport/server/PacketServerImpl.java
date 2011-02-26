@@ -5,7 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.util.logging.Logger;
 
-class PacketServerImpl extends PacketServer {
+public class PacketServerImpl extends PacketServer {
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	public static final int PORT_NUMBER = 4465;
@@ -19,7 +19,7 @@ class PacketServerImpl extends PacketServer {
 
 	private Listener listener;
 
-	PacketServerImpl(int portNum) {
+	protected PacketServerImpl(int portNum) {
 		super(portNum);
 	}
 

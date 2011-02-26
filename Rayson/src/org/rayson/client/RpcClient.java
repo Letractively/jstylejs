@@ -5,10 +5,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.SocketAddress;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.rayson.RpcService;
 import org.rayson.io.Invocation;
-import org.rayson.rpc.RpcService;
 import org.rayson.transport.client.TransportClient;
 
 public class RpcClient {
@@ -66,12 +67,12 @@ public class RpcClient {
 	private static RpcClient instance = new RpcClient();
 	private PacketResponser packetResponser;
 	private ConcurrentHashMap<Long, ClientCall<?>> calls;
-	private ConcurrentHashMap<RpcServiceKey, RpcService> serviceProxys;
+	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
 
 	private RpcClient() {
 		packetResponser = new PacketResponser();
 		calls = new ConcurrentHashMap<Long, ClientCall<?>>();
-		serviceProxys = new ConcurrentHashMap<RpcClient.RpcServiceKey, RpcService>();
+		serviceProxys = new WeakHashMap<RpcClient.RpcServiceKey, RpcService>();
 	}
 
 	private void submitCall(SocketAddress serverAddress, ClientCall call)
@@ -88,12 +89,16 @@ public class RpcClient {
 	public <T extends RpcService> T createProxy(Class<T> service,
 			String serviceName, SocketAddress serverAddress) {
 		RpcServiceKey serviceKey = new RpcServiceKey(serviceName, serverAddress);
-		RpcService rpcService = serviceProxys.putIfAbsent(serviceKey, null);
-		if (rpcService == null) {
-			rpcService = (RpcService) Proxy.newProxyInstance(
-					service.getClassLoader(), new Class[] { service },
-					new RpcServiceProxy(serviceName, serverAddress));
-			serviceProxys.put(serviceKey, rpcService);
+		RpcService rpcService;
+		synchronized (serviceProxys) {
+			rpcService = serviceProxys.get(serviceKey);
+			if (rpcService == null) {
+				rpcService = (RpcService) Proxy.newProxyInstance(
+						service.getClassLoader(), new Class[] { service },
+						new RpcServiceProxy(serviceName, serverAddress));
+				serviceProxys.put(serviceKey, rpcService);
+			}
+
 		}
 		return (T) rpcService;
 	}
