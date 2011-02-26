@@ -30,14 +30,15 @@ class Listener extends Thread {
 			readCount = connection.read();
 		} catch (IOException e) {
 		}
-		if (readCount == -1)
+		if (readCount == -1) {
 			try {
 				connection.close();
 			} catch (IOException e) {
 
 			}
-		connectionManager.remove(connection);
-		LOGGER.info(connection.toString() + " removed!");
+			connectionManager.remove(connection);
+			LOGGER.info(connection.toString() + " removed!");
+		}
 
 	}
 
