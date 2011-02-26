@@ -21,6 +21,7 @@ public class TransportClient {
 		return instance;
 	}
 
+	private TransportConnector connector;
 	private ConnectionManager connectionManager;
 	private Listener listener;
 	private AtomicBoolean loaded = new AtomicBoolean(false);
@@ -48,11 +49,16 @@ public class TransportClient {
 	}
 
 	private void lazyLoad() throws IOException {
+		connector = new TransportConnector(this);
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
 		connectionManager.start();
 		listener = new Listener(connectionManager);
 		listener.start();
+	}
+
+	public TransportConnector getConnector() {
+		return connector;
 	}
 
 	public static void main(String[] args) throws ConnectException,
@@ -67,7 +73,7 @@ public class TransportClient {
 		connection.addReqeustPacket(testPacket);
 	}
 
-	public void sumbitReqeust(SocketAddress serverAddress, Packet requestPacket)
+	void submitCall(SocketAddress serverAddress, Packet requestPacket)
 			throws ConnectException, IOException {
 		ClientConnection connection = getConnection(serverAddress);
 		connection.addReqeustPacket(requestPacket);

@@ -7,6 +7,7 @@ import java.lang.reflect.Proxy;
 import java.net.SocketAddress;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.rayson.RpcService;
 import org.rayson.io.Invocation;
@@ -65,21 +66,18 @@ public class RpcClient {
 	}
 
 	private static RpcClient instance = new RpcClient();
-	private PacketResponser packetResponser;
 	private ConcurrentHashMap<Long, ClientCall<?>> calls;
 	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
+	private AtomicBoolean loaded = new AtomicBoolean(false);
 
 	private RpcClient() {
-		packetResponser = new PacketResponser();
-		calls = new ConcurrentHashMap<Long, ClientCall<?>>();
-		serviceProxys = new WeakHashMap<RpcClient.RpcServiceKey, RpcService>();
 	}
 
 	private void submitCall(SocketAddress serverAddress, ClientCall call)
 			throws IOException {
 		calls.put(call.getId(), call);
-		TransportClient.getInstance().sumbitReqeust(serverAddress,
-				call.getRequestPacket());
+		TransportClient.getInstance().getConnector()
+				.sumbitCall(serverAddress, call);
 	}
 
 	public static RpcClient getInstance() {
@@ -88,6 +86,11 @@ public class RpcClient {
 
 	public <T extends RpcService> T createProxy(Class<T> service,
 			String serviceName, SocketAddress serverAddress) {
+		synchronized (loaded) {
+			if (loaded.compareAndSet(false, true))
+				lazyLoad();
+		}
+
 		RpcServiceKey serviceKey = new RpcServiceKey(serviceName, serverAddress);
 		RpcService rpcService;
 		synchronized (serviceProxys) {
@@ -101,5 +104,10 @@ public class RpcClient {
 
 		}
 		return (T) rpcService;
+	}
+
+	private void lazyLoad() {
+		calls = new ConcurrentHashMap<Long, ClientCall<?>>();
+		serviceProxys = new WeakHashMap<RpcClient.RpcServiceKey, RpcService>();
 	}
 }
