@@ -16,7 +16,7 @@ class ConnectionManager extends Thread {
 	private ConcurrentHashMap<Long, ServerConnection> connections;
 
 	ConnectionManager() {
-		setName("Server connection manager");
+		setName("Connection manager");
 		connections = new ConcurrentHashMap<Long, ServerConnection>();
 	}
 

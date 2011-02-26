@@ -66,7 +66,7 @@ class Listener extends Thread {
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-				return;
+				break;
 			}
 			synchronized (registering) {
 				while (registering.get()) {
@@ -94,6 +94,8 @@ class Listener extends Thread {
 			}
 
 		}
+		LOGGER.info(getName() + " stopped");
+
 	}
 
 	private void write(SelectionKey key) {

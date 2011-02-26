@@ -1,7 +1,11 @@
 package org.rayson.server;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
+
+import org.rayson.io.UnsupportedIOObjectException;
+import org.rayson.transport.common.PacketException;
 
 class CallWorker extends Thread {
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -27,7 +31,22 @@ class CallWorker extends Thread {
 		while (true) {
 			try {
 				ServerCall call = this.server.getConnector().takeCall();
-				// TODO: run call.
+				this.server.invokeCall(call);
+				try {
+					try {
+						this.server.getConnector().returnCall(call.getId(),
+								call.getResponsePacket());
+					} catch (UnsupportedIOObjectException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (PacketException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (IOException e) {
+					// TODO: handling this exception
+					e.printStackTrace();
+				}
 			} catch (InterruptedException e) {
 				break;
 			}

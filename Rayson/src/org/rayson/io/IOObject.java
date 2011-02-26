@@ -3,7 +3,10 @@ package org.rayson.io;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+
+import org.rayson.tool.ReflectionTool;
 
 public abstract class IOObject<T> {
 	private short type;
@@ -28,12 +31,12 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		String read(DataInput in) throws IOException {
+		public String read(DataInput in) throws IOException {
 			return in.readUTF();
 		}
 
 		@Override
-		void write(DataOutput out, String value) throws IOException {
+		public void write(DataOutput out, String value) throws IOException {
 			out.writeUTF(value);
 		}
 	};
@@ -42,13 +45,13 @@ public abstract class IOObject<T> {
 			ARRAY_TYPE) {
 
 		@Override
-		Object read(DataInput in) throws IOException {
+		public Object read(DataInput in) throws IOException {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		void write(DataOutput out, Object value) throws IOException {
+		public void write(DataOutput out, Object value) throws IOException {
 			// TODO Auto-generated method stub
 
 		}
@@ -62,15 +65,26 @@ public abstract class IOObject<T> {
 			WRITABLE_TYPE) {
 
 		@Override
-		Writable read(DataInput in) throws IOException {
-			// TODO Auto-generated method stub
-			return null;
+		public Writable read(DataInput in) throws IOException {
+			// Read class name.
+			String className = in.readUTF();
+			// Read value.
+			Writable writable = null;
+			try {
+				writable = (Writable) ReflectionTool.newInstance(className);
+			} catch (Exception e) {
+				new IOException(e);
+			}
+			writable.read(in);
+			return writable;
 		}
 
 		@Override
-		void write(DataOutput out, Writable value) throws IOException {
-			// TODO Auto-generated method stub
-
+		public void write(DataOutput out, Writable value) throws IOException {
+			// Write class name.
+			out.writeUTF(value.getClass().getName());
+			// Write value.
+			value.write(out);
 		}
 
 		@Override
@@ -82,12 +96,12 @@ public abstract class IOObject<T> {
 	private static final IOObject<Object> NULL = new IOObject<Object>(NULL_TYPE) {
 
 		@Override
-		Object read(DataInput in) throws IOException {
+		public Object read(DataInput in) throws IOException {
 			return null;
 		}
 
 		@Override
-		void write(DataOutput out, Object value) throws IOException {
+		public void write(DataOutput out, Object value) throws IOException {
 
 		}
 
@@ -105,12 +119,12 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		Byte read(DataInput in) throws IOException {
+		public Byte read(DataInput in) throws IOException {
 			return in.readByte();
 		}
 
 		@Override
-		void write(DataOutput out, Byte value) throws IOException {
+		public void write(DataOutput out, Byte value) throws IOException {
 			out.writeByte(value);
 		}
 	};
@@ -123,12 +137,12 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		Character read(DataInput in) throws IOException {
+		public Character read(DataInput in) throws IOException {
 			return in.readChar();
 		}
 
 		@Override
-		void write(DataOutput out, Character value) throws IOException {
+		public void write(DataOutput out, Character value) throws IOException {
 			out.writeChar(value);
 		}
 	};
@@ -141,12 +155,12 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		Short read(DataInput in) throws IOException {
+		public Short read(DataInput in) throws IOException {
 			return in.readShort();
 		}
 
 		@Override
-		void write(DataOutput out, Short value) throws IOException {
+		public void write(DataOutput out, Short value) throws IOException {
 			out.writeShort(value);
 		}
 	};
@@ -159,12 +173,12 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		Long read(DataInput in) throws IOException {
+		public Long read(DataInput in) throws IOException {
 			return in.readLong();
 		}
 
 		@Override
-		void write(DataOutput out, Long value) throws IOException {
+		public void write(DataOutput out, Long value) throws IOException {
 			out.writeLong(value);
 		}
 	};
@@ -177,12 +191,12 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		Double read(DataInput in) throws IOException {
+		public Double read(DataInput in) throws IOException {
 			return in.readDouble();
 		}
 
 		@Override
-		void write(DataOutput out, Double value) throws IOException {
+		public void write(DataOutput out, Double value) throws IOException {
 			out.writeDouble(value);
 		}
 	};
@@ -194,12 +208,12 @@ public abstract class IOObject<T> {
 		}
 
 		@Override
-		Float read(DataInput in) throws IOException {
+		public Float read(DataInput in) throws IOException {
 			return in.readFloat();
 		}
 
 		@Override
-		void write(DataOutput out, Float value) throws IOException {
+		public void write(DataOutput out, Float value) throws IOException {
 			out.writeFloat(value);
 		}
 	};
@@ -207,12 +221,12 @@ public abstract class IOObject<T> {
 	private static final IOObject<Integer> INT = new IOObject<Integer>(INT_TYPE) {
 
 		@Override
-		Integer read(DataInput in) throws IOException {
+		public Integer read(DataInput in) throws IOException {
 			return in.readInt();
 		}
 
 		@Override
-		void write(DataOutput out, Integer value) throws IOException {
+		public void write(DataOutput out, Integer value) throws IOException {
 			out.writeInt(value);
 		}
 
@@ -300,7 +314,7 @@ public abstract class IOObject<T> {
 		return getName() + ":" + getType();
 	}
 
-	abstract T read(DataInput in) throws IOException;
+	public abstract T read(DataInput in) throws IOException;
 
-	abstract void write(DataOutput out, T value) throws IOException;
+	public abstract void write(DataOutput out, T value) throws IOException;
 }

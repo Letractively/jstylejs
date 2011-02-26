@@ -4,7 +4,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.rayson.transport.common.Packet;
 
-class PacketManager {
+public class PacketManager {
 
 	private LinkedBlockingQueue<Packet> receives;
 

@@ -3,7 +3,10 @@ package org.rayson.io;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import org.rayson.RpcService;
 
 public class Invocation implements Writable {
 	private String methodName;
@@ -11,7 +14,7 @@ public class Invocation implements Writable {
 	private String serviceName;
 	private Object[] parameters;
 
-	private Invocation() {
+	public Invocation() {
 
 	}
 
@@ -24,6 +27,19 @@ public class Invocation implements Writable {
 		for (int i = 0; i < parameters.length; i++) {
 			IOObject.valueOf(parameters[i]);
 		}
+	}
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public Object invoke(RpcService serviceObject) throws SecurityException,
+			NoSuchMethodException, IllegalArgumentException,
+			IllegalAccessException, InvocationTargetException {
+		Method method = serviceObject.getClass().getMethod(methodName,
+				paraTypes);
+		method.setAccessible(true);
+		return method.invoke(serviceObject, parameters);
 	}
 
 	@Override

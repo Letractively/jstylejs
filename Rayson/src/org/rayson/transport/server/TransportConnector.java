@@ -13,6 +13,7 @@ public class TransportConnector {
 
 	TransportConnector(TransportServer server) {
 		this.server = server;
+		callConenctions = new HashMap<Long, ServerConnection>();
 	}
 
 	public void returnCall(long callId, Packet responsePacket)
@@ -25,6 +26,12 @@ public class TransportConnector {
 		ConnectionPacketLink connectionPacket = this.server.getPacketManager()
 				.takeReceived();
 		ServerCall serverCall = null;
+		try {
+			serverCall = ServerCall.fromPacket(connectionPacket.getPacket());
+		} catch (IOException e) {
+			// TODO: handling this exception
+			e.printStackTrace();
+		}
 		callConenctions.put(serverCall.getId(),
 				connectionPacket.getConnection());
 		return serverCall;

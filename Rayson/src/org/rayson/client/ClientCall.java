@@ -1,12 +1,17 @@
 package org.rayson.client;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.rayson.io.IOObject;
 import org.rayson.io.Invocation;
+import org.rayson.io.ResponseState;
+import org.rayson.io.UnsupportedIOObjectException;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
@@ -46,5 +51,24 @@ public class ClientCall<V> {
 
 	public V getResult() throws InterruptedException, ExecutionException {
 		return future.get();
+	}
+
+	public void readResult(DataInput in) throws IOException {
+		ResponseState responseState = ResponseState.valueOf(in.readByte());
+		switch (responseState) {
+		case SUCCESSFUL:
+			try {
+				IOObject iiIoObject = IOObject.valueOf(in.readShort());
+				this.future.set((V) iiIoObject.read(in));
+			} catch (UnsupportedIOObjectException e) {
+				throw new IOException(e);
+			}
+			break;
+		case EXCEPTION:
+			// TODO: handling exception.
+			break;
+		default:
+			break;
+		}
 	}
 }

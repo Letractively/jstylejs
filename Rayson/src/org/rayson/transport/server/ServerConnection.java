@@ -127,8 +127,6 @@ class ServerConnection implements Connection {
 		this.packetCounter.readOne();
 		// add packet to manager
 		this.packetManager.addReceived(this, packet);
-		// TODO: test add packet to response
-		this.addSendPacket(packet);
 	}
 
 	@Override

@@ -47,7 +47,7 @@ public class TransportServerImpl extends TransportServer {
 		sb.append("{");
 		sb.append("version: ");
 		sb.append(version);
-		sb.append(", port number: ");
+		sb.append(", port: ");
 		sb.append(portNumer);
 		sb.append("}");
 		return sb.toString();

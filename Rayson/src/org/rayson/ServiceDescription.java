@@ -12,6 +12,11 @@ public class ServiceDescription implements Writable {
 
 	}
 
+	public ServiceDescription(String serviceName,
+			Class<? extends RpcService> serviceClass) {
+		this.name = serviceName;
+	}
+
 	private String name;
 	private String[] protocols;
 
@@ -33,5 +38,16 @@ public class ServiceDescription implements Writable {
 	public void write(DataOutput out) throws IOException {
 		out.writeUTF(name);
 		// out.writeUTF(className);
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("name: ");
+		sb.append(this.name);
+		sb.append(", protocols: ");
+		sb.append("}");
+		return sb.toString();
 	}
 }

@@ -6,10 +6,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.rayson.RpcException;
 import org.rayson.RpcService;
 import org.rayson.ServiceDescription;
+import org.rayson.io.Invocation;
 import org.rayson.transport.server.TransportServerImpl;
 
 class RpcServer extends TransportServerImpl implements ServerService {
-
+	private static final String DEFAULT_SERVICE_NAME = "server";
 	private static final int DEDAULT_WORKER_COUNT = 4;
 	private ConcurrentHashMap<String, RpcService> services;
 
@@ -21,6 +22,13 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	@Override
 	public void start() throws IOException {
 		super.start();
+		// Register it self as a service.
+		try {
+			this.registerService(DEFAULT_SERVICE_NAME, this);
+		} catch (ServiceExistedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// TODO: start this RPC server .
 		for (int i = 0; i < DEDAULT_WORKER_COUNT; i++) {
 			CallWorker callWorker = new CallWorker(this);
@@ -30,7 +38,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 
 	public void registerService(String serviceName, RpcService serviceInstance)
 			throws ServiceExistedException {
-		if (services.putIfAbsent(serviceName, serviceInstance) == null)
+		if (services.putIfAbsent(serviceName, serviceInstance) != null)
 			throw new ServiceExistedException(serviceName);
 	}
 
@@ -47,11 +55,31 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		return null;
 	}
 
+	public void invokeCall(ServerCall call) {
+		Invocation invocation = call.getInvocation();
+		RpcService serviceObject;
+		try {
+			serviceObject = getService(invocation.getServiceName());
+			Object result = invocation.invoke(serviceObject);
+			call.setResult(result);
+		} catch (Throwable t) {
+			t.printStackTrace();
+			call.setException(t);
+		}
+
+	}
+
 	@Override
 	public ServiceDescription getDescription(String serviceName)
 			throws RpcException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			RpcService rpcService = getService(serviceName);
+			ServiceDescription serviceDescription = new ServiceDescription(
+					serviceName, rpcService.getClass());
+			return serviceDescription;
+		} catch (ServiceNotFoundException e) {
+			return null;
+		}
 	}
 
 	public static void main(String[] args) throws IOException {

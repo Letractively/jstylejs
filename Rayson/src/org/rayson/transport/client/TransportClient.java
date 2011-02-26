@@ -76,4 +76,8 @@ public class TransportClient {
 		listener = new Listener(connectionManager);
 		listener.start();
 	}
+
+	PacketManager getPacketManager() {
+		return packetManager;
+	}
 }

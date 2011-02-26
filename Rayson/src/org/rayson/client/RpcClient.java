@@ -76,6 +76,8 @@ public class RpcClient {
 		return instance;
 	}
 
+	private ResponseWorker responseWorker;
+
 	private ConcurrentHashMap<Long, ClientCall<?>> calls;
 	private AtomicBoolean loaded = new AtomicBoolean(false);
 
@@ -109,6 +111,8 @@ public class RpcClient {
 	private void lazyLoad() {
 		calls = new ConcurrentHashMap<Long, ClientCall<?>>();
 		serviceProxys = new WeakHashMap<RpcClient.RpcServiceKey, RpcService>();
+		responseWorker = new ResponseWorker();
+		responseWorker.start();
 	}
 
 	private void submitCall(SocketAddress serverAddress, ClientCall call)

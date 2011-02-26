@@ -143,9 +143,6 @@ class ClientConnection implements Connection {
 		this.packetCounter.readOne();
 		// add packet to manager
 		this.packetManager.addReceived(packet);
-		// TODO: test add packet to response
-		this.addSendPacket(packet);
-
 	}
 
 	private void addReqeustPacket1(PacketCarrier packetCarrier)

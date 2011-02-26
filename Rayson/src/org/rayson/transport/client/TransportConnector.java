@@ -1,5 +1,9 @@
 package org.rayson.transport.client;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.HashMap;
@@ -31,7 +35,9 @@ public class TransportConnector {
 		// TODO:
 	}
 
-	public void returnCall(Packet responsePacket) {
+	private static final int BUFFER_SIZE = 1024;
+
+	public void responseCall(Packet responsePacket) {
 		// TODO:
 	}
 
@@ -41,5 +47,22 @@ public class TransportConnector {
 		connection.addSendPacket(call.getRequestPacket());
 		CallWrapper callWrapper = new CallWrapper(connection, call);
 		this.calls.put(call.getId(), callWrapper);
+	}
+
+	public ClientCall responseCall() throws InterruptedException,
+			IOException {
+		Packet receivedPacket = this.client.getPacketManager().takeReceived();
+		ClientCall call = fromReceivePacket(receivedPacket);
+		return call;
+	}
+
+	private ClientCall fromReceivePacket(Packet receivedPacket)
+			throws IOException {
+		DataInputStream inputStream = new DataInputStream(
+				new ByteArrayInputStream(receivedPacket.getData()));
+		long callId = inputStream.readLong();
+		ClientCall call = calls.get(callId).call;
+		call.readResult(inputStream);
+		return call;
 	}
 }

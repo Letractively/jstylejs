@@ -14,6 +14,7 @@ class Listener extends Thread {
 	private TransportServer server;
 
 	public Listener(TransportServer server) throws IOException {
+		setName("Server " + server.toString() + " lisenter");
 		this.server = server;
 		this.selector = Selector.open();
 		server.getSocketChannel().register(selector, SelectionKey.OP_ACCEPT);
@@ -69,6 +70,7 @@ class Listener extends Thread {
 
 	@Override
 	public void run() {
+		LOGGER.info(getName() + " starting...");
 
 		SelectionKey key;
 
@@ -81,7 +83,7 @@ class Listener extends Thread {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return;
+				break;
 			}
 
 			for (iterator = selector.selectedKeys().iterator(); iterator
@@ -101,6 +103,8 @@ class Listener extends Thread {
 			}
 
 		}
+		LOGGER.info(getName() + " stopped");
+
 	}
 
 	private void write(SelectionKey key) {
