@@ -148,12 +148,12 @@ class ClientConnection implements Connection {
 		// add packet to manager
 		this.packetManager.addReceived(packet);
 		// TODO: test add packet to response
-		this.addSendPacket(packet);
+		this.addReqeustPacket(packet);
 
 	}
 
 	@Override
-	public void addSendPacket(Packet packet) throws IOException {
+	public void addReqeustPacket(Packet packet) throws IOException {
 		if (readErrorPacket.get()) {
 			// do not accept new packet any more.
 			return;
@@ -170,10 +170,10 @@ class ClientConnection implements Connection {
 				}
 			}
 		}
-		addSendPacket1(new PacketCarrier(RequestCode.NORMAL.getCode(), packet));
+		addReqeustPacket1(new PacketCarrier(RequestCode.NORMAL.getCode(), packet));
 	}
 
-	private void addSendPacket1(PacketCarrier packetCarrier) throws IOException {
+	private void addReqeustPacket1(PacketCarrier packetCarrier) throws IOException {
 		this.packetWriter.addSendPacket(packetCarrier);
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);

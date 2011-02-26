@@ -5,15 +5,13 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import org.rayson.rpc.RpcService;
-
 public class Invocation implements Writable {
 	private String methodName;
 	private String serviceName;
 	private RpcObject[] parameters;
 	private Class<?>[] paraTypes;
 
-	Invocation(String serviceName, Method method, Object[] parObjects) {
+	public Invocation(String serviceName, Method method, Object[] parObjects) {
 
 	}
 

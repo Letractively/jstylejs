@@ -10,17 +10,23 @@ import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketManager;
 
+public class TransportClient {
+	private static TransportClient instance = new TransportClient();
 
+	private TransportClient() {
 
+	}
 
-final class Client {
+	public static TransportClient getInstance() {
+		return instance;
+	}
 
-	private static ConnectionManager connectionManager;
-	private static Listener listener;
-	private static AtomicBoolean loaded = new AtomicBoolean(false);
-	private static PacketManager packetManager;
+	private ConnectionManager connectionManager;
+	private Listener listener;
+	private AtomicBoolean loaded = new AtomicBoolean(false);
+	private PacketManager packetManager;
 
-	public static ClientConnection getConnection(SocketAddress serverAddress)
+	ClientConnection getConnection(SocketAddress serverAddress)
 			throws IOException, ConnectException {
 
 		synchronized (loaded) {
@@ -41,7 +47,7 @@ final class Client {
 		return connection;
 	}
 
-	private static void lazyLoad() throws IOException {
+	private void lazyLoad() throws IOException {
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
 		connectionManager.start();
@@ -54,9 +60,16 @@ final class Client {
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
-		ClientConnection connection = Client.getConnection(serverAddress);
+		ClientConnection connection = TransportClient.getInstance()
+				.getConnection(serverAddress);
 		byte[] bytes = new byte[344];
 		Packet testPacket = new Packet(bytes);
-		connection.addSendPacket(testPacket);
+		connection.addReqeustPacket(testPacket);
+	}
+
+	public void sumbitReqeust(SocketAddress serverAddress, Packet requestPacket)
+			throws ConnectException, IOException {
+		ClientConnection connection = getConnection(serverAddress);
+		connection.addReqeustPacket(requestPacket);
 	}
 }
