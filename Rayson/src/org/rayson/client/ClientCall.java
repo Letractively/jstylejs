@@ -1,7 +1,6 @@
 package org.rayson.client;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.io.Invocation;
@@ -11,7 +10,7 @@ public class ClientCall<V> {
 
 	private Invocation invocation;
 	private static final AtomicLong UID = new AtomicLong(0);
-	private Future<V> future;
+	private CallFuture<V> future;
 	private long id;
 
 	public ClientCall(Invocation invocation) {

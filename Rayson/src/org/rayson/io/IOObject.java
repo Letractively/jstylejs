@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashMap;
 
-public abstract class RpcObject<T> {
+public abstract class IOObject<T> {
 	private short type;
 
 	private static final short BYTE_TYPE = 1;
@@ -20,7 +20,7 @@ public abstract class RpcObject<T> {
 	private static final short WRITABLE_TYPE = 30;
 	private static final short NULL_TYPE = 0;
 	private static final short ARRAY_TYPE = 19;
-	private static final RpcObject<String> STRING = new RpcObject<String>(
+	private static final IOObject<String> STRING = new IOObject<String>(
 			STRING_TYPE) {
 		@Override
 		public String getName() {
@@ -38,7 +38,7 @@ public abstract class RpcObject<T> {
 		}
 	};
 
-	private static final RpcObject<Object> ARRAY = new RpcObject<Object>(
+	private static final IOObject<Object> ARRAY = new IOObject<Object>(
 			ARRAY_TYPE) {
 
 		@Override
@@ -58,7 +58,7 @@ public abstract class RpcObject<T> {
 			return "ARRAY";
 		}
 	};
-	private static final RpcObject<Writable> WRITABLE = new RpcObject<Writable>(
+	private static final IOObject<Writable> WRITABLE = new IOObject<Writable>(
 			WRITABLE_TYPE) {
 
 		@Override
@@ -79,7 +79,7 @@ public abstract class RpcObject<T> {
 		}
 
 	};
-	private static final RpcObject<Object> NULL = new RpcObject<Object>(
+	private static final IOObject<Object> NULL = new IOObject<Object>(
 			NULL_TYPE) {
 
 		@Override
@@ -98,7 +98,7 @@ public abstract class RpcObject<T> {
 		}
 
 	};
-	private static final RpcObject<Byte> BYTE = new RpcObject<Byte>(BYTE_TYPE) {
+	private static final IOObject<Byte> BYTE = new IOObject<Byte>(BYTE_TYPE) {
 
 		@Override
 		public String getName() {
@@ -115,7 +115,7 @@ public abstract class RpcObject<T> {
 			out.writeByte(value);
 		}
 	};
-	private static final RpcObject<Character> CHAR = new RpcObject<Character>(
+	private static final IOObject<Character> CHAR = new IOObject<Character>(
 			CHAR_TYPE) {
 
 		@Override
@@ -134,7 +134,7 @@ public abstract class RpcObject<T> {
 		}
 	};
 
-	private static final RpcObject<Short> SHORT = new RpcObject<Short>(
+	private static final IOObject<Short> SHORT = new IOObject<Short>(
 			SHORT_TYPE) {
 
 		@Override
@@ -153,7 +153,7 @@ public abstract class RpcObject<T> {
 		}
 	};
 
-	private static final RpcObject<Long> LONG = new RpcObject<Long>(LONG_TYPE) {
+	private static final IOObject<Long> LONG = new IOObject<Long>(LONG_TYPE) {
 
 		@Override
 		public String getName() {
@@ -170,7 +170,7 @@ public abstract class RpcObject<T> {
 			out.writeLong(value);
 		}
 	};
-	private static final RpcObject<Double> DOUBLE = new RpcObject<Double>(
+	private static final IOObject<Double> DOUBLE = new IOObject<Double>(
 			DOUBLE_TYPE) {
 
 		@Override
@@ -188,7 +188,7 @@ public abstract class RpcObject<T> {
 			out.writeDouble(value);
 		}
 	};
-	private static final RpcObject<Float> FLOAT = new RpcObject<Float>(
+	private static final IOObject<Float> FLOAT = new IOObject<Float>(
 			FLOAT_TYPE) {
 
 		@Override
@@ -207,7 +207,7 @@ public abstract class RpcObject<T> {
 		}
 	};
 
-	private static final RpcObject<Integer> INT = new RpcObject<Integer>(
+	private static final IOObject<Integer> INT = new IOObject<Integer>(
 			INT_TYPE) {
 
 		@Override
@@ -226,7 +226,7 @@ public abstract class RpcObject<T> {
 		}
 	};
 
-	private static HashMap<Short, RpcObject> TYPE_OBJECTS = new HashMap<Short, RpcObject>();
+	private static HashMap<Short, IOObject> TYPE_OBJECTS = new HashMap<Short, IOObject>();
 	static {
 		TYPE_OBJECTS.put(BYTE_TYPE, BYTE);
 		TYPE_OBJECTS.put(CHAR_TYPE, CHAR);
@@ -241,7 +241,7 @@ public abstract class RpcObject<T> {
 		TYPE_OBJECTS.put(STRING_TYPE, STRING);
 	}
 
-	private static HashMap<Class, RpcObject> CLASS_OBJECTS = new HashMap<Class, RpcObject>();
+	private static HashMap<Class, IOObject> CLASS_OBJECTS = new HashMap<Class, IOObject>();
 	static {
 		CLASS_OBJECTS.put(Byte.class, BYTE);
 		CLASS_OBJECTS.put(Character.class, CHAR);
@@ -253,15 +253,15 @@ public abstract class RpcObject<T> {
 		CLASS_OBJECTS.put(String.class, STRING);
 	}
 
-	public static RpcObject valueOf(short type)
+	public static IOObject valueOf(short type)
 			throws UnsupportedRpcObjectException {
-		RpcObject rpcObject = TYPE_OBJECTS.get(type);
+		IOObject rpcObject = TYPE_OBJECTS.get(type);
 		if (rpcObject == null)
 			throw new UnsupportedRpcObjectException();
 		return rpcObject;
 	}
 
-	public static RpcObject valueOf(Object value)
+	public static IOObject valueOf(Object value)
 			throws UnsupportedRpcObjectException {
 		if (value == null)
 			return NULL;
@@ -270,13 +270,13 @@ public abstract class RpcObject<T> {
 			return ARRAY;
 		if (Writable.class.isAssignableFrom(klass))
 			return WRITABLE;
-		RpcObject rpcObject = CLASS_OBJECTS.get(klass);
+		IOObject rpcObject = CLASS_OBJECTS.get(klass);
 		if (rpcObject == null)
 			throw new UnsupportedRpcObjectException();
 		return rpcObject;
 	}
 
-	private RpcObject(short type) {
+	private IOObject(short type) {
 		this.type = type;
 	}
 
