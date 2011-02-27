@@ -18,13 +18,13 @@ public class ClientCall<V> {
 	private static final AtomicLong UID = new AtomicLong(0);
 	private CallFuture<V> future;
 	private long id;
-	private Invocation invocation;
+	// private Invocation invocation;
 	private static final int BUFFER_SIZE = 1024;
 	private Packet requestPacket;
 
 	public ClientCall(Invocation invocation) throws PacketException {
 		this.id = UID.getAndIncrement();
-		this.invocation = invocation;
+		// this.invocation = invocation;
 		this.future = new CallFuture<V>();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
 				BUFFER_SIZE);
@@ -53,7 +53,8 @@ public class ClientCall<V> {
 	}
 
 	public void readResult(DataInput in) throws IOException {
-		InvocationResultType resultType = InvocationResultType.valueOf(in.readByte());
+		InvocationResultType resultType = InvocationResultType.valueOf(in
+				.readByte());
 		switch (resultType) {
 		case SUCCESSFUL:
 			this.future.set((V) Stream.readPortable(in));
@@ -61,8 +62,7 @@ public class ClientCall<V> {
 		case EXCEPTION:
 			InvocationException remoteExceptionHandler = new InvocationException();
 			remoteExceptionHandler.read(in);
-			this.future
-					.setException(remoteExceptionHandler.getException());
+			this.future.setException(remoteExceptionHandler.getException());
 			break;
 		default:
 			break;

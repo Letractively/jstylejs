@@ -7,16 +7,22 @@ import java.io.IOException;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServiceDescription;
 import org.rayson.api.Transportable;
+import org.rayson.common.Stream;
 
-public class ServiceDescriptionImpl implements ServiceDescription, Transportable {
+public class ServiceDescriptionImpl implements ServiceDescription,
+		Transportable {
 
 	private ServiceDescriptionImpl() {
-
+		// Forbidden construct.
 	}
 
 	public ServiceDescriptionImpl(String serviceName,
-			Class<? extends RpcService> serviceClass) {
+			Class<? extends RpcService>[] protocols) {
 		this.name = serviceName;
+		this.protocols = new String[protocols.length];
+		for (int i = 0; i < protocols.length; i++) {
+			this.protocols[i] = protocols[i].getName();
+		}
 	}
 
 	private String name;
@@ -35,13 +41,13 @@ public class ServiceDescriptionImpl implements ServiceDescription, Transportable
 	@Override
 	public void read(DataInput in) throws IOException {
 		this.name = in.readUTF();
-		// this.className = in.readUTF();
+		this.protocols = (String[]) Stream.readPortable(in);
 	}
 
 	@Override
 	public void write(DataOutput out) throws IOException {
 		out.writeUTF(name);
-		// out.writeUTF(className);
+		Stream.writePortable(out, protocols);
 	}
 
 	@Override
@@ -50,8 +56,13 @@ public class ServiceDescriptionImpl implements ServiceDescription, Transportable
 		sb.append("{");
 		sb.append("name: ");
 		sb.append(this.name);
-		sb.append(", protocols: ");
-		sb.append("}");
+		sb.append(", protocols: [");
+		for (String protocol : protocols) {
+			sb.append(protocol);
+			sb.append(",");
+		}
+		sb.deleteCharAt(sb.length() - 1);
+		sb.append("]}");
 		return sb.toString();
 	}
 }
