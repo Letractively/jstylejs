@@ -33,7 +33,6 @@ public class InvocationException implements Transportable {
 		this.unDeclaredException = in.readBoolean();
 		String className = in.readUTF();
 		String message = (String) Stream.readPortable(in);
-
 		try {
 			Throwable throwable = (Throwable) Reflection.newInstance(className,
 					DEFAULT_CONSTRUCTOR_PARAMETER_TYPES,
@@ -43,8 +42,10 @@ public class InvocationException implements Transportable {
 			else
 				this.throwException = throwable;
 		} catch (Exception e) {
-			throw new IOException(e);
+			this.throwException = new RpcException(
+					new RpcExcptionInstantiationException(e));
 		}
+
 	}
 
 	@Override
