@@ -15,7 +15,7 @@ class Service {
 		this.name = name;
 		this.description = description;
 		this.instance = instance;
-		this.protocols = ServiceParser.getProtocols(instance);
+		this.protocols = ServiceParser.getProtocols(instance.getClass());
 	}
 
 	public String getName() {

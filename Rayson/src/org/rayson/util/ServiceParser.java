@@ -11,10 +11,10 @@ import org.rayson.common.Stream;
 
 public final class ServiceParser {
 
-	public static Class<? extends RpcService>[] getProtocols(RpcService instance)
+	public static Class<? extends RpcService>[] getProtocols(
+			Class<? extends RpcService> serviceClass)
 			throws IllegalServiceException {
 		List<Class<? extends RpcService>> list = new ArrayList<Class<? extends RpcService>>();
-		Class serviceClass = instance.getClass();
 		for (Class interfake : serviceClass.getInterfaces()) {
 			if (RpcService.class.isAssignableFrom(interfake)) {
 				verifyService(interfake);
