@@ -18,7 +18,7 @@ import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
 import org.rayson.api.ServiceDescription;
 import org.rayson.api.ServiceNotFoundException;
-import org.rayson.io.Invocation;
+import org.rayson.common.Invocation;
 import org.rayson.transport.client.TransportClient;
 
 public class RpcClient {

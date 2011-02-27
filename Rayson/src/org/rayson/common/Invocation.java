@@ -1,4 +1,4 @@
-package org.rayson.io;
+package org.rayson.common;
 
 import java.io.DataInput;
 import java.io.DataOutput;

@@ -13,8 +13,8 @@ import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
 import org.rayson.api.ServiceDescription;
 import org.rayson.api.ServiceNotFoundException;
+import org.rayson.common.Invocation;
 import org.rayson.impl.ServiceDescriptionImpl;
-import org.rayson.io.Invocation;
 import org.rayson.transport.server.TransportServerImpl;
 
 class RpcServer extends TransportServerImpl implements ServerService {
