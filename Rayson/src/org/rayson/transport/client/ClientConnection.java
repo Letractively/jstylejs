@@ -14,27 +14,27 @@ import java.util.logging.Logger;
 import org.rayson.transport.common.CRC16;
 import org.rayson.transport.common.ChecksumMatchException;
 import org.rayson.transport.common.Connection;
-import org.rayson.transport.common.ConnectionCode;
+import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.Packet;
-import org.rayson.transport.common.PacketCarrier;
+import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
-import org.rayson.transport.common.RequestCode;
+import org.rayson.transport.common.RequestType;
 
 class ClientConnection implements Connection {
 
 	private class PacketWriter {
-		private PacketCarrier lastPacketCarrier;
-		private Queue<PacketCarrier> sendPackets;
+		private PacketWithType lastPacketCarrier;
+		private Queue<PacketWithType> sendPackets;
 		private ByteBuffer writeDataBuffer;
 
 		PacketWriter() {
-			sendPackets = new LinkedList<PacketCarrier>();
+			sendPackets = new LinkedList<PacketWithType>();
 		}
 
-		void addSendPacket(PacketCarrier packetCarrier) throws IOException {
+		void addSendPacket(PacketWithType packetCarrier) throws IOException {
 			synchronized (this.sendPackets) {
 				this.sendPackets.add(packetCarrier);
 			}
@@ -46,7 +46,7 @@ class ClientConnection implements Connection {
 
 					this.lastPacketCarrier = this.sendPackets.remove();
 				}
-				byte code = this.lastPacketCarrier.getCode();
+				byte code = this.lastPacketCarrier.getType();
 				short dataLength = this.lastPacketCarrier.getPacket()
 						.getDataLength();
 				byte[] data = this.lastPacketCarrier.getPacket().getData();
@@ -145,13 +145,13 @@ class ClientConnection implements Connection {
 		this.packetManager.addReceived(packet);
 	}
 
-	private void addReqeustPacket1(PacketCarrier packetCarrier)
+	private void addReqeustPacket1(PacketWithType packetWithType)
 			throws IOException {
-		this.packetWriter.addSendPacket(packetCarrier);
+		this.packetWriter.addSendPacket(packetWithType);
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
 		this.selectionKey.selector().wakeup();
-		LOGGER.info("add  packet " + packetCarrier.toString() + " to send");
+		LOGGER.info("add  packet " + packetWithType.toString() + " to send");
 	}
 
 	@Override
@@ -172,7 +172,7 @@ class ClientConnection implements Connection {
 				}
 			}
 		}
-		addReqeustPacket1(new PacketCarrier(RequestCode.NORMAL.getCode(),
+		addReqeustPacket1(new PacketWithType(RequestType.NORMAL.getType(),
 				packet));
 	}
 
@@ -215,10 +215,10 @@ class ClientConnection implements Connection {
 		// read response in blocked mode.
 		this.socketChannel.read(connectResponseBuffer);
 		connectResponseBuffer.flip();
-		ConnectionCode code = ConnectionCode.valueOf(connectResponseBuffer
+		ConnectionState state = ConnectionState.valueOf(connectResponseBuffer
 				.get());
-		if (code != ConnectionCode.OK)
-			throw new ConnectException(code.name());
+		if (state != ConnectionState.OK)
+			throw new ConnectException(state.name());
 		socketChannel.configureBlocking(false);
 		this.selectionKey = listener.register(this.socketChannel,
 				SelectionKey.OP_READ, this);
@@ -247,7 +247,7 @@ class ClientConnection implements Connection {
 		try {
 			readCount = packetReader.read();
 			if (packetReader.isReady()) {
-				addReceivedPacket(packetReader.takeLastCarrier().getPacket());
+				addReceivedPacket(packetReader.takeLastWithType().getPacket());
 			}
 		} catch (ChecksumMatchException e) {
 			readErrorPacket();

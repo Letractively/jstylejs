@@ -6,12 +6,12 @@ import java.util.HashMap;
 import org.rayson.server.ServerCall;
 import org.rayson.transport.common.Packet;
 
-public class TransportConnector {
+public class RpcConnector {
 
 	private HashMap<Long, ServerConnection> callConenctions;
 	private TransportServer server;
 
-	TransportConnector(TransportServer server) {
+	RpcConnector(TransportServer server) {
 		this.server = server;
 		callConenctions = new HashMap<Long, ServerConnection>();
 	}

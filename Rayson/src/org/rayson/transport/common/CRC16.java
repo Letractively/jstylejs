@@ -44,11 +44,11 @@ public final class CRC16 {
 		return crc;
 	}
 
-	public static short compute(byte code, short dataLength, byte[] data) {
+	public static short compute(byte type, short dataLength, byte[] data) {
 		if (data == null)
 			throw new NullPointerException("Data can not be null");
 		byte[] allData = new byte[3 + data.length];
-		allData[0] = code;
+		allData[0] = type;
 		allData[1] = (byte) ((dataLength >>> 8) & 0xFF);
 		allData[2] = (byte) ((dataLength >>> 0) & 0xFF);
 		System.arraycopy(data, 0, allData, 3, data.length);

@@ -1,10 +1,10 @@
 package org.rayson.server;
 
-class ServiceExistedException extends Exception {
+class ServiceAlreadyExistedException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public ServiceExistedException(String serviceName) {
+	public ServiceAlreadyExistedException(String serviceName) {
 		super(serviceName + " already existed");
 	}
 

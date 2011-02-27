@@ -70,11 +70,11 @@ public abstract class PacketReader {
 		return readCount;
 	}
 
-	public PacketCarrier takeLastCarrier() {
+	public PacketWithType takeLastWithType() {
 		if (!isReady())
 			throw new IllegalStateException("Read stat must be ready");
 		this.state = State.HEADER;
-		return new PacketCarrier(lastCode, lastPacket);
+		return new PacketWithType(lastCode, lastPacket);
 
 	}
 

@@ -11,7 +11,7 @@ import java.util.HashMap;
 import org.rayson.client.ClientCall;
 import org.rayson.transport.common.Packet;
 
-public class TransportConnector {
+public class RpcConnector {
 
 	private static class CallWrapper {
 		private ClientCall call;
@@ -26,7 +26,7 @@ public class TransportConnector {
 	private HashMap<Long, CallWrapper> calls;
 	private TransportClient client;
 
-	TransportConnector(TransportClient client) {
+	RpcConnector(TransportClient client) {
 		this.client = client;
 		calls = new HashMap<Long, CallWrapper>();
 	}

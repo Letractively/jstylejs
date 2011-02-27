@@ -6,7 +6,7 @@ import java.nio.channels.ServerSocketChannel;
 public abstract class TransportServer {
 
 	private ConnectionManager connectionManager;
-	private TransportConnector connector;
+	private RpcConnector connector;
 	private PacketManager packetManager;
 	protected int portNumer;
 	protected ServerSocketChannel socketChannel;
@@ -15,14 +15,14 @@ public abstract class TransportServer {
 		this.portNumer = portNum;
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
-		connector = new TransportConnector(this);
+		connector = new RpcConnector(this);
 	}
 
 	ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}
 
-	public TransportConnector getConnector() {
+	public RpcConnector getConnector() {
 		return connector;
 	}
 

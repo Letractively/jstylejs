@@ -30,7 +30,7 @@ public class TransportClient {
 	}
 
 	private ConnectionManager connectionManager;
-	private TransportConnector connector;
+	private RpcConnector connector;
 	private Listener listener;
 	private AtomicBoolean loaded = new AtomicBoolean(false);
 	private PacketManager packetManager;
@@ -63,13 +63,13 @@ public class TransportClient {
 		return connection;
 	}
 
-	public TransportConnector getConnector() throws IOException {
+	public RpcConnector getConnector() throws IOException {
 		tryLoad();
 		return connector;
 	}
 
 	private void lazyLoad() throws IOException {
-		connector = new TransportConnector(this);
+		connector = new RpcConnector(this);
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
 		connectionManager.start();

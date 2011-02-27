@@ -1,16 +1,16 @@
 package org.rayson.transport.common;
 
-public class PacketCarrier {
-	private byte code;
+public class PacketWithType {
+	private byte type;
 	private Packet packet;
 
-	public PacketCarrier(byte code, Packet packet) {
-		this.code = code;
+	public PacketWithType(byte type, Packet packet) {
+		this.type = type;
 		this.packet = packet;
 	}
 
-	public byte getCode() {
-		return code;
+	public byte getType() {
+		return type;
 	}
 
 	public Packet getPacket() {
@@ -21,8 +21,8 @@ public class PacketCarrier {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
-		sb.append("code: ");
-		sb.append(code);
+		sb.append("type: ");
+		sb.append(type);
 		sb.append(", packet: ");
 		sb.append(packet.toString());
 		sb.append("}");

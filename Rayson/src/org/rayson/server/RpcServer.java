@@ -1,7 +1,6 @@
 package org.rayson.server;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ import org.rayson.transport.server.TransportServerImpl;
 
 class RpcServer extends TransportServerImpl implements ServerService {
 	private static final String DEFAULT_SERVICE_NAME = "server";
-	private static final int DEDAULT_WORKER_COUNT = 4;
+	private static final int DEFAULT_WORKER_COUNT = 4;
 	private ConcurrentHashMap<String, RpcService> services;
 
 	RpcServer(int portNum) {
@@ -33,21 +32,21 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		// Register it self as a service.
 		try {
 			this.registerService(DEFAULT_SERVICE_NAME, this);
-		} catch (ServiceExistedException e) {
+		} catch (ServiceAlreadyExistedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// TODO: start this RPC server .
-		for (int i = 0; i < DEDAULT_WORKER_COUNT; i++) {
+		for (int i = 0; i < DEFAULT_WORKER_COUNT; i++) {
 			CallWorker callWorker = new CallWorker(this);
 			callWorker.start();
 		}
 	}
 
 	public void registerService(String serviceName, RpcService serviceInstance)
-			throws ServiceExistedException {
+			throws ServiceAlreadyExistedException {
 		if (services.putIfAbsent(serviceName, serviceInstance) != null)
-			throw new ServiceExistedException(serviceName);
+			throw new ServiceAlreadyExistedException(serviceName);
 	}
 
 	RpcService getService(String serviceName) throws ServiceNotFoundException {

@@ -8,8 +8,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.common.Invocation;
-import org.rayson.common.PortableRemoteException;
-import org.rayson.common.ResponseState;
+import org.rayson.common.InvocationException;
+import org.rayson.common.InvocationResult;
 import org.rayson.common.Stream;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
@@ -53,16 +53,16 @@ public class ClientCall<V> {
 	}
 
 	public void readResult(DataInput in) throws IOException {
-		ResponseState responseState = ResponseState.valueOf(in.readByte());
+		InvocationResult responseState = InvocationResult.valueOf(in.readByte());
 		switch (responseState) {
 		case SUCCESSFUL:
 			this.future.set((V) Stream.readPortable(in));
 			break;
 		case EXCEPTION:
-			PortableRemoteException remoteExceptionHandler = new PortableRemoteException();
+			InvocationException remoteExceptionHandler = new InvocationException();
 			remoteExceptionHandler.read(in);
 			this.future
-					.setException(remoteExceptionHandler.getThrowException());
+					.setException(remoteExceptionHandler.getException());
 			break;
 		default:
 			break;

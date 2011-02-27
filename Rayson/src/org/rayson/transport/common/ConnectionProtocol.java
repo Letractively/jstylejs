@@ -13,36 +13,36 @@ package org.rayson.transport.common;
  * <h4>Connection response format:</h4>
  * <table border="1">
  * <tr>
- * <td>response code(1)</td>
+ * <td>connection state(1)</td>
  * <td>reserved(127)</td>
  * </tr>
  * </table>
  * <br/>
- * See {@link ConnectionCode} about connection code. <br/>
+ * See {@link ConnectionState} about connection state. <br/>
  * 
  * <h4>Request packet format:</h4>
  * <table border="1">
  * <tr>
- * <td>request code(1)</td>
+ * <td>request type(1)</td>
  * <td>data length(2)</td>
  * <td>checksum(2)</td>
  * <td>data</td>
  * </tr>
  * </table>
  * <br/>
- * See {@link ResponseCode} about packet response code. <br/>
+ * See {@link ResponseType} about packet response type. <br/>
  * 
  * <h4>Response packet format:</h4>
  * <table border="1">
  * <tr>
- * <td>response code(1)</td>
+ * <td>response type(1)</td>
  * <td>data length(2)</td>
  * <td>checksum(2)</td>
  * <td>data</td>
  * </tr>
  * </table>
  * <br/>
- * See {@link RequestCode} about packet request code. <br/>
+ * See {@link RequestType} about packet request type. <br/>
  * 
  * <br>
  * Please notes, all size unit is <b>Byte</b>.

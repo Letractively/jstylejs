@@ -8,17 +8,17 @@ import org.rayson.api.RpcException;
 import org.rayson.api.Transportable;
 import org.rayson.util.Reflection;
 
-public class PortableRemoteException implements Transportable {
+public class InvocationException implements Transportable {
 	private Throwable throwException;
 	private boolean unDeclaredException;
 
 	private static final Class[] DEFAULT_CONSTRUCTOR_PARAMETER_TYPES = new Class[] { String.class };
 
-	public PortableRemoteException() {
+	public InvocationException() {
 
 	}
 
-	public PortableRemoteException(boolean unDeclaredException,
+	public InvocationException(boolean unDeclaredException,
 			Throwable thrownException) {
 		this.unDeclaredException = unDeclaredException;
 		if (unDeclaredException) {
@@ -67,7 +67,7 @@ public class PortableRemoteException implements Transportable {
 
 	}
 
-	public Throwable getThrowException() {
+	public Throwable getException() {
 		return throwException;
 	}
 

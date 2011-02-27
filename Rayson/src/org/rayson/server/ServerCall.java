@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.common.Invocation;
-import org.rayson.common.PortableRemoteException;
-import org.rayson.common.ResponseState;
+import org.rayson.common.InvocationException;
+import org.rayson.common.InvocationResult;
 import org.rayson.common.Stream;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
@@ -23,7 +23,7 @@ public class ServerCall {
 	private Invocation invocation;
 	private Object result;
 	private Packet responsePacket;
-	private PortableRemoteException remoteExceptionHandler;
+	private InvocationException remoteExceptionHandler;
 
 	private ServerCall() {
 		this.id = UID.getAndIncrement();
@@ -75,10 +75,10 @@ public class ServerCall {
 			dataOutputStream.writeLong(clientCallId);
 
 			if (remoteExceptionHandler != null) {
-				dataOutputStream.writeByte(ResponseState.EXCEPTION.getState());
+				dataOutputStream.writeByte(InvocationResult.EXCEPTION.getType());
 				remoteExceptionHandler.write(dataOutputStream);
 			} else {
-				dataOutputStream.writeByte(ResponseState.SUCCESSFUL.getState());
+				dataOutputStream.writeByte(InvocationResult.SUCCESSFUL.getType());
 				Stream.writePortable(dataOutputStream, result);
 			}
 			packet = new Packet(byteArrayOutputStream.toByteArray());
@@ -94,7 +94,7 @@ public class ServerCall {
 	}
 
 	void setException(boolean unDeclaredException, Throwable t) {
-		this.remoteExceptionHandler = new PortableRemoteException(
+		this.remoteExceptionHandler = new InvocationException(
 				unDeclaredException, t);
 	}
 }

@@ -14,19 +14,19 @@ import java.util.logging.Logger;
 import org.rayson.transport.common.CRC16;
 import org.rayson.transport.common.ChecksumMatchException;
 import org.rayson.transport.common.Connection;
-import org.rayson.transport.common.ConnectionCode;
+import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.Packet;
-import org.rayson.transport.common.PacketCarrier;
+import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
-import org.rayson.transport.common.ResponseCode;
+import org.rayson.transport.common.ResponseType;
 
 class ServerConnection implements Connection {
 
 	private class PacketWriter {
-		private PacketCarrier lastPacketCarrier;
+		private PacketWithType lastPacketCarrier;
 		private ByteBuffer writeDataBuffer;
 
 		private void write() throws IOException {
@@ -35,7 +35,7 @@ class ServerConnection implements Connection {
 
 					this.lastPacketCarrier = sendPackets.remove();
 				}
-				byte code = this.lastPacketCarrier.getCode();
+				byte code = this.lastPacketCarrier.getType();
 				short dataLength = this.lastPacketCarrier.getPacket()
 						.getDataLength();
 				byte[] data = this.lastPacketCarrier.getPacket().getData();
@@ -77,7 +77,7 @@ class ServerConnection implements Connection {
 	private AtomicBoolean closed;
 
 	private ByteBuffer connectHeaderBuffer;
-	private ConnectionCode connectionCode;
+	private ConnectionState connectionState;
 	private ByteBuffer connectResponseBuffer;
 
 	private ByteBuffer errorResponseBuffer;
@@ -96,7 +96,7 @@ class ServerConnection implements Connection {
 
 	private boolean readedConnectHeader = false;
 	private SelectionKey selectionKey;
-	private Queue<PacketCarrier> sendPackets;
+	private Queue<PacketWithType> sendPackets;
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
 
@@ -110,13 +110,13 @@ class ServerConnection implements Connection {
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 		this.packetManager = packetManager;
 		closed = new AtomicBoolean(false);
-		sendPackets = new LinkedList<PacketCarrier>();
+		sendPackets = new LinkedList<PacketWithType>();
 		lastContact = System.currentTimeMillis();
 		packetCounter = new PacketCounter();
 		gotErrorPacket = new AtomicBoolean(false);
 		this.selectionKey = selectionKey;
 		this.socketChannel = clientChannel;
-		setConnectionCode(ConnectionCode.OK);
+		setConnectionState(ConnectionState.OK);
 		packetWriter = new PacketWriter();
 		packetReader = new ServerPacketReader(this.socketChannel);
 	}
@@ -132,7 +132,7 @@ class ServerConnection implements Connection {
 	@Override
 	public void addSendPacket(Packet packet) throws IOException {
 		synchronized (sendPackets) {
-			this.sendPackets.add(new PacketCarrier(ResponseCode.OK.getCode(),
+			this.sendPackets.add(new PacketWithType(ResponseType.OK.getType(),
 					packet));
 		}
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
@@ -154,7 +154,7 @@ class ServerConnection implements Connection {
 	 */
 	void denyToAccept() {
 		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
-		setConnectionCode(ConnectionCode.SERVICE_UNAVALIABLE);
+		setConnectionState(ConnectionState.SERVICE_UNAVALIABLE);
 	}
 
 	@Override
@@ -172,16 +172,16 @@ class ServerConnection implements Connection {
 		return version;
 	}
 
-	private void gotErrorPacket(ResponseCode responseCode) throws IOException {
+	private void gotErrorPacket(ResponseType responseType) throws IOException {
 		gotErrorPacket.set(true);
 		// Initialize error response buffer.
-		byte code = responseCode.getCode();
+		byte type = responseType.getType();
 		short dataLength = 0;
 		byte[] data = new byte[dataLength];
-		short checksum = CRC16.compute(code, dataLength, data);
+		short checksum = CRC16.compute(type, dataLength, data);
 		errorResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.PACKET_HEADER_LENGTH);
-		errorResponseBuffer.put(code);
+		errorResponseBuffer.put(type);
 		errorResponseBuffer.putShort(dataLength);
 		errorResponseBuffer.putShort(checksum);
 		errorResponseBuffer.flip();
@@ -198,7 +198,7 @@ class ServerConnection implements Connection {
 			protocol = connectHeaderBuffer.get();
 			short gotVersion = connectHeaderBuffer.getShort();
 			if (gotVersion > version)
-				setConnectionCode(ConnectionCode.WRONG_VERSION);
+				setConnectionState(ConnectionState.WRONG_VERSION);
 			this.selectionKey.interestOps(SelectionKey.OP_WRITE
 					| SelectionKey.OP_READ);
 			readedConnectHeader = true;
@@ -228,15 +228,15 @@ class ServerConnection implements Connection {
 				readCount = packetReader.read();
 			} catch (ChecksumMatchException e) {
 				LOGGER.log(Level.SEVERE, "Read packet error: " + e.getMessage());
-				gotErrorPacket(ResponseCode.CRC_ERROR);
+				gotErrorPacket(ResponseType.CRC_ERROR);
 				return 0;
 			} catch (PacketException e) {
 				LOGGER.log(Level.SEVERE, "Read packet error: " + e.getMessage());
-				gotErrorPacket(ResponseCode.UNKNOW_REQUEST_CODE);
+				gotErrorPacket(ResponseType.UNKNOW_REQUEST_Type);
 				return 0;
 			}
 			if (packetReader.isReady()) {
-				addReceivedPacket(packetReader.takeLastCarrier().getPacket());
+				addReceivedPacket(packetReader.takeLastWithType().getPacket());
 			}
 			return readCount;
 		} else {
@@ -245,10 +245,10 @@ class ServerConnection implements Connection {
 		}
 	}
 
-	private void setConnectionCode(ConnectionCode connectionCode) {
-		this.connectionCode = connectionCode;
+	private void setConnectionState(ConnectionState connectionCode) {
+		this.connectionState = connectionCode;
 		this.connectResponseBuffer.clear();
-		this.connectResponseBuffer.put(connectionCode.getCode());
+		this.connectResponseBuffer.put(connectionCode.getState());
 		this.connectResponseBuffer.clear();
 	}
 
@@ -299,7 +299,7 @@ class ServerConnection implements Connection {
 				this.selectionKey.interestOps(SelectionKey.OP_READ);
 				wroteConnectCode = true;
 				// try close this connection itself.
-				switch (connectionCode) {
+				switch (connectionState) {
 				case SERVICE_UNAVALIABLE:
 					try {
 						this.close();
