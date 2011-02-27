@@ -14,4 +14,12 @@ public final class Stream {
 		return PortableObject.readObject(in);
 	}
 
+	public static boolean isPortableType(Class type) {
+		try {
+			PortableObject.verifyPortable(type);
+		} catch (UnportableTypeException e) {
+			return false;
+		}
+		return true;
+	}
 }

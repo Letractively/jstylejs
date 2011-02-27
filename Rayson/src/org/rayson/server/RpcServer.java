@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.rayson.api.IllegalServiceException;
 import org.rayson.api.RpcException;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
@@ -34,9 +35,8 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		try {
 			this.registerService(DEFAULT_SERVICE_NAME,
 					DEFAULT_SERVICE_DESCRIPTION, this);
-		} catch (ServiceAlreadyExistedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 		// TODO: start this RPC server .
 		for (int i = 0; i < DEFAULT_WORKER_COUNT; i++) {
@@ -46,7 +46,8 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	public void registerService(String serviceName, String description,
-			RpcService serviceInstance) throws ServiceAlreadyExistedException {
+			RpcService serviceInstance) throws ServiceAlreadyExistedException,
+			IllegalServiceException {
 		synchronized (services) {
 			if (services.containsKey(serviceName))
 				throw new ServiceAlreadyExistedException(serviceName);
@@ -65,7 +66,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration[] getServices() throws RpcException {
+	public ServiceRegistration[] list() throws RpcException {
 		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
 		for (Entry<String, Service> entry : services.entrySet()) {
 			Service service = entry.getValue();
@@ -96,8 +97,8 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration getRegistration(String serviceName)
-			throws RpcException, ServiceNotFoundException {
+	public ServiceRegistration find(String serviceName) throws RpcException,
+			ServiceNotFoundException {
 		Service service = getService(serviceName);
 		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
 				service.getName(), service.getDescription(),

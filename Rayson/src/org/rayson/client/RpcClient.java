@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.rayson.api.IllegalServiceException;
 import org.rayson.api.RpcException;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
@@ -105,7 +106,8 @@ public class RpcClient {
 	}
 
 	public <T extends RpcService> T createProxy(Class<T> serviceClass,
-			String serviceName, SocketAddress serverAddress) {
+			String serviceName, SocketAddress serverAddress)
+			throws IllegalServiceException {
 		synchronized (loaded) {
 			if (loaded.compareAndSet(false, true))
 				lazyLoad();
@@ -142,13 +144,13 @@ public class RpcClient {
 	}
 
 	public static void main(String[] args) throws UnknownHostException,
-			RpcException, ServiceNotFoundException {
+			RpcException, ServiceNotFoundException, IllegalServiceException {
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
 		ServerService rpcService = RpcClient.getInstance().createProxy(
 				ServerService.class, "server", serverAddress);
-		ServiceRegistration[] serviceDescriptions = rpcService.getServices();
+		ServiceRegistration[] serviceDescriptions = rpcService.list();
 		for (ServiceRegistration serviceDescription : serviceDescriptions) {
 			System.out.println(serviceDescription.toString());
 		}

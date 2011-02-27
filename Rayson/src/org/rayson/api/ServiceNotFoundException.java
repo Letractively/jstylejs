@@ -1,6 +1,6 @@
 package org.rayson.api;
 
-public class ServiceNotFoundException extends Exception {
+public final class ServiceNotFoundException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 

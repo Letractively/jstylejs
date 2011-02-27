@@ -21,7 +21,7 @@ public class Invocation implements Transportable {
 	}
 
 	public Invocation(String serviceName, Method method, Object[] parameters)
-			throws UnsupportedPortableObjectException {
+			throws UnportableTypeException {
 		this.serviceName = serviceName;
 		this.methodName = method.getName();
 		this.parameters = parameters;

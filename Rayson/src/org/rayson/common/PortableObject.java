@@ -23,6 +23,7 @@ abstract class PortableObject<T> {
 	public static final byte STRING_TYPE = 10;
 	public static final byte TRANSPORTABLE_TYPE = 30;
 	public static final byte NULL_TYPE = 0;
+	public static final byte VOID_TYPE = -1;
 	public static final byte ARRAY_TYPE = 19;
 
 	private static final PortableObject<String> STRING = new PortableObject<String>(
@@ -38,8 +39,27 @@ abstract class PortableObject<T> {
 			out.writeUTF(value);
 		}
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return String.class;
+		}
+	};
+	private static final PortableObject<Void> VOID = new PortableObject<Void>(
+			VOID_TYPE) {
+
+		@Override
+		Class getJavaClass() {
+			return Void.class;
+		}
+
+		@Override
+		public Void read(DataInput in) throws IOException {
+			return null;
+		}
+
+		@Override
+		public void write(DataOutput out, Void value) throws IOException {
+			return;
 		}
 	};
 
@@ -56,7 +76,7 @@ abstract class PortableObject<T> {
 			PortableObject portableObject;
 			try {
 				portableObject = objectOf(itemType);
-			} catch (UnsupportedPortableObjectException e) {
+			} catch (UnportableTypeException e) {
 				throw new IOException(e);
 			}
 			if (portableObject == TRANSPORTABLE)
@@ -94,7 +114,7 @@ abstract class PortableObject<T> {
 				out.writeByte(commponentObject.getType());
 				if (commponentObject == TRANSPORTABLE)
 					portableArray = true;
-			} catch (UnsupportedPortableObjectException e) {
+			} catch (UnportableTypeException e) {
 				throw new IOException(e);
 			}
 			// write array length
@@ -115,7 +135,8 @@ abstract class PortableObject<T> {
 
 		}
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return Array.class;
 		}
 	};
@@ -147,7 +168,8 @@ abstract class PortableObject<T> {
 			value.write(out);
 		}
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return Transportable.class;
 		}
 
@@ -165,7 +187,8 @@ abstract class PortableObject<T> {
 
 		}
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return null;
 		}
 
@@ -183,7 +206,8 @@ abstract class PortableObject<T> {
 			out.writeByte(value);
 		}
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return Byte.class;
 		}
 	};
@@ -200,7 +224,8 @@ abstract class PortableObject<T> {
 			out.writeChar(value);
 		}
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return Character.class;
 		}
 	};
@@ -208,7 +233,8 @@ abstract class PortableObject<T> {
 	private static final PortableObject<Short> SHORT = new PortableObject<Short>(
 			SHORT_TYPE) {
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return Short.class;
 		}
 
@@ -253,14 +279,16 @@ abstract class PortableObject<T> {
 			out.writeDouble(value);
 		}
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return Double.class;
 		}
 	};
 	private static final PortableObject<Float> FLOAT = new PortableObject<Float>(
 			FLOAT_TYPE) {
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return Float.class;
 		};
 
@@ -288,7 +316,8 @@ abstract class PortableObject<T> {
 			out.writeInt(value);
 		}
 
-		@Override Class getJavaClass() {
+		@Override
+		Class getJavaClass() {
 			return Integer.class;
 		}
 	};
@@ -306,6 +335,8 @@ abstract class PortableObject<T> {
 		TYPE_OBJECTS.put(NULL_TYPE, NULL);
 		TYPE_OBJECTS.put(ARRAY_TYPE, ARRAY);
 		TYPE_OBJECTS.put(STRING_TYPE, STRING);
+		TYPE_OBJECTS.put(VOID_TYPE, VOID);
+
 	}
 
 	private static HashMap<Class, PortableObject> CLASS_OBJECTS = new HashMap<Class, PortableObject>();
@@ -318,6 +349,16 @@ abstract class PortableObject<T> {
 		CLASS_OBJECTS.put(Float.class, FLOAT);
 		CLASS_OBJECTS.put(Double.class, DOUBLE);
 		CLASS_OBJECTS.put(String.class, STRING);
+		CLASS_OBJECTS.put(Void.class, VOID);
+
+		CLASS_OBJECTS.put(byte.class, BYTE);
+		CLASS_OBJECTS.put(char.class, CHAR);
+		CLASS_OBJECTS.put(short.class, SHORT);
+		CLASS_OBJECTS.put(int.class, INT);
+		CLASS_OBJECTS.put(long.class, LONG);
+		CLASS_OBJECTS.put(long.class, FLOAT);
+		CLASS_OBJECTS.put(double.class, DOUBLE);
+		CLASS_OBJECTS.put(void.class, VOID);
 	}
 
 	public static void writeObject(DataOutput out, Object value)
@@ -325,7 +366,7 @@ abstract class PortableObject<T> {
 		PortableObject object;
 		try {
 			object = objectOf(value);
-		} catch (UnsupportedPortableObjectException e) {
+		} catch (UnportableTypeException e) {
 			throw new IOException(e);
 		}
 		out.writeByte(object.getType());
@@ -337,34 +378,43 @@ abstract class PortableObject<T> {
 		PortableObject object;
 		try {
 			object = objectOf(type);
-		} catch (UnsupportedPortableObjectException e) {
+		} catch (UnportableTypeException e) {
 			throw new IOException(e);
 		}
 		return object.read(in);
 	}
 
+	public static void verifyPortable(Class klass)
+			throws UnportableTypeException {
+		PortableObject portableObject = objectOf(klass);
+		if (portableObject == ARRAY) {
+			// verify component type.
+			verifyPortable(klass.getComponentType());
+		}
+	}
+
 	private static PortableObject objectOf(Class klass)
-			throws UnsupportedPortableObjectException {
+			throws UnportableTypeException {
 		if (klass.isArray())
 			return ARRAY;
 		if (Transportable.class.isAssignableFrom(klass))
 			return TRANSPORTABLE;
 		PortableObject ioObject = CLASS_OBJECTS.get(klass);
 		if (ioObject == null)
-			throw new UnsupportedPortableObjectException();
+			throw new UnportableTypeException();
 		return ioObject;
 	}
 
 	private static PortableObject objectOf(byte type)
-			throws UnsupportedPortableObjectException {
+			throws UnportableTypeException {
 		PortableObject ioObject = TYPE_OBJECTS.get(type);
 		if (ioObject == null)
-			throw new UnsupportedPortableObjectException();
+			throw new UnportableTypeException();
 		return ioObject;
 	}
 
 	private static PortableObject objectOf(Object value)
-			throws UnsupportedPortableObjectException {
+			throws UnportableTypeException {
 		if (value == null)
 			return NULL;
 		return objectOf(value.getClass());
@@ -378,8 +428,7 @@ abstract class PortableObject<T> {
 		return type;
 	}
 
-	public static void main(String[] args)
-			throws UnsupportedPortableObjectException {
+	public static void main(String[] args) throws UnportableTypeException {
 		System.out.println(objectOf((byte) 1));
 		System.out.println(objectOf('c'));
 		System.out.println(objectOf(1));
@@ -387,6 +436,7 @@ abstract class PortableObject<T> {
 		System.out.println(objectOf(3F));
 		System.out.println(objectOf(4D));
 		System.out.println(objectOf(""));
+		System.out.println(objectOf(void.class));
 		System.out.println(objectOf(new byte[] {}));
 		// System.out.println(objectOf(new Invocation("", null, null)));
 
