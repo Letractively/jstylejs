@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import org.rayson.api.RpcException;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
-import org.rayson.api.ServiceDescription;
+import org.rayson.api.ServiceRegistration;
 import org.rayson.api.ServiceNotFoundException;
 import org.rayson.common.Invocation;
 import org.rayson.impl.ServiceDescriptionImpl;
@@ -18,6 +18,7 @@ import org.rayson.transport.server.TransportServerImpl;
 
 class RpcServer extends TransportServerImpl implements ServerService {
 	private static final String DEFAULT_SERVICE_NAME = "server";
+	private static final String DEFAULT_SERVICE_DESCRIPTION = "Rpc server default service";
 	private static final int DEFAULT_WORKER_COUNT = 4;
 	private HashMap<String, Service> services;
 
@@ -31,7 +32,8 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		super.start();
 		// Register it self as a service.
 		try {
-			this.registerService(DEFAULT_SERVICE_NAME, this);
+			this.registerService(DEFAULT_SERVICE_NAME,
+					DEFAULT_SERVICE_DESCRIPTION, this);
 		} catch (ServiceAlreadyExistedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -43,12 +45,13 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		}
 	}
 
-	public void registerService(String serviceName, RpcService serviceInstance)
-			throws ServiceAlreadyExistedException {
+	public void registerService(String serviceName, String description,
+			RpcService serviceInstance) throws ServiceAlreadyExistedException {
 		synchronized (services) {
 			if (services.containsKey(serviceName))
 				throw new ServiceAlreadyExistedException(serviceName);
-			Service service = new Service(serviceName, serviceInstance);
+			Service service = new Service(serviceName, description,
+					serviceInstance);
 			services.put(serviceName, service);
 		}
 	}
@@ -62,11 +65,12 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceDescription[] getServices() throws RpcException {
-		List<ServiceDescription> list = new ArrayList<ServiceDescription>();
+	public ServiceRegistration[] getServices() throws RpcException {
+		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
 		for (Entry<String, Service> entry : services.entrySet()) {
-			list.add(new ServiceDescriptionImpl(entry.getKey(), entry
-					.getValue().getProtocols()));
+			Service service = entry.getValue();
+			list.add(new ServiceDescriptionImpl(service.getName(), service
+					.getDescription(), service.getProtocols()));
 		}
 		return list.toArray(new ServiceDescriptionImpl[0]);
 	}
@@ -92,10 +96,12 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceDescription getDescription(String serviceName)
+	public ServiceRegistration getRegistration(String serviceName)
 			throws RpcException, ServiceNotFoundException {
+		Service service = getService(serviceName);
 		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
-				serviceName, getService(serviceName).getProtocols());
+				service.getName(), service.getDescription(),
+				service.getProtocols());
 		return serviceDescription;
 
 	}

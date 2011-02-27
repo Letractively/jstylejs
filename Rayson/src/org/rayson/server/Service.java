@@ -7,9 +7,11 @@ class Service {
 	private String name;
 	private RpcService instance;
 	private Class<? extends RpcService>[] protocols;
+	private String description;
 
-	Service(String name, RpcService instance) {
+	Service(String name, String description, RpcService instance) {
 		this.name = name;
+		this.description = description;
 		this.instance = instance;
 		this.protocols = ServiceParser.getProtocols(instance);
 	}
@@ -20,6 +22,10 @@ class Service {
 
 	public RpcService getInstance() {
 		return instance;
+	}
+
+	public String getDescription() {
+		return this.description;
 	}
 
 	public Class<? extends RpcService>[] getProtocols() {

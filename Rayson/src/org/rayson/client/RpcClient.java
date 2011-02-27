@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.rayson.api.RpcException;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
-import org.rayson.api.ServiceDescription;
+import org.rayson.api.ServiceRegistration;
 import org.rayson.api.ServiceNotFoundException;
 import org.rayson.common.Invocation;
 import org.rayson.transport.client.TransportClient;
@@ -148,8 +148,8 @@ public class RpcClient {
 
 		ServerService rpcService = RpcClient.getInstance().createProxy(
 				ServerService.class, "server", serverAddress);
-		ServiceDescription[] serviceDescriptions = rpcService.getServices();
-		for (ServiceDescription serviceDescription : serviceDescriptions) {
+		ServiceRegistration[] serviceDescriptions = rpcService.getServices();
+		for (ServiceRegistration serviceDescription : serviceDescriptions) {
 			System.out.println(serviceDescription.toString());
 		}
 	}
