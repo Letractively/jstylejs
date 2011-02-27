@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
-import org.rayson.common.InvocationResult;
+import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
@@ -75,10 +75,10 @@ public class ServerCall {
 			dataOutputStream.writeLong(clientCallId);
 
 			if (remoteExceptionHandler != null) {
-				dataOutputStream.writeByte(InvocationResult.EXCEPTION.getType());
+				dataOutputStream.writeByte(InvocationResultType.EXCEPTION.getType());
 				remoteExceptionHandler.write(dataOutputStream);
 			} else {
-				dataOutputStream.writeByte(InvocationResult.SUCCESSFUL.getType());
+				dataOutputStream.writeByte(InvocationResultType.SUCCESSFUL.getType());
 				Stream.writePortable(dataOutputStream, result);
 			}
 			packet = new Packet(byteArrayOutputStream.toByteArray());

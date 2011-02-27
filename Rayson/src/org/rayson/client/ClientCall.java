@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
-import org.rayson.common.InvocationResult;
+import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
@@ -53,8 +53,8 @@ public class ClientCall<V> {
 	}
 
 	public void readResult(DataInput in) throws IOException {
-		InvocationResult responseState = InvocationResult.valueOf(in.readByte());
-		switch (responseState) {
+		InvocationResultType resultType = InvocationResultType.valueOf(in.readByte());
+		switch (resultType) {
 		case SUCCESSFUL:
 			this.future.set((V) Stream.readPortable(in));
 			break;
