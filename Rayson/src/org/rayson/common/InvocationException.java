@@ -4,7 +4,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.rayson.api.RpcException;
 import org.rayson.api.Transportable;
 import org.rayson.util.Reflection;
 

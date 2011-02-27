@@ -8,8 +8,6 @@ import java.util.logging.Logger;
 public class TransportServerImpl extends TransportServer {
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-	public static final int PORT_NUMBER = 4465;
-
 	private static final int version = 1;
 
 	public static void main(String[] args) throws IOException {

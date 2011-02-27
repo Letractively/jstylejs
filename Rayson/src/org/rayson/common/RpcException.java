@@ -1,4 +1,4 @@
-package org.rayson.api;
+package org.rayson.common;
 
 public final class RpcException extends Exception {
 	private static final long serialVersionUID = 1L;

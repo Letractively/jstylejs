@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 
 public abstract class TransportServer {
-
+	public static final int PORT_NUMBER = 4465;
 	private ConnectionManager connectionManager;
 	private RpcConnector connector;
 	private PacketManager packetManager;

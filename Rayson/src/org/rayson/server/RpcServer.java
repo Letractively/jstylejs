@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.rayson.api.IllegalServiceException;
-import org.rayson.api.RpcException;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.ServiceNotFoundException;
 import org.rayson.common.Invocation;
+import org.rayson.common.RpcException;
 import org.rayson.impl.ServiceDescriptionImpl;
 import org.rayson.transport.server.TransportServerImpl;
 
@@ -66,7 +66,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration[] list() throws RpcException {
+	public ServiceRegistration[] list() {
 		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
 		for (Entry<String, Service> entry : services.entrySet()) {
 			Service service = entry.getValue();
@@ -97,8 +97,8 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration find(String serviceName) throws RpcException,
-			ServiceNotFoundException {
+	public ServiceRegistration find(String serviceName)
+			throws ServiceNotFoundException {
 		Service service = getService(serviceName);
 		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
 				service.getName(), service.getDescription(),
