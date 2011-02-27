@@ -1,14 +1,36 @@
 package org.rayson.server;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
 
 import org.junit.Test;
+import org.rayson.api.IllegalServiceException;
 
 public class RpcServerTest {
 
 	@Test
 	public void testStart() {
 		fail("Not yet implemented");
+	}
+
+	public static void startTestServer() {
+		try {
+			RpcServer rpcServer = new RpcServer(RpcServer.PORT_NUMBER);
+			rpcServer.start();
+
+			rpcServer.registerService("demo", "Demo service",
+					new DemoRpcService());
+		} catch (ServiceAlreadyExistedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Test
