@@ -73,7 +73,7 @@ public class Invocation implements Transportable {
 		}
 		// read parameter object
 		for (int i = 0; i < paraLength; i++) {
-			this.parameters[i] = PortableObject.readObject(in);
+			this.parameters[i] = Stream.readPortable(in);
 		}
 	}
 
@@ -89,7 +89,7 @@ public class Invocation implements Transportable {
 		}
 		// write paramter objects.
 		for (int i = 0; i < paraLenth; i++) {
-			PortableObject.writeObject(out, this.parameters[i]);
+			Stream.writePortable(out, this.parameters[i]);
 		}
 	}
 

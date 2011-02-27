@@ -32,7 +32,7 @@ public class InvocationException implements Transportable {
 	public void read(DataInput in) throws IOException {
 		this.unDeclaredException = in.readBoolean();
 		String className = in.readUTF();
-		String message = (String) PortableObject.readObject(in);
+		String message = (String) Stream.readPortable(in);
 
 		try {
 			Throwable throwable = (Throwable) Reflection.newInstance(className,
@@ -63,8 +63,7 @@ public class InvocationException implements Transportable {
 		// write class name.
 		out.writeUTF(className);
 		// write error message.
-		PortableObject.writeObject(out, message);
-
+		Stream.writePortable(out, message);
 	}
 
 	public Throwable getException() {

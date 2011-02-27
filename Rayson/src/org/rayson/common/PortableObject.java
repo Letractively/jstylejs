@@ -96,7 +96,7 @@ abstract class PortableObject<T> {
 			for (int i = 0; i < arrayLength; i++) {
 				Object arrayItem;
 				if (portableArray)
-					arrayItem = PortableObject.readObject(in);
+					arrayItem = Stream.readPortable(in);
 				else
 					arrayItem = portableObject.read(in);
 				Array.set(array, i, arrayItem);
@@ -127,7 +127,7 @@ abstract class PortableObject<T> {
 			for (int i = 0; i < arrayLength; i++) {
 				Object arrayItem = Array.get(value, i);
 				if (portableArray) {
-					writeObject(out, arrayItem);
+					Stream.writePortable(out, arrayItem);
 				} else {
 					commponentObject.write(out, arrayItem);
 				}
@@ -362,25 +362,18 @@ abstract class PortableObject<T> {
 	}
 
 	public static void writeObject(DataOutput out, Object value)
-			throws IOException {
+			throws IOException, UnportableTypeException {
 		PortableObject object;
-		try {
-			object = objectOf(value);
-		} catch (UnportableTypeException e) {
-			throw new IOException(e);
-		}
+		object = objectOf(value);
 		out.writeByte(object.getType());
 		object.write(out, value);
 	}
 
-	public static Object readObject(DataInput in) throws IOException {
+	public static Object readObject(DataInput in) throws IOException,
+			UnportableTypeException {
 		byte type = in.readByte();
 		PortableObject object;
-		try {
-			object = objectOf(type);
-		} catch (UnportableTypeException e) {
-			throw new IOException(e);
-		}
+		object = objectOf(type);
 		return object.read(in);
 	}
 

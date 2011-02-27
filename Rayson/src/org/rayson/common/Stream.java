@@ -7,11 +7,19 @@ import java.io.IOException;
 public final class Stream {
 	public static void writePortable(DataOutput out, Object value)
 			throws IOException {
-		PortableObject.writeObject(out, value);
+		try {
+			PortableObject.writeObject(out, value);
+		} catch (UnportableTypeException e) {
+			throw new IOException(e);
+		}
 	}
 
 	public static Object readPortable(DataInput in) throws IOException {
-		return PortableObject.readObject(in);
+		try {
+			return PortableObject.readObject(in);
+		} catch (UnportableTypeException e) {
+			throw new IOException(e);
+		}
 	}
 
 	public static boolean isPortableType(Class type) {
