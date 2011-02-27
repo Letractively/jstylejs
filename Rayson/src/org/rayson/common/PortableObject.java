@@ -13,18 +13,18 @@ abstract class PortableObject<T> {
 
 	private byte type;
 
-	private static final byte BYTE_TYPE = 1;
-	private static final byte CHAR_TYPE = 2;
-	private static final byte SHORT_TYPE = 3;
-	private static final byte INT_TYPE = 4;
-	private static final byte LONG_TYPE = 5;
-	private static final byte DOUBLE_TYPE = 6;
-	private static final byte FLOAT_TYPE = 7;
+	public static final byte BYTE_TYPE = 1;
+	public static final byte CHAR_TYPE = 2;
+	public static final byte SHORT_TYPE = 3;
+	public static final byte INT_TYPE = 4;
+	public static final byte LONG_TYPE = 5;
+	public static final byte DOUBLE_TYPE = 6;
+	public static final byte FLOAT_TYPE = 7;
+	public static final byte STRING_TYPE = 10;
+	public static final byte TRANSPORTABLE_TYPE = 30;
+	public static final byte NULL_TYPE = 0;
+	public static final byte ARRAY_TYPE = 19;
 
-	private static final byte STRING_TYPE = 10;
-	private static final byte TRANSPORTABLE_TYPE = 30;
-	private static final byte NULL_TYPE = 0;
-	private static final byte ARRAY_TYPE = 19;
 	private static final PortableObject<String> STRING = new PortableObject<String>(
 			STRING_TYPE) {
 
@@ -38,8 +38,7 @@ abstract class PortableObject<T> {
 			out.writeUTF(value);
 		}
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return String.class;
 		}
 	};
@@ -116,8 +115,7 @@ abstract class PortableObject<T> {
 
 		}
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return Array.class;
 		}
 	};
@@ -149,8 +147,7 @@ abstract class PortableObject<T> {
 			value.write(out);
 		}
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return Transportable.class;
 		}
 
@@ -168,8 +165,7 @@ abstract class PortableObject<T> {
 
 		}
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return null;
 		}
 
@@ -187,8 +183,7 @@ abstract class PortableObject<T> {
 			out.writeByte(value);
 		}
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return Byte.class;
 		}
 	};
@@ -205,8 +200,7 @@ abstract class PortableObject<T> {
 			out.writeChar(value);
 		}
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return Character.class;
 		}
 	};
@@ -214,8 +208,7 @@ abstract class PortableObject<T> {
 	private static final PortableObject<Short> SHORT = new PortableObject<Short>(
 			SHORT_TYPE) {
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return Short.class;
 		}
 
@@ -233,7 +226,7 @@ abstract class PortableObject<T> {
 	private static final PortableObject<Long> LONG = new PortableObject<Long>(
 			LONG_TYPE) {
 
-		public Class getJavaClass() {
+		Class getJavaClass() {
 			return Short.class;
 		};
 
@@ -260,16 +253,14 @@ abstract class PortableObject<T> {
 			out.writeDouble(value);
 		}
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return Double.class;
 		}
 	};
 	private static final PortableObject<Float> FLOAT = new PortableObject<Float>(
 			FLOAT_TYPE) {
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return Float.class;
 		};
 
@@ -297,8 +288,7 @@ abstract class PortableObject<T> {
 			out.writeInt(value);
 		}
 
-		@Override
-		public Class getJavaClass() {
+		@Override Class getJavaClass() {
 			return Integer.class;
 		}
 	};
@@ -384,11 +374,12 @@ abstract class PortableObject<T> {
 		this.type = type;
 	}
 
-	public byte getType() {
+	byte getType() {
 		return type;
 	}
 
-	public static void main(String[] args) throws UnsupportedPortableObjectException {
+	public static void main(String[] args)
+			throws UnsupportedPortableObjectException {
 		System.out.println(objectOf((byte) 1));
 		System.out.println(objectOf('c'));
 		System.out.println(objectOf(1));
@@ -401,11 +392,11 @@ abstract class PortableObject<T> {
 
 	}
 
-	public final String getName() {
+	final String getName() {
 		return getJavaClass().getSimpleName();
 	}
 
-	public abstract Class getJavaClass();
+	abstract Class getJavaClass();
 
 	@Override
 	public String toString() {

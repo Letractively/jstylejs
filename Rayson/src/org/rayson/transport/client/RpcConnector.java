@@ -1,9 +1,7 @@
 package org.rayson.transport.client;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.HashMap;
@@ -37,10 +35,6 @@ public class RpcConnector {
 
 	private static final int BUFFER_SIZE = 1024;
 
-	public void responseCall(Packet responsePacket) {
-		// TODO:
-	}
-
 	public void sumbitCall(SocketAddress serverAddress, ClientCall call)
 			throws ConnectException, IOException {
 		ClientConnection connection = client.getConnection(serverAddress);
@@ -49,8 +43,7 @@ public class RpcConnector {
 		this.calls.put(call.getId(), callWrapper);
 	}
 
-	public ClientCall responseCall() throws InterruptedException,
-			IOException {
+	public ClientCall responseCall() throws InterruptedException, IOException {
 		Packet receivedPacket = this.client.getPacketManager().takeReceived();
 		ClientCall call = fromReceivePacket(receivedPacket);
 		return call;
