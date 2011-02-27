@@ -217,7 +217,7 @@ public class RpcClient {
 				throw new UndeclaredThrowableException(cause);
 		} catch (Throwable e) {
 			// never be there.
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
