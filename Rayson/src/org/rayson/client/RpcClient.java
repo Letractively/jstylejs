@@ -75,7 +75,11 @@ public class RpcClient {
 				throws Throwable {
 			Invocation invocation = new Invocation(serviceName, method, args);
 			ClientCall call = new ClientCall(invocation);
-			RpcClient.getInstance().submitCall(serverAddress, call);
+			try {
+				RpcClient.getInstance().submitCall(serverAddress, call);
+			} catch (Throwable e) {
+				throw new RpcException(e);
+			}
 			Object result;
 			try {
 

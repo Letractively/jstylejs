@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import org.rayson.api.RpcService;
+import org.rayson.api.ServiceNotFoundException;
 import org.rayson.api.Transportable;
 
 public class Invocation implements Transportable {
@@ -34,8 +35,14 @@ public class Invocation implements Transportable {
 
 	public Object invoke(RpcService serviceObject)
 			throws UndeclaredThrowableException, Throwable {
-		Method method = serviceObject.getClass().getMethod(methodName,
-				paraTypes);
+		Method method;
+		try {
+			method = serviceObject.getClass().getMethod(methodName, paraTypes);
+		} catch (Exception e) {
+			throw new UndeclaredThrowableException(
+					new ServiceNotFoundException("service of " + serviceName
+							+ "." + methodName + " not found"));
+		}
 		method.setAccessible(true);
 		Object result = null;
 		try {
