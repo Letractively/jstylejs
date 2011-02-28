@@ -25,7 +25,6 @@ public class Demo {
 		try {
 			int returnI = Rayson.call(Integer.MIN_VALUE);
 			testRpcService.echo("hello world");
-
 			System.out.println(Rayson.call(testRpcService.echo("hello world")));
 
 		} catch (EOFException e) {

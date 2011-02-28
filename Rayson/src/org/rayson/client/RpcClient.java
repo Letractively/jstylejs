@@ -27,19 +27,22 @@ class RpcClient {
 
 		private RpcServiceProxy lastProxy;
 		private ClientCall lastCall;
+		private StackTraceElement lastStackTraceElement;
 
-		public void setLast(RpcServiceProxy lastProxy, ClientCall lastCall) {
+		public void setLast(RpcServiceProxy lastProxy, ClientCall lastCall,
+				StackTraceElement lastStackTraceElement) {
 			if (this.lastCall != null) {
-				StackTraceElement stackTraceElement = Thread.currentThread()
-						.getStackTrace()[4];
+
 				// Log the illegal state information.
-				System.err.println("Last call " + lastCall.toString()
-						+ " was not submitted to remote server in "
-						+ stackTraceElement.toString());
+				System.err.println("Previous call " + lastCall.toString()
+
+				+ " was called directly in "
+						+ this.lastStackTraceElement.toString());
 				// We still need to prepare to call the last call.
 			}
 			this.lastCall = lastCall;
 			this.lastProxy = lastProxy;
+			this.lastStackTraceElement = lastStackTraceElement;
 		}
 
 		CallWrapper() {
@@ -51,7 +54,8 @@ class RpcClient {
 			ClientCall call = lastCall;
 			if (lastCall == null) {
 				// Log the illegal state information.
-				throw new IllegalCallStateException("Last call  not found");
+				throw new IllegalCallStateException(
+						"You must call a rpc invocation");
 			}
 			lastCall = null;
 			try {
@@ -130,7 +134,9 @@ class RpcClient {
 
 			Invocation invocation = new Invocation(serviceName, method, args);
 			ClientCall call = new ClientCall(invocation);
-			threadLocalCall.get().setLast(this, call);
+			StackTraceElement stackTraceElement = Thread.currentThread()
+					.getStackTrace()[3];
+			threadLocalCall.get().setLast(this, call, stackTraceElement);
 			return Reflection.emptyReturnValueFor(method.getReturnType());
 		}
 	}
