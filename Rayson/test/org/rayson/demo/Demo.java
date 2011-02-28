@@ -25,10 +25,10 @@ public class Demo {
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
-		ServerService serverService = Rayson.createProxy(ServerService.class,
-				"server", serverAddress);
+		ServerService serverService = Rayson.createProxy("server",
+				ServerService.class, serverAddress);
 		TestRpcService testRpcService = Rayson.createProxy(
-				TestRpcService.class, "demo", serverAddress);
+				"demo", TestRpcService.class, serverAddress);
 
 		try { // list services.
 

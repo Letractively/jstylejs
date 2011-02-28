@@ -138,8 +138,8 @@ class RpcClient {
 		return (T) rpcService;
 	}
 
-	public <T> T call(final T rpcCall) throws IOException,
-			ServiceNotFoundException, UndeclaredThrowableException {
+	<T> T call(final T rpcCall) throws IOException, ServiceNotFoundException,
+			UndeclaredThrowableException {
 		return rpcCall;
 	}
 
