@@ -62,11 +62,15 @@ public class ClientCall<V> {
 		case EXCEPTION:
 			InvocationException remoteExceptionHandler = new InvocationException();
 			remoteExceptionHandler.read(in);
-			this.future.setException(remoteExceptionHandler.getException());
+			this.future.setException(remoteExceptionHandler);
 			break;
 		default:
 			break;
 		}
+	}
+
+	public Invocation getInvocation() {
+		return invocation;
 	}
 
 	@Override

@@ -7,7 +7,9 @@ import java.io.IOException;
 import org.rayson.api.Transportable;
 import org.rayson.util.Reflection;
 
-public class InvocationException implements Transportable {
+public class InvocationException extends Exception implements Transportable {
+
+	private static final long serialVersionUID = 1L;
 	private Throwable throwException;
 	private boolean unDeclaredException;
 
@@ -17,14 +19,14 @@ public class InvocationException implements Transportable {
 
 	}
 
+	public boolean isUnDeclaredException() {
+		return unDeclaredException;
+	}
+
 	public InvocationException(boolean unDeclaredException,
 			Throwable thrownException) {
 		this.unDeclaredException = unDeclaredException;
-		if (unDeclaredException) {
-			this.throwException = new RpcException(thrownException);
-		} else {
-			this.throwException = thrownException;
-		}
+		this.throwException = thrownException;
 	}
 
 	@Override
@@ -35,14 +37,11 @@ public class InvocationException implements Transportable {
 		try {
 			Throwable throwable = (Throwable) Reflection.newInstance(className,
 					DEFAULT_CONSTRUCTOR_PARAMETER_TYPES,
-					new Object[] { message });
-			if (unDeclaredException)
-				this.throwException = new RpcException(throwable);
-			else
-				this.throwException = throwable;
-		} catch (Exception e) {
-			this.throwException = new RpcException(
-					new RpcExcptionInstantiationException(e));
+					new String[] { message });
+			this.throwException = throwable;
+		} catch (Throwable e) {
+			this.unDeclaredException = true;
+			this.throwException = new RpcExcptionInstantiationException(e);
 		}
 
 	}
@@ -53,20 +52,15 @@ public class InvocationException implements Transportable {
 		out.writeBoolean(unDeclaredException);
 		String className;
 		String message;
-		if (unDeclaredException) {
-			className = this.throwException.getCause().getClass().getName();
-			message = this.throwException.getCause().getMessage();
-		} else {
-			className = this.throwException.getClass().getName();
-			message = this.throwException.getMessage();
-		}
+		className = this.throwException.getClass().getName();
+		message = this.throwException.getMessage();
 		// write class name.
 		out.writeUTF(className);
 		// write error message.
 		Stream.writePortable(out, message);
 	}
 
-	public Throwable getException() {
+	public Throwable getThrowException() {
 		return throwException;
 	}
 

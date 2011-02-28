@@ -10,10 +10,10 @@ import java.util.Map.Entry;
 import org.rayson.api.IllegalServiceException;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
-import org.rayson.api.ServiceRegistration;
 import org.rayson.api.ServiceNotFoundException;
+import org.rayson.api.ServiceRegistration;
 import org.rayson.common.Invocation;
-import org.rayson.common.RpcException;
+import org.rayson.common.InvocationException;
 import org.rayson.impl.ServiceDescriptionImpl;
 import org.rayson.transport.server.TransportServerImpl;
 
@@ -84,16 +84,11 @@ class RpcServer extends TransportServerImpl implements ServerService {
 					.getInstance();
 			Object result = invocation.invoke(serviceObject);
 			call.setResult(result);
+		} catch (InvocationException e) {
+			call.setException(e);
 		} catch (ServiceNotFoundException e) {
-			call.setException(true, e);
-		} catch (UndeclaredThrowableException e) {
-			// Log the error.
-			e.printStackTrace();
-			call.setException(true, e.getUndeclaredThrowable());
-		} catch (Throwable t) {
-			call.setException(false, t);
+			call.setException(new InvocationException(true, e));
 		}
-
 	}
 
 	@Override

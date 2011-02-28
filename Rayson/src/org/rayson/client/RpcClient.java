@@ -1,23 +1,24 @@
 package org.rayson.client;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
+import java.util.Arrays;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.rayson.api.IllegalServiceException;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServiceNotFoundException;
 import org.rayson.common.Invocation;
-import org.rayson.common.RpcException;
+import org.rayson.common.InvocationException;
 import org.rayson.transport.client.TransportClient;
 import org.rayson.util.Reflection;
 
@@ -45,7 +46,8 @@ class RpcClient {
 
 		}
 
-		public Object callLast() throws IllegalCallStateException, Throwable {
+		public Object callLast() throws IllegalCallStateException,
+				InvocationException {
 			ClientCall call = lastCall;
 			if (lastCall == null) {
 				// Log the illegal state information.
@@ -55,17 +57,15 @@ class RpcClient {
 			try {
 				RpcClient.this.submitCall(this.lastProxy.serverAddress, call);
 			} catch (Throwable e) {
-				throw new RpcException(e);
+				throw new InvocationException(true, e);
 			}
 			Object result;
 			try {
-
 				result = call.getResult();
-
 			} catch (ExecutionException e) {
-				throw e.getCause();
-			} catch (Exception e) {
-				throw e;
+				throw (InvocationException) e.getCause();
+			} catch (InterruptedException e) {
+				throw new InvocationException(true, e);
 			}
 			return result;
 		}
@@ -135,20 +135,6 @@ class RpcClient {
 		}
 	}
 
-	public static void throwRpcExceptionCause(RpcException rpcException)
-			throws IOException, ServiceNotFoundException,
-			UndeclaredThrowableException {
-		Throwable cause = rpcException.getCause();
-		if (IOException.class.isAssignableFrom(cause.getClass()))
-			throw (IOException) cause;
-		else if (ServiceNotFoundException.class.isAssignableFrom(cause
-				.getClass()))
-			throw (ServiceNotFoundException) cause;
-		else
-			throw new UndeclaredThrowableException(cause);
-
-	}
-
 	private ConcurrentHashMap<Long, ClientCall<?>> calls;
 	private AtomicBoolean loaded = new AtomicBoolean(false);
 	private ThreadLocalCall threadLocalCall;
@@ -183,18 +169,26 @@ class RpcClient {
 		return (T) rpcService;
 	}
 
-	public <T> T call(T rpcCall) throws Throwable {
+	public <T> T call(T rpcCall) throws IOException, ServiceNotFoundException,
+			Throwable {
 		try {
 			return (T) threadLocalCall.get().callLast();
-		} catch (RpcException rpcException) {
-			Throwable cause = rpcException.getCause();
+		} catch (InvocationException invocationException) {
+			Throwable cause = invocationException.getThrowException();
+			StackTraceElement[] stackTraceElements = Thread.currentThread()
+					.getStackTrace();
+			cause.setStackTrace(Arrays.copyOfRange(stackTraceElements, 2,
+					stackTraceElements.length));
 			if (IOException.class.isAssignableFrom(cause.getClass()))
 				throw (IOException) cause;
 			else if (ServiceNotFoundException.class.isAssignableFrom(cause
 					.getClass()))
 				throw (ServiceNotFoundException) cause;
-			else
-				throw new UndeclaredThrowableException(cause);
+			else if (invocationException.isUnDeclaredException()) {
+				throw cause;
+			} else {
+				throw cause;
+			}
 		} catch (IllegalCallStateException e) {
 			StackTraceElement stackTraceElement = Thread.currentThread()
 					.getStackTrace()[3];
@@ -203,8 +197,8 @@ class RpcClient {
 			// do nothing.
 			return rpcCall;
 		} catch (Throwable e) {
-			// Throw declared exception.
-			throw e;
+			// never be there.
+			throw new RuntimeException(e);
 		}
 	}
 

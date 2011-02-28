@@ -1,7 +1,6 @@
 package org.rayson.client;
 
 import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
 
 import org.rayson.api.IllegalServiceException;
@@ -18,7 +17,7 @@ public final class Rayson {
 	}
 
 	public static <T> T call(T rpcCall) throws IOException,
-			ServiceNotFoundException, UndeclaredThrowableException, Throwable {
+			ServiceNotFoundException, Throwable {
 		return client.call(rpcCall);
 	}
 }

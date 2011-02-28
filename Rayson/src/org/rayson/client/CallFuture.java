@@ -6,12 +6,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.rayson.common.InvocationException;
+
 public class CallFuture<V> implements Future<V> {
 
 	private AtomicBoolean done;
 	private AtomicBoolean cancelled;
 	private V result;
-	private Throwable exception;
+	private InvocationException invocationException;
 
 	CallFuture() {
 		done = new AtomicBoolean(false);
@@ -24,8 +26,8 @@ public class CallFuture<V> implements Future<V> {
 		notifyDone();
 	}
 
-	protected void setException(Throwable t) {
-		this.exception = t;
+	protected void setException(InvocationException t) {
+		this.invocationException = t;
 		this.done.set(true);
 		notifyDone();
 	}
@@ -54,8 +56,8 @@ public class CallFuture<V> implements Future<V> {
 				done.wait();
 			}
 		}
-		if (exception != null)
-			throw new ExecutionException(exception);
+		if (invocationException != null)
+			throw new ExecutionException(invocationException);
 		return result;
 	}
 
@@ -67,8 +69,8 @@ public class CallFuture<V> implements Future<V> {
 				done.wait(unit.toMillis(timeout));
 			}
 		}
-		if (exception != null)
-			throw new ExecutionException(exception);
+		if (invocationException != null)
+			throw new ExecutionException(invocationException);
 		return result;
 	}
 

@@ -23,7 +23,7 @@ public class ServerCall {
 	private Invocation invocation;
 	private Object result;
 	private Packet responsePacket;
-	private InvocationException remoteExceptionHandler;
+	private InvocationException exception;
 
 	private ServerCall() {
 		this.id = UID.getAndIncrement();
@@ -74,11 +74,13 @@ public class ServerCall {
 
 			dataOutputStream.writeLong(clientCallId);
 
-			if (remoteExceptionHandler != null) {
-				dataOutputStream.writeByte(InvocationResultType.EXCEPTION.getType());
-				remoteExceptionHandler.write(dataOutputStream);
+			if (exception != null) {
+				dataOutputStream.writeByte(InvocationResultType.EXCEPTION
+						.getType());
+				exception.write(dataOutputStream);
 			} else {
-				dataOutputStream.writeByte(InvocationResultType.SUCCESSFUL.getType());
+				dataOutputStream.writeByte(InvocationResultType.SUCCESSFUL
+						.getType());
 				Stream.writePortable(dataOutputStream, result);
 			}
 			packet = new Packet(byteArrayOutputStream.toByteArray());
@@ -93,8 +95,7 @@ public class ServerCall {
 		this.result = result;
 	}
 
-	void setException(boolean unDeclaredException, Throwable t) {
-		this.remoteExceptionHandler = new InvocationException(
-				unDeclaredException, t);
+	void setException(InvocationException exception) {
+		this.exception = exception;
 	}
 }

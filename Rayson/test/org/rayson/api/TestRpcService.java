@@ -2,17 +2,15 @@ package org.rayson.api;
 
 import java.io.EOFException;
 
-import org.rayson.common.RpcException;
-
 public interface TestRpcService extends RpcService {
 
 	public String echo(String message) throws EOFException;
 
-	public void voidMethod() throws RpcException;
+	public void voidMethod();
 
-	public int getInt() throws RpcException;
+	public int getInt();
 
-	public int[] getIntArray() throws RpcException;
+	public int[] getIntArray();
 
-	public Integer getInteger() throws RpcException;
+	public Integer getInteger();
 }

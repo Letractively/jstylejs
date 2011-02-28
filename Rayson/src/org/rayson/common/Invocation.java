@@ -7,7 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
-import org.junit.runners.ParentRunner;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServiceNotFoundException;
 import org.rayson.api.Transportable;
@@ -34,15 +33,14 @@ public class Invocation implements Transportable {
 		return serviceName;
 	}
 
-	public Object invoke(RpcService serviceObject)
-			throws UndeclaredThrowableException, Throwable {
+	public Object invoke(RpcService serviceObject) throws InvocationException {
 		Method method;
 		try {
 			method = serviceObject.getClass().getMethod(methodName, paraTypes);
 		} catch (Exception e) {
-			throw new UndeclaredThrowableException(
-					new ServiceNotFoundException("service of " + serviceName
-							+ "." + methodName + " not found"));
+			throw new InvocationException(true, new ServiceNotFoundException(
+					"service of " + serviceName + "." + methodName
+							+ " not found"));
 		}
 		method.setAccessible(true);
 		Object result = null;
@@ -53,9 +51,11 @@ public class Invocation implements Transportable {
 			Class[] exceptionTypes = method.getExceptionTypes();
 			for (Class exceptionType : exceptionTypes) {
 				if (exceptionType.isAssignableFrom(targetException.getClass()))
-					throw targetException;
+					throw new InvocationException(false, targetException);
 			}
-			throw new UndeclaredThrowableException(targetException);
+			throw new InvocationException(true, targetException);
+		} catch (Exception e) {
+			throw new InvocationException(true, e);
 		}
 		return result;
 	}
