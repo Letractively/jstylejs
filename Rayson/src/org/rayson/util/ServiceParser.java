@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rayson.api.IllegalServiceException;
+import org.rayson.api.RemoteException;
 import org.rayson.api.RpcService;
 import org.rayson.common.Stream;
 
@@ -36,21 +37,29 @@ public final class ServiceParser {
 
 	private static void verifyMethod(Method method)
 			throws IllegalServiceException {
-		// 1. return type must be portable.
+		// 1. must throws rpcexceptoion.
+		boolean foundRemoteException = false;
+		for (Class exceptionType : method.getExceptionTypes()) {
+			if (exceptionType == RemoteException.class) {
+				foundRemoteException = true;
+				break;
+			}
+		}
+		if (!foundRemoteException)
+			throw new IllegalServiceException("Method " + method.getName()
+					+ " must throws " + RemoteException.class.getName());
+		// 2. return type must be portable.
 		Class returnType = method.getReturnType();
 		if (!Stream.isPortableType(returnType))
 			throw new IllegalServiceException("Method " + method.getName()
 					+ " return type must be portable");
-		// 2. every parameter type must be portable.
+		// 3. every parameter type must be portable.
 		Class[] parameterTypes = method.getParameterTypes();
 		for (Class type : parameterTypes) {
 			if (!Stream.isPortableType(type))
 				throw new IllegalServiceException("Method " + method.getName()
 						+ " parameter type must be portable");
 		}
-		// 3. all exception must has a constructor with one String paramter
-		// type.
-		// TODO:
 	}
 
 }

@@ -8,14 +8,12 @@ class DemoRpcService implements TestRpcService {
 
 	@Override
 	public String echo(String message) throws EOFException {
-		// return "asdfsdf";
-		throw new NullPointerException();
+		return message;
 	}
 
 	@Override
 	public void voidMethod() {
-		// TODO Auto-generated method stub
-
+		System.out.println("voidMethod");
 	}
 
 	@Override

@@ -1,11 +1,10 @@
 package org.rayson.api;
 
-
 public interface ServerService extends RpcService {
 
-	public ServiceRegistration[] list();
+	public ServiceRegistration[] list() throws RemoteException;
 
 	public ServiceRegistration find(String serviceName)
-			throws ServiceNotFoundException;
+			throws ServiceNotFoundException, RemoteException;
 
 }

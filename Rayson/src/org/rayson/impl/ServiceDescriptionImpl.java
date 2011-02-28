@@ -9,7 +9,7 @@ import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Transportable;
 import org.rayson.common.Stream;
 
-public class ServiceDescriptionImpl implements ServiceRegistration,
+public final class ServiceDescriptionImpl implements ServiceRegistration,
 		Transportable {
 
 	private ServiceDescriptionImpl() {

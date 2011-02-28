@@ -60,7 +60,7 @@ public class InvocationException extends Exception implements Transportable {
 		Stream.writePortable(out, message);
 	}
 
-	public Throwable getThrowException() {
+	public Throwable getRemoteException() {
 		return throwException;
 	}
 

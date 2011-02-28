@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.WeakHashMap;
@@ -17,71 +18,11 @@ import org.rayson.api.RpcService;
 import org.rayson.api.ServiceNotFoundException;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
+import org.rayson.impl.RemoteExceptionImpl;
 import org.rayson.transport.client.TransportClient;
 import org.rayson.util.Log;
-import org.rayson.util.Reflection;
 
 class RpcClient {
-
-	private class CallWrapper {
-
-		private RpcServiceProxy lastProxy;
-		private ClientCall lastCall;
-		private StackTraceElement lastStackTraceElement;
-
-		public void setLast(RpcServiceProxy lastProxy, ClientCall lastCall,
-				StackTraceElement lastStackTraceElement) {
-			if (this.lastCall != null) {
-
-				// Log the illegal state information.
-				System.err.println("Previous call " + lastCall.toString()
-
-				+ " was called directly in "
-						+ this.lastStackTraceElement.toString());
-				// We still need to prepare to call the last call.
-			}
-			this.lastCall = lastCall;
-			this.lastProxy = lastProxy;
-			this.lastStackTraceElement = lastStackTraceElement;
-		}
-
-		CallWrapper() {
-
-		}
-
-		public Object callLast() throws IllegalCallStateException,
-				InvocationException {
-			ClientCall call = lastCall;
-			if (lastCall == null) {
-				// Log the illegal state information.
-				throw new IllegalCallStateException(
-						"You must call a rpc invocation");
-			}
-			lastCall = null;
-			try {
-				RpcClient.this.submitCall(this.lastProxy.serverAddress, call);
-			} catch (Throwable e) {
-				throw new InvocationException(true, e);
-			}
-			Object result;
-			try {
-				result = call.getResult();
-			} catch (ExecutionException e) {
-				throw (InvocationException) e.getCause();
-			} catch (InterruptedException e) {
-				throw new InvocationException(true, e);
-			}
-			return result;
-		}
-	}
-
-	private class ThreadLocalCall extends ThreadLocal<CallWrapper> {
-		@Override
-		protected CallWrapper initialValue() {
-			return new CallWrapper();
-		}
-	}
-
 	private static class RpcServiceKey {
 		private int hash;
 		private SocketAddress serverAddress;
@@ -134,16 +75,38 @@ class RpcClient {
 
 			Invocation invocation = new Invocation(serviceName, method, args);
 			ClientCall call = new ClientCall(invocation);
-			StackTraceElement stackTraceElement = Thread.currentThread()
-					.getStackTrace()[3];
-			threadLocalCall.get().setLast(this, call, stackTraceElement);
-			return Reflection.emptyReturnValueFor(method.getReturnType());
+			try {
+				submitCall(serverAddress, call);
+			} catch (IOException e) {
+				throw RemoteExceptionImpl.createNetWorkException(e);
+			}
+			try {
+				return call.getResult();
+			} catch (ExecutionException e) {
+				InvocationException invocationException = (InvocationException) e
+						.getCause();
+				Throwable remoteException = invocationException
+						.getRemoteException();
+				StackTraceElement[] stackTraceElements = Thread.currentThread()
+						.getStackTrace();
+				remoteException.setStackTrace(Arrays.copyOfRange(
+						stackTraceElements, stackTraceElements.length - 1,
+						stackTraceElements.length));
+				if (ServiceNotFoundException.class
+						.isAssignableFrom(remoteException.getClass()))
+					throw RemoteExceptionImpl
+							.createServiceNotFoundException((ServiceNotFoundException) remoteException);
+				if (invocationException.isUnDeclaredException())
+					throw RemoteExceptionImpl
+							.createUndecleardException(remoteException);
+				else
+					throw remoteException;
+			}
 		}
 	}
 
 	private ConcurrentHashMap<Long, ClientCall<?>> calls;
 	private AtomicBoolean loaded = new AtomicBoolean(false);
-	private ThreadLocalCall threadLocalCall;
 	private ResponseWorker responseWorker;
 	private static Logger LOGGER = Log.getLogger();
 	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
@@ -175,37 +138,9 @@ class RpcClient {
 		return (T) rpcService;
 	}
 
-	public <T> T call(T rpcCall) throws IOException, ServiceNotFoundException,
-			Throwable {
-		try {
-			return (T) threadLocalCall.get().callLast();
-		} catch (InvocationException invocationException) {
-			Throwable cause = invocationException.getThrowException();
-			StackTraceElement[] stackTraceElements = Thread.currentThread()
-					.getStackTrace();
-			cause.setStackTrace(Arrays.copyOfRange(stackTraceElements, 2,
-					stackTraceElements.length));
-			if (IOException.class.isAssignableFrom(cause.getClass()))
-				throw (IOException) cause;
-			else if (ServiceNotFoundException.class.isAssignableFrom(cause
-					.getClass()))
-				throw (ServiceNotFoundException) cause;
-			else if (invocationException.isUnDeclaredException()) {
-				throw cause;
-			} else {
-				throw cause;
-			}
-		} catch (IllegalCallStateException e) {
-			StackTraceElement stackTraceElement = Thread.currentThread()
-					.getStackTrace()[3];
-			System.err.println(e.getMessage() + " in "
-					+ stackTraceElement.toString());
-			// do nothing.
-			return rpcCall;
-		} catch (Throwable e) {
-			// never be there.
-			throw new RuntimeException(e);
-		}
+	public <T> T call(final T rpcCall) throws IOException,
+			ServiceNotFoundException, UndeclaredThrowableException {
+		return rpcCall;
 	}
 
 	private void lazyLoad() {
@@ -213,7 +148,6 @@ class RpcClient {
 		serviceProxys = new WeakHashMap<RpcClient.RpcServiceKey, RpcService>();
 		responseWorker = new ResponseWorker();
 		responseWorker.start();
-		threadLocalCall = new ThreadLocalCall();
 	}
 
 	private void submitCall(SocketAddress serverAddress, ClientCall call)
