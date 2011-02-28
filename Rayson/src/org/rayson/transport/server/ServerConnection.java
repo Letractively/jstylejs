@@ -22,6 +22,7 @@ import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.ResponseType;
+import org.rayson.util.Log;
 
 class ServerConnection implements Connection {
 
@@ -70,7 +71,7 @@ class ServerConnection implements Connection {
 		}
 	}
 
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static Logger LOGGER = Log.getLogger();
 	private static AtomicLong UID = new AtomicLong(0);
 	private static final short version = 1;
 

@@ -1,11 +1,9 @@
 package org.rayson.client;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.WeakHashMap;
@@ -20,11 +18,13 @@ import org.rayson.api.ServiceNotFoundException;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.transport.client.TransportClient;
+import org.rayson.util.Log;
 import org.rayson.util.Reflection;
 
 class RpcClient {
 
 	private class CallWrapper {
+
 		private RpcServiceProxy lastProxy;
 		private ClientCall lastCall;
 
@@ -139,7 +139,7 @@ class RpcClient {
 	private AtomicBoolean loaded = new AtomicBoolean(false);
 	private ThreadLocalCall threadLocalCall;
 	private ResponseWorker responseWorker;
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static Logger LOGGER = Log.getLogger();
 	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
 
 	RpcClient() {

@@ -8,8 +8,10 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import org.rayson.util.Log;
+
 class Listener extends Thread {
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static Logger LOGGER = Log.getLogger();
 
 	private ConnectionManager connectionManager;
 	private AtomicBoolean registering;

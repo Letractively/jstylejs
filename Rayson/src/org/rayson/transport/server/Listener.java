@@ -8,8 +8,10 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import org.rayson.util.Log;
+
 class Listener extends Thread {
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static Logger LOGGER = Log.getLogger();
 	private Selector selector;
 	private TransportServer server;
 

@@ -14,14 +14,15 @@ import java.util.logging.Logger;
 import org.rayson.transport.common.CRC16;
 import org.rayson.transport.common.ChecksumMatchException;
 import org.rayson.transport.common.Connection;
-import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ConnectionProtocol;
+import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.Packet;
-import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
+import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.RequestType;
+import org.rayson.util.Log;
 
 class ClientConnection implements Connection {
 
@@ -80,7 +81,7 @@ class ClientConnection implements Connection {
 
 	}
 
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static Logger LOGGER = Log.getLogger();
 	private static final byte protocol = 1;
 
 	/**

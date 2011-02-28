@@ -7,10 +7,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.rayson.transport.common.ConnectionProtocol;
+import org.rayson.util.Log;
 
 class ConnectionManager extends Thread {
 
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static Logger LOGGER = Log.getLogger();
 	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL / 2;
 
 	private ConcurrentHashMap<Long, ServerConnection> connections;

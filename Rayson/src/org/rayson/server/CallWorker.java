@@ -5,9 +5,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import org.rayson.transport.common.PacketException;
+import org.rayson.util.Log;
 
 class CallWorker extends Thread {
-	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static Logger LOGGER = Log.getLogger();
 	private static AtomicLong UID = new AtomicLong(0);
 	private long id;
 	private RpcServer server;
