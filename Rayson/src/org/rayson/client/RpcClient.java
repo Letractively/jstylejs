@@ -29,9 +29,12 @@ class RpcClient {
 
 		public void setLast(RpcServiceProxy lastProxy, ClientCall lastCall) {
 			if (this.lastCall != null) {
+				StackTraceElement stackTraceElement = Thread.currentThread()
+						.getStackTrace()[4];
 				// Log the illegal state information.
-				LOGGER.log(Level.SEVERE, "Last call " + lastCall.toString()
-						+ " was not submitted to remote server");
+				System.err.println("Last call " + lastCall.toString()
+						+ " was not submitted to remote server in "
+						+ stackTraceElement.toString());
 				// We still need to prepare to call the last call.
 			}
 			this.lastCall = lastCall;
@@ -194,7 +197,10 @@ class RpcClient {
 			else
 				throw new UndeclaredThrowableException(cause);
 		} catch (IllegalCallStateException e) {
-			e.printStackTrace();
+			StackTraceElement stackTraceElement = Thread.currentThread()
+					.getStackTrace()[3];
+			System.err.println(e.getMessage() + " in "
+					+ stackTraceElement.toString());
 			// do nothing.
 			return rpcCall;
 		} catch (Throwable e) {
