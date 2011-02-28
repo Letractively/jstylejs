@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import org.junit.runners.ParentRunner;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServiceNotFoundException;
 import org.rayson.api.Transportable;
@@ -100,4 +101,22 @@ public class Invocation implements Transportable {
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("service: ");
+		sb.append(this.serviceName);
+		sb.append(", method name: ");
+		sb.append(methodName);
+		sb.append(", parameters: [");
+		for (Object parameter : parameters) {
+			sb.append((parameter == null) ? "null" : parameter.toString());
+			sb.append(",");
+		}
+		sb.deleteCharAt(sb.length() - 1);
+		sb.append("]");
+		sb.append("}");
+		return sb.toString();
+	}
 }

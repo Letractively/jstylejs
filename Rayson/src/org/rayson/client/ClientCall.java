@@ -18,13 +18,13 @@ public class ClientCall<V> {
 	private static final AtomicLong UID = new AtomicLong(0);
 	private CallFuture<V> future;
 	private long id;
-	// private Invocation invocation;
+	private Invocation invocation;
 	private static final int BUFFER_SIZE = 1024;
 	private Packet requestPacket;
 
 	public ClientCall(Invocation invocation) throws PacketException {
 		this.id = UID.getAndIncrement();
-		// this.invocation = invocation;
+		this.invocation = invocation;
 		this.future = new CallFuture<V>();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
 				BUFFER_SIZE);
@@ -67,5 +67,17 @@ public class ClientCall<V> {
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("id: ");
+		sb.append(id);
+		sb.append(", invocation: ");
+		sb.append(this.invocation.toString());
+		sb.append("}");
+		return sb.toString();
 	}
 }

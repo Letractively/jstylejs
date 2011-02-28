@@ -9,7 +9,8 @@ class DemoRpcService implements TestRpcService {
 
 	@Override
 	public String echo(String message) throws EOFException {
-		throw new NullPointerException();
+		return "asdfsdf";
+		// throw new NullPointerException();
 	}
 
 	@Override

@@ -2,8 +2,28 @@ package org.rayson.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Reflection {
+	private static Map<Class<?>, Object> emptyReturnValues = new HashMap<Class<?>, Object>();
+
+	static {
+		emptyReturnValues.put(Void.TYPE, null);
+		emptyReturnValues.put(Boolean.TYPE, Boolean.FALSE);
+		emptyReturnValues.put(Byte.TYPE, Byte.valueOf((byte) 0));
+		emptyReturnValues.put(Short.TYPE, Short.valueOf((short) 0));
+		emptyReturnValues.put(Character.TYPE, Character.valueOf((char) 0));
+		emptyReturnValues.put(Integer.TYPE, Integer.valueOf(0));
+		emptyReturnValues.put(Long.TYPE, Long.valueOf(0));
+		emptyReturnValues.put(Float.TYPE, Float.valueOf(0));
+		emptyReturnValues.put(Double.TYPE, Double.valueOf(0));
+	}
+
+	public static Object emptyReturnValueFor(final Class<?> type) {
+		return type.isPrimitive() ? emptyReturnValues.get(type) : null;
+	}
+
 	public static Object newInstance(String className)
 			throws ClassNotFoundException, SecurityException,
 			NoSuchMethodException, IllegalArgumentException,

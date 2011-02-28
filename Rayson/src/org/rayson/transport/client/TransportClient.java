@@ -10,10 +10,10 @@ import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
 public class TransportClient {
-	private static TransportClient instance = new TransportClient();
+	private static TransportClient singleton = new TransportClient();
 
-	public static TransportClient getInstance() {
-		return instance;
+	public static TransportClient getSingleton() {
+		return singleton;
 	}
 
 	public static void main(String[] args) throws ConnectException,
@@ -21,7 +21,7 @@ public class TransportClient {
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
-		ClientConnection connection = TransportClient.getInstance()
+		ClientConnection connection = TransportClient.getSingleton()
 				.getConnection(serverAddress);
 		byte[] bytes = new byte[344];
 		Packet testPacket = new Packet(bytes);

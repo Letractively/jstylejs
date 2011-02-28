@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import org.rayson.api.IllegalServiceException;
 import org.rayson.api.ServiceNotFoundException;
 import org.rayson.api.TestRpcService;
-import org.rayson.client.RpcClient;
+import org.rayson.client.Rayson;
 import org.rayson.server.RpcServerTest;
 
 public class Demo {
@@ -21,18 +21,17 @@ public class Demo {
 		RpcServerTest.startTestServer();
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
-		TestRpcService testRpcService = RpcClient.getInstance().createProxy(
+		TestRpcService testRpcService = Rayson.createProxy(
 				TestRpcService.class, "demo", serverAddress);
 
 		try {
-			// RpcClient.getInstance().call(null);
+			int returnI = Rayson.call(Integer.MIN_VALUE);
 			try {
 				testRpcService.echo("hello world");
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
-			System.out.println(RpcClient.getInstance().call(
-					testRpcService.echo("hello world")));
+			System.out.println(Rayson.call(testRpcService.echo("hello world")));
 		} catch (UndeclaredThrowableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
