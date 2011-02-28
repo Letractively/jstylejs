@@ -31,10 +31,10 @@ public abstract class RemoteException extends Exception {
 	 * @throws UndeclaredThrowableException
 	 *             If undeclared exception occurred in remote server.
 	 */
-	public void throwCause() throws IOException, ServiceNotFoundException,
+	public void throwCause() throws NetWorkException, ServiceNotFoundException,
 			UndeclaredThrowableException {
 		if (isNetworkException)
-			throw (IOException) cause;
+			throw (NetWorkException) cause;
 		if (isServiceNotFound)
 			throw (ServiceNotFoundException) cause;
 		throw new UndeclaredThrowableException(cause);

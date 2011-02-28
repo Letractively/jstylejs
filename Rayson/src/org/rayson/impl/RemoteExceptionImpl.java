@@ -2,6 +2,7 @@ package org.rayson.impl;
 
 import java.io.IOException;
 
+import org.rayson.api.NetWorkException;
 import org.rayson.api.RemoteException;
 import org.rayson.api.ServiceNotFoundException;
 
@@ -13,10 +14,9 @@ public final class RemoteExceptionImpl extends RemoteException {
 		super(exception);
 	}
 
-	public static RemoteException createNetWorkException(
-			IOException networkException) {
+	public static RemoteException createNetWorkException(IOException cause) {
 		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
-				networkException);
+				new NetWorkException(cause));
 		remoteException.isNetworkException = true;
 		return remoteException;
 	}
