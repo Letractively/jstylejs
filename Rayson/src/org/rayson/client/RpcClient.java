@@ -106,7 +106,6 @@ class RpcClient {
 	}
 
 	private ConcurrentHashMap<Long, ClientCall<?>> calls;
-	private AtomicBoolean loaded = new AtomicBoolean(false);
 	private ResponseWorker responseWorker;
 	private static Logger LOGGER = Log.getLogger();
 	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
@@ -117,10 +116,6 @@ class RpcClient {
 	public <T extends RpcService> T createProxy(Class<T> serviceClass,
 			String serviceName, SocketAddress serverAddress)
 			throws IllegalServiceException {
-		synchronized (loaded) {
-			if (loaded.compareAndSet(false, true))
-				lazyLoad();
-		}
 
 		RpcServiceKey serviceKey = new RpcServiceKey(serviceName, serviceClass,
 				serverAddress);
@@ -143,7 +138,7 @@ class RpcClient {
 		return rpcCall;
 	}
 
-	private void lazyLoad() {
+	void initialize() {
 		calls = new ConcurrentHashMap<Long, ClientCall<?>>();
 		serviceProxys = new WeakHashMap<RpcClient.RpcServiceKey, RpcService>();
 		responseWorker = new ResponseWorker();
