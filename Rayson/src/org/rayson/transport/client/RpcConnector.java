@@ -38,9 +38,10 @@ public class RpcConnector {
 	public void sumbitCall(SocketAddress serverAddress, ClientCall call)
 			throws ConnectException, IOException {
 		ClientConnection connection = client.getConnection(serverAddress);
-		connection.addSendPacket(call.getRequestPacket());
 		CallWrapper callWrapper = new CallWrapper(connection, call);
 		this.calls.put(call.getId(), callWrapper);
+		connection.addSendPacket(call.getRequestPacket());
+
 	}
 
 	public ClientCall responseCall() throws InterruptedException, IOException {
@@ -54,7 +55,8 @@ public class RpcConnector {
 		DataInputStream inputStream = new DataInputStream(
 				new ByteArrayInputStream(receivedPacket.getData()));
 		long callId = inputStream.readLong();
-		ClientCall call = calls.get(callId).call;
+		ClientCall call = null;
+		call = calls.get(callId).call;
 		call.readResult(inputStream);
 		return call;
 	}

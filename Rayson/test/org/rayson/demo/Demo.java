@@ -45,6 +45,7 @@ public class Demo {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.exit(0);
 
 	}
 }

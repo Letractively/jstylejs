@@ -180,7 +180,7 @@ class RpcClient {
 		return (T) rpcService;
 	}
 
-	public <T> T call(T value) throws IOException, ServiceNotFoundException,
+	public <T> T call(T rpcCall) throws IOException, ServiceNotFoundException,
 			UndeclaredThrowableException {
 		try {
 			return (T) threadLocalCall.get().callLast();
@@ -196,7 +196,7 @@ class RpcClient {
 		} catch (IllegalCallStateException e) {
 			e.printStackTrace();
 			// do nothing.
-			return value;
+			return rpcCall;
 		} catch (Throwable e) {
 			// never be there.
 			throw new RuntimeException(e);

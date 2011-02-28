@@ -17,8 +17,8 @@ public final class Rayson {
 		return client.createProxy(serviceClass, serviceName, serverAddress);
 	}
 
-	public static <T> T call(T value) throws IOException,
+	public static <T> T call(T rpcCall) throws IOException,
 			ServiceNotFoundException, UndeclaredThrowableException {
-		return client.call(value);
+		return client.call(rpcCall);
 	}
 }
