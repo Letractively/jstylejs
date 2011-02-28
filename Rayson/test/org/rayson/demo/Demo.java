@@ -19,7 +19,7 @@ public class Demo {
 
 	public static void main(String[] args) throws UnknownHostException,
 			IllegalServiceException {
-		RpcServerTest.startTestServer();
+		// RpcServerTest.startTestServer();
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 		TestRpcService testRpcService = Rayson.createProxy(

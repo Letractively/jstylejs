@@ -21,6 +21,16 @@ public abstract class RemoteException extends Exception {
 		return isNetworkException;
 	}
 
+	/**
+	 * Throw the cause exception of this remote exception.
+	 * 
+	 * @throws IOException
+	 *             If network exception occurred.
+	 * @throws ServiceNotFoundException
+	 *             If remote RPC service not found.
+	 * @throws UndeclaredThrowableException
+	 *             If undeclared exception occurred in remote server.
+	 */
 	public void throwCause() throws IOException, ServiceNotFoundException,
 			UndeclaredThrowableException {
 		if (isNetworkException)
