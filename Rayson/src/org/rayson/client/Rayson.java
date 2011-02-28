@@ -18,7 +18,7 @@ public final class Rayson {
 	}
 
 	public static <T> T call(T rpcCall) throws IOException,
-			ServiceNotFoundException, UndeclaredThrowableException {
+			ServiceNotFoundException, UndeclaredThrowableException, Throwable {
 		return client.call(rpcCall);
 	}
 }

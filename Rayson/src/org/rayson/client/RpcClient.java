@@ -183,8 +183,7 @@ class RpcClient {
 		return (T) rpcService;
 	}
 
-	public <T> T call(T rpcCall) throws IOException, ServiceNotFoundException,
-			UndeclaredThrowableException {
+	public <T> T call(T rpcCall) throws Throwable {
 		try {
 			return (T) threadLocalCall.get().callLast();
 		} catch (RpcException rpcException) {
@@ -204,8 +203,8 @@ class RpcClient {
 			// do nothing.
 			return rpcCall;
 		} catch (Throwable e) {
-			// never be there.
-			throw new RuntimeException(e);
+			// Throw declared exception.
+			throw e;
 		}
 	}
 
