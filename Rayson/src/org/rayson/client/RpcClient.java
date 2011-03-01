@@ -8,9 +8,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import org.rayson.api.RpcService;
@@ -105,7 +103,6 @@ class RpcClient {
 		}
 	}
 
-	private ConcurrentHashMap<Long, ClientCall<?>> calls;
 	private ResponseWorker responseWorker;
 	private static Logger LOGGER = Log.getLogger();
 	private WeakHashMap<RpcServiceKey, RpcService> serviceProxys;
@@ -139,7 +136,6 @@ class RpcClient {
 	}
 
 	void initialize() {
-		calls = new ConcurrentHashMap<Long, ClientCall<?>>();
 		serviceProxys = new WeakHashMap<RpcClient.RpcServiceKey, RpcService>();
 		responseWorker = new ResponseWorker();
 		responseWorker.start();
@@ -147,7 +143,6 @@ class RpcClient {
 
 	private void submitCall(SocketAddress serverAddress, ClientCall call)
 			throws IOException {
-		calls.put(call.getId(), call);
 		TransportClient.getSingleton().getConnector()
 				.sumbitCall(serverAddress, call);
 	}

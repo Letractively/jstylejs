@@ -30,7 +30,7 @@ public class RpcConnector {
 	}
 
 	public void notifyConnectionError(ClientConnection connection) {
-		// TODO:
+		// TODO: make it can handling client connection exception.
 	}
 
 	private static final int BUFFER_SIZE = 1024;
