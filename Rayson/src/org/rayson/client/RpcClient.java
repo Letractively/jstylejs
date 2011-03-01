@@ -90,6 +90,10 @@ class RpcClient {
 				remoteException.setStackTrace(Arrays.copyOfRange(
 						stackTraceElements, stackTraceElements.length - 1,
 						stackTraceElements.length));
+				if (ConnectionClosedException.class
+						.isAssignableFrom(remoteException.getClass()))
+					throw RemoteExceptionImpl
+							.createNetWorkException((ConnectionClosedException) remoteException);
 				if (ServiceNotFoundException.class
 						.isAssignableFrom(remoteException.getClass()))
 					throw RemoteExceptionImpl

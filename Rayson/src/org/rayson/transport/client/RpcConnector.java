@@ -137,8 +137,6 @@ public class RpcConnector {
 		}
 		ClientCall call = removeCall(callId);
 		if (call == null) {
-			Log.getLogger().log(Level.SEVERE,
-					"Can not find call with id :" + callId);
 			return;
 		}
 		call.readResult(inputStream);

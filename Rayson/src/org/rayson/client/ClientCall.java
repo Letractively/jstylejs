@@ -11,6 +11,7 @@ import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
+import org.rayson.impl.RemoteExceptionImpl;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
@@ -92,7 +93,7 @@ public class ClientCall<V> {
 	}
 
 	public void notifyConnectionClosed() {
-		this.future.setException(new InvocationException(true,
+		this.future.setException(new InvocationException(false,
 				new ConnectionClosedException()));
 	}
 }
