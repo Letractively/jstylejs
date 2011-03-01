@@ -1,7 +1,7 @@
-package org.rayson.api;
+package org.rayson.exception;
 
-import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
+
 
 public abstract class RemoteException extends Exception {
 
@@ -9,22 +9,17 @@ public abstract class RemoteException extends Exception {
 
 	private Throwable cause;
 
-	protected RemoteException(Throwable cause) {
+	protected RemoteException(RemoteExceptionType type, Throwable cause) {
+		this.type = type;
 		this.cause = cause;
 	}
 
-	protected boolean isNetworkException = false;
-	protected boolean isServiceNotFound = false;
-	protected boolean isUndeclaredException = false;
-
-	public boolean isNetworkException() {
-		return isNetworkException;
-	}
+	private RemoteExceptionType type = RemoteExceptionType.UNDECLARED;
 
 	/**
 	 * Throw the cause exception of this remote exception.
 	 * 
-	 * @throws IOException
+	 * @throws NetWorkException
 	 *             If network exception occurred.
 	 * @throws ServiceNotFoundException
 	 *             If remote RPC service not found.
@@ -33,19 +28,24 @@ public abstract class RemoteException extends Exception {
 	 */
 	public void throwCause() throws NetWorkException, ServiceNotFoundException,
 			UndeclaredThrowableException {
-		if (isNetworkException)
+		switch (type) {
+		case NETWORK:
 			throw (NetWorkException) cause;
-		if (isServiceNotFound)
+
+		case SERVICE_NOT_FOUND:
 			throw (ServiceNotFoundException) cause;
-		throw new UndeclaredThrowableException(cause);
+
+		case UNDECLARED:
+			throw new UndeclaredThrowableException(cause);
+
+		default:
+			throw new UndeclaredThrowableException(cause);
+		}
+
 	}
 
-	public boolean isServiceNotFound() {
-		return isServiceNotFound;
-	}
-
-	public boolean isUndecleardException() {
-		return isUndeclaredException;
+	public RemoteExceptionType getType() {
+		return type;
 	}
 
 	@Override
@@ -54,12 +54,7 @@ public abstract class RemoteException extends Exception {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
 		sb.append("type: ");
-		String type = "NETWORK";
-		if (isServiceNotFound)
-			type = "SERVICE_NOT_FOUND";
-		if (isUndeclaredException)
-			type = "UNDECLARED";
-		sb.append(type);
+		sb.append(type.name());
 		sb.append(", exception: ");
 		sb.append(this.cause.toString());
 		sb.append("}");

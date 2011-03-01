@@ -5,7 +5,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.rayson.api.IllegalServiceException;
+import org.rayson.exception.IllegalServiceException;
 
 public class RpcServerTest {
 

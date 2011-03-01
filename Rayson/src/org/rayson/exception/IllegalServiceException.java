@@ -1,4 +1,4 @@
-package org.rayson.api;
+package org.rayson.exception;
 
 public final class IllegalServiceException extends Exception {
 

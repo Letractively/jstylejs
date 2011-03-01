@@ -4,10 +4,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rayson.api.IllegalServiceException;
-import org.rayson.api.RemoteException;
 import org.rayson.api.RpcService;
 import org.rayson.common.Stream;
+import org.rayson.exception.IllegalServiceException;
+import org.rayson.exception.RemoteException;
 
 public final class ServiceParser {
 

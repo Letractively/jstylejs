@@ -1,7 +1,7 @@
 package org.rayson.server;
 
-import org.rayson.api.IllegalServiceException;
 import org.rayson.api.RpcService;
+import org.rayson.exception.IllegalServiceException;
 import org.rayson.util.ServiceParser;
 
 class Service {

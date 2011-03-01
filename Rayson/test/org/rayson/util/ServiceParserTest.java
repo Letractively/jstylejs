@@ -3,8 +3,8 @@ package org.rayson.util;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.rayson.api.IllegalServiceException;
 import org.rayson.api.TestRpcService;
+import org.rayson.exception.IllegalServiceException;
 
 public class ServiceParserTest {
 

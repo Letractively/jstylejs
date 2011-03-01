@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import org.rayson.api.RpcService;
-import org.rayson.api.ServiceNotFoundException;
 import org.rayson.api.Transportable;
+import org.rayson.exception.ServiceNotFoundException;
 
 public class Invocation implements Transportable {
 	private String methodName;
