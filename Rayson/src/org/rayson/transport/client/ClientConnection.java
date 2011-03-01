@@ -181,7 +181,11 @@ class ClientConnection implements Connection {
 	public synchronized void close() throws IOException {
 		if (!closed.compareAndSet(false, true))
 			return;
-		this.socketChannel.close();
+		try {
+			this.socketChannel.close();
+		} finally {
+			TransportClient.getSingleton().notifyConnectionClosed(this);
+		}
 		LOGGER.info(this.toString() + " closed!");
 	}
 

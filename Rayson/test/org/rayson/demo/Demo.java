@@ -15,20 +15,18 @@ import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RemoteException;
 import org.rayson.exception.ServiceNotFoundException;
-import org.rayson.server.RpcServerTest;
 
 public class Demo {
 
 	public static void main(String[] args) throws UnknownHostException,
 			IllegalServiceException {
-		RpcServerTest.startTestServer();
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
 		ServerService serverService = Rayson.createProxy("server",
 				ServerService.class, serverAddress);
-		TestRpcService testRpcService = Rayson.createProxy(
-				"demo", TestRpcService.class, serverAddress);
+		TestRpcService testRpcService = Rayson.createProxy("demo",
+				TestRpcService.class, serverAddress);
 
 		try { // list services.
 

@@ -77,6 +77,10 @@ public class TransportClient {
 		listener.start();
 	}
 
+	public void notifyConnectionClosed(ClientConnection connection) {
+		this.connector.notifyConnectionClosed(connection);
+	}
+
 	PacketManager getPacketManager() {
 		return packetManager;
 	}

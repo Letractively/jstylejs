@@ -52,20 +52,26 @@ public class ClientCall<V> {
 		return future.get();
 	}
 
-	public void readResult(DataInput in) throws IOException {
-		InvocationResultType resultType = InvocationResultType.valueOf(in
-				.readByte());
-		switch (resultType) {
-		case SUCCESSFUL:
-			this.future.set((V) Stream.readPortable(in));
-			break;
-		case EXCEPTION:
-			InvocationException remoteExceptionHandler = new InvocationException();
-			remoteExceptionHandler.read(in);
-			this.future.setException(remoteExceptionHandler);
-			break;
-		default:
-			break;
+	public void readResult(DataInput in) {
+		InvocationResultType resultType;
+		try {
+			resultType = InvocationResultType.valueOf(in.readByte());
+
+			switch (resultType) {
+			case SUCCESSFUL:
+				this.future.set((V) Stream.readPortable(in));
+				break;
+			case EXCEPTION:
+				InvocationException remoteExceptionHandler = new InvocationException();
+				remoteExceptionHandler.read(in);
+				this.future.setException(remoteExceptionHandler);
+				break;
+			default:
+				break;
+			}
+		} catch (IOException e) {
+			this.future.setException(new InvocationException(true,
+					new ReadResultException(e)));
 		}
 	}
 
@@ -83,5 +89,10 @@ public class ClientCall<V> {
 		sb.append(this.invocation.toString());
 		sb.append("}");
 		return sb.toString();
+	}
+
+	public void notifyConnectionClosed() {
+		this.future.setException(new InvocationException(true,
+				new ConnectionClosedException()));
 	}
 }

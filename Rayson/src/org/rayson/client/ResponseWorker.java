@@ -21,7 +21,7 @@ class ResponseWorker extends Thread {
 			try {
 				try {
 					TransportClient.getSingleton().getConnector()
-							.responseCall();
+							.responseOneCall();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
