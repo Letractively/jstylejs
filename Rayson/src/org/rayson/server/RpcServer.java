@@ -77,6 +77,10 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	public void invokeCall(ServerCall call) {
+		if (call.exceptionSetted()) {
+			// no need to invoke.
+			return;
+		}
 		Invocation invocation = call.getInvocation();
 		RpcService serviceObject;
 		try {

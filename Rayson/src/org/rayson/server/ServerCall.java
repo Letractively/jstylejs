@@ -11,6 +11,7 @@ import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
+import org.rayson.exception.CallParameterException;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
@@ -41,19 +42,30 @@ public class ServerCall {
 		return invocation;
 	}
 
-	public static ServerCall fromPacket(Packet requestPacket)
-			throws IOException {
+	public static ServerCall fromPacket(Packet requestPacket) {
 
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
 				requestPacket.getData());
 		DataInputStream dataInputStream = new DataInputStream(
 				byteArrayInputStream);
-		long clientCallId = dataInputStream.readLong();
-		Invocation invocation = new Invocation();
-		invocation.read(dataInputStream);
 		ServerCall serverCall = new ServerCall();
+		long clientCallId;
+		try {
+			clientCallId = dataInputStream.readLong();
+		} catch (IOException e) {
+			// can not get client call id, so we need to ignore this packet.
+			return null;
+		}
 		serverCall.clientCallId = clientCallId;
-		serverCall.invocation = invocation;
+		Invocation invocation = new Invocation();
+		try {
+			invocation.read(dataInputStream);
+			serverCall.invocation = invocation;
+		} catch (IOException e) {
+			serverCall.setException(new InvocationException(true,
+					new CallParameterException("Read call invocation error: "
+							+ e.toString())));
+		}
 		return serverCall;
 	}
 
@@ -62,6 +74,10 @@ public class ServerCall {
 			responsePacket = toResponsePacket();
 		}
 		return responsePacket;
+	}
+
+	public boolean exceptionSetted() {
+		return (exception != null);
 	}
 
 	private Packet toResponsePacket() throws PacketException {

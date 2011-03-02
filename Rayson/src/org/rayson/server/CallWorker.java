@@ -34,7 +34,7 @@ class CallWorker extends Thread {
 				this.server.invokeCall(call);
 				try {
 					try {
-						this.server.getConnector().returnCall(call.getId(),
+						this.server.getConnector().responseCall(call.getId(),
 								call.getResponsePacket());
 					} catch (PacketException e) {
 						// TODO Auto-generated catch block

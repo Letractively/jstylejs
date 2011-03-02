@@ -16,7 +16,7 @@ public class RpcConnector {
 		callConenctions = new HashMap<Long, ServerConnection>();
 	}
 
-	public void returnCall(long callId, Packet responsePacket)
+	public void responseCall(long callId, Packet responsePacket)
 			throws IOException {
 		ServerConnection serverConnection = this.callConenctions.remove(callId);
 		serverConnection.addSendPacket(responsePacket);
@@ -26,11 +26,11 @@ public class RpcConnector {
 		ConnectionPacketLink connectionPacket = this.server.getPacketManager()
 				.takeReceived();
 		ServerCall serverCall = null;
-		try {
-			serverCall = ServerCall.fromPacket(connectionPacket.getPacket());
-		} catch (IOException e) {
-			// TODO: handling this exception
-			e.printStackTrace();
+
+		serverCall = ServerCall.fromPacket(connectionPacket.getPacket());
+		if (serverCall == null) {
+			// try again
+			return takeCall();
 		}
 		callConenctions.put(serverCall.getId(),
 				connectionPacket.getConnection());

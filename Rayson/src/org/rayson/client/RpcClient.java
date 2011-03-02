@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import org.rayson.api.RpcService;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
+import org.rayson.exception.CallParameterException;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.RemoteExceptionImpl;
@@ -90,6 +91,10 @@ class RpcClient {
 				remoteException.setStackTrace(Arrays.copyOfRange(
 						stackTraceElements, stackTraceElements.length - 1,
 						stackTraceElements.length));
+				if (CallParameterException.class
+						.isAssignableFrom(remoteException.getClass()))
+					throw RemoteExceptionImpl
+							.createParameterException((CallParameterException) remoteException);
 				if (ConnectionClosedException.class
 						.isAssignableFrom(remoteException.getClass()))
 					throw RemoteExceptionImpl

@@ -1,5 +1,5 @@
 package org.rayson.exception;
 
 public enum RemoteExceptionType {
-	NETWORK, SERVICE_NOT_FOUND, UNDECLARED;
+	NETWORK, SERVICE_NOT_FOUND, UNDECLARED, PARAMETER;
 }

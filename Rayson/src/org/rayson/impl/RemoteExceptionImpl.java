@@ -2,6 +2,7 @@ package org.rayson.impl;
 
 import java.io.IOException;
 
+import org.rayson.exception.CallParameterException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RemoteException;
 import org.rayson.exception.RemoteExceptionType;
@@ -31,6 +32,13 @@ public final class RemoteExceptionImpl extends RemoteException {
 	public static RemoteException createUndecleardException(Throwable throwable) {
 		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
 				RemoteExceptionType.UNDECLARED, throwable);
+		return remoteException;
+	}
+
+	public static Exception createParameterException(
+			CallParameterException exception) {
+		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
+				RemoteExceptionType.PARAMETER, exception);
 		return remoteException;
 	}
 }
