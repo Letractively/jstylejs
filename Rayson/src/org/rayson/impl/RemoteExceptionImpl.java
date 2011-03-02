@@ -2,7 +2,7 @@ package org.rayson.impl;
 
 import java.io.IOException;
 
-import org.rayson.exception.CallParameterException;
+import org.rayson.exception.CallException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RemoteException;
 import org.rayson.exception.RemoteExceptionType;
@@ -36,9 +36,9 @@ public final class RemoteExceptionImpl extends RemoteException {
 	}
 
 	public static Exception createParameterException(
-			CallParameterException exception) {
+			CallException exception) {
 		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
-				RemoteExceptionType.PARAMETER, exception);
+				RemoteExceptionType.CALL, exception);
 		return remoteException;
 	}
 }

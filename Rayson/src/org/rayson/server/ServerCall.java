@@ -11,7 +11,7 @@ import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
-import org.rayson.exception.CallParameterException;
+import org.rayson.exception.CallException;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
@@ -62,8 +62,8 @@ public class ServerCall {
 			invocation.read(dataInputStream);
 			serverCall.invocation = invocation;
 		} catch (IOException e) {
-			serverCall.setException(new InvocationException(true,
-					new CallParameterException("Read call invocation error: "
+			serverCall.setException(new InvocationException(false,
+					new CallException("Read call invocation error: "
 							+ e.toString())));
 		}
 		return serverCall;

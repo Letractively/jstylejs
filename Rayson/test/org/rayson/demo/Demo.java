@@ -11,7 +11,7 @@ import org.rayson.api.ServerService;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.TestRpcService;
 import org.rayson.client.Rayson;
-import org.rayson.exception.CallParameterException;
+import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RemoteException;
@@ -58,7 +58,7 @@ public class Demo {
 			} catch (ServiceNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (CallParameterException e1) {
+			} catch (CallException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}

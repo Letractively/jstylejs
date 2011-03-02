@@ -1,10 +1,10 @@
 package org.rayson.exception;
 
-public class CallParameterException extends Exception {
+public class CallException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public CallParameterException(String message) {
+	public CallException(String message) {
 		super(message);
 	}
 }

@@ -91,7 +91,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		} catch (InvocationException e) {
 			call.setException(e);
 		} catch (ServiceNotFoundException e) {
-			call.setException(new InvocationException(true, e));
+			call.setException(new InvocationException(false, e));
 		}
 	}
 

@@ -11,7 +11,7 @@ public class InvocationException extends Exception implements Transportable {
 
 	private static final long serialVersionUID = 1L;
 	private Throwable throwException;
-	private boolean unDeclaredException;
+	private boolean unDeclared;
 
 	private static final Class[] DEFAULT_CONSTRUCTOR_PARAMETER_TYPES = new Class[] { String.class };
 
@@ -20,18 +20,18 @@ public class InvocationException extends Exception implements Transportable {
 	}
 
 	public boolean isUnDeclaredException() {
-		return unDeclaredException;
+		return unDeclared;
 	}
 
 	public InvocationException(boolean unDeclaredException,
 			Throwable thrownException) {
-		this.unDeclaredException = unDeclaredException;
+		this.unDeclared = unDeclaredException;
 		this.throwException = thrownException;
 	}
 
 	@Override
 	public void read(DataInput in) throws IOException {
-		this.unDeclaredException = in.readBoolean();
+		this.unDeclared = in.readBoolean();
 		String className = in.readUTF();
 		String message = (String) Stream.readPortable(in);
 		try {
@@ -40,7 +40,7 @@ public class InvocationException extends Exception implements Transportable {
 					new String[] { message });
 			this.throwException = throwable;
 		} catch (Throwable e) {
-			this.unDeclaredException = true;
+			this.unDeclared = true;
 			this.throwException = new RpcExcptionInstantiationException(e);
 		}
 
@@ -49,7 +49,7 @@ public class InvocationException extends Exception implements Transportable {
 	@Override
 	public void write(DataOutput out) throws IOException {
 		// write exception type
-		out.writeBoolean(unDeclaredException);
+		out.writeBoolean(unDeclared);
 		String className;
 		String message;
 		className = this.throwException.getClass().getName();

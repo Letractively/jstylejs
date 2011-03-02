@@ -18,7 +18,7 @@ public abstract class RemoteException extends Exception {
 	/**
 	 * Throw the cause exception of this remote exception.
 	 * 
-	 * @throws CallParameterException
+	 * @throws CallException
 	 *             If read the call parameter from server or client error.
 	 * @throws NetWorkException
 	 *             If network exception occurred.
@@ -28,11 +28,11 @@ public abstract class RemoteException extends Exception {
 	 *             If undeclared exception occurred in remote server.
 	 */
 	public void throwCause() throws NetWorkException, ServiceNotFoundException,
-			CallParameterException, UndeclaredThrowableException {
+			CallException, UndeclaredThrowableException {
 		switch (type) {
 
-		case PARAMETER:
-			throw (CallParameterException) cause;
+		case CALL:
+			throw (CallException) cause;
 		case NETWORK:
 			throw (NetWorkException) cause;
 

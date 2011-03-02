@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import org.rayson.api.RpcService;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
-import org.rayson.exception.CallParameterException;
+import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.RemoteExceptionImpl;
@@ -91,23 +91,26 @@ class RpcClient {
 				remoteException.setStackTrace(Arrays.copyOfRange(
 						stackTraceElements, stackTraceElements.length - 1,
 						stackTraceElements.length));
-				if (CallParameterException.class
-						.isAssignableFrom(remoteException.getClass()))
-					throw RemoteExceptionImpl
-							.createParameterException((CallParameterException) remoteException);
-				if (ConnectionClosedException.class
-						.isAssignableFrom(remoteException.getClass()))
-					throw RemoteExceptionImpl
-							.createNetWorkException((ConnectionClosedException) remoteException);
-				if (ServiceNotFoundException.class
-						.isAssignableFrom(remoteException.getClass()))
-					throw RemoteExceptionImpl
-							.createServiceNotFoundException((ServiceNotFoundException) remoteException);
+
 				if (invocationException.isUnDeclaredException())
 					throw RemoteExceptionImpl
 							.createUndecleardException(remoteException);
-				else
-					throw remoteException;
+
+				if (remoteException instanceof CallException)
+					throw RemoteExceptionImpl
+							.createParameterException((CallException) remoteException);
+
+				if (remoteException instanceof ConnectionClosedException)
+
+					throw RemoteExceptionImpl
+							.createNetWorkException((ConnectionClosedException) remoteException);
+
+				if (remoteException instanceof ServiceNotFoundException)
+
+					throw RemoteExceptionImpl
+							.createServiceNotFoundException((ServiceNotFoundException) remoteException);
+
+				throw remoteException;
 			}
 		}
 	}

@@ -38,7 +38,7 @@ public class Invocation implements Transportable {
 		try {
 			method = serviceObject.getClass().getMethod(methodName, paraTypes);
 		} catch (Exception e) {
-			throw new InvocationException(true, new ServiceNotFoundException(
+			throw new InvocationException(false, new ServiceNotFoundException(
 					"service of " + serviceName + "." + methodName
 							+ " not found"));
 		}
