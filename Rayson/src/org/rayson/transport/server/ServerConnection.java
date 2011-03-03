@@ -21,6 +21,7 @@ import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
+import org.rayson.transport.common.ProtocolType;
 import org.rayson.transport.common.ResponseType;
 import org.rayson.util.Log;
 
@@ -93,7 +94,7 @@ class ServerConnection implements Connection {
 
 	private PacketWriter packetWriter;
 
-	private byte protocol;
+	private ProtocolType protocol;
 
 	private boolean readedConnectHeader = false;
 	private SelectionKey selectionKey;
@@ -164,7 +165,7 @@ class ServerConnection implements Connection {
 	}
 
 	@Override
-	public byte getProtocol() {
+	public ProtocolType getProtocol() {
 		return protocol;
 	}
 
@@ -196,7 +197,7 @@ class ServerConnection implements Connection {
 		this.socketChannel.read(connectHeaderBuffer);
 		if (!connectHeaderBuffer.hasRemaining()) {
 			connectHeaderBuffer.flip();
-			protocol = connectHeaderBuffer.get();
+			protocol = ProtocolType.valueOf(connectHeaderBuffer.get());
 			short gotVersion = connectHeaderBuffer.getShort();
 			if (gotVersion > version)
 				setConnectionState(ConnectionState.WRONG_VERSION);

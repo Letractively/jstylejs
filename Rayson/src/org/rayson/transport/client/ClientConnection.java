@@ -21,6 +21,7 @@ import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.PacketWithType;
+import org.rayson.transport.common.ProtocolType;
 import org.rayson.transport.common.RequestType;
 import org.rayson.util.Log;
 
@@ -82,7 +83,7 @@ class ClientConnection implements Connection {
 	}
 
 	private static Logger LOGGER = Log.getLogger();
-	private static final byte protocol = 1;
+	private static final ProtocolType protocol = ProtocolType.RPC;
 
 	/**
 	 * Time out interval, in milli-seconds.
@@ -132,7 +133,7 @@ class ClientConnection implements Connection {
 
 		this.listener = listener;
 		this.serverSocket = serverSocket;
-		this.connectHeaderBuffer.put(protocol);
+		this.connectHeaderBuffer.put(protocol.getType());
 		this.connectHeaderBuffer.putShort(version);
 		this.connectHeaderBuffer.clear();
 		thresholdLock = new Object();
@@ -195,7 +196,7 @@ class ClientConnection implements Connection {
 	}
 
 	@Override
-	public byte getProtocol() {
+	public ProtocolType getProtocol() {
 
 		return protocol;
 	}

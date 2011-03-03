@@ -9,7 +9,7 @@ public interface Connection {
 
 	public long getId();
 
-	public byte getProtocol();
+	public ProtocolType getProtocol();
 
 	public int getVersion();
 
