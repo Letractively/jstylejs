@@ -24,9 +24,9 @@ public class Demo {
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
-		ServerService serverService = Rayson.createProxy("server",
+		ServerService serverService = Rayson.getService("server",
 				ServerService.class, serverAddress);
-		TestRpcService testRpcService = Rayson.createProxy("demo",
+		TestRpcService testRpcService = Rayson.getService("demo",
 				TestRpcService.class, serverAddress);
 
 		try { // list services.
