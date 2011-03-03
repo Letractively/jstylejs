@@ -13,7 +13,6 @@ import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
 import org.rayson.exception.CallException;
 import org.rayson.transport.common.Packet;
-import org.rayson.transport.common.PacketException;
 
 public class ServerCall {
 
@@ -69,7 +68,12 @@ public class ServerCall {
 		return serverCall;
 	}
 
-	public Packet getResponsePacket() throws PacketException {
+	/**
+	 * @return
+	 * @throws RuntimeException
+	 *             If caught a runtime exception.
+	 */
+	public Packet getResponsePacket() {
 		if (responsePacket == null) {
 			responsePacket = toResponsePacket();
 		}
@@ -80,15 +84,24 @@ public class ServerCall {
 		return (exception != null);
 	}
 
-	private Packet toResponsePacket() throws PacketException {
+	private Packet toResponsePacket() {
+		return toResponsePacket(1);
+	}
+
+	private Packet toResponsePacket(int tryTime) {
+
 		Packet packet = null;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
 				BUFFER_SIZE);
 		DataOutputStream dataOutputStream = new DataOutputStream(
 				byteArrayOutputStream);
 		try {
-
 			dataOutputStream.writeLong(clientCallId);
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"Can not write client call id to data output stream", e);
+		}
+		try {
 
 			if (exception != null) {
 				dataOutputStream.writeByte(InvocationResultType.EXCEPTION
@@ -100,9 +113,14 @@ public class ServerCall {
 				Stream.writePortable(dataOutputStream, result);
 			}
 			packet = new Packet(byteArrayOutputStream.toByteArray());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			if (tryTime > 3)
+				throw new RuntimeException("Try to write call result "
+						+ tryTime + " times, but still failed!");
+			// return a call exception packet
+			exception = new InvocationException(true, new CallException(
+					"Write call result error:" + e.getMessage()));
+			return toResponsePacket(++tryTime);
 		}
 		return packet;
 	}

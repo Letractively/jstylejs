@@ -2,9 +2,9 @@ package org.rayson.server;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.rayson.transport.common.PacketException;
 import org.rayson.util.Log;
 
 class CallWorker extends Thread {
@@ -33,15 +33,11 @@ class CallWorker extends Thread {
 				ServerCall call = this.server.getConnector().takeCall();
 				this.server.invokeCall(call);
 				try {
-					try {
-						this.server.getConnector().responseCall(call.getId(),
-								call.getResponsePacket());
-					} catch (PacketException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				} catch (IOException e) {
-					// TODO: handling this exception
+					this.server.getConnector().responseCall(call.getId(),
+							call.getResponsePacket());
+				} catch (Throwable e) {
+					LOGGER.log(Level.SEVERE, "Response call " + call.getId()
+							+ " error!");
 					e.printStackTrace();
 				}
 			} catch (InterruptedException e) {
