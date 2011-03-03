@@ -30,7 +30,8 @@ class RpcClient {
 
 		public RpcServiceKey(String serviceName,
 				Class<? extends RpcService> serviceClass,
-				SocketAddress serverAddress) {
+				SocketAddress serverAddress) throws IllegalServiceException {
+			// TODO: throw IllegalServiceException.
 			this.serverAddress = serverAddress;
 			this.serviceName = serviceName;
 			this.serviceClass = serviceClass;
@@ -122,10 +123,17 @@ class RpcClient {
 	RpcClient() {
 	}
 
-	public <T extends RpcService> T createProxy(Class<T> serviceClass,
+	/**
+	 * @param <T>
+	 * @param serviceClass
+	 * @param serviceName
+	 * @param serverAddress
+	 * @return
+	 * @throws IllegalServiceException
+	 */
+	public <T extends RpcService> T getRpcProxy(Class<T> serviceClass,
 			String serviceName, SocketAddress serverAddress)
 			throws IllegalServiceException {
-
 		RpcServiceKey serviceKey = new RpcServiceKey(serviceName, serviceClass,
 				serverAddress);
 		RpcService rpcService;

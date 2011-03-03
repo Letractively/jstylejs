@@ -18,7 +18,6 @@ import org.rayson.impl.ServiceDescriptionImpl;
 import org.rayson.transport.server.TransportServerImpl;
 
 class RpcServer extends TransportServerImpl implements ServerService {
-	private static final String DEFAULT_SERVICE_NAME = "server";
 	private static final String DEFAULT_SERVICE_DESCRIPTION = "Rpc server default service";
 	private static final int DEFAULT_WORKER_COUNT = 4;
 	private HashMap<String, Service> services;
@@ -33,7 +32,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		super.start();
 		// Register it self as a service.
 		try {
-			this.registerService(DEFAULT_SERVICE_NAME,
+			this.registerService(ServerService.NAME,
 					DEFAULT_SERVICE_DESCRIPTION, this);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

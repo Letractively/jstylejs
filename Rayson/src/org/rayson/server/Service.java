@@ -12,6 +12,7 @@ class Service {
 
 	Service(String name, String description, RpcService instance)
 			throws IllegalServiceException {
+		// TODO: throw IllegalServiceException
 		this.name = name;
 		this.description = description;
 		this.instance = instance;
