@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.rayson.transport.common.Connection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.util.Log;
 
@@ -14,22 +15,22 @@ class ConnectionManager extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL / 2;
 
-	private ConcurrentHashMap<Long, ServerConnection> connections;
+	private ConcurrentHashMap<Long, Connection> connections;
 
 	ConnectionManager() {
 		setName("Connection manager");
-		connections = new ConcurrentHashMap<Long, ServerConnection>();
+		connections = new ConcurrentHashMap<Long, Connection>();
 	}
 
-	public void accept(ServerConnection connection) throws DenyServiceException {
+	public void accept(RpcServerConnection connection) throws DenyServiceException {
 		// throw new DenyServiceException();
 		this.connections.put(connection.getId(), connection);
 	}
 
 	private void checkTimeouts() {
-		for (Iterator<ServerConnection> iterator = this.connections.values()
+		for (Iterator<Connection> iterator = this.connections.values()
 				.iterator(); iterator.hasNext();) {
-			ServerConnection conn = iterator.next();
+			Connection conn = iterator.next();
 			if (conn.isTimeOut())
 				try {
 					LOGGER.info("Remove and close time out conection: "
@@ -46,7 +47,7 @@ class ConnectionManager extends Thread {
 		}
 	}
 
-	public void remove(ServerConnection connection) {
+	public void remove(Connection connection) {
 		this.connections.remove(connection.getId());
 	}
 

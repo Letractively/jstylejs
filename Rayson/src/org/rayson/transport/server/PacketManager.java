@@ -13,7 +13,7 @@ class PacketManager {
 		receives = new LinkedBlockingQueue<ConnectionPacketLink>();
 	}
 
-	public void addReceived(ServerConnection connection, Packet packet) {
+	public void addReceived(RpcServerConnection connection, Packet packet) {
 		receives.add(new ConnectionPacketLink(connection, packet));
 	}
 

@@ -25,7 +25,7 @@ import org.rayson.transport.common.ResponseType;
 import org.rayson.transport.common.RpcConnection;
 import org.rayson.util.Log;
 
-class ServerConnection extends RpcConnection {
+class RpcServerConnection extends RpcConnection {
 
 	private class PacketWriter {
 		private PacketWithType lastPacketCarrier;
@@ -53,7 +53,7 @@ class ServerConnection extends RpcConnection {
 				this.writeDataBuffer.flip();
 			}
 
-			ServerConnection.this.socketChannel.write(this.writeDataBuffer);
+			RpcServerConnection.this.socketChannel.write(this.writeDataBuffer);
 			if (!this.writeDataBuffer.hasRemaining()) {
 				LOGGER.info("Write packet " + this.lastPacketCarrier.toString()
 						+ " out!");
@@ -99,7 +99,7 @@ class ServerConnection extends RpcConnection {
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
 
-	ServerConnection(SocketChannel clientChannel, PacketManager packetManager,
+	RpcServerConnection(SocketChannel clientChannel, PacketManager packetManager,
 			SelectionKey selectionKey) {
 		this.id = UID.getAndIncrement();
 

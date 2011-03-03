@@ -8,6 +8,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import org.rayson.transport.common.Connection;
 import org.rayson.util.Log;
 
 class Listener extends Thread {
@@ -25,7 +26,7 @@ class Listener extends Thread {
 	private void accept(SelectionKey key) {
 
 		ServerSocketChannel channel = (ServerSocketChannel) key.channel();
-		ServerConnection connection = null;
+		RpcServerConnection connection = null;
 
 		try {
 
@@ -34,7 +35,7 @@ class Listener extends Thread {
 			// register read events for the new connection.
 			SelectionKey clientKey = clientChannel.register(selector,
 					SelectionKey.OP_READ);
-			connection = new ServerConnection(clientChannel,
+			connection = new RpcServerConnection(clientChannel,
 					this.server.getPacketManager(), clientKey);
 			clientKey.attach(connection);
 			try {
@@ -51,7 +52,7 @@ class Listener extends Thread {
 	}
 
 	private void read(SelectionKey key) {
-		ServerConnection connection = (ServerConnection) key.attachment();
+		Connection connection = (Connection) key.attachment();
 		int readCount = -1;
 		try {
 			readCount = connection.read();
@@ -110,7 +111,7 @@ class Listener extends Thread {
 	}
 
 	private void write(SelectionKey key) {
-		ServerConnection connection = (ServerConnection) key.attachment();
+		RpcServerConnection connection = (RpcServerConnection) key.attachment();
 		try {
 			connection.write();
 		} catch (IOException e) {
