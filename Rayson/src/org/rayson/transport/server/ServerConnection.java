@@ -13,19 +13,19 @@ import java.util.logging.Logger;
 
 import org.rayson.transport.common.CRC16;
 import org.rayson.transport.common.ChecksumMatchException;
-import org.rayson.transport.common.Connection;
-import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ConnectionProtocol;
+import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.Packet;
-import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
+import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.ProtocolType;
 import org.rayson.transport.common.ResponseType;
+import org.rayson.transport.common.RpcConnection;
 import org.rayson.util.Log;
 
-class ServerConnection implements Connection {
+class ServerConnection extends RpcConnection {
 
 	private class PacketWriter {
 		private PacketWithType lastPacketCarrier;
@@ -86,15 +86,12 @@ class ServerConnection implements Connection {
 
 	private AtomicBoolean gotErrorPacket;
 	private long id;
-	private volatile long lastContact;
 	private PacketCounter packetCounter;
 	private PacketManager packetManager;
 
 	private PacketReader packetReader;
 
 	private PacketWriter packetWriter;
-
-	private ProtocolType protocol;
 
 	private boolean readedConnectHeader = false;
 	private SelectionKey selectionKey;
@@ -113,7 +110,6 @@ class ServerConnection implements Connection {
 		this.packetManager = packetManager;
 		closed = new AtomicBoolean(false);
 		sendPackets = new LinkedList<PacketWithType>();
-		lastContact = System.currentTimeMillis();
 		packetCounter = new PacketCounter();
 		gotErrorPacket = new AtomicBoolean(false);
 		this.selectionKey = selectionKey;
@@ -165,11 +161,6 @@ class ServerConnection implements Connection {
 	}
 
 	@Override
-	public ProtocolType getProtocol() {
-		return protocol;
-	}
-
-	@Override
 	public int getVersion() {
 		return version;
 	}
@@ -197,7 +188,8 @@ class ServerConnection implements Connection {
 		this.socketChannel.read(connectHeaderBuffer);
 		if (!connectHeaderBuffer.hasRemaining()) {
 			connectHeaderBuffer.flip();
-			protocol = ProtocolType.valueOf(connectHeaderBuffer.get());
+			ProtocolType protocol = ProtocolType.valueOf(connectHeaderBuffer
+					.get());
 			short gotVersion = connectHeaderBuffer.getShort();
 			if (gotVersion > version)
 				setConnectionState(ConnectionState.WRONG_VERSION);
@@ -209,7 +201,7 @@ class ServerConnection implements Connection {
 
 	@Override
 	public boolean isTimeOut() {
-		return System.currentTimeMillis() - lastContact > ConnectionProtocol.TIME_OUT_INTERVAL;
+		return System.currentTimeMillis() - getLastContact() > ConnectionProtocol.TIME_OUT_INTERVAL;
 	}
 
 	@Override
@@ -269,7 +261,7 @@ class ServerConnection implements Connection {
 		sb.append(", version: ");
 		sb.append(this.getVersion());
 		sb.append(", last contact: ");
-		sb.append(lastContact);
+		sb.append(getLastContact());
 		sb.append(", packet counter: ");
 		sb.append(this.packetCounter.toString());
 		sb.append(", pending packets: ");
@@ -278,11 +270,6 @@ class ServerConnection implements Connection {
 		sb.append(this.socketChannel.socket().toString());
 		sb.append("}");
 		return sb.toString();
-	}
-
-	@Override
-	public void touch() {
-		this.lastContact = System.currentTimeMillis();
 	}
 
 	@Override

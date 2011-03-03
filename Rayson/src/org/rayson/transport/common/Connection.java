@@ -3,7 +3,6 @@ package org.rayson.transport.common;
 import java.io.IOException;
 
 public interface Connection {
-	public void addSendPacket(Packet responsePacket) throws IOException;
 
 	public void close() throws IOException;
 
@@ -13,12 +12,6 @@ public interface Connection {
 
 	public int getVersion();
 
-	void init() throws IOException;
-
-	public boolean isTimeOut();
-
-	int pendingPacketCount();
-
 	/**
 	 * Try to read {@link Packet} out from this connection.
 	 * 
@@ -27,6 +20,10 @@ public interface Connection {
 	public int read() throws IOException;
 
 	public void touch();
+
+	public abstract boolean isTimeOut();
+
+	public long getLastContact();
 
 	/**
 	 * Try to write last {@link Packet} to socket of this connection.

@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 import org.rayson.transport.common.CRC16;
 import org.rayson.transport.common.ChecksumMatchException;
-import org.rayson.transport.common.Connection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.Packet;
@@ -23,9 +22,10 @@ import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.ProtocolType;
 import org.rayson.transport.common.RequestType;
+import org.rayson.transport.common.RpcConnection;
 import org.rayson.util.Log;
 
-class ClientConnection implements Connection {
+class ClientConnection extends RpcConnection {
 
 	private class PacketWriter {
 		private PacketWithType lastPacketCarrier;
@@ -83,7 +83,6 @@ class ClientConnection implements Connection {
 	}
 
 	private static Logger LOGGER = Log.getLogger();
-	private static final ProtocolType protocol = ProtocolType.RPC;
 
 	/**
 	 * Time out interval, in milli-seconds.
@@ -100,7 +99,6 @@ class ClientConnection implements Connection {
 
 	private ByteBuffer connectResponseBuffer;
 	private long id;
-	private volatile long lastContact;
 	private Listener listener;
 	private PacketCounter packetCounter;
 	private PacketManager packetManager;
@@ -116,7 +114,7 @@ class ClientConnection implements Connection {
 
 	ClientConnection(SocketAddress serverSocket, PacketManager packetManager,
 			Listener listener) {
-
+		super();
 		this.id = UID.getAndIncrement();
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
@@ -124,7 +122,7 @@ class ClientConnection implements Connection {
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 		this.packetManager = packetManager;
 		closed = new AtomicBoolean(false);
-		lastContact = System.currentTimeMillis();
+
 		packetManager = new PacketManager();
 		packetCounter = new PacketCounter();
 		packetWriter = new PacketWriter();
@@ -133,7 +131,7 @@ class ClientConnection implements Connection {
 
 		this.listener = listener;
 		this.serverSocket = serverSocket;
-		this.connectHeaderBuffer.put(protocol.getType());
+		this.connectHeaderBuffer.put(getProtocol().getType());
 		this.connectHeaderBuffer.putShort(version);
 		this.connectHeaderBuffer.clear();
 		thresholdLock = new Object();
@@ -195,12 +193,6 @@ class ClientConnection implements Connection {
 		return id;
 	}
 
-	@Override
-	public ProtocolType getProtocol() {
-
-		return protocol;
-	}
-
 	public SocketAddress getServerSocket() {
 		return serverSocket;
 	}
@@ -234,7 +226,7 @@ class ClientConnection implements Connection {
 
 	@Override
 	public boolean isTimeOut() {
-		return System.currentTimeMillis() - lastContact > TIME_OUT_INTERVAL;
+		return System.currentTimeMillis() - getLastContact() > TIME_OUT_INTERVAL;
 	}
 
 	private boolean isTooManyPendingPackets() {
@@ -284,7 +276,7 @@ class ClientConnection implements Connection {
 		sb.append(", version: ");
 		sb.append(this.getVersion());
 		sb.append(", last contact: ");
-		sb.append(lastContact);
+		sb.append(getLastContact());
 		sb.append(", packet counter: ");
 		sb.append(this.packetCounter.toString());
 		sb.append(", pending packets: ");
@@ -293,11 +285,6 @@ class ClientConnection implements Connection {
 		sb.append(this.socketChannel.socket().toString());
 		sb.append("}");
 		return sb.toString();
-	}
-
-	@Override
-	public void touch() {
-		this.lastContact = System.currentTimeMillis();
 	}
 
 	@Override
