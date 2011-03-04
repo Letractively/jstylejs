@@ -92,7 +92,7 @@ class PendingConnection implements Connection {
 	public void write() throws IOException {
 		// Write back response code.
 		this.socketChannel.write(connectResponseBuffer);
-		while (!connectResponseBuffer.hasRemaining()) {
+		if (!connectResponseBuffer.hasRemaining()) {
 			// remove this pending connection.
 			this.server.getConnectionManager().removePending(this);
 			this.close();
