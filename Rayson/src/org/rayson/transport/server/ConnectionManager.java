@@ -54,10 +54,7 @@ class ConnectionManager extends Thread {
 	}
 
 	public void remove(Connection connection) {
-		if (connection instanceof PendingConnection)
-			this.pendings.remove(connection.getId());
-		else
-			this.connections.remove(connection.getId());
+		this.connections.remove(connection.getId());
 	}
 
 	@Override
@@ -85,5 +82,9 @@ class ConnectionManager extends Thread {
 		if (this.pendings.size() > MAX_PENDINGS)
 			throw new DenyServiceException();
 		this.pendings.put(connection.getId(), connection);
+	}
+
+	public void removePending(PendingConnection connection) {
+		this.pendings.remove(connection.getId());
 	}
 }

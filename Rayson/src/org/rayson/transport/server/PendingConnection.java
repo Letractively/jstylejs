@@ -68,7 +68,6 @@ class PendingConnection implements Connection {
 					.valueOf(connectpProtocolBuffer.get());
 			switch (protocolType) {
 			case PING: {
-
 				this.selectionKey.interestOps(SelectionKey.OP_WRITE);
 				setConnectionState(ConnectionState.OK);
 			}
@@ -94,7 +93,10 @@ class PendingConnection implements Connection {
 		// Only write error response code will reach here.
 		this.socketChannel.write(connectResponseBuffer);
 		while (!connectResponseBuffer.hasRemaining()) {
+			// remove this pending connection.
+			this.server.getConnectionManager().removePending(this);
 			this.close();
+
 		}
 	}
 }
