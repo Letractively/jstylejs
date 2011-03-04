@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
 import org.rayson.exception.IllegalServiceException;
+import org.rayson.exception.NetWorkException;
 
 public final class Rayson {
 	private static RpcClient client = new RpcClient();
@@ -28,5 +29,10 @@ public final class Rayson {
 		} catch (IllegalServiceException e) {
 			throw new RuntimeException("Server service is illeagal", e);
 		}
+	}
+
+	public static void ping(SocketAddress serverAddress)
+			throws NetWorkException {
+		client.ping(serverAddress);
 	}
 }

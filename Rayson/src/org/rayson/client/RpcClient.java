@@ -16,6 +16,7 @@ import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
+import org.rayson.exception.NetWorkException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.RemoteExceptionImpl;
 import org.rayson.transport.client.TransportClient;
@@ -165,5 +166,9 @@ class RpcClient {
 			throws IOException {
 		TransportClient.getSingleton().getConnector()
 				.sumbitCall(serverAddress, call);
+	}
+
+	public void ping(SocketAddress serverAddress) throws NetWorkException {
+		TransportClient.getSingleton().getConnector().ping(serverAddress);
 	}
 }

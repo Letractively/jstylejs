@@ -19,13 +19,7 @@ class ResponseWorker extends Thread {
 		LOGGER.info(getName() + " starting...");
 		while (true) {
 			try {
-				try {
-					TransportClient.getSingleton().getConnector()
-							.responseOneCall();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				TransportClient.getSingleton().getConnector().responseOneCall();
 
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

@@ -110,7 +110,7 @@ class Listener extends Thread {
 	}
 
 	private void write(SelectionKey key) {
-		RpcConnection connection = (RpcConnection) key.attachment();
+		Connection connection = (Connection) key.attachment();
 		try {
 			connection.write();
 		} catch (IOException e) {

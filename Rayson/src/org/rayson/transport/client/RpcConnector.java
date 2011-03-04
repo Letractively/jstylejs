@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.logging.Level;
 
 import org.rayson.client.ClientCall;
+import org.rayson.exception.NetWorkException;
 import org.rayson.transport.common.Packet;
 import org.rayson.util.Log;
 
@@ -140,5 +141,9 @@ public class RpcConnector {
 			return;
 		}
 		call.readResult(inputStream);
+	}
+
+	public void ping(SocketAddress serverAddress) throws NetWorkException {
+		client.ping(serverAddress);
 	}
 }

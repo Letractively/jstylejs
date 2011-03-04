@@ -68,8 +68,8 @@ class PendingConnection implements Connection {
 					.valueOf(connectpProtocolBuffer.get());
 			switch (protocolType) {
 			case PING: {
-				this.selectionKey.interestOps(SelectionKey.OP_WRITE);
 				setConnectionState(ConnectionState.OK);
+				this.selectionKey.interestOps(SelectionKey.OP_WRITE);
 			}
 				break;
 			case RPC: {
@@ -90,7 +90,7 @@ class PendingConnection implements Connection {
 
 	@Override
 	public void write() throws IOException {
-		// Only write error response code will reach here.
+		// Write back response code.
 		this.socketChannel.write(connectResponseBuffer);
 		while (!connectResponseBuffer.hasRemaining()) {
 			// remove this pending connection.
