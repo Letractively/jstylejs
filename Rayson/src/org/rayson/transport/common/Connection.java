@@ -10,20 +10,12 @@ public interface Connection {
 
 	public ProtocolType getProtocol();
 
-	public int getVersion();
-
 	/**
 	 * Try to read {@link Packet} out from this connection.
 	 * 
 	 * @throws IOException
 	 */
 	public int read() throws IOException;
-
-	public void touch();
-
-	public abstract boolean isTimeOut();
-
-	public long getLastContact();
 
 	/**
 	 * Try to write last {@link Packet} to socket of this connection.

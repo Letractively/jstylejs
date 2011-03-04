@@ -73,7 +73,6 @@ class RpcConnection extends AbstractConnection {
 	}
 
 	private static Logger LOGGER = Log.getLogger();
-	private static AtomicLong UID = new AtomicLong(0);
 	private static final short version = 1;
 
 	private AtomicBoolean closed;
@@ -99,12 +98,12 @@ class RpcConnection extends AbstractConnection {
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
 
-	RpcConnection(SocketChannel clientChannel, PacketManager packetManager,
-			SelectionKey selectionKey) {
-		this.id = UID.getAndIncrement();
-
+	RpcConnection(long id, SocketChannel clientChannel,
+			PacketManager packetManager, SelectionKey selectionKey) {
+		this.id = id;
 		connectHeaderBuffer = ByteBuffer
-				.allocate(ConnectionProtocol.HEADER_LENGTH);
+				.allocate(ConnectionProtocol.HEADER_LENGTH - 1);// header length
+																// -protocol
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 		this.packetManager = packetManager;
@@ -114,8 +113,8 @@ class RpcConnection extends AbstractConnection {
 		gotErrorPacket = new AtomicBoolean(false);
 		this.selectionKey = selectionKey;
 		this.socketChannel = clientChannel;
-		setConnectionState(ConnectionState.OK);
 		packetWriter = new PacketWriter();
+		setConnectionState(ConnectionState.OK);
 		packetReader = new ServerPacketReader(this.socketChannel);
 	}
 
@@ -145,14 +144,6 @@ class RpcConnection extends AbstractConnection {
 			return;
 		this.socketChannel.close();
 		LOGGER.info(this.toString() + " closed!");
-	}
-
-	/**
-	 * Deny to accept this connection into {@link PacketManager}.
-	 */
-	void denyToAccept() {
-		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
-		setConnectionState(ConnectionState.SERVICE_UNAVALIABLE);
 	}
 
 	@Override
@@ -188,8 +179,6 @@ class RpcConnection extends AbstractConnection {
 		this.socketChannel.read(connectHeaderBuffer);
 		if (!connectHeaderBuffer.hasRemaining()) {
 			connectHeaderBuffer.flip();
-			ProtocolType protocol = ProtocolType.valueOf(connectHeaderBuffer
-					.get());
 			short gotVersion = connectHeaderBuffer.getShort();
 			if (gotVersion > version)
 				setConnectionState(ConnectionState.WRONG_VERSION);
@@ -197,6 +186,13 @@ class RpcConnection extends AbstractConnection {
 					| SelectionKey.OP_READ);
 			readedConnectHeader = true;
 		}
+	}
+
+	private void setConnectionState(ConnectionState connectionCode) {
+		this.connectionState = connectionCode;
+		this.connectResponseBuffer.clear();
+		this.connectResponseBuffer.put(connectionCode.getState());
+		this.connectResponseBuffer.clear();
 	}
 
 	@Override
@@ -237,13 +233,6 @@ class RpcConnection extends AbstractConnection {
 			init();
 			return 0;
 		}
-	}
-
-	private void setConnectionState(ConnectionState connectionCode) {
-		this.connectionState = connectionCode;
-		this.connectResponseBuffer.clear();
-		this.connectResponseBuffer.put(connectionCode.getState());
-		this.connectResponseBuffer.clear();
 	}
 
 	private boolean shouldWriteErrorResponse() {

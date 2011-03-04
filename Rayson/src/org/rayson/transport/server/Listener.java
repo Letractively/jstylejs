@@ -26,7 +26,7 @@ class Listener extends Thread {
 	private void accept(SelectionKey key) {
 
 		ServerSocketChannel channel = (ServerSocketChannel) key.channel();
-		RpcConnection connection = null;
+		PendingConnection connection = null;
 
 		try {
 
@@ -35,11 +35,10 @@ class Listener extends Thread {
 			// register read events for the new connection.
 			SelectionKey clientKey = clientChannel.register(selector,
 					SelectionKey.OP_READ);
-			connection = new RpcConnection(clientChannel,
-					this.server.getPacketManager(), clientKey);
+			connection = new PendingConnection(server, clientChannel, clientKey);
 			clientKey.attach(connection);
 			try {
-				this.server.getConnectionManager().accept(connection);
+				this.server.getConnectionManager().acceptPending(connection);
 			} catch (DenyServiceException e) {
 				connection.denyToAccept();
 			}

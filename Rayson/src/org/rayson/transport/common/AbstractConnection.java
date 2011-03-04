@@ -19,12 +19,10 @@ public abstract class AbstractConnection implements Connection {
 	public abstract void addSendPacket(Packet responsePacket)
 			throws IOException;
 
-	@Override
 	public final long getLastContact() {
 		return lastContact;
 	}
 
-	@Override
 	public final void touch() {
 		this.lastContact = System.currentTimeMillis();
 	}
@@ -33,4 +31,9 @@ public abstract class AbstractConnection implements Connection {
 	public final ProtocolType getProtocol() {
 		return protocol;
 	}
+
+	public abstract int getVersion();
+
+	public abstract boolean isTimeOut();
+
 }

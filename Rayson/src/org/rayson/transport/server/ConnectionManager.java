@@ -1,11 +1,13 @@
 package org.rayson.transport.server;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.rayson.transport.common.AbstractConnection;
 import org.rayson.transport.common.Connection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.util.Log;
@@ -15,22 +17,26 @@ class ConnectionManager extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL / 2;
 
-	private ConcurrentHashMap<Long, Connection> connections;
+	private ConcurrentHashMap<Long, AbstractConnection> connections;
+	private static final int MAX_PENDINGS = 10000;
+	private HashMap<Long, PendingConnection> pendings;
 
 	ConnectionManager() {
 		setName("Connection manager");
-		connections = new ConcurrentHashMap<Long, Connection>();
+		connections = new ConcurrentHashMap<Long, AbstractConnection>();
+		pendings = new HashMap<Long, PendingConnection>();
 	}
 
-	public void accept(RpcConnection connection) throws DenyServiceException {
+	public void accept(long pendingId, RpcConnection connection) {
 		// throw new DenyServiceException();
+		this.pendings.remove(pendingId);
 		this.connections.put(connection.getId(), connection);
 	}
 
 	private void checkTimeouts() {
-		for (Iterator<Connection> iterator = this.connections.values()
+		for (Iterator<AbstractConnection> iterator = this.connections.values()
 				.iterator(); iterator.hasNext();) {
-			Connection conn = iterator.next();
+			AbstractConnection conn = iterator.next();
 			if (conn.isTimeOut())
 				try {
 					LOGGER.info("Remove and close time out conection: "
@@ -48,7 +54,10 @@ class ConnectionManager extends Thread {
 	}
 
 	public void remove(Connection connection) {
-		this.connections.remove(connection.getId());
+		if (connection instanceof PendingConnection)
+			this.pendings.remove(connection.getId());
+		else
+			this.connections.remove(connection.getId());
 	}
 
 	@Override
@@ -69,5 +78,12 @@ class ConnectionManager extends Thread {
 
 	public int size() {
 		return this.connections.size();
+	}
+
+	public void acceptPending(PendingConnection connection)
+			throws DenyServiceException {
+		if (this.pendings.size() > MAX_PENDINGS)
+			throw new DenyServiceException();
+		this.pendings.put(connection.getId(), connection);
 	}
 }
