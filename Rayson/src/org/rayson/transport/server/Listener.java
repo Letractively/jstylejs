@@ -26,7 +26,7 @@ class Listener extends Thread {
 	private void accept(SelectionKey key) {
 
 		ServerSocketChannel channel = (ServerSocketChannel) key.channel();
-		RpcServerConnection connection = null;
+		RpcConnection connection = null;
 
 		try {
 
@@ -35,7 +35,7 @@ class Listener extends Thread {
 			// register read events for the new connection.
 			SelectionKey clientKey = clientChannel.register(selector,
 					SelectionKey.OP_READ);
-			connection = new RpcServerConnection(clientChannel,
+			connection = new RpcConnection(clientChannel,
 					this.server.getPacketManager(), clientKey);
 			clientKey.attach(connection);
 			try {
@@ -111,7 +111,7 @@ class Listener extends Thread {
 	}
 
 	private void write(SelectionKey key) {
-		RpcServerConnection connection = (RpcServerConnection) key.attachment();
+		RpcConnection connection = (RpcConnection) key.attachment();
 		try {
 			connection.write();
 		} catch (IOException e) {

@@ -2,9 +2,9 @@ package org.rayson.transport.common;
 
 import java.io.IOException;
 
-public abstract class RpcConnection implements Connection {
+public abstract class AbstractConnection implements Connection {
 
-	protected RpcConnection() {
+	protected AbstractConnection() {
 		lastContact = System.currentTimeMillis();
 	}
 

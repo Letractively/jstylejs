@@ -26,7 +26,7 @@ class Listener extends Thread {
 	}
 
 	private void read(SelectionKey key) {
-		ClientConnection connection = (ClientConnection) key.attachment();
+		RpcConnection connection = (RpcConnection) key.attachment();
 		int readCount = -1;
 		try {
 			readCount = connection.read();
@@ -45,7 +45,7 @@ class Listener extends Thread {
 	}
 
 	SelectionKey register(SocketChannel socketChannel, int ops,
-			ClientConnection clientConnection) throws IOException {
+			RpcConnection clientConnection) throws IOException {
 		SelectionKey key;
 		synchronized (registering) {
 			registering.set(true);
@@ -102,7 +102,7 @@ class Listener extends Thread {
 	}
 
 	private void write(SelectionKey key) {
-		ClientConnection connection = (ClientConnection) key.attachment();
+		RpcConnection connection = (RpcConnection) key.attachment();
 		try {
 			connection.write();
 		} catch (IOException e) {

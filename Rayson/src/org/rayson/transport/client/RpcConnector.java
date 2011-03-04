@@ -65,7 +65,7 @@ public class RpcConnector {
 		connections = new HashMap<Long, RpcConnector.ConnectionCalls>();
 	}
 
-	public synchronized void notifyConnectionClosed(ClientConnection connection) {
+	public synchronized void notifyConnectionClosed(RpcConnection connection) {
 		ConnectionCalls connectionCalls = connections
 				.remove(connection.getId());
 		if (connectionCalls == null) {
@@ -118,7 +118,7 @@ public class RpcConnector {
 
 	public synchronized void sumbitCall(SocketAddress serverAddress,
 			ClientCall call) throws ConnectException, IOException {
-		ClientConnection connection = client.getConnection(serverAddress);
+		RpcConnection connection = client.getConnection(serverAddress);
 		addCall(call, connection.getId());
 		connection.addSendPacket(call.getRequestPacket());
 

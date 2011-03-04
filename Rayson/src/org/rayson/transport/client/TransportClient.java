@@ -21,7 +21,7 @@ public class TransportClient {
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
-		ClientConnection connection = TransportClient.getSingleton()
+		RpcConnection connection = TransportClient.getSingleton()
 				.getConnection(serverAddress);
 		byte[] bytes = new byte[344];
 		Packet testPacket = new Packet(bytes);
@@ -46,16 +46,16 @@ public class TransportClient {
 		}
 	}
 
-	ClientConnection getConnection(SocketAddress serverAddress)
+	RpcConnection getConnection(SocketAddress serverAddress)
 			throws IOException, ConnectException {
 		tryLoad();
-		ClientConnection connection;
+		RpcConnection connection;
 		synchronized (connectionManager) {
 			connection = connectionManager.getConnection(serverAddress);
 			if (connection != null)
 				return connection;
 			// Else create new connection and put it to manager.
-			connection = new ClientConnection(serverAddress, packetManager,
+			connection = new RpcConnection(serverAddress, packetManager,
 					listener);
 			connection.init();
 			connectionManager.accept(connection);
@@ -77,7 +77,7 @@ public class TransportClient {
 		listener.start();
 	}
 
-	public void notifyConnectionClosed(ClientConnection connection) {
+	public void notifyConnectionClosed(RpcConnection connection) {
 		this.connector.notifyConnectionClosed(connection);
 	}
 

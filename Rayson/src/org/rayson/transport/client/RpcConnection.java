@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
+import org.rayson.transport.common.AbstractConnection;
 import org.rayson.transport.common.CRC16;
 import org.rayson.transport.common.ChecksumMatchException;
 import org.rayson.transport.common.ConnectionProtocol;
@@ -20,12 +21,10 @@ import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.PacketWithType;
-import org.rayson.transport.common.ProtocolType;
 import org.rayson.transport.common.RequestType;
-import org.rayson.transport.common.RpcConnection;
 import org.rayson.util.Log;
 
-class ClientConnection extends RpcConnection {
+class RpcConnection extends AbstractConnection {
 
 	private class PacketWriter {
 		private PacketWithType lastPacketCarrier;
@@ -112,7 +111,7 @@ class ClientConnection extends RpcConnection {
 	private SocketChannel socketChannel;
 	private Object thresholdLock;
 
-	ClientConnection(SocketAddress serverSocket, PacketManager packetManager,
+	RpcConnection(SocketAddress serverSocket, PacketManager packetManager,
 			Listener listener) {
 		super();
 		this.id = UID.getAndIncrement();

@@ -8,17 +8,17 @@ import org.rayson.transport.common.Packet;
 
 public class RpcConnector {
 
-	private HashMap<Long, RpcServerConnection> callConenctions;
+	private HashMap<Long, RpcConnection> callConenctions;
 	private TransportServer server;
 
 	RpcConnector(TransportServer server) {
 		this.server = server;
-		callConenctions = new HashMap<Long, RpcServerConnection>();
+		callConenctions = new HashMap<Long, RpcConnection>();
 	}
 
 	public void responseCall(long callId, Packet responsePacket)
 			throws IOException {
-		RpcServerConnection serverConnection = this.callConenctions.remove(callId);
+		RpcConnection serverConnection = this.callConenctions.remove(callId);
 		serverConnection.addSendPacket(responsePacket);
 	}
 

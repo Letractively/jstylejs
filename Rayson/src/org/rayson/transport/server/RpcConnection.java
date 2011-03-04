@@ -22,10 +22,10 @@ import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.ProtocolType;
 import org.rayson.transport.common.ResponseType;
-import org.rayson.transport.common.RpcConnection;
+import org.rayson.transport.common.AbstractConnection;
 import org.rayson.util.Log;
 
-class RpcServerConnection extends RpcConnection {
+class RpcConnection extends AbstractConnection {
 
 	private class PacketWriter {
 		private PacketWithType lastPacketCarrier;
@@ -53,7 +53,7 @@ class RpcServerConnection extends RpcConnection {
 				this.writeDataBuffer.flip();
 			}
 
-			RpcServerConnection.this.socketChannel.write(this.writeDataBuffer);
+			RpcConnection.this.socketChannel.write(this.writeDataBuffer);
 			if (!this.writeDataBuffer.hasRemaining()) {
 				LOGGER.info("Write packet " + this.lastPacketCarrier.toString()
 						+ " out!");
@@ -99,7 +99,7 @@ class RpcServerConnection extends RpcConnection {
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
 
-	RpcServerConnection(SocketChannel clientChannel, PacketManager packetManager,
+	RpcConnection(SocketChannel clientChannel, PacketManager packetManager,
 			SelectionKey selectionKey) {
 		this.id = UID.getAndIncrement();
 

@@ -22,7 +22,7 @@ class ConnectionManager extends Thread {
 		connections = new ConcurrentHashMap<Long, Connection>();
 	}
 
-	public void accept(RpcServerConnection connection) throws DenyServiceException {
+	public void accept(RpcConnection connection) throws DenyServiceException {
 		// throw new DenyServiceException();
 		this.connections.put(connection.getId(), connection);
 	}

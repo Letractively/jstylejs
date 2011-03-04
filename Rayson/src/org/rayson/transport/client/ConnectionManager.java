@@ -14,22 +14,22 @@ class ConnectionManager extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL * 2;
 
-	private ConcurrentHashMap<SocketAddress, ClientConnection> connections;
+	private ConcurrentHashMap<SocketAddress, RpcConnection> connections;
 
 	ConnectionManager() {
 		setName("Client connection manager");
-		connections = new ConcurrentHashMap<SocketAddress, ClientConnection>();
+		connections = new ConcurrentHashMap<SocketAddress, RpcConnection>();
 	}
 
-	public void accept(ClientConnection connection) {
+	public void accept(RpcConnection connection) {
 		// throw new DenyServiceException();
 		this.connections.put(connection.getServerSocket(), connection);
 	}
 
 	private void checkTimeouts() {
-		for (Iterator<ClientConnection> iterator = this.connections.values()
+		for (Iterator<RpcConnection> iterator = this.connections.values()
 				.iterator(); iterator.hasNext();) {
-			ClientConnection conn = iterator.next();
+			RpcConnection conn = iterator.next();
 			if (conn.isTimeOut())
 				try {
 					LOGGER.info("Remove and close time out conection: "
@@ -46,12 +46,12 @@ class ConnectionManager extends Thread {
 		}
 	}
 
-	public ClientConnection getConnection(SocketAddress serverAddress) {
+	public RpcConnection getConnection(SocketAddress serverAddress) {
 		return this.connections.get(serverAddress);
 
 	}
 
-	public void remove(ClientConnection connection) {
+	public void remove(RpcConnection connection) {
 		this.connections.remove(connection.getServerSocket());
 	}
 
