@@ -1,7 +1,7 @@
 package org.rayson.transport.common;
 
 public enum ProtocolType {
-	RPC((byte) 1), STREAM((byte) 2), PING((byte) 0), UNKNOWN((byte) 8);
+	PING((byte) 0), RPC((byte) 1), STREAM((byte) 2), UNKNOWN((byte) 8);
 	public static ProtocolType valueOf(byte type) {
 		for (ProtocolType t : ProtocolType.values()) {
 			if (t.type == type)

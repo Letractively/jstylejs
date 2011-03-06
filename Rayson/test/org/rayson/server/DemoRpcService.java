@@ -12,11 +12,6 @@ class DemoRpcService implements TestRpcService {
 	}
 
 	@Override
-	public void voidMethod() {
-		System.out.println("voidMethod");
-	}
-
-	@Override
 	public int getInt() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -32,6 +27,11 @@ class DemoRpcService implements TestRpcService {
 	public Integer getInteger() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void voidMethod() {
+		System.out.println("voidMethod");
 	}
 
 }

@@ -13,7 +13,6 @@ import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.ProtocolType;
-import org.rayson.transport.common.ResponseType;
 
 public class TransportClient {
 	private static TransportClient singleton = new TransportClient();
@@ -47,13 +46,6 @@ public class TransportClient {
 		packetManager = new PacketManager();
 	}
 
-	private void tryLoad() throws IOException {
-		synchronized (loaded) {
-			if (loaded.compareAndSet(false, true))
-				lazyLoad();
-		}
-	}
-
 	RpcConnection getConnection(SocketAddress serverAddress)
 			throws IOException, ConnectException {
 		tryLoad();
@@ -75,6 +67,10 @@ public class TransportClient {
 		return connector;
 	}
 
+	PacketManager getPacketManager() {
+		return packetManager;
+	}
+
 	private void lazyLoad() throws IOException {
 		connectionManager.start();
 		listener = new Listener(connectionManager);
@@ -83,10 +79,6 @@ public class TransportClient {
 
 	public void notifyConnectionClosed(RpcConnection connection) {
 		this.connector.notifyConnectionClosed(connection);
-	}
-
-	PacketManager getPacketManager() {
-		return packetManager;
 	}
 
 	public void ping(SocketAddress serverAddress) throws NetWorkException {
@@ -127,6 +119,13 @@ public class TransportClient {
 					// ignore it.
 				}
 			}
+		}
+	}
+
+	private void tryLoad() throws IOException {
+		synchronized (loaded) {
+			if (loaded.compareAndSet(false, true))
+				lazyLoad();
 		}
 	}
 }

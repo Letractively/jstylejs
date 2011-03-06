@@ -12,13 +12,15 @@ public final class RemoteExceptionImpl extends RemoteException {
 
 	private static final long serialVersionUID = 1L;
 
-	private RemoteExceptionImpl(RemoteExceptionType type, Throwable exception) {
-		super(type, exception);
-	}
-
 	public static RemoteException createNetWorkException(IOException cause) {
 		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
 				RemoteExceptionType.NETWORK, new NetWorkException(cause));
+		return remoteException;
+	}
+
+	public static Exception createParameterException(CallException exception) {
+		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
+				RemoteExceptionType.CALL, exception);
 		return remoteException;
 	}
 
@@ -35,10 +37,7 @@ public final class RemoteExceptionImpl extends RemoteException {
 		return remoteException;
 	}
 
-	public static Exception createParameterException(
-			CallException exception) {
-		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
-				RemoteExceptionType.CALL, exception);
-		return remoteException;
+	private RemoteExceptionImpl(RemoteExceptionType type, Throwable exception) {
+		super(type, exception);
 	}
 }

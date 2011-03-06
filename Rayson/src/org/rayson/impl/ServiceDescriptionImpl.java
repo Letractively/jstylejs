@@ -12,10 +12,14 @@ import org.rayson.common.Stream;
 public final class ServiceDescriptionImpl implements ServiceRegistration,
 		Transportable {
 
+	private String description;
+
+	private String name;
+
+	private String[] protocols;
 	private ServiceDescriptionImpl() {
 		// Forbidden construct.
 	}
-
 	public ServiceDescriptionImpl(String serviceName, String description,
 			Class<? extends RpcService>[] protocols) {
 		this.name = serviceName;
@@ -26,13 +30,9 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 		}
 	}
 
-	private String name;
-	private String description;
-	private String[] protocols;
-
 	@Override
-	public String[] getProtocols() {
-		return protocols;
+	public String getDescription() {
+		return this.description;
 	}
 
 	@Override
@@ -41,17 +41,15 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 	}
 
 	@Override
+	public String[] getProtocols() {
+		return protocols;
+	}
+
+	@Override
 	public void read(DataInput in) throws IOException {
 		this.name = in.readUTF();
 		this.description = in.readUTF();
 		this.protocols = (String[]) Stream.readPortable(in);
-	}
-
-	@Override
-	public void write(DataOutput out) throws IOException {
-		out.writeUTF(name);
-		out.writeUTF(description);
-		Stream.writePortable(out, protocols);
 	}
 
 	@Override
@@ -75,7 +73,9 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 	}
 
 	@Override
-	public String getDescription() {
-		return this.description;
+	public void write(DataOutput out) throws IOException {
+		out.writeUTF(name);
+		out.writeUTF(description);
+		Stream.writePortable(out, protocols);
 	}
 }

@@ -10,26 +10,14 @@ import org.rayson.common.InvocationException;
 
 public class CallFuture<V> implements Future<V> {
 
-	private AtomicBoolean done;
 	private AtomicBoolean cancelled;
-	private V result;
+	private AtomicBoolean done;
 	private InvocationException invocationException;
+	private V result;
 
 	CallFuture() {
 		done = new AtomicBoolean(false);
 		cancelled = new AtomicBoolean(false);
-	}
-
-	void set(V v) {
-		this.result = v;
-		this.done.set(true);
-		notifyDone();
-	}
-
-	protected void setException(InvocationException t) {
-		this.invocationException = t;
-		this.done.set(true);
-		notifyDone();
 	}
 
 	@Override
@@ -41,12 +29,6 @@ public class CallFuture<V> implements Future<V> {
 			notifyDone();
 		}
 		return true;
-	}
-
-	private void notifyDone() {
-		synchronized (done) {
-			done.notifyAll();
-		}
 	}
 
 	@Override
@@ -84,6 +66,24 @@ public class CallFuture<V> implements Future<V> {
 		if (isCancelled())
 			return true;
 		return done.get();
+	}
+
+	private void notifyDone() {
+		synchronized (done) {
+			done.notifyAll();
+		}
+	}
+
+	void set(V v) {
+		this.result = v;
+		this.done.set(true);
+		notifyDone();
+	}
+
+	protected void setException(InvocationException t) {
+		this.invocationException = t;
+		this.done.set(true);
+		notifyDone();
 	}
 
 }

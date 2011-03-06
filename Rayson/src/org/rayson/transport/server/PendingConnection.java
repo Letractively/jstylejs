@@ -12,12 +12,12 @@ import org.rayson.transport.common.ProtocolType;
 
 class PendingConnection implements Connection {
 	private static AtomicLong UID = new AtomicLong(0);
-	private long id;
-	private SelectionKey selectionKey;
-	private SocketChannel socketChannel;
 	private ByteBuffer connectpProtocolBuffer;
 	private ByteBuffer connectResponseBuffer;
+	private long id;
+	private SelectionKey selectionKey;
 	private TransportServer server;
+	private SocketChannel socketChannel;
 
 	public PendingConnection(TransportServer server,
 			SocketChannel clientChannel, SelectionKey selectionKey) {
@@ -30,19 +30,9 @@ class PendingConnection implements Connection {
 		setConnectionState(ConnectionState.OK);
 	}
 
-	private void setConnectionState(ConnectionState connectionState) {
-		this.connectResponseBuffer.put(connectionState.getState());
-		this.connectResponseBuffer.clear();
-	}
-
 	@Override
 	public void close() throws IOException {
 		this.socketChannel.close();
-	}
-
-	@Override
-	public long getId() {
-		return id;
 	}
 
 	/**
@@ -52,6 +42,11 @@ class PendingConnection implements Connection {
 		// no need to read.
 		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
 		setConnectionState(ConnectionState.SERVICE_UNAVALIABLE);
+	}
+
+	@Override
+	public long getId() {
+		return id;
 	}
 
 	@Override
@@ -86,6 +81,11 @@ class PendingConnection implements Connection {
 			}
 		}
 		return readCount;
+	}
+
+	private void setConnectionState(ConnectionState connectionState) {
+		this.connectResponseBuffer.put(connectionState.getState());
+		this.connectResponseBuffer.clear();
 	}
 
 	@Override

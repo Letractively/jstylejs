@@ -5,13 +5,13 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public final class Stream {
-	public static void writePortable(DataOutput out, Object value)
-			throws IOException {
+	public static boolean isPortableType(Class type) {
 		try {
-			PortableObject.writeObject(out, value);
+			PortableObject.verifyPortable(type);
 		} catch (UnportableTypeException e) {
-			throw new IOException(e);
+			return false;
 		}
+		return true;
 	}
 
 	public static Object readPortable(DataInput in) throws IOException {
@@ -22,12 +22,12 @@ public final class Stream {
 		}
 	}
 
-	public static boolean isPortableType(Class type) {
+	public static void writePortable(DataOutput out, Object value)
+			throws IOException {
 		try {
-			PortableObject.verifyPortable(type);
+			PortableObject.writeObject(out, value);
 		} catch (UnportableTypeException e) {
-			return false;
+			throw new IOException(e);
 		}
-		return true;
 	}
 }

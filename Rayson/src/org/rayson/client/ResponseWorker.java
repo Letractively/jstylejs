@@ -1,6 +1,5 @@
 package org.rayson.client;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.rayson.transport.client.TransportClient;

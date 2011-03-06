@@ -9,24 +9,28 @@ import org.rayson.util.Reflection;
 
 public class InvocationException extends Exception implements Transportable {
 
+	private static final Class[] DEFAULT_CONSTRUCTOR_PARAMETER_TYPES = new Class[] { String.class };
 	private static final long serialVersionUID = 1L;
 	private Throwable throwException;
-	private boolean unDeclared;
 
-	private static final Class[] DEFAULT_CONSTRUCTOR_PARAMETER_TYPES = new Class[] { String.class };
+	private boolean unDeclared;
 
 	public InvocationException() {
 
-	}
-
-	public boolean isUnDeclaredException() {
-		return unDeclared;
 	}
 
 	public InvocationException(boolean unDeclaredException,
 			Throwable thrownException) {
 		this.unDeclared = unDeclaredException;
 		this.throwException = thrownException;
+	}
+
+	public Throwable getRemoteException() {
+		return throwException;
+	}
+
+	public boolean isUnDeclaredException() {
+		return unDeclared;
 	}
 
 	@Override
@@ -58,10 +62,6 @@ public class InvocationException extends Exception implements Transportable {
 		out.writeUTF(className);
 		// write error message.
 		Stream.writePortable(out, message);
-	}
-
-	public Throwable getRemoteException() {
-		return throwException;
 	}
 
 }

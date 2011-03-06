@@ -17,35 +17,7 @@ import org.rayson.transport.common.Packet;
 public class ServerCall {
 
 	private static final int BUFFER_SIZE = 1024;
-	private long id;
-	private long clientCallId;
 	private static final AtomicLong UID = new AtomicLong(0);
-	private Invocation invocation;
-	private Object result;
-	private Packet responsePacket;
-	private InvocationException exception;
-	private long sessionId;
-
-	private ServerCall() {
-		this.id = UID.getAndIncrement();
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public long getClientId() {
-		return clientCallId;
-	}
-
-	public long getSessionId() {
-		return sessionId;
-	}
-
-	Invocation getInvocation() {
-		return invocation;
-	}
-
 	public static ServerCall fromPacket(Packet requestPacket) {
 
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
@@ -73,6 +45,34 @@ public class ServerCall {
 		}
 		return serverCall;
 	}
+	private long clientCallId;
+	private InvocationException exception;
+	private long id;
+	private Invocation invocation;
+	private Packet responsePacket;
+	private Object result;
+
+	private long sessionId;
+
+	private ServerCall() {
+		this.id = UID.getAndIncrement();
+	}
+
+	public boolean exceptionSetted() {
+		return (exception != null);
+	}
+
+	public long getClientId() {
+		return clientCallId;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	Invocation getInvocation() {
+		return invocation;
+	}
 
 	/**
 	 * @return
@@ -86,8 +86,16 @@ public class ServerCall {
 		return responsePacket;
 	}
 
-	public boolean exceptionSetted() {
-		return (exception != null);
+	public long getSessionId() {
+		return sessionId;
+	}
+
+	void setException(InvocationException exception) {
+		this.exception = exception;
+	}
+
+	void setResult(Object result) {
+		this.result = result;
 	}
 
 	private Packet toResponsePacket() {
@@ -129,13 +137,5 @@ public class ServerCall {
 			return toResponsePacket(++tryTime);
 		}
 		return packet;
-	}
-
-	void setResult(Object result) {
-		this.result = result;
-	}
-
-	void setException(InvocationException exception) {
-		this.exception = exception;
 	}
 }

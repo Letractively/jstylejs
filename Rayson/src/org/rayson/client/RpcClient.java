@@ -47,6 +47,34 @@ class RpcClient {
 		}
 	}
 
+	private static final long EMPTY_SESSSION_ID = -1;
+
+	private static Logger LOGGER = Log.getLogger();
+
+	private static final Invocation SERVER_LOG_IN_INVOCATION;
+	static {
+		try {
+			SERVER_LOG_IN_INVOCATION = new Invocation(ServerService.NAME,
+					RpcClient.class.getDeclaredMethod("logIn", null), null);
+		} catch (Exception e) {
+			throw new RuntimeException("Can ot init SERVER_LOG_IN_INVOCATION",
+					e);
+		}
+	}
+	private static long logIn() {
+		return -1;
+	}
+	private ResponseWorker responseWorker;
+
+	private WeakHashMap<SocketAddress, ServerService> serverServices;
+	RpcClient() {
+	}
+
+	<T> T call(final T rpcCall) throws IOException, ServiceNotFoundException,
+			UndeclaredThrowableException {
+		return rpcCall;
+	}
+
 	public <T extends RpcService> T createServiceProxy(String serviceName,
 			Class<T> serviceClass, SocketAddress serverAddress)
 			throws IllegalServiceException, RemoteException {
@@ -65,6 +93,38 @@ class RpcClient {
 				RpcClient.class.getClassLoader(), new Class[] { serviceClass },
 				new RpcServiceProxy(sessionId, serviceName, serverAddress));
 		return rpcService;
+	}
+
+	/**
+	 * @param <T>
+	 * @param serviceClass
+	 * @param serviceName
+	 * @param serverAddress
+	 * @return
+	 * @throws IllegalServiceException
+	 */
+	<T extends RpcService> T getServerService(SocketAddress serverAddress)
+			throws IllegalServiceException {
+		ServerService rpcService;
+		synchronized (serverServices) {
+			rpcService = serverServices.get(serverAddress);
+			if (rpcService == null) {
+				rpcService = (ServerService) Proxy.newProxyInstance(
+						RpcClient.class.getClassLoader(),
+						new Class[] { ServerService.class },
+						new RpcServiceProxy(EMPTY_SESSSION_ID,
+								ServerService.NAME, serverAddress));
+				serverServices.put(serverAddress, rpcService);
+			}
+
+		}
+		return (T) rpcService;
+	}
+
+	void initialize() {
+		serverServices = new WeakHashMap<SocketAddress, ServerService>();
+		responseWorker = new ResponseWorker();
+		responseWorker.start();
 	}
 
 	private Object invokeRpcCall(long sessionId, SocketAddress serverAddress,
@@ -111,73 +171,13 @@ class RpcClient {
 		}
 	}
 
-	private ResponseWorker responseWorker;
-	private static Logger LOGGER = Log.getLogger();
-	private WeakHashMap<SocketAddress, ServerService> serverServices;
-	private static final long EMPTY_SESSSION_ID = -1;
-
-	private static final Invocation SERVER_LOG_IN_INVOCATION;
-	static {
-		try {
-			SERVER_LOG_IN_INVOCATION = new Invocation(ServerService.NAME,
-					RpcClient.class.getDeclaredMethod("logIn", null), null);
-		} catch (Exception e) {
-			throw new RuntimeException("Can ot init SERVER_LOG_IN_INVOCATION",
-					e);
-		}
-	}
-
-	RpcClient() {
-	}
-
-	private static long logIn() {
-		return -1;
-	}
-
-	/**
-	 * @param <T>
-	 * @param serviceClass
-	 * @param serviceName
-	 * @param serverAddress
-	 * @return
-	 * @throws IllegalServiceException
-	 */
-	<T extends RpcService> T getServerService(SocketAddress serverAddress)
-			throws IllegalServiceException {
-		ServerService rpcService;
-		synchronized (serverServices) {
-			rpcService = serverServices.get(serverAddress);
-			if (rpcService == null) {
-				rpcService = (ServerService) Proxy.newProxyInstance(
-						RpcClient.class.getClassLoader(),
-						new Class[] { ServerService.class },
-						new RpcServiceProxy(EMPTY_SESSSION_ID,
-								ServerService.NAME, serverAddress));
-				serverServices.put(serverAddress, rpcService);
-			}
-
-		}
-		return (T) rpcService;
-	}
-
-	<T> T call(final T rpcCall) throws IOException, ServiceNotFoundException,
-			UndeclaredThrowableException {
-		return rpcCall;
-	}
-
-	void initialize() {
-		serverServices = new WeakHashMap<SocketAddress, ServerService>();
-		responseWorker = new ResponseWorker();
-		responseWorker.start();
+	public void ping(SocketAddress serverAddress) throws NetWorkException {
+		TransportClient.getSingleton().getConnector().ping(serverAddress);
 	}
 
 	private void submitCall(SocketAddress serverAddress, ClientCall call)
 			throws IOException {
 		TransportClient.getSingleton().getConnector()
 				.sumbitCall(serverAddress, call);
-	}
-
-	public void ping(SocketAddress serverAddress) throws NetWorkException {
-		TransportClient.getSingleton().getConnector().ping(serverAddress);
 	}
 }

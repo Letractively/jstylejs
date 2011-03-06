@@ -1,13 +1,10 @@
 package org.rayson.server;
 
 import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.UUID;
-
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
 import org.rayson.api.ServiceRegistration;
@@ -21,6 +18,12 @@ import org.rayson.transport.server.TransportServerImpl;
 class RpcServer extends TransportServerImpl implements ServerService {
 	private static final String DEFAULT_SERVICE_DESCRIPTION = "Rpc server default service";
 	private static final int DEFAULT_WORKER_COUNT = 4;
+	public static void main(String[] args) throws IOException {
+
+		RpcServer server = new RpcServer(PORT_NUMBER);
+		server.start();
+	}
+
 	private HashMap<String, Service> services;
 
 	RpcServer(int portNum) {
@@ -29,32 +32,14 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public void start() throws IOException {
-		super.start();
-		// Register it self as a service.
-		try {
-			this.registerService(ServerService.NAME,
-					DEFAULT_SERVICE_DESCRIPTION, this);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		// TODO: start this RPC server .
-		for (int i = 0; i < DEFAULT_WORKER_COUNT; i++) {
-			CallWorker callWorker = new CallWorker(this);
-			callWorker.start();
-		}
-	}
+	public ServiceRegistration find(String serviceName)
+			throws ServiceNotFoundException {
+		Service service = getService(serviceName);
+		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
+				service.getName(), service.getDescription(),
+				service.getProtocols());
+		return serviceDescription;
 
-	public void registerService(String serviceName, String description,
-			RpcService serviceInstance) throws ServiceAlreadyExistedException,
-			IllegalServiceException {
-		synchronized (services) {
-			if (services.containsKey(serviceName))
-				throw new ServiceAlreadyExistedException(serviceName);
-			Service service = new Service(serviceName, description,
-					serviceInstance);
-			services.put(serviceName, service);
-		}
 	}
 
 	private Service getService(String serviceName)
@@ -63,17 +48,6 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		if (service == null)
 			throw new ServiceNotFoundException(serviceName + " not found");
 		return service;
-	}
-
-	@Override
-	public ServiceRegistration[] list() {
-		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
-		for (Entry<String, Service> entry : services.entrySet()) {
-			Service service = entry.getValue();
-			list.add(new ServiceDescriptionImpl(service.getName(), service
-					.getDescription(), service.getProtocols()));
-		}
-		return list.toArray(new ServiceDescriptionImpl[0]);
 	}
 
 	public void invokeCall(ServerCall call) {
@@ -96,14 +70,14 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration find(String serviceName)
-			throws ServiceNotFoundException {
-		Service service = getService(serviceName);
-		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
-				service.getName(), service.getDescription(),
-				service.getProtocols());
-		return serviceDescription;
-
+	public ServiceRegistration[] list() {
+		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
+		for (Entry<String, Service> entry : services.entrySet()) {
+			Service service = entry.getValue();
+			list.add(new ServiceDescriptionImpl(service.getName(), service
+					.getDescription(), service.getProtocols()));
+		}
+		return list.toArray(new ServiceDescriptionImpl[0]);
 	}
 
 	/**
@@ -115,10 +89,33 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		return System.nanoTime();
 	}
 
-	public static void main(String[] args) throws IOException {
+	public void registerService(String serviceName, String description,
+			RpcService serviceInstance) throws ServiceAlreadyExistedException,
+			IllegalServiceException {
+		synchronized (services) {
+			if (services.containsKey(serviceName))
+				throw new ServiceAlreadyExistedException(serviceName);
+			Service service = new Service(serviceName, description,
+					serviceInstance);
+			services.put(serviceName, service);
+		}
+	}
 
-		RpcServer server = new RpcServer(PORT_NUMBER);
-		server.start();
+	@Override
+	public void start() throws IOException {
+		super.start();
+		// Register it self as a service.
+		try {
+			this.registerService(ServerService.NAME,
+					DEFAULT_SERVICE_DESCRIPTION, this);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		// TODO: start this RPC server .
+		for (int i = 0; i < DEFAULT_WORKER_COUNT; i++) {
+			CallWorker callWorker = new CallWorker(this);
+			callWorker.start();
+		}
 	}
 
 }

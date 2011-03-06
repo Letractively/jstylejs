@@ -5,10 +5,10 @@ import org.rayson.exception.IllegalServiceException;
 import org.rayson.util.ServiceParser;
 
 class Service {
-	private String name;
-	private RpcService instance;
-	private Class<? extends RpcService>[] protocols;
 	private String description;
+	private RpcService instance;
+	private String name;
+	private Class<? extends RpcService>[] protocols;
 
 	Service(String name, String description, RpcService instance)
 			throws IllegalServiceException {
@@ -19,16 +19,16 @@ class Service {
 		this.protocols = ServiceParser.getProtocols(instance.getClass());
 	}
 
-	public String getName() {
-		return name;
+	public String getDescription() {
+		return this.description;
 	}
 
 	public RpcService getInstance() {
 		return instance;
 	}
 
-	public String getDescription() {
-		return this.description;
+	public String getName() {
+		return name;
 	}
 
 	public Class<? extends RpcService>[] getProtocols() {

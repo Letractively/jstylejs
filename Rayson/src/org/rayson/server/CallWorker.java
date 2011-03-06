@@ -1,6 +1,5 @@
 package org.rayson.server;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;

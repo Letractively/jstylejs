@@ -1,20 +1,20 @@
 package org.rayson.transport.common;
 
 public class PacketWithType {
-	private byte type;
 	private Packet packet;
+	private byte type;
 
 	public PacketWithType(byte type, Packet packet) {
 		this.type = type;
 		this.packet = packet;
 	}
 
-	public byte getType() {
-		return type;
-	}
-
 	public Packet getPacket() {
 		return packet;
+	}
+
+	public byte getType() {
+		return type;
 	}
 
 	@Override

@@ -4,6 +4,8 @@ import java.io.IOException;
 
 public class NetWorkException extends Exception {
 
+	private static final long serialVersionUID = 1L;
+
 	public NetWorkException(IOException cause) {
 		super(cause);
 	}
@@ -15,7 +17,5 @@ public class NetWorkException extends Exception {
 	public IOException getCause() {
 		return (IOException) super.getCause();
 	}
-
-	private static final long serialVersionUID = 1L;
 
 }

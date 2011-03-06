@@ -186,13 +186,6 @@ class RpcConnection extends AbstractConnection {
 		}
 	}
 
-	private void setConnectionState(ConnectionState connectionCode) {
-		this.connectionState = connectionCode;
-		this.connectResponseBuffer.clear();
-		this.connectResponseBuffer.put(connectionCode.getState());
-		this.connectResponseBuffer.clear();
-	}
-
 	@Override
 	public boolean isTimeOut() {
 		return System.currentTimeMillis() - getLastContact() > ConnectionProtocol.TIME_OUT_INTERVAL;
@@ -231,6 +224,13 @@ class RpcConnection extends AbstractConnection {
 			init();
 			return 0;
 		}
+	}
+
+	private void setConnectionState(ConnectionState connectionCode) {
+		this.connectionState = connectionCode;
+		this.connectResponseBuffer.clear();
+		this.connectResponseBuffer.put(connectionCode.getState());
+		this.connectResponseBuffer.clear();
 	}
 
 	private boolean shouldWriteErrorResponse() {

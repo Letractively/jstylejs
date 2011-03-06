@@ -16,11 +16,11 @@ import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
 public class ClientCall<V> {
+	private static final int BUFFER_SIZE = 1024;
 	private static final AtomicLong UID = new AtomicLong(0);
 	private CallFuture<V> future;
 	private long id;
 	private Invocation invocation;
-	private static final int BUFFER_SIZE = 1024;
 	private Packet requestPacket;
 	private long sessionId;
 
@@ -49,12 +49,21 @@ public class ClientCall<V> {
 		return id;
 	}
 
+	public Invocation getInvocation() {
+		return invocation;
+	}
+
 	public Packet getRequestPacket() {
 		return this.requestPacket;
 	}
 
 	public V getResult() throws InterruptedException, ExecutionException {
 		return future.get();
+	}
+
+	public void notifyConnectionClosed() {
+		this.future.setException(new InvocationException(false,
+				new ConnectionClosedException()));
 	}
 
 	public void readResult(DataInput in) {
@@ -81,10 +90,6 @@ public class ClientCall<V> {
 		}
 	}
 
-	public Invocation getInvocation() {
-		return invocation;
-	}
-
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
@@ -95,10 +100,5 @@ public class ClientCall<V> {
 		sb.append(this.invocation.toString());
 		sb.append("}");
 		return sb.toString();
-	}
-
-	public void notifyConnectionClosed() {
-		this.future.setException(new InvocationException(false,
-				new ConnectionClosedException()));
 	}
 }

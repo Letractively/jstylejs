@@ -47,23 +47,33 @@ public class RpcConnector {
 			this.calls.add(callId);
 		}
 
-		public void removeCall(long callId) {
-			this.calls.remove(callId);
-		}
-
 		public Iterator<Long> iterator() {
 			return this.calls.iterator();
+		}
+
+		public void removeCall(long callId) {
+			this.calls.remove(callId);
 		}
 	}
 
 	private HashMap<Long, CallWrapper> calls;
-	private HashMap<Long, ConnectionCalls> connections;
 	private TransportClient client;
+	private HashMap<Long, ConnectionCalls> connections;
 
 	RpcConnector(TransportClient client) {
 		this.client = client;
 		calls = new HashMap<Long, CallWrapper>();
 		connections = new HashMap<Long, RpcConnector.ConnectionCalls>();
+	}
+
+	private synchronized void addCall(ClientCall call, long connectionId) {
+		this.calls.put(call.getId(), new CallWrapper(call, connectionId));
+		ConnectionCalls connectionCalls = connections.get(connectionId);
+		if (connectionCalls == null) {
+			connectionCalls = new ConnectionCalls(connectionId);
+			connections.put(connectionId, connectionCalls);
+		}
+		connectionCalls.addCall(call.getId());
 	}
 
 	public synchronized void notifyConnectionClosed(RpcConnection connection) {
@@ -88,14 +98,8 @@ public class RpcConnector {
 		}
 	}
 
-	private synchronized void addCall(ClientCall call, long connectionId) {
-		this.calls.put(call.getId(), new CallWrapper(call, connectionId));
-		ConnectionCalls connectionCalls = connections.get(connectionId);
-		if (connectionCalls == null) {
-			connectionCalls = new ConnectionCalls(connectionId);
-			connections.put(connectionId, connectionCalls);
-		}
-		connectionCalls.addCall(call.getId());
+	public void ping(SocketAddress serverAddress) throws NetWorkException {
+		client.ping(serverAddress);
 	}
 
 	private synchronized ClientCall removeCall(long callId) {
@@ -117,14 +121,6 @@ public class RpcConnector {
 		return callWrapper.call;
 	}
 
-	public synchronized void sumbitCall(SocketAddress serverAddress,
-			ClientCall call) throws ConnectException, IOException {
-		RpcConnection connection = client.getConnection(serverAddress);
-		addCall(call, connection.getId());
-		connection.addSendPacket(call.getRequestPacket());
-
-	}
-
 	public void responseOneCall() throws InterruptedException {
 		Packet receivedPacket = this.client.getPacketManager().takeReceived();
 		DataInputStream inputStream = new DataInputStream(
@@ -143,7 +139,11 @@ public class RpcConnector {
 		call.readResult(inputStream);
 	}
 
-	public void ping(SocketAddress serverAddress) throws NetWorkException {
-		client.ping(serverAddress);
+	public synchronized void sumbitCall(SocketAddress serverAddress,
+			ClientCall call) throws ConnectException, IOException {
+		RpcConnection connection = client.getConnection(serverAddress);
+		addCall(call, connection.getId());
+		connection.addSendPacket(call.getRequestPacket());
+
 	}
 }

@@ -12,9 +12,9 @@ import org.rayson.exception.ServiceNotFoundException;
 
 public class Invocation implements Transportable {
 	private String methodName;
+	private Object[] parameters;
 	private Class<?>[] paraTypes;
 	private String serviceName;
-	private Object[] parameters;
 
 	public Invocation() {
 
@@ -86,22 +86,6 @@ public class Invocation implements Transportable {
 	}
 
 	@Override
-	public void write(DataOutput out) throws IOException {
-		out.writeUTF(serviceName);
-		out.writeUTF(methodName);
-		byte paraLenth = (byte) paraTypes.length;
-		out.writeByte(paraLenth);
-		// write parameter types.
-		for (int i = 0; i < paraLenth; i++) {
-			out.writeUTF(this.paraTypes[i].getName());
-		}
-		// write paramter objects.
-		for (int i = 0; i < paraLenth; i++) {
-			Stream.writePortable(out, this.parameters[i]);
-		}
-	}
-
-	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
@@ -118,5 +102,21 @@ public class Invocation implements Transportable {
 		sb.append("]");
 		sb.append("}");
 		return sb.toString();
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException {
+		out.writeUTF(serviceName);
+		out.writeUTF(methodName);
+		byte paraLenth = (byte) paraTypes.length;
+		out.writeByte(paraLenth);
+		// write parameter types.
+		for (int i = 0; i < paraLenth; i++) {
+			out.writeUTF(this.paraTypes[i].getName());
+		}
+		// write paramter objects.
+		for (int i = 0; i < paraLenth; i++) {
+			Stream.writePortable(out, this.parameters[i]);
+		}
 	}
 }

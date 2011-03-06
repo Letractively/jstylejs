@@ -24,17 +24,6 @@ public final class ServiceParser {
 		return list.toArray(new Class[0]);
 	}
 
-	public static void verifyService(Class<? extends RpcService> protocol)
-			throws IllegalServiceException {
-		if (!protocol.isInterface())
-			throw new IllegalServiceException(
-					"Rpc protocol must be an interface");
-		Method[] methods = protocol.getMethods();
-		for (Method method : methods) {
-			verifyMethod(method);
-		}
-	}
-
 	private static void verifyMethod(Method method)
 			throws IllegalServiceException {
 		// 1. must throws rpcexceptoion.
@@ -59,6 +48,17 @@ public final class ServiceParser {
 			if (!Stream.isPortableType(type))
 				throw new IllegalServiceException("Method " + method.getName()
 						+ " parameter type must be portable");
+		}
+	}
+
+	public static void verifyService(Class<? extends RpcService> protocol)
+			throws IllegalServiceException {
+		if (!protocol.isInterface())
+			throw new IllegalServiceException(
+					"Rpc protocol must be an interface");
+		Method[] methods = protocol.getMethods();
+		for (Method method : methods) {
+			verifyMethod(method);
 		}
 	}
 

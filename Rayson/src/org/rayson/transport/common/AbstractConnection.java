@@ -4,27 +4,19 @@ import java.io.IOException;
 
 public abstract class AbstractConnection implements Connection {
 
-	protected AbstractConnection() {
-		lastContact = System.currentTimeMillis();
-	}
+	private volatile long lastContact;
 
 	private ProtocolType protocol = ProtocolType.RPC;
 
-	private volatile long lastContact;
-
-	public abstract void init() throws IOException;
-
-	public abstract int pendingPacketCount();
+	protected AbstractConnection() {
+		lastContact = System.currentTimeMillis();
+	}
 
 	public abstract void addSendPacket(Packet responsePacket)
 			throws IOException;
 
 	public final long getLastContact() {
 		return lastContact;
-	}
-
-	public final void touch() {
-		this.lastContact = System.currentTimeMillis();
 	}
 
 	@Override
@@ -34,6 +26,14 @@ public abstract class AbstractConnection implements Connection {
 
 	public abstract int getVersion();
 
+	public abstract void init() throws IOException;
+
 	public abstract boolean isTimeOut();
+
+	public abstract int pendingPacketCount();
+
+	public final void touch() {
+		this.lastContact = System.currentTimeMillis();
+	}
 
 }

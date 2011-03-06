@@ -2,6 +2,8 @@ package org.rayson.common;
 
 public class RpcExcptionInstantiationException extends Exception {
 
+	private static final long serialVersionUID = 1L;
+
 	public RpcExcptionInstantiationException(Throwable cause) {
 		super(cause);
 	}
@@ -10,7 +12,5 @@ public class RpcExcptionInstantiationException extends Exception {
 	public Throwable getCause() {
 		return super.getCause();
 	}
-
-	private static final long serialVersionUID = 1L;
 
 }

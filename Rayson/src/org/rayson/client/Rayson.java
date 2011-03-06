@@ -13,13 +13,6 @@ public final class Rayson {
 	private static RpcClient CLIENT = new RpcClient();
 	private static AtomicBoolean clientInited = new AtomicBoolean(false);
 
-	private static void tryInit() {
-		synchronized (clientInited) {
-			if (clientInited.compareAndSet(false, true))
-				CLIENT.initialize();
-		}
-	}
-
 	public static <T extends RpcService> T createServiceProxy(
 			String serviceName, Class<T> serviceClass,
 			SocketAddress serverAddress) throws IllegalServiceException,
@@ -42,5 +35,12 @@ public final class Rayson {
 	public static void ping(SocketAddress serverAddress)
 			throws NetWorkException {
 		CLIENT.ping(serverAddress);
+	}
+
+	private static void tryInit() {
+		synchronized (clientInited) {
+			if (clientInited.compareAndSet(false, true))
+				CLIENT.initialize();
+		}
 	}
 }

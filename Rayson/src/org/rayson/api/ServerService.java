@@ -7,9 +7,9 @@ public interface ServerService extends RpcService {
 
 	public static final String NAME = "server";
 
-	public ServiceRegistration[] list() throws RemoteException;
-
 	public ServiceRegistration find(String serviceName)
 			throws ServiceNotFoundException, RemoteException;
+
+	public ServiceRegistration[] list() throws RemoteException;
 
 }

@@ -15,10 +15,10 @@ import org.rayson.util.Log;
 class ConnectionManager extends Thread {
 
 	private static Logger LOGGER = Log.getLogger();
-	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL / 2;
-
-	private ConcurrentHashMap<Long, AbstractConnection> connections;
 	private static final int MAX_PENDINGS = 10000;
+
+	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL / 2;
+	private ConcurrentHashMap<Long, AbstractConnection> connections;
 	private HashMap<Long, PendingConnection> pendings;
 
 	ConnectionManager() {
@@ -31,6 +31,13 @@ class ConnectionManager extends Thread {
 		// throw new DenyServiceException();
 		this.pendings.remove(pendingId);
 		this.connections.put(connection.getId(), connection);
+	}
+
+	public void acceptPending(PendingConnection connection)
+			throws DenyServiceException {
+		if (this.pendings.size() > MAX_PENDINGS)
+			throw new DenyServiceException();
+		this.pendings.put(connection.getId(), connection);
 	}
 
 	private void checkTimeouts() {
@@ -57,6 +64,10 @@ class ConnectionManager extends Thread {
 		this.connections.remove(connection.getId());
 	}
 
+	public void removePending(PendingConnection connection) {
+		this.pendings.remove(connection.getId());
+	}
+
 	@Override
 	public void run() {
 		LOGGER.info(getName() + " starting...");
@@ -75,16 +86,5 @@ class ConnectionManager extends Thread {
 
 	public int size() {
 		return this.connections.size();
-	}
-
-	public void acceptPending(PendingConnection connection)
-			throws DenyServiceException {
-		if (this.pendings.size() > MAX_PENDINGS)
-			throw new DenyServiceException();
-		this.pendings.put(connection.getId(), connection);
-	}
-
-	public void removePending(PendingConnection connection) {
-		this.pendings.remove(connection.getId());
 	}
 }

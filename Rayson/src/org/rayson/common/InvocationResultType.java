@@ -2,7 +2,15 @@ package org.rayson.common;
 
 public enum InvocationResultType {
 
-	SUCCESSFUL((byte) 1), EXCEPTION((byte) 0);
+	EXCEPTION((byte) 0), SUCCESSFUL((byte) 1);
+	public static InvocationResultType valueOf(byte type) {
+		for (InvocationResultType s : InvocationResultType.values()) {
+			if (s.type == type)
+				return s;
+		}
+		return EXCEPTION;
+	}
+
 	private byte type;
 
 	private InvocationResultType(byte type) {
@@ -11,13 +19,5 @@ public enum InvocationResultType {
 
 	public byte getType() {
 		return type;
-	}
-
-	public static InvocationResultType valueOf(byte type) {
-		for (InvocationResultType s : InvocationResultType.values()) {
-			if (s.type == type)
-				return s;
-		}
-		return EXCEPTION;
 	}
 }

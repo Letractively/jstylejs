@@ -8,12 +8,24 @@ public abstract class RemoteException extends Exception {
 
 	private Throwable cause;
 
+	private RemoteExceptionType type = RemoteExceptionType.UNDECLARED;
+
 	protected RemoteException(RemoteExceptionType type, Throwable cause) {
 		this.type = type;
 		this.cause = cause;
 	}
 
-	private RemoteExceptionType type = RemoteExceptionType.UNDECLARED;
+	/**
+	 * Get exception that cause this remote exception.
+	 */
+	@Override
+	public Throwable getCause() {
+		return super.getCause();
+	}
+
+	public RemoteExceptionType getType() {
+		return type;
+	}
 
 	/**
 	 * Throw the cause exception of this remote exception.
@@ -46,18 +58,6 @@ public abstract class RemoteException extends Exception {
 			throw new UndeclaredThrowableException(cause);
 		}
 
-	}
-
-	/**
-	 * Get exception that cause this remote exception.
-	 */
-	@Override
-	public Throwable getCause() {
-		return super.getCause();
-	}
-
-	public RemoteExceptionType getType() {
-		return type;
 	}
 
 	@Override
