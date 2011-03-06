@@ -20,7 +20,7 @@ import org.rayson.exception.ServiceNotFoundException;
 public class Demo {
 
 	public static void main(String[] args) throws UnknownHostException,
-			IllegalServiceException, NetWorkException {
+			IllegalServiceException, NetWorkException, RemoteException {
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
@@ -28,9 +28,8 @@ public class Demo {
 
 		System.out.println("Ping sucessfully");
 
-		ServerService serverService = Rayson.getService("server",
-				ServerService.class, serverAddress);
-		TestRpcService testRpcService = Rayson.getService("demo",
+		ServerService serverService = Rayson.getServerService(serverAddress);
+		TestRpcService testRpcService = Rayson.createServiceProxy("demo",
 				TestRpcService.class, serverAddress);
 
 		try { // list services.

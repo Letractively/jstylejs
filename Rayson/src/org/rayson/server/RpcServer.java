@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
@@ -103,6 +104,15 @@ class RpcServer extends TransportServerImpl implements ServerService {
 				service.getProtocols());
 		return serviceDescription;
 
+	}
+
+	/**
+	 * Log into this server.
+	 * 
+	 * @return The new session's id.
+	 */
+	public long logIn() {
+		return System.nanoTime();
 	}
 
 	public static void main(String[] args) throws IOException {

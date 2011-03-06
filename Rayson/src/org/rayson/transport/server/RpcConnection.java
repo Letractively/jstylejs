@@ -7,10 +7,10 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.rayson.transport.common.AbstractConnection;
 import org.rayson.transport.common.CRC16;
 import org.rayson.transport.common.ChecksumMatchException;
 import org.rayson.transport.common.ConnectionProtocol;
@@ -20,9 +20,7 @@ import org.rayson.transport.common.PacketCounter;
 import org.rayson.transport.common.PacketException;
 import org.rayson.transport.common.PacketReader;
 import org.rayson.transport.common.PacketWithType;
-import org.rayson.transport.common.ProtocolType;
 import org.rayson.transport.common.ResponseType;
-import org.rayson.transport.common.AbstractConnection;
 import org.rayson.util.Log;
 
 class RpcConnection extends AbstractConnection {

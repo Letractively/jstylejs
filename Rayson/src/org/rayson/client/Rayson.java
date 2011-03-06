@@ -7,25 +7,33 @@ import org.rayson.api.RpcService;
 import org.rayson.api.ServerService;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
+import org.rayson.exception.RemoteException;
 
 public final class Rayson {
-	private static RpcClient client = new RpcClient();
+	private static RpcClient CLIENT = new RpcClient();
 	private static AtomicBoolean clientInited = new AtomicBoolean(false);
 
-	public static <T extends RpcService> T getService(String serviceName,
-			Class<T> serviceClass, SocketAddress serverAddress)
-			throws IllegalServiceException {
+	private static void tryInit() {
 		synchronized (clientInited) {
 			if (clientInited.compareAndSet(false, true))
-				client.initialize();
+				CLIENT.initialize();
 		}
-		return client.getRpcProxy(serviceClass, serviceName, serverAddress);
+	}
+
+	public static <T extends RpcService> T createServiceProxy(
+			String serviceName, Class<T> serviceClass,
+			SocketAddress serverAddress) throws IllegalServiceException,
+			RemoteException {
+		tryInit();
+		return CLIENT.createServiceProxy(serviceName, serviceClass,
+				serverAddress);
 	}
 
 	public static ServerService getServerService(SocketAddress serverAddress) {
+		tryInit();
+
 		try {
-			return getService(ServerService.NAME, ServerService.class,
-					serverAddress);
+			return CLIENT.getServerService(serverAddress);
 		} catch (IllegalServiceException e) {
 			throw new RuntimeException("Server service is illeagal", e);
 		}
@@ -33,6 +41,6 @@ public final class Rayson {
 
 	public static void ping(SocketAddress serverAddress)
 			throws NetWorkException {
-		client.ping(serverAddress);
+		CLIENT.ping(serverAddress);
 	}
 }

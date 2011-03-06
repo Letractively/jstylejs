@@ -24,6 +24,7 @@ public class ServerCall {
 	private Object result;
 	private Packet responsePacket;
 	private InvocationException exception;
+	private long sessionId;
 
 	private ServerCall() {
 		this.id = UID.getAndIncrement();
@@ -35,6 +36,10 @@ public class ServerCall {
 
 	public long getClientId() {
 		return clientCallId;
+	}
+
+	public long getSessionId() {
+		return sessionId;
 	}
 
 	Invocation getInvocation() {
@@ -56,8 +61,9 @@ public class ServerCall {
 			return null;
 		}
 		serverCall.clientCallId = clientCallId;
-		Invocation invocation = new Invocation();
 		try {
+			serverCall.sessionId = dataInputStream.readLong();
+			Invocation invocation = new Invocation();
 			invocation.read(dataInputStream);
 			serverCall.invocation = invocation;
 		} catch (IOException e) {

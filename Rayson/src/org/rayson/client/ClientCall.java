@@ -12,7 +12,6 @@ import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
 import org.rayson.exception.CallException;
-import org.rayson.impl.RemoteExceptionImpl;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
@@ -23,9 +22,12 @@ public class ClientCall<V> {
 	private Invocation invocation;
 	private static final int BUFFER_SIZE = 1024;
 	private Packet requestPacket;
+	private long sessionId;
 
-	public ClientCall(Invocation invocation) throws PacketException {
+	public ClientCall(long sessionId, Invocation invocation)
+			throws PacketException {
 		this.id = UID.getAndIncrement();
+		this.sessionId = sessionId;
 		this.invocation = invocation;
 		this.future = new CallFuture<V>();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
@@ -34,6 +36,7 @@ public class ClientCall<V> {
 				byteArrayOutputStream);
 		try {
 			dataOutputStream.writeLong(id);
+			dataOutputStream.writeLong(this.sessionId);
 			invocation.write(dataOutputStream);
 			requestPacket = new Packet(byteArrayOutputStream.toByteArray());
 		} catch (IOException e) {

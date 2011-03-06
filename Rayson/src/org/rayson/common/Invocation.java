@@ -5,7 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.UndeclaredThrowableException;
 
 import org.rayson.api.RpcService;
 import org.rayson.api.Transportable;
@@ -23,6 +22,7 @@ public class Invocation implements Transportable {
 
 	public Invocation(String serviceName, Method method, Object[] parameters)
 			throws UnportableTypeException {
+		// TODO: throws UnportableTypeException
 		this.serviceName = serviceName;
 		this.methodName = method.getName();
 		this.parameters = parameters;
