@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
+import org.rayson.annotation.RpcService;
 import org.rayson.api.ServerService;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.TestRpcService;
@@ -16,11 +17,14 @@ import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RemoteException;
 import org.rayson.exception.ServiceNotFoundException;
+import org.rayson.server.DemoRpcService;
 
 public class Demo {
 
 	public static void main(String[] args) throws UnknownHostException,
 			IllegalServiceException, NetWorkException, RemoteException {
+		DemoRpcService demoRpcService = new DemoRpcService();
+		register(demoRpcService);
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
@@ -68,6 +72,10 @@ public class Demo {
 		}
 
 		System.exit(0);
+
+	}
+
+	public static void register(RpcService t) {
 
 	}
 }
