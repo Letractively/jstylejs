@@ -6,10 +6,10 @@ import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
+import org.rayson.annotation.RpcMethod;
 import org.rayson.annotation.RpcService;
 
 public class RpcServiceProcessor extends AbstractProcessor {
@@ -21,7 +21,7 @@ public class RpcServiceProcessor extends AbstractProcessor {
 	static {
 		SUPPORTED_ANNOTATION_TYPES = new HashSet<String>();
 		SUPPORTED_ANNOTATION_TYPES.add(RpcService.class.getName());
-
+		SUPPORTED_ANNOTATION_TYPES.add(RpcMethod.class.getName());
 	}
 
 	@Override
