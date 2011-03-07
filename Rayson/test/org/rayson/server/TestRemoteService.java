@@ -6,5 +6,5 @@ import org.rayson.api.TestRpcService;
 
 @RpcService(protocols = { TestRpcService.class })
 public interface TestRemoteService extends RemoteService {
-
-}
+	public void tdddestd();	
+	}

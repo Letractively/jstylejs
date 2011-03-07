@@ -1,3 +1,4 @@
 <factorypath>
     <factorypathentry kind="WKSPJAR" id="/Rayson/lib/plugins/Rayson-apt_1.0.0.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/Rayson/lib/rayson-api.jar" enabled="true" runInBatchMode="false"/>
 </factorypath>
