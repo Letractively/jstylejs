@@ -8,38 +8,35 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-
-import org.rayson.annotation.RpcMethod;
-import org.rayson.annotation.RpcService;
+import javax.lang.model.util.AbstractElementVisitor6;
 
 public class RpcServiceProcessor extends AbstractProcessor {
 	public RpcServiceProcessor() {
 
 	}
 
+	private static final String PROTOCOLS__ANNOTATION_NAME = "org.rayson.annotation.RpcProtocols";
+
 	private static final Set<String> SUPPORTED_ANNOTATION_TYPES;
 	static {
 		SUPPORTED_ANNOTATION_TYPES = new HashSet<String>();
-		SUPPORTED_ANNOTATION_TYPES.add(RpcService.class.getName());
-		SUPPORTED_ANNOTATION_TYPES.add(RpcMethod.class.getName());
+		SUPPORTED_ANNOTATION_TYPES.add(PROTOCOLS__ANNOTATION_NAME);
 	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnv) {
-		for (Element rpcServiceElement : roundEnv
-				.getElementsAnnotatedWith(RpcService.class)) {
-
-			RpcService rpcService = rpcServiceElement
-					.getAnnotation(RpcService.class);
-			Class<? extends org.rayson.api.RpcService>[] protocols = rpcService
-					.protocols();
-			for (Class<? extends org.rayson.api.RpcService> protocol : protocols) {
-				System.out.println(protocol.getName());
+		try {
+			Set<? extends TypeElement> rpcServiceTypes = (Set<? extends TypeElement>) roundEnv
+					.getElementsAnnotatedWith(annotations.iterator().next());
+			for (TypeElement rpcServiceType : rpcServiceTypes) {
+				rpcServiceType.accept();
 			}
+			return true;
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return false;
 		}
-
-		return true;
 	}
 
 	@Override
