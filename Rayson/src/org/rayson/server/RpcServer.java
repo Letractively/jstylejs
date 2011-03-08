@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.net.SocketFactory;
-
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
@@ -23,12 +21,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	private static final String DEFAULT_SERVICE_DESCRIPTION = "Rpc server default service";
 	private static final int DEFAULT_WORKER_COUNT = 4;
 	private static final String LOG_IN_METHOD_NAME = "logIn";
-
-	public static void main(String[] args) throws IOException {
-
-		RpcServer server = new RpcServer(PORT_NUMBER);
-		server.start();
-	}
+	private static SessionFactory THE_SESSION_FACTORY = new DefaultSessionFactory();
 
 	private HashMap<String, Service> services;
 
@@ -72,7 +65,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 					&& LOG_IN_METHOD_NAME.equals(invocation.getMethodName())) {
 				result = logIn();
 			} else {
-				Session session = SessionFactory.getDefault().getSession(
+				Session session = getSessionFactory().getSession(
 						call.getSessionId());
 				result = invocation.invoke(session, serviceObject);
 			}
@@ -126,11 +119,13 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		// TODO: start this RPC server .
 		for (int i = 0; i < DEFAULT_WORKER_COUNT; i++) {
 			CallWorker callWorker = new CallWorker(this);
 			callWorker.start();
 		}
 	}
 
+	public SessionFactory getSessionFactory() {
+		return THE_SESSION_FACTORY;
+	}
 }
