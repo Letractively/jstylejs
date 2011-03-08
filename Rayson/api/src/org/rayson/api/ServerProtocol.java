@@ -3,7 +3,7 @@ package org.rayson.api;
 import org.rayson.exception.RemoteException;
 import org.rayson.exception.ServiceNotFoundException;
 
-public interface ServerService extends RpcService {
+public interface ServerProtocol extends RpcProtocol {
 
 	public static final String NAME = "server";
 

@@ -4,7 +4,7 @@ import java.io.EOFException;
 
 import org.rayson.exception.RemoteException;
 
-public interface TestRpcService extends RpcService {
+public interface TestRpcProtocol extends RpcProtocol {
 
 	public String echo(String message) throws EOFException, RemoteException;
 

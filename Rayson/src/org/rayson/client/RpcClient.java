@@ -11,8 +11,8 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
-import org.rayson.api.RpcService;
-import org.rayson.api.ServerService;
+import org.rayson.api.RpcProtocol;
+import org.rayson.api.ServerProtocol;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.exception.CallException;
@@ -54,7 +54,7 @@ class RpcClient {
 	private static final Invocation SERVER_LOG_IN_INVOCATION;
 	static {
 		try {
-			SERVER_LOG_IN_INVOCATION = new Invocation(ServerService.NAME,
+			SERVER_LOG_IN_INVOCATION = new Invocation(ServerProtocol.NAME,
 					RpcClient.class.getDeclaredMethod("logIn", null), null);
 		} catch (Exception e) {
 			throw new RuntimeException("Can ot init SERVER_LOG_IN_INVOCATION",
@@ -66,7 +66,7 @@ class RpcClient {
 	}
 	private ResponseWorker responseWorker;
 
-	private WeakHashMap<SocketAddress, ServerService> serverServices;
+	private WeakHashMap<SocketAddress, ServerProtocol> serverServices;
 	RpcClient() {
 	}
 
@@ -75,10 +75,10 @@ class RpcClient {
 		return rpcCall;
 	}
 
-	public <T extends RpcService> T createServiceProxy(String serviceName,
+	public <T extends RpcProtocol> T createServiceProxy(String serviceName,
 			Class<T> serviceClass, SocketAddress serverAddress)
 			throws IllegalServiceException, RemoteException {
-		ServerService serverService = getServerService(serverAddress);
+		ServerProtocol serverService = getServerService(serverAddress);
 		long sessionId = EMPTY_SESSSION_ID;
 		try {
 			sessionId = (Long) invokeRpcCall(EMPTY_SESSSION_ID, serverAddress,
@@ -103,17 +103,17 @@ class RpcClient {
 	 * @return
 	 * @throws IllegalServiceException
 	 */
-	<T extends RpcService> T getServerService(SocketAddress serverAddress)
+	<T extends RpcProtocol> T getServerService(SocketAddress serverAddress)
 			throws IllegalServiceException {
-		ServerService rpcService;
+		ServerProtocol rpcService;
 		synchronized (serverServices) {
 			rpcService = serverServices.get(serverAddress);
 			if (rpcService == null) {
-				rpcService = (ServerService) Proxy.newProxyInstance(
+				rpcService = (ServerProtocol) Proxy.newProxyInstance(
 						RpcClient.class.getClassLoader(),
-						new Class[] { ServerService.class },
+						new Class[] { ServerProtocol.class },
 						new RpcServiceProxy(EMPTY_SESSSION_ID,
-								ServerService.NAME, serverAddress));
+								ServerProtocol.NAME, serverAddress));
 				serverServices.put(serverAddress, rpcService);
 			}
 
@@ -122,7 +122,7 @@ class RpcClient {
 	}
 
 	void initialize() {
-		serverServices = new WeakHashMap<SocketAddress, ServerService>();
+		serverServices = new WeakHashMap<SocketAddress, ServerProtocol>();
 		responseWorker = new ResponseWorker();
 		responseWorker.start();
 	}

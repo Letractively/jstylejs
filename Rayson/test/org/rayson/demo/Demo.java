@@ -7,10 +7,10 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import org.rayson.annotation.RpcService;
-import org.rayson.api.ServerService;
+import org.rayson.annotation.RpcProtocols;
+import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
-import org.rayson.api.TestRpcService;
+import org.rayson.api.TestRpcProtocol;
 import org.rayson.client.Rayson;
 import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
@@ -32,9 +32,9 @@ public class Demo {
 
 		System.out.println("Ping sucessfully");
 
-		ServerService serverService = Rayson.getServerService(serverAddress);
-		TestRpcService testRpcService = Rayson.createServiceProxy("demo",
-				TestRpcService.class, serverAddress);
+		ServerProtocol serverService = Rayson.getServerService(serverAddress);
+		TestRpcProtocol testRpcService = Rayson.createServiceProxy("demo",
+				TestRpcProtocol.class, serverAddress);
 
 		try { // list services.
 
@@ -75,7 +75,7 @@ public class Demo {
 
 	}
 
-	public static void register(RpcService t) {
+	public static void register(RpcProtocols t) {
 
 	}
 }

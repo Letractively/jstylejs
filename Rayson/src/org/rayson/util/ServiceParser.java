@@ -4,19 +4,19 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rayson.api.RpcService;
+import org.rayson.api.RpcProtocol;
 import org.rayson.common.Stream;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.RemoteException;
 
 public final class ServiceParser {
 
-	public static Class<? extends RpcService>[] getProtocols(
-			Class<? extends RpcService> serviceClass)
+	public static Class<? extends RpcProtocol>[] getProtocols(
+			Class<? extends RpcProtocol> serviceClass)
 			throws IllegalServiceException {
-		List<Class<? extends RpcService>> list = new ArrayList<Class<? extends RpcService>>();
+		List<Class<? extends RpcProtocol>> list = new ArrayList<Class<? extends RpcProtocol>>();
 		for (Class interfake : serviceClass.getInterfaces()) {
-			if (RpcService.class.isAssignableFrom(interfake)) {
+			if (RpcProtocol.class.isAssignableFrom(interfake)) {
 				verifyService(interfake);
 				list.add(interfake);
 			}
@@ -51,7 +51,7 @@ public final class ServiceParser {
 		}
 	}
 
-	public static void verifyService(Class<? extends RpcService> protocol)
+	public static void verifyService(Class<? extends RpcProtocol> protocol)
 			throws IllegalServiceException {
 		if (!protocol.isInterface())
 			throw new IllegalServiceException(

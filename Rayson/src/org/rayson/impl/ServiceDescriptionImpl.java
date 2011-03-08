@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.rayson.api.RpcService;
+import org.rayson.api.RpcProtocol;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Transportable;
 import org.rayson.common.Stream;
@@ -21,7 +21,7 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 		// Forbidden construct.
 	}
 	public ServiceDescriptionImpl(String serviceName, String description,
-			Class<? extends RpcService>[] protocols) {
+			Class<? extends RpcProtocol>[] protocols) {
 		this.name = serviceName;
 		this.description = description;
 		this.protocols = new String[protocols.length];

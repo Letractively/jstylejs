@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Inherited
-public @interface RpcService {
-	public Class<? extends org.rayson.api.RpcService>[] protocols();
+public @interface RpcProtocols {
+	public Class<? extends org.rayson.api.RpcProtocol>[] value();
 }

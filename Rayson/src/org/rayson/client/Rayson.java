@@ -3,8 +3,8 @@ package org.rayson.client;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.rayson.api.RpcService;
-import org.rayson.api.ServerService;
+import org.rayson.api.RpcProtocol;
+import org.rayson.api.ServerProtocol;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RemoteException;
@@ -13,7 +13,7 @@ public final class Rayson {
 	private static RpcClient CLIENT = new RpcClient();
 	private static AtomicBoolean clientInited = new AtomicBoolean(false);
 
-	public static <T extends RpcService> T createServiceProxy(
+	public static <T extends RpcProtocol> T createServiceProxy(
 			String serviceName, Class<T> serviceClass,
 			SocketAddress serverAddress) throws IllegalServiceException,
 			RemoteException {
@@ -22,7 +22,7 @@ public final class Rayson {
 				serverAddress);
 	}
 
-	public static ServerService getServerService(SocketAddress serverAddress) {
+	public static ServerProtocol getServerService(SocketAddress serverAddress) {
 		tryInit();
 
 		try {

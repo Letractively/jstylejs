@@ -3,7 +3,7 @@ package org.rayson.util;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.rayson.api.TestRpcService;
+import org.rayson.api.TestRpcProtocol;
 import org.rayson.exception.IllegalServiceException;
 
 public class ServiceParserTest {
@@ -17,7 +17,7 @@ public class ServiceParserTest {
 	public void testVerifyService() {
 
 		try {
-			ServiceParser.verifyService(TestRpcService.class);
+			ServiceParser.verifyService(TestRpcProtocol.class);
 		} catch (IllegalServiceException e) {
 			fail(e.getMessage());
 		}
