@@ -1,16 +1,17 @@
 package org.rayson.server;
 
 import org.rayson.api.RpcProtocol;
+import org.rayson.api.RpcService;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.util.ServiceParser;
 
 class Service {
 	private String description;
-	private RpcProtocol instance;
+	private RpcService instance;
 	private String name;
 	private Class<? extends RpcProtocol>[] protocols;
 
-	Service(String name, String description, RpcProtocol instance)
+	Service(String name, String description, RpcService instance)
 			throws IllegalServiceException {
 		// TODO: throw IllegalServiceException
 		this.name = name;
@@ -23,7 +24,7 @@ class Service {
 		return this.description;
 	}
 
-	public RpcProtocol getInstance() {
+	public RpcService getInstance() {
 		return instance;
 	}
 

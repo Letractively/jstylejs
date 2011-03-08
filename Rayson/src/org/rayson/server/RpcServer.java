@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import org.rayson.api.RpcProtocol;
+
+import org.rayson.api.RpcService;
 import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
+import org.rayson.api.Session;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.exception.IllegalServiceException;
@@ -15,9 +17,11 @@ import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.ServiceDescriptionImpl;
 import org.rayson.transport.server.TransportServerImpl;
 
-class RpcServer extends TransportServerImpl implements ServerProtocol {
+class RpcServer extends TransportServerImpl implements ServerService {
 	private static final String DEFAULT_SERVICE_DESCRIPTION = "Rpc server default service";
 	private static final int DEFAULT_WORKER_COUNT = 4;
+	private static final String LOG_IN_METHOD_NAME = "logIn";
+
 	public static void main(String[] args) throws IOException {
 
 		RpcServer server = new RpcServer(PORT_NUMBER);
@@ -32,7 +36,7 @@ class RpcServer extends TransportServerImpl implements ServerProtocol {
 	}
 
 	@Override
-	public ServiceRegistration find(String serviceName)
+	public ServiceRegistration find(Session session, String serviceName)
 			throws ServiceNotFoundException {
 		Service service = getService(serviceName);
 		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
@@ -51,16 +55,26 @@ class RpcServer extends TransportServerImpl implements ServerProtocol {
 	}
 
 	public void invokeCall(ServerCall call) {
-		if (call.exceptionSetted()) {
+		if (call.exceptionCatched()) {
 			// no need to invoke.
 			return;
 		}
 		Invocation invocation = call.getInvocation();
-		RpcProtocol serviceObject;
+		RpcService serviceObject;
 		try {
 			serviceObject = getService(invocation.getServiceName())
 					.getInstance();
-			Object result = invocation.invoke(serviceObject);
+			Object result;
+			// try log in
+			if (call.getSessionId() < 0
+					&& LOG_IN_METHOD_NAME.equals(invocation.getMethodName())) {
+				result = logIn();
+			} else {
+				Session session = SessionFactory
+						.getSession(call.getSessionId());
+				result = invocation.invoke(session, serviceObject);
+			}
+
 			call.setResult(result);
 		} catch (InvocationException e) {
 			call.setException(e);
@@ -70,7 +84,7 @@ class RpcServer extends TransportServerImpl implements ServerProtocol {
 	}
 
 	@Override
-	public ServiceRegistration[] list() {
+	public ServiceRegistration[] list(Session session) {
 		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
 		for (Entry<String, Service> entry : services.entrySet()) {
 			Service service = entry.getValue();
@@ -90,7 +104,7 @@ class RpcServer extends TransportServerImpl implements ServerProtocol {
 	}
 
 	public void registerService(String serviceName, String description,
-			RpcProtocol serviceInstance) throws ServiceAlreadyExistedException,
+			RpcService serviceInstance) throws ServiceAlreadyExistedException,
 			IllegalServiceException {
 		synchronized (services) {
 			if (services.containsKey(serviceName))

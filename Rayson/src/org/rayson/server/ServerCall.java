@@ -58,7 +58,7 @@ public class ServerCall {
 		this.id = UID.getAndIncrement();
 	}
 
-	public boolean exceptionSetted() {
+	public boolean exceptionCatched() {
 		return (exception != null);
 	}
 

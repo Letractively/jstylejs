@@ -17,14 +17,12 @@ import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RemoteException;
 import org.rayson.exception.ServiceNotFoundException;
-import org.rayson.server.DemoRpcService;
 
 public class Demo {
 
 	public static void main(String[] args) throws UnknownHostException,
 			IllegalServiceException, NetWorkException, RemoteException {
-		DemoRpcService demoRpcService = new DemoRpcService();
-		register(demoRpcService);
+
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 

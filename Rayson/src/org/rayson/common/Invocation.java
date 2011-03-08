@@ -5,8 +5,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
-import org.rayson.api.RpcProtocol;
+import org.rayson.api.RpcService;
+import org.rayson.api.Session;
 import org.rayson.api.Transportable;
 import org.rayson.exception.ServiceNotFoundException;
 
@@ -15,6 +17,7 @@ public class Invocation implements Transportable {
 	private Object[] parameters;
 	private Class<?>[] paraTypes;
 	private String serviceName;
+	private static final Class SESSION_CLASS = Session.class;
 
 	public Invocation() {
 
@@ -29,14 +32,24 @@ public class Invocation implements Transportable {
 		this.paraTypes = method.getParameterTypes();
 	}
 
+	public String getMethodName() {
+		return methodName;
+	}
+
 	public String getServiceName() {
 		return serviceName;
 	}
 
-	public Object invoke(RpcProtocol serviceObject) throws InvocationException {
+	public Object invoke(Session session, RpcService serviceObject)
+			throws InvocationException {
 		Method method;
 		try {
-			method = serviceObject.getClass().getMethod(methodName, paraTypes);
+			Class[] realParaTypes = new Class[this.paraTypes.length + 1];
+			realParaTypes[0] = SESSION_CLASS;
+			System.arraycopy(paraTypes, 0, realParaTypes, 1,
+					this.paraTypes.length);
+			method = serviceObject.getClass().getMethod(methodName,
+					realParaTypes);
 		} catch (Exception e) {
 			throw new InvocationException(false, new ServiceNotFoundException(
 					"service of " + serviceName + "." + methodName
@@ -45,7 +58,12 @@ public class Invocation implements Transportable {
 		method.setAccessible(true);
 		Object result = null;
 		try {
-			result = method.invoke(serviceObject, parameters);
+			Object[] realParameters = new Object[this.parameters.length + 1];
+			realParameters[0] = session;
+			System.arraycopy(parameters, 0, realParameters, 1,
+					this.parameters.length);
+
+			result = method.invoke(serviceObject, realParameters);
 		} catch (InvocationTargetException e) {
 			Throwable targetException = e.getTargetException();
 			Class[] exceptionTypes = method.getExceptionTypes();

@@ -61,12 +61,18 @@ class RpcClient {
 					e);
 		}
 	}
+
+	/**
+	 * For reflection only.
+	 */
 	private static long logIn() {
 		return -1;
 	}
+
 	private ResponseWorker responseWorker;
 
 	private WeakHashMap<SocketAddress, ServerProtocol> serverServices;
+
 	RpcClient() {
 	}
 

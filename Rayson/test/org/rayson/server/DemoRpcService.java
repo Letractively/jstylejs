@@ -1,8 +1,38 @@
 package org.rayson.server;
 
+import java.io.EOFException;
+
+import org.rayson.api.Session;
+import org.rayson.exception.RemoteException;
+
 public class DemoRpcService implements TestRemoteService {
+
 	@Override
-	public void tddestd() {
+	public String echo(Session session, String message) throws EOFException,
+			RemoteException {
+		return "hello world";
+	}
+
+	@Override
+	public int getInt(Session session) throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int[] getIntArray(Session session) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Integer getInteger(Session session) throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void voidMethod(Session session) throws RemoteException {
 		// TODO Auto-generated method stub
 
 	}
