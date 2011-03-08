@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.net.SocketFactory;
+
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
@@ -70,11 +72,10 @@ class RpcServer extends TransportServerImpl implements ServerService {
 					&& LOG_IN_METHOD_NAME.equals(invocation.getMethodName())) {
 				result = logIn();
 			} else {
-				Session session = SessionFactory
-						.getSession(call.getSessionId());
+				Session session = SessionFactory.getDefault().getSession(
+						call.getSessionId());
 				result = invocation.invoke(session, serviceObject);
 			}
-
 			call.setResult(result);
 		} catch (InvocationException e) {
 			call.setException(e);

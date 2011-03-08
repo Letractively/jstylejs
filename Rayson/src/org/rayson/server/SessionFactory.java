@@ -1,10 +1,17 @@
 package org.rayson.server;
 
 import org.rayson.api.Session;
-import org.rayson.impl.SessionImpl;
 
-class SessionFactory {
-	public static Session getSession(long sessionId) {
-		return new SessionImpl(sessionId);
+public abstract class SessionFactory {
+	public abstract Session getSession(long sessionId);
+
+	private static SessionFactory theFactory;
+
+	public static SessionFactory getDefault() {
+		synchronized (SessionFactory.class) {
+			if (theFactory == null)
+				theFactory = new DefaultSessionFactory();
+		}
+		return theFactory;
 	}
 }

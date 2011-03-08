@@ -1,8 +1,8 @@
-package org.rayson.impl;
+package org.rayson.server;
 
 import org.rayson.api.Session;
 
-public final class SessionImpl implements Session {
+final class SessionImpl implements Session {
 	private long id;
 
 	public SessionImpl(long id) {
