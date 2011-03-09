@@ -6,13 +6,10 @@ import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.AbstractElementVisitor6;
 
 public class RpcServiceProcessor extends AbstractProcessor {
 	public RpcServiceProcessor() {
-
 	}
 
 	private static final String PROTOCOLS__ANNOTATION_NAME = "org.rayson.annotation.RpcProtocols";
@@ -30,7 +27,12 @@ public class RpcServiceProcessor extends AbstractProcessor {
 			Set<? extends TypeElement> rpcServiceTypes = (Set<? extends TypeElement>) roundEnv
 					.getElementsAnnotatedWith(annotations.iterator().next());
 			for (TypeElement rpcServiceType : rpcServiceTypes) {
-				rpcServiceType.accept();
+				rpcServiceType.accept(
+						new ServiceTypeVisitor(
+								this.processingEnv.getMessager(),
+								(Class[]) rpcServiceType.getAnnotationMirrors()
+										.get(0).getElementValues().values()
+										.iterator().next().getValue()), null);
 			}
 			return true;
 		} catch (Throwable e) {
