@@ -11,8 +11,7 @@ import org.rayson.exception.RemoteException;
 @RpcProtocols({ TestRpcProtocol.class })
 public interface TestRemoteService extends RpcService {
 	public String echo(Session session, String message) throws EOFException,
-			RemoteException;
-
+			RemoteException;	
 	public int getInt(Session session) throws RemoteException;
 
 	public int[] getIntArray(Session session) throws RemoteException;
