@@ -2,39 +2,48 @@ package org.rayson.apt;
 
 import java.util.List;
 
-import javax.annotation.processing.Messager;
-import javax.lang.model.element.Element;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.AbstractElementVisitor6;
 import javax.tools.Diagnostic.Kind;
 
 class ServiceTypeVisitor extends AbstractElementVisitor6<Boolean, Void> {
 
-	private Messager messager;
-	private Class[] protocols;
+	private ProcessingEnvironment processingEnv;
 
-	public ServiceTypeVisitor(Messager messager, Class[] protocols) {
-		this.messager = messager;
-		this.protocols = protocols;
+	public ServiceTypeVisitor(ProcessingEnvironment processingEnv) {
+		this.processingEnv = processingEnv;
 	}
 
 	@Override
 	public Boolean visitPackage(PackageElement e, Void p) {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public Boolean visitType(TypeElement e, Void p) {
-		List<? extends Element> enclosedElements = e.getEnclosedElements();
-		for (Element element : enclosedElements) {
-			element.accept(this, null);
-		}
+		if (!e.getKind().isInterface())
+			this.processingEnv.getMessager().printMessage(Kind.ERROR,
+					Messages.TYPE_MUST_BE_INTERFACE, e);
+		List<? extends TypeMirror> interfaces = e.getInterfaces();
+		if (!findServiceInterface(interfaces))
+			this.processingEnv.getMessager().printMessage(Kind.ERROR,
+					Messages.TYPE_MUST_ANNOTATIONED_SERVICE, e);
 		return true;
+	}
+
+	private boolean findServiceInterface(List<? extends TypeMirror> interfaces) {
+		for (TypeMirror typeMirror : interfaces) {
+			if (typeMirror.toString()
+					.equals(Messages.RPCSERVICE_INTERFACE_NAME))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -45,7 +54,8 @@ class ServiceTypeVisitor extends AbstractElementVisitor6<Boolean, Void> {
 
 	@Override
 	public Boolean visitExecutable(ExecutableElement e, Void p) {
-		messager.printMessage(Kind.ERROR, "method error", e);
+		this.processingEnv.getMessager().printMessage(Kind.ERROR,
+				"method error", e);
 		return true;
 	}
 

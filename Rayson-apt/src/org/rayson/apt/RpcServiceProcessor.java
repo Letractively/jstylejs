@@ -17,21 +17,24 @@ public class RpcServiceProcessor extends AbstractProcessor {
 
 	}
 
-	private static final String PROTOCOLS_ANNOTATION_NAME = "org.rayson.annotation.Protocols";
-
 	private static final Set<String> SUPPORTED_ANNOTATION_TYPES;
 	static {
 		SUPPORTED_ANNOTATION_TYPES = new HashSet<String>();
-		SUPPORTED_ANNOTATION_TYPES.add(PROTOCOLS_ANNOTATION_NAME);
+		SUPPORTED_ANNOTATION_TYPES.add(Messages.PROTOCOLS_ANNOTATION_NAME);
 	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnv) {
+		// 1. find annotation of Protocols.
+		TypeElement protocleTypeElement = getProtocolsAnnotationTypeElement(annotations);
+		if (protocleTypeElement == null)
+			return false;
 		try {
-			for (Element typeElement : getElementsAnnotationedWithService(
-					annotations, roundEnv)) {
-				System.out.println(typeElement);
+			for (Element typeElement : roundEnv
+					.getElementsAnnotatedWith(protocleTypeElement)) {
+				typeElement.accept(new ServiceTypeVisitor(this.processingEnv),
+						null);
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -40,20 +43,11 @@ public class RpcServiceProcessor extends AbstractProcessor {
 		return false;
 	}
 
-	private Set<? extends Element> getElementsAnnotationedWithService(
-			Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-		TypeElement typeElement = getServiceAnnotationTypeElement(annotations);
-		if (typeElement == null)
-			return Collections.EMPTY_SET;
-		else
-			return roundEnv.getElementsAnnotatedWith(typeElement);
-	}
-
-	private TypeElement getServiceAnnotationTypeElement(
+	public static TypeElement getProtocolsAnnotationTypeElement(
 			Set<? extends TypeElement> annotations) {
 		for (TypeElement typeElement : annotations) {
 			if (typeElement.getQualifiedName().contentEquals(
-					PROTOCOLS_ANNOTATION_NAME))
+					Messages.PROTOCOLS_ANNOTATION_NAME))
 				return typeElement;
 		}
 		return null;
@@ -63,5 +57,4 @@ public class RpcServiceProcessor extends AbstractProcessor {
 	public Set<String> getSupportedAnnotationTypes() {
 		return Collections.unmodifiableSet(SUPPORTED_ANNOTATION_TYPES);
 	}
-
 }
