@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import org.rayson.annotation.RpcProtocols;
+import org.rayson.annotation.Protocols;
 import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.TestRpcProtocol;
@@ -73,7 +73,7 @@ public class Demo {
 
 	}
 
-	public static void register(RpcProtocols t) {
+	public static void register(Protocols t) {
 
 	}
 }

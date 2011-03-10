@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rayson.annotation.RpcProtocols;
+import org.rayson.annotation.Protocols;
 import org.rayson.api.RpcProtocol;
 import org.rayson.api.RpcService;
 import org.rayson.common.Stream;
@@ -22,12 +22,12 @@ public final class ServiceParser {
 			if (!RpcService.class.isAssignableFrom(interfake))
 				continue;
 
-			RpcProtocols rpcProtocols = ((Class<? extends RpcService>) interfake)
-					.getAnnotation(RpcProtocols.class);
+			Protocols rpcProtocols = ((Class<? extends RpcService>) interfake)
+					.getAnnotation(Protocols.class);
 			if (rpcProtocols == null)
 				throw new IllegalServiceException("Interfae "
 						+ interfake.getName() + " must has annotaion "
-						+ RpcProtocols.class.getSimpleName());
+						+ Protocols.class.getSimpleName());
 			for (Class<? extends RpcProtocol> interfake1 : rpcProtocols.value()) {
 				verifyService(interfake1);
 				list.add(interfake1);

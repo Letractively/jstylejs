@@ -1,5 +1,7 @@
 package org.rayson.api;
 
-public interface RpcService {
+import org.rayson.annotation.Service;
 
+@Service
+public interface RpcService {
 }
