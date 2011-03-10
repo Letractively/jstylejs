@@ -27,13 +27,17 @@ class ServiceTypeVisitor extends AbstractElementVisitor6<Boolean, Void> {
 
 	@Override
 	public Boolean visitType(TypeElement e, Void p) {
+		// 1.find whether interface.
 		if (!e.getKind().isInterface())
 			this.processingEnv.getMessager().printMessage(Kind.ERROR,
 					Messages.TYPE_MUST_BE_INTERFACE, e);
+		// 2.find whether implements RpcService.
 		List<? extends TypeMirror> interfaces = e.getInterfaces();
 		if (!findServiceInterface(interfaces))
 			this.processingEnv.getMessager().printMessage(Kind.ERROR,
 					Messages.TYPE_MUST_ANNOTATIONED_SERVICE, e);
+		// 3.find protocol interfaces.
+		
 		return true;
 	}
 
