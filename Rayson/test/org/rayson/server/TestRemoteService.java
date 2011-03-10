@@ -9,7 +9,7 @@ import org.rayson.api.TestRpcProtocol;
 import org.rayson.exception.RemoteException;
 
 @Protocols({ TestRpcProtocol.class })
-public interface TestRemoteService extends RpcService {
+public interface TestRemoteService extends RpcService{
 	public String echo(Session session, String message) throws EOFException,
 			RemoteException;
 

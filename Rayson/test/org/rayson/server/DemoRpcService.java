@@ -6,17 +6,16 @@ import org.rayson.api.Session;
 import org.rayson.exception.RemoteException;
 
 public class DemoRpcService implements TestRemoteService {
-
 	@Override
 	public String echo(Session session, String message) throws EOFException,
 			RemoteException {
-		return "hello world";
+		return "hellddo wodasfrldd";
 	}
 
 	@Override
 	public int getInt(Session session) throws RemoteException {
 		// TODO Auto-generated method stub
-		return 0;
+		return 345;
 	}
 
 	@Override
