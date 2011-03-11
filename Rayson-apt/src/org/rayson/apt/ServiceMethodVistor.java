@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.ExecutableElement;
@@ -16,9 +17,13 @@ import javax.tools.Diagnostic.Kind;
 class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;
+	private List<AnnotationValue> protocolsClasses;
 
-	public ServiceMethodVistor(ProcessingEnvironment processingEnv) {
+	public ServiceMethodVistor(ProcessingEnvironment processingEnv,
+			AnnotationValue protocolsClasses) {
 		this.processingEnv = processingEnv;
+		this.protocolsClasses = (List<AnnotationValue>) protocolsClasses
+				.getValue();
 	}
 
 	@Override

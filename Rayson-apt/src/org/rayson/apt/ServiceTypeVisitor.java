@@ -80,7 +80,8 @@ class ServiceTypeVisitor extends
 
 	@Override
 	public Boolean visitExecutable(ExecutableElement e, AnnotationMirror p) {
-		e.accept(new ServiceMethodVistor(this.processingEnv), p);
+		e.accept(new ServiceMethodVistor(this.processingEnv,
+				this.protocolsClasses), p);
 		return true;
 	}
 
