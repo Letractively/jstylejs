@@ -112,12 +112,14 @@ class ProtocolsAnnotationValueVisitor implements
 			AnnotationMirror p) {
 		for (AnnotationValue annotationValue : vals) {
 			if (annotationValue.toString().equals(
-					Constants.RPCPROTOCOL_INTERFACE_NAME))
+					Constants.RPCPROTOCOL_INTERFACE_NAME)) {
 				this.processingEnv.getMessager().printMessage(Kind.ERROR,
 						Constants.PROTOCOL_MUST_EXTENDS_RPCPROTOCOL,
 						this.typeElement, p, annotationValue);
+				return false;
+			}
 		}
-		return null;
+		return true;
 	}
 
 	@Override
