@@ -45,10 +45,13 @@ class ServiceTypeVisitor extends
 			this.processingEnv.getMessager().printMessage(Kind.ERROR,
 					Constants.TYPE_MUST_ANNOTATIONED_SERVICE, e);
 
-		// 3.find protocol interfaces.
+		// 3.visit protocols annotation interfaces.
 		protocolsClasses.accept(new ProtocolsAnnotationValueVisitor(
 				this.processingEnv, e), p);
 
+		// 4. verify methods.
+		
+		
 		return true;
 	}
 

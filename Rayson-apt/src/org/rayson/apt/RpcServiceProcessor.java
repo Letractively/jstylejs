@@ -1,6 +1,5 @@
 package org.rayson.apt;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,12 +35,12 @@ public class RpcServiceProcessor extends AbstractProcessor {
 		try {
 			for (Element typeElement : roundEnv
 					.getElementsAnnotatedWith(protocolsTypeElement)) {
+				// 2. find protocols annotation mirror.
 				AnnotationMirror protocolsAnnotationMirror = getProtocolsAnnotationMirror(typeElement);
 				if (protocolsAnnotationMirror == null)
 					continue;
 				AnnotationValue protocolsClasses = protocolsAnnotationMirror
 						.getElementValues().values().iterator().next();
-				System.out.println(protocolsClasses.toString());
 				typeElement.accept(new ServiceTypeVisitor(this.processingEnv,
 						protocolsClasses), protocolsAnnotationMirror);
 			}
