@@ -1,5 +1,6 @@
 package org.rayson.apt;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,6 +9,8 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
@@ -20,21 +23,27 @@ public class RpcServiceProcessor extends AbstractProcessor {
 	private static final Set<String> SUPPORTED_ANNOTATION_TYPES;
 	static {
 		SUPPORTED_ANNOTATION_TYPES = new HashSet<String>();
-		SUPPORTED_ANNOTATION_TYPES.add(Messages.PROTOCOLS_ANNOTATION_NAME);
+		SUPPORTED_ANNOTATION_TYPES.add(Constants.PROTOCOLS_ANNOTATION_NAME);
 	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnv) {
 		// 1. find annotation of Protocols.
-		TypeElement protocleTypeElement = getProtocolsAnnotationTypeElement(annotations);
-		if (protocleTypeElement == null)
+		TypeElement protocolsTypeElement = getProtocolsAnnotationTypeElement(annotations);
+		if (protocolsTypeElement == null)
 			return false;
 		try {
 			for (Element typeElement : roundEnv
-					.getElementsAnnotatedWith(protocleTypeElement)) {
-				typeElement.accept(new ServiceTypeVisitor(this.processingEnv),
-						null);
+					.getElementsAnnotatedWith(protocolsTypeElement)) {
+				AnnotationMirror protocolsAnnotationMirror = getProtocolsAnnotationMirror(typeElement);
+				if (protocolsAnnotationMirror == null)
+					continue;
+				AnnotationValue protocolsClasses = protocolsAnnotationMirror
+						.getElementValues().values().iterator().next();
+				System.out.println(protocolsClasses.toString());
+				typeElement.accept(new ServiceTypeVisitor(this.processingEnv,
+						protocolsClasses), protocolsAnnotationMirror);
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -43,11 +52,20 @@ public class RpcServiceProcessor extends AbstractProcessor {
 		return false;
 	}
 
-	public static TypeElement getProtocolsAnnotationTypeElement(
+	private AnnotationMirror getProtocolsAnnotationMirror(Element element) {
+		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
+			if (annotationMirror.getAnnotationType().toString()
+					.equals(Constants.PROTOCOLS_ANNOTATION_NAME))
+				return annotationMirror;
+		}
+		return null;
+	}
+
+	private static TypeElement getProtocolsAnnotationTypeElement(
 			Set<? extends TypeElement> annotations) {
 		for (TypeElement typeElement : annotations) {
 			if (typeElement.getQualifiedName().contentEquals(
-					Messages.PROTOCOLS_ANNOTATION_NAME))
+					Constants.PROTOCOLS_ANNOTATION_NAME))
 				return typeElement;
 		}
 		return null;
