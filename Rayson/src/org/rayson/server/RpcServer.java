@@ -70,8 +70,12 @@ class RpcServer extends TransportServerImpl implements ServerService,
 						&& LOG_IN_METHOD_NAME
 								.equals(invocation.getMethodName())) {
 					// Get client info from client.
-					ClientInfo clientInfo = (ClientInfo) invocation.invoke(
-							null, this);
+					ClientInfo clientInfo;
+					try {
+						clientInfo = (ClientInfo) invocation.cloneParameter(0);
+					} catch (IOException e) {
+						throw new InvocationException(true, e);
+					}
 					// do log in.
 					result = logIn(clientInfo, call.getRemoteAddress());
 				} else {
@@ -107,17 +111,6 @@ class RpcServer extends TransportServerImpl implements ServerService,
 					.getDescription(), service.getProtocols()));
 		}
 		return list.toArray(new ServiceDescriptionImpl[0]);
-	}
-
-	/**
-	 * Used for log in only.
-	 * 
-	 * @param session
-	 * @param clientInfo
-	 * @return
-	 */
-	public ClientInfo logIn(RpcSession session, ClientInfo clientInfo) {
-		return clientInfo;
 	}
 
 	@Override

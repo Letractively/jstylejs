@@ -1,11 +1,14 @@
 package org.rayson.common;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import org.rayson.api.RpcService;
 import org.rayson.api.Transportable;
@@ -76,6 +79,19 @@ public class Invocation implements Transportable {
 			throw new InvocationException(true, e);
 		}
 		return result;
+	}
+
+	public Object cloneParameter(int index) throws IOException {
+		Object parameter = this.parameters[index];
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
+				1024);
+		DataOutputStream dataOutputStream = new DataOutputStream(
+				byteArrayOutputStream);
+		Stream.writePortable(dataOutputStream, parameter);
+		byte[] data = byteArrayOutputStream.toByteArray();
+		DataInputStream dataInputStream = new DataInputStream(
+				new ByteArrayInputStream(data));
+		return Stream.readPortable(dataInputStream);
 	}
 
 	@Override

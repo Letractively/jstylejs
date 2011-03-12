@@ -74,6 +74,10 @@ class RpcClient {
 		return -1;
 	}
 
+	public static byte getProtocol() {
+		return protocol;
+	}
+
 	private ResponseWorker responseWorker;
 
 	private WeakHashMap<SocketAddress, ServerProtocol> serverServices;
