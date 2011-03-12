@@ -1,11 +1,12 @@
-package org.rayson.server;
+package org.rayson.server.impl;
 
 import java.net.SocketAddress;
 
 import org.rayson.common.ClientInfo;
 import org.rayson.server.api.RpcSession;
+import org.rayson.server.api.SessionFactory;
 
-final class SessionImpl implements RpcSession {
+public final class SessionImpl implements RpcSession {
 	private long id;
 	private byte protocol;
 	private long creationTime;
@@ -59,7 +60,7 @@ final class SessionImpl implements RpcSession {
 		return remoteAddr;
 	}
 
-	void touch() {
+	public void touch() {
 		this.isNew = false;
 		this.lastAccessedTime = System.currentTimeMillis();
 	}

@@ -1,9 +1,8 @@
-package org.rayson.server;
+package org.rayson.server.api;
 
 import java.net.SocketAddress;
 
 import org.rayson.common.ClientInfo;
-import org.rayson.server.api.RpcSession;
 
 public interface SessionFactory {
 	public abstract RpcSession get(long sessionId);

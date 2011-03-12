@@ -1,15 +1,16 @@
-package org.rayson.server;
+package org.rayson.server.impl;
 
 import java.net.SocketAddress;
 import java.util.HashMap;
 
 import org.rayson.common.ClientInfo;
 import org.rayson.server.api.RpcSession;
+import org.rayson.server.api.SessionFactory;
 
-class DefaultSessionFactory implements SessionFactory {
+public class DefaultSessionFactory implements SessionFactory {
 	private HashMap<Long, RpcSession> sessions;
 
-	DefaultSessionFactory() {
+	public DefaultSessionFactory() {
 		this.sessions = new HashMap<Long, RpcSession>();
 	}
 
