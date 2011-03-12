@@ -27,7 +27,8 @@ public class RpcConnector {
 				.takeReceived();
 		ServerCall serverCall = null;
 
-		serverCall = ServerCall.fromPacket(connectionPacket.getPacket());
+		serverCall = ServerCall.fromPacket(connectionPacket.getConnection()
+				.getRemoteAddr(), connectionPacket.getPacket());
 		if (serverCall == null) {
 			// try again
 			return takeCall();

@@ -41,6 +41,8 @@ class CallWorker extends Thread {
 				}
 			} catch (InterruptedException e) {
 				break;
+			} catch (Throwable e) {
+				LOGGER.log(Level.SEVERE, "Call worker got a error", e);
 			}
 		}
 

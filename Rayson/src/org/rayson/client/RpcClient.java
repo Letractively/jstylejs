@@ -13,12 +13,13 @@ import java.util.logging.Logger;
 
 import org.rayson.api.RpcProtocol;
 import org.rayson.api.ServerProtocol;
+import org.rayson.common.ClientInfo;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
-import org.rayson.exception.RemoteException;
+import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.RemoteExceptionImpl;
 import org.rayson.transport.client.TransportClient;
@@ -51,11 +52,15 @@ class RpcClient {
 
 	private static Logger LOGGER = Log.getLogger();
 
+	private static byte protocol = 1;
+
 	private static final Invocation SERVER_LOG_IN_INVOCATION;
 	static {
 		try {
 			SERVER_LOG_IN_INVOCATION = new Invocation(ServerProtocol.NAME,
-					RpcClient.class.getDeclaredMethod("logIn", null), null);
+					RpcClient.class.getDeclaredMethod("logIn",
+							new Class[] { ClientInfo.class }),
+					new Object[] { new ClientInfo(protocol) });
 		} catch (Exception e) {
 			throw new RuntimeException("Can ot init SERVER_LOG_IN_INVOCATION",
 					e);
@@ -65,7 +70,7 @@ class RpcClient {
 	/**
 	 * For reflection only.
 	 */
-	private static long logIn() {
+	private static long logIn(ClientInfo clientInfo) {
 		return -1;
 	}
 
@@ -83,13 +88,13 @@ class RpcClient {
 
 	public <T extends RpcProtocol> T createServiceProxy(String serviceName,
 			Class<T> serviceClass, SocketAddress serverAddress)
-			throws IllegalServiceException, RemoteException {
+			throws IllegalServiceException, RpcException {
 		ServerProtocol serverService = getServerService(serverAddress);
 		long sessionId = EMPTY_SESSSION_ID;
 		try {
 			sessionId = (Long) invokeRpcCall(EMPTY_SESSSION_ID, serverAddress,
 					serverService, SERVER_LOG_IN_INVOCATION);
-		} catch (RemoteException e) {
+		} catch (RpcException e) {
 			throw e;
 		} catch (Throwable e) {
 			throw new UndeclaredThrowableException(e);

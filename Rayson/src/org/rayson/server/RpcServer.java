@@ -1,6 +1,7 @@
 package org.rayson.server;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,15 +10,18 @@ import java.util.Map.Entry;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
-import org.rayson.api.Session;
+import org.rayson.common.ClientInfo;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.exception.IllegalServiceException;
+import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.ServiceDescriptionImpl;
+import org.rayson.server.api.RpcSession;
 import org.rayson.transport.server.TransportServerImpl;
 
-class RpcServer extends TransportServerImpl implements ServerService {
+class RpcServer extends TransportServerImpl implements ServerService,
+		SessionService {
 	private static final String DEFAULT_SERVICE_DESCRIPTION = "Rpc server default service";
 	private static final int DEFAULT_WORKER_COUNT = 4;
 	private static final String LOG_IN_METHOD_NAME = "logIn";
@@ -31,7 +35,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration find(Session session, String serviceName)
+	public ServiceRegistration find(RpcSession session, String serviceName)
 			throws ServiceNotFoundException {
 		Service service = getService(serviceName);
 		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
@@ -54,21 +58,38 @@ class RpcServer extends TransportServerImpl implements ServerService {
 			// no need to invoke.
 			return;
 		}
+
+		Object result;
 		Invocation invocation = call.getInvocation();
 		RpcService serviceObject;
+
+		String serviceName = invocation.getServiceName();
 		try {
-			serviceObject = getService(invocation.getServiceName())
-					.getInstance();
-			Object result;
-			// try log in
-			if (call.getSessionId() < 0
-					&& LOG_IN_METHOD_NAME.equals(invocation.getMethodName())) {
-				result = logIn();
+			if (ServerProtocol.NAME.equals(serviceName)) {
+				if (call.getSessionId() < 0
+						&& LOG_IN_METHOD_NAME
+								.equals(invocation.getMethodName())) {
+					// Get client info from client.
+					ClientInfo clientInfo = (ClientInfo) invocation.invoke(
+							null, this);
+					// do log in.
+					result = logIn(clientInfo, call.getRemoteAddress());
+				} else {
+					// Server service with no session context.
+					result = invocation.invoke(null, this);
+				}
 			} else {
-				Session session = getSessionFactory().getSession(
+
+				serviceObject = getService(serviceName).getInstance();
+				// try log in
+
+				SessionImpl session = (SessionImpl) getSessionFactory().get(
 						call.getSessionId());
+				// touch session.
+				session.touch();
 				result = invocation.invoke(session, serviceObject);
 			}
+
 			call.setResult(result);
 		} catch (InvocationException e) {
 			call.setException(e);
@@ -78,7 +99,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration[] list(Session session) {
+	public ServiceRegistration[] list(RpcSession session) {
 		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
 		for (Entry<String, Service> entry : services.entrySet()) {
 			Service service = entry.getValue();
@@ -89,12 +110,19 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	/**
-	 * Log into this server.
+	 * Used for log in only.
 	 * 
-	 * @return The new session's id.
+	 * @param session
+	 * @param clientInfo
+	 * @return
 	 */
-	public long logIn() {
-		return System.nanoTime();
+	public ClientInfo logIn(RpcSession session, ClientInfo clientInfo) {
+		return clientInfo;
+	}
+
+	@Override
+	public long logIn(ClientInfo clientInfo, SocketAddress remoteAddr) {
+		return this.getSessionFactory().create(clientInfo, remoteAddr).getId();
 	}
 
 	public void registerService(String serviceName, String description,
@@ -127,5 +155,15 @@ class RpcServer extends TransportServerImpl implements ServerService {
 
 	public SessionFactory getSessionFactory() {
 		return THE_SESSION_FACTORY;
+	}
+
+	@Override
+	public String getServerInfo(RpcSession session) throws RpcException {
+		return "Rpc server";
+	}
+
+	@Override
+	public void logOut(RpcSession session) {
+		session.invalidate();
 	}
 }

@@ -7,7 +7,7 @@ import org.rayson.api.RpcProtocol;
 import org.rayson.api.ServerProtocol;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
-import org.rayson.exception.RemoteException;
+import org.rayson.exception.RpcException;
 
 public final class Rayson {
 	private static RpcClient CLIENT = new RpcClient();
@@ -16,7 +16,7 @@ public final class Rayson {
 	public static <T extends RpcProtocol> T createServiceProxy(
 			String serviceName, Class<T> serviceClass,
 			SocketAddress serverAddress) throws IllegalServiceException,
-			RemoteException {
+			RpcException {
 		tryInit();
 		return CLIENT.createServiceProxy(serviceName, serviceClass,
 				serverAddress);

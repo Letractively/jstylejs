@@ -2,7 +2,7 @@ package org.rayson.exception;
 
 import java.lang.reflect.UndeclaredThrowableException;
 
-public abstract class RemoteException extends Exception {
+public abstract class RpcException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
@@ -10,7 +10,7 @@ public abstract class RemoteException extends Exception {
 
 	private RemoteExceptionType type = RemoteExceptionType.UNDECLARED;
 
-	protected RemoteException(RemoteExceptionType type, Throwable cause) {
+	protected RpcException(RemoteExceptionType type, Throwable cause) {
 		this.type = type;
 		this.cause = cause;
 	}

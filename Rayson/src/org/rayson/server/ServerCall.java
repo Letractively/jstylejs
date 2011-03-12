@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.common.Invocation;
@@ -18,13 +19,15 @@ public class ServerCall {
 
 	private static final int BUFFER_SIZE = 1024;
 	private static final AtomicLong UID = new AtomicLong(0);
-	public static ServerCall fromPacket(Packet requestPacket) {
+
+	public static ServerCall fromPacket(SocketAddress remoteAddress,
+			Packet requestPacket) {
 
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
 				requestPacket.getData());
 		DataInputStream dataInputStream = new DataInputStream(
 				byteArrayInputStream);
-		ServerCall serverCall = new ServerCall();
+		ServerCall serverCall = new ServerCall(remoteAddress);
 		long clientCallId;
 		try {
 			clientCallId = dataInputStream.readLong();
@@ -38,13 +41,14 @@ public class ServerCall {
 			Invocation invocation = new Invocation();
 			invocation.read(dataInputStream);
 			serverCall.invocation = invocation;
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			serverCall.setException(new InvocationException(false,
 					new CallException("Read call invocation error: "
 							+ e.toString())));
 		}
 		return serverCall;
 	}
+
 	private long clientCallId;
 	private InvocationException exception;
 	private long id;
@@ -53,9 +57,15 @@ public class ServerCall {
 	private Object result;
 
 	private long sessionId;
+	private SocketAddress remoteAddress;
 
-	private ServerCall() {
+	private ServerCall(SocketAddress remoteAddress) {
 		this.id = UID.getAndIncrement();
+		this.remoteAddress = remoteAddress;
+	}
+
+	public SocketAddress getRemoteAddress() {
+		return remoteAddress;
 	}
 
 	public boolean exceptionCatched() {

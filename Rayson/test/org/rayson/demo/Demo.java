@@ -15,13 +15,13 @@ import org.rayson.client.Rayson;
 import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
-import org.rayson.exception.RemoteException;
+import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 
 public class Demo {
 
 	public static void main(String[] args) throws UnknownHostException,
-			IllegalServiceException, NetWorkException, RemoteException {
+			IllegalServiceException, NetWorkException, RpcException {
 
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
@@ -51,7 +51,7 @@ public class Demo {
 			// TODO: handle exception
 			e.printStackTrace();
 
-		} catch (RemoteException e) {
+		} catch (RpcException e) {
 			try {
 				e.throwCause();
 			} catch (UndeclaredThrowableException e1) {

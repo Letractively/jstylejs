@@ -1,6 +1,7 @@
 package org.rayson.transport.server;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -235,6 +236,10 @@ class RpcConnection extends AbstractConnection {
 
 	private boolean shouldWriteErrorResponse() {
 		return gotErrorPacket.get() && this.sendPackets.isEmpty();
+	}
+
+	public SocketAddress getRemoteAddr() {
+		return this.socketChannel.socket().getRemoteSocketAddress();
 	}
 
 	@Override

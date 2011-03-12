@@ -4,14 +4,18 @@ import org.rayson.annotation.Protocols;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
-import org.rayson.api.Session;
-import org.rayson.exception.RemoteException;
+import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
+import org.rayson.server.api.RpcSession;
 
 @Protocols(ServerProtocol.class)
 interface ServerService extends RpcService {
-	public ServiceRegistration find(Session session, String serviceName)
-			throws ServiceNotFoundException, RemoteException;
 
-	public ServiceRegistration[] list(Session session) throws RemoteException;
+	public ServiceRegistration find(RpcSession session, String serviceName)
+			throws ServiceNotFoundException, RpcException;
+
+	public ServiceRegistration[] list(RpcSession session) throws RpcException;
+
+	public String getServerInfo(RpcSession session) throws RpcException;
+
 }
