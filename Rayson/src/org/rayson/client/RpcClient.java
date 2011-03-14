@@ -7,13 +7,15 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import org.rayson.api.RpcProtocol;
 import org.rayson.api.ServerProtocol;
-import org.rayson.common.ClientInfo;
+import org.rayson.api.Session;
+import org.rayson.common.ClientSession;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.exception.CallException;
@@ -27,52 +29,55 @@ import org.rayson.util.Log;
 
 class RpcClient {
 
-	private class RpcServiceProxy implements InvocationHandler {
+	private class RpcServiceProxy implements InvocationHandler, Session {
 
 		private SocketAddress serverAddress;
 		private String serviceName;
 		private long sessionId;
+		private long creationTime;
+		private long lastAccessedTime;
 
-		public RpcServiceProxy(long sessionId, String serviceName,
-				SocketAddress serverAddress) {
-			this.sessionId = sessionId;
+		public RpcServiceProxy(String serviceName, SocketAddress serverAddress) {
+			this.sessionId = System.currentTimeMillis() + this.hashCode();
 			this.serviceName = serviceName;
 			this.serverAddress = serverAddress;
+			this.creationTime = System.currentTimeMillis();
 		}
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args)
 				throws Throwable {
 			Invocation invocation = new Invocation(serviceName, method, args);
-			return invokeRpcCall(sessionId, serverAddress, proxy, invocation);
+			this.lastAccessedTime = System.currentTimeMillis();
+			return invokeRpcCall(new ClientSession(protocol, sessionId,
+					creationTime, this.lastAccessedTime), serverAddress, proxy,
+					invocation);
+		}
+
+		@Override
+		public long getId() {
+			return this.sessionId;
+		}
+
+		@Override
+		public long getCreationTime() {
+			return this.creationTime;
+		}
+
+		@Override
+		public long getLastAccessedTime() {
+			return this.lastAccessedTime;
+		}
+
+		@Override
+		public byte getProtocol() {
+			return protocol;
 		}
 	}
-
-	private static final long EMPTY_SESSSION_ID = -1;
 
 	private static Logger LOGGER = Log.getLogger();
 
 	private static byte protocol = 1;
-
-	private static final Invocation SERVER_LOG_IN_INVOCATION;
-	static {
-		try {
-			SERVER_LOG_IN_INVOCATION = new Invocation(ServerProtocol.NAME,
-					RpcClient.class.getDeclaredMethod("logIn",
-							new Class[] { ClientInfo.class }),
-					new Object[] { new ClientInfo(protocol) });
-		} catch (Exception e) {
-			throw new RuntimeException("Can ot init SERVER_LOG_IN_INVOCATION",
-					e);
-		}
-	}
-
-	/**
-	 * For reflection only.
-	 */
-	private static long logIn(ClientInfo clientInfo) {
-		return -1;
-	}
 
 	public static byte getProtocol() {
 		return protocol;
@@ -94,19 +99,10 @@ class RpcClient {
 			Class<T> serviceClass, SocketAddress serverAddress)
 			throws IllegalServiceException, RpcException {
 		ServerProtocol serverService = getServerService(serverAddress);
-		long sessionId = EMPTY_SESSSION_ID;
-		try {
-			sessionId = (Long) invokeRpcCall(EMPTY_SESSSION_ID, serverAddress,
-					serverService, SERVER_LOG_IN_INVOCATION);
-		} catch (RpcException e) {
-			throw e;
-		} catch (Throwable e) {
-			throw new UndeclaredThrowableException(e);
-		}
 		T rpcService;
 		rpcService = (T) Proxy.newProxyInstance(
 				RpcClient.class.getClassLoader(), new Class[] { serviceClass },
-				new RpcServiceProxy(sessionId, serviceName, serverAddress));
+				new RpcServiceProxy(serviceName, serverAddress));
 		return rpcService;
 	}
 
@@ -124,11 +120,11 @@ class RpcClient {
 		synchronized (serverServices) {
 			rpcService = serverServices.get(serverAddress);
 			if (rpcService == null) {
-				rpcService = (ServerProtocol) Proxy.newProxyInstance(
-						RpcClient.class.getClassLoader(),
-						new Class[] { ServerProtocol.class },
-						new RpcServiceProxy(EMPTY_SESSSION_ID,
-								ServerProtocol.NAME, serverAddress));
+				rpcService = (ServerProtocol) Proxy
+						.newProxyInstance(RpcClient.class.getClassLoader(),
+								new Class[] { ServerProtocol.class },
+								new RpcServiceProxy(ServerProtocol.NAME,
+										serverAddress));
 				serverServices.put(serverAddress, rpcService);
 			}
 
@@ -142,10 +138,11 @@ class RpcClient {
 		responseWorker.start();
 	}
 
-	private Object invokeRpcCall(long sessionId, SocketAddress serverAddress,
-			Object proxy, Invocation invocation) throws Throwable {
+	private Object invokeRpcCall(ClientSession clientSession,
+			SocketAddress serverAddress, Object proxy, Invocation invocation)
+			throws Throwable {
 
-		ClientCall call = new ClientCall(sessionId, invocation);
+		ClientCall call = new ClientCall(clientSession, invocation);
 		try {
 			submitCall(serverAddress, call);
 		} catch (IOException e) {

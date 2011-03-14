@@ -8,17 +8,21 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.rayson.common.ClientSession;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
 import org.rayson.exception.CallException;
+import org.rayson.server.api.RpcSession;
+import org.rayson.server.impl.RpcSessionImpl;
 import org.rayson.transport.common.Packet;
 
 public class ServerCall {
 
 	private static final int BUFFER_SIZE = 1024;
 	private static final AtomicLong UID = new AtomicLong(0);
+	private RpcSession session;
 
 	public static ServerCall fromPacket(SocketAddress remoteAddress,
 			Packet requestPacket) {
@@ -27,7 +31,7 @@ public class ServerCall {
 				requestPacket.getData());
 		DataInputStream dataInputStream = new DataInputStream(
 				byteArrayInputStream);
-		ServerCall serverCall = new ServerCall(remoteAddress);
+		ServerCall serverCall = new ServerCall();
 		long clientCallId;
 		try {
 			clientCallId = dataInputStream.readLong();
@@ -37,7 +41,11 @@ public class ServerCall {
 		}
 		serverCall.clientCallId = clientCallId;
 		try {
-			serverCall.sessionId = dataInputStream.readLong();
+			ClientSession clientSession = new ClientSession();
+			clientSession.read(dataInputStream);
+			RpcSession rpcSession = new RpcSessionImpl(clientSession,
+					remoteAddress);
+			serverCall.session = rpcSession;
 			Invocation invocation = new Invocation();
 			invocation.read(dataInputStream);
 			serverCall.invocation = invocation;
@@ -56,16 +64,8 @@ public class ServerCall {
 	private Packet responsePacket;
 	private Object result;
 
-	private long sessionId;
-	private SocketAddress remoteAddress;
-
-	private ServerCall(SocketAddress remoteAddress) {
+	private ServerCall() {
 		this.id = UID.getAndIncrement();
-		this.remoteAddress = remoteAddress;
-	}
-
-	public SocketAddress getRemoteAddress() {
-		return remoteAddress;
 	}
 
 	public boolean exceptionCatched() {
@@ -96,8 +96,8 @@ public class ServerCall {
 		return responsePacket;
 	}
 
-	public long getSessionId() {
-		return sessionId;
+	public RpcSession getSession() {
+		return session;
 	}
 
 	void setException(InvocationException exception) {
@@ -147,5 +147,19 @@ public class ServerCall {
 			return toResponsePacket(++tryTime);
 		}
 		return packet;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("id: ");
+		sb.append(id);
+		sb.append(", session: ");
+		sb.append(this.session.toString());
+		sb.append(", invocation: ");
+		sb.append(this.invocation.toString());
+		sb.append("}");
+		return sb.toString();
 	}
 }

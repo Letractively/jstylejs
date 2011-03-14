@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.rayson.common.ClientSession;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
@@ -22,12 +23,12 @@ public class ClientCall<V> {
 	private long id;
 	private Invocation invocation;
 	private Packet requestPacket;
-	private long sessionId;
+	private ClientSession session;
 
-	public ClientCall(long sessionId, Invocation invocation)
+	public ClientCall(ClientSession session, Invocation invocation)
 			throws PacketException {
 		this.id = UID.getAndIncrement();
-		this.sessionId = sessionId;
+		this.session = session;
 		this.invocation = invocation;
 		this.future = new CallFuture<V>();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
@@ -36,7 +37,7 @@ public class ClientCall<V> {
 				byteArrayOutputStream);
 		try {
 			dataOutputStream.writeLong(id);
-			dataOutputStream.writeLong(this.sessionId);
+			session.write(dataOutputStream);
 			invocation.write(dataOutputStream);
 			requestPacket = new Packet(byteArrayOutputStream.toByteArray());
 		} catch (IOException e) {
@@ -96,6 +97,8 @@ public class ClientCall<V> {
 		sb.append("{");
 		sb.append("id: ");
 		sb.append(id);
+		sb.append(", session: ");
+		sb.append(this.session.toString());
 		sb.append(", invocation: ");
 		sb.append(this.invocation.toString());
 		sb.append("}");

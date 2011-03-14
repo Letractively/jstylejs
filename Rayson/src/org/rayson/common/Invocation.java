@@ -81,19 +81,6 @@ public class Invocation implements Transportable {
 		return result;
 	}
 
-	public Object cloneParameter(int index) throws IOException {
-		Object parameter = this.parameters[index];
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-				1024);
-		DataOutputStream dataOutputStream = new DataOutputStream(
-				byteArrayOutputStream);
-		Stream.writePortable(dataOutputStream, parameter);
-		byte[] data = byteArrayOutputStream.toByteArray();
-		DataInputStream dataInputStream = new DataInputStream(
-				new ByteArrayInputStream(data));
-		return Stream.readPortable(dataInputStream);
-	}
-
 	@Override
 	public void read(DataInput in) throws IOException {
 		this.serviceName = in.readUTF();

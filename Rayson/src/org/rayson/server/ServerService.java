@@ -11,6 +11,8 @@ import org.rayson.server.api.RpcSession;
 @Protocols(ServerProtocol.class)
 interface ServerService extends RpcService {
 
+	public static final String DESCRIPTION = "Rpc server default service";
+
 	public ServiceRegistration find(RpcSession session, String serviceName)
 			throws ServiceNotFoundException, RpcException;
 
