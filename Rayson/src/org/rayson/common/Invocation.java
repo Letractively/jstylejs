@@ -1,11 +1,7 @@
 package org.rayson.common;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,17 +15,15 @@ public class Invocation implements Transportable {
 	private String methodName;
 	private Object[] parameters;
 	private Class<?>[] paraTypes;
-	private String serviceName;
 	private static final Class SESSION_CLASS = RpcSession.class;
 
 	public Invocation() {
 
 	}
 
-	public Invocation(String serviceName, Method method, Object[] parameters)
+	public Invocation(Method method, Object[] parameters)
 			throws UnportableTypeException {
 		// TODO: throws UnportableTypeException
-		this.serviceName = serviceName;
 		this.methodName = method.getName();
 		this.parameters = parameters;
 		this.paraTypes = method.getParameterTypes();
@@ -37,10 +31,6 @@ public class Invocation implements Transportable {
 
 	public String getMethodName() {
 		return methodName;
-	}
-
-	public String getServiceName() {
-		return serviceName;
 	}
 
 	public Object invoke(RpcSession session, RpcService serviceObject)
@@ -55,7 +45,7 @@ public class Invocation implements Transportable {
 					realParaTypes);
 		} catch (Exception e) {
 			throw new InvocationException(false, new ServiceNotFoundException(
-					"service of " + serviceName + "." + methodName
+					"service of " + session.getServiceName() + "." + methodName
 							+ " not found"));
 		}
 		method.setAccessible(true);
@@ -83,7 +73,6 @@ public class Invocation implements Transportable {
 
 	@Override
 	public void read(DataInput in) throws IOException {
-		this.serviceName = in.readUTF();
 		this.methodName = in.readUTF();
 		byte paraLength = in.readByte();
 		this.paraTypes = new Class[paraLength];
@@ -110,9 +99,7 @@ public class Invocation implements Transportable {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
-		sb.append("service: ");
-		sb.append(this.serviceName);
-		sb.append(", method name: ");
+		sb.append("method name: ");
 		sb.append(methodName);
 		sb.append(", parameters: [");
 		for (Object parameter : parameters) {
@@ -127,7 +114,6 @@ public class Invocation implements Transportable {
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeUTF(serviceName);
 		out.writeUTF(methodName);
 		byte paraLenth = (byte) paraTypes.length;
 		out.writeByte(paraLenth);

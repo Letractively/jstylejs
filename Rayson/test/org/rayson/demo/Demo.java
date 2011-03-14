@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import org.rayson.annotation.Protocols;
 import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
+import org.rayson.api.Session;
 import org.rayson.api.TestRpcProtocol;
 import org.rayson.client.Rayson;
 import org.rayson.exception.CallException;
@@ -34,6 +35,11 @@ public class Demo {
 		TestRpcProtocol testRpcService = Rayson.getRpcService("demo",
 				TestRpcProtocol.class, serverAddress);
 
+		Session session = Rayson.getSession(testRpcService);
+
+		System.out.println("Service porxy session information:"
+				+ session.toString());
+
 		try { // list services.
 
 			for (ServiceRegistration registration : serverService.list()) {
@@ -46,6 +52,8 @@ public class Demo {
 			// int returnI = Rayson.call(2);
 			// testRpcService.voidMethod();
 			System.out.println(testRpcService.echo("hello world"));
+			System.out.println("Service porxy session information:"
+					+ session.toString());
 
 		} catch (EOFException e) {
 			// TODO: handle exception

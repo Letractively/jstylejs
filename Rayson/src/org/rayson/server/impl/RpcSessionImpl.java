@@ -51,4 +51,9 @@ public final class RpcSessionImpl implements RpcSession {
 		sb.append("}");
 		return sb.toString();
 	}
+
+	@Override
+	public String getServiceName() {
+		return clientSession.getServiceName();
+	}
 }

@@ -9,7 +9,6 @@ import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
 
 import org.rayson.api.RpcProtocol;
 import org.rayson.api.ServerProtocol;
@@ -24,7 +23,6 @@ import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.RemoteExceptionImpl;
 import org.rayson.transport.client.TransportClient;
-import org.rayson.util.Log;
 
 class RpcClient {
 
@@ -43,18 +41,16 @@ class RpcClient {
 			this.creationTime = System.currentTimeMillis();
 		}
 
-		private ClientSession createLastSession() {
+		private ClientSession newSession() {
 			this.lastInvocationTime = System.currentTimeMillis();
-			return new ClientSession(protocol, sessionId, creationTime,
-					this.lastInvocationTime);
+			return new ClientSession(this);
 		}
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args)
 				throws Throwable {
-			Invocation invocation = new Invocation(serviceName, method, args);
-			return invokeRpcCall(createLastSession(), serverAddress, proxy,
-					invocation);
+			Invocation invocation = new Invocation(method, args);
+			return invokeRpcCall(newSession(), serverAddress, proxy, invocation);
 		}
 
 		@Override
@@ -76,9 +72,34 @@ class RpcClient {
 		public byte getProtocol() {
 			return protocol;
 		}
-	}
 
-	private static Logger LOGGER = Log.getLogger();
+		@Override
+		public String getServiceName() {
+			return this.serviceName;
+		}
+
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			sb.append("{");
+			sb.append("id: ");
+			sb.append(sessionId);
+			sb.append(", ");
+			sb.append("protocol: ");
+			sb.append(protocol);
+			sb.append(", ");
+			sb.append("service name: ");
+			sb.append(this.serviceName);
+			sb.append(", ");
+			sb.append("creationTime: ");
+			sb.append(creationTime);
+			sb.append(", ");
+			sb.append("lastInvocationTime: ");
+			sb.append(lastInvocationTime);
+			sb.append("}");
+			return sb.toString();
+		}
+	}
 
 	private static byte protocol = 1;
 
@@ -195,4 +216,12 @@ class RpcClient {
 		TransportClient.getSingleton().getConnector()
 				.sumbitCall(serverAddress, call);
 	}
+
+	public Session getSession(RpcProtocol serviceProxy)
+			throws IllegalArgumentException {
+		RpcServiceProxy proxy = (RpcServiceProxy) Proxy
+				.getInvocationHandler(serviceProxy);
+		return proxy;
+	}
+
 }

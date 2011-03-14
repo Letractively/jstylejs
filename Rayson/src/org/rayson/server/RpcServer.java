@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
+import org.rayson.api.Session;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.exception.IllegalServiceException;
@@ -56,10 +57,10 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		Invocation invocation = call.getInvocation();
 		RpcService serviceObject;
 
-		String serviceName = invocation.getServiceName();
+		RpcSession session = call.getSession();
 		try {
 
-			serviceObject = getService(serviceName).getInstance();
+			serviceObject = getService(session.getServiceName()).getInstance();
 			result = invocation.invoke(call.getSession(), serviceObject);
 
 			call.setResult(result);

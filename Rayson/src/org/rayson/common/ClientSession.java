@@ -13,17 +13,18 @@ public class ClientSession implements Session, Transportable {
 	private long id;
 	private long creationTime;
 	private long lastInvocationTime;
+	private String serviceName;
 
 	public ClientSession() {
 
 	}
 
-	public ClientSession(byte protocol, long id, long creationTime,
-			long lastInvocationTime) {
-		this.protocol = protocol;
-		this.id = id;
-		this.creationTime = creationTime;
-		this.lastInvocationTime = lastInvocationTime;
+	public ClientSession(Session session) {
+		this.protocol = session.getProtocol();
+		this.id = session.getId();
+		this.serviceName = session.getServiceName();
+		this.creationTime = session.getCreationTime();
+		this.lastInvocationTime = session.getLastInvocationTime();
 	}
 
 	public byte getProtocol() {
@@ -34,6 +35,7 @@ public class ClientSession implements Session, Transportable {
 	public void read(DataInput in) throws IOException {
 		this.protocol = in.readByte();
 		this.id = in.readLong();
+		this.serviceName = in.readUTF();
 		this.creationTime = in.readLong();
 		this.lastInvocationTime = in.readLong();
 	}
@@ -42,6 +44,7 @@ public class ClientSession implements Session, Transportable {
 	public void write(DataOutput out) throws IOException {
 		out.writeByte(protocol);
 		out.writeLong(id);
+		out.writeUTF(serviceName);
 		out.writeLong(creationTime);
 		out.writeLong(lastInvocationTime);
 	}
@@ -71,12 +74,20 @@ public class ClientSession implements Session, Transportable {
 		sb.append("protocol: ");
 		sb.append(protocol);
 		sb.append(", ");
-		sb.append("creatioTime: ");
+		sb.append("service name: ");
+		sb.append(this.serviceName);
+		sb.append(", ");
+		sb.append("creationTime: ");
 		sb.append(creationTime);
 		sb.append(", ");
 		sb.append("lastInvocationTime: ");
 		sb.append(lastInvocationTime);
 		sb.append("}");
 		return sb.toString();
+	}
+
+	@Override
+	public String getServiceName() {
+		return this.serviceName;
 	}
 }

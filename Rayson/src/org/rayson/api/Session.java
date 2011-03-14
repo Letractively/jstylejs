@@ -9,4 +9,6 @@ public interface Session {
 	public long getLastInvocationTime();
 
 	public byte getProtocol();
+
+	public String getServiceName();
 }
