@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import org.rayson.api.RpcService;
 import org.rayson.api.Transportable;
 import org.rayson.exception.ServiceNotFoundException;
-import org.rayson.server.api.RpcSession;
+import org.rayson.server.RpcSession;
 
 public class Invocation implements Transportable {
 	private String methodName;

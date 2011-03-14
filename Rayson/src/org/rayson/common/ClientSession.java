@@ -12,18 +12,18 @@ public class ClientSession implements Session, Transportable {
 	private byte protocol;
 	private long id;
 	private long creationTime;
-	private long lastAccessedTime;
+	private long lastInvocationTime;
 
 	public ClientSession() {
 
 	}
 
 	public ClientSession(byte protocol, long id, long creationTime,
-			long lastAccessedTime) {
+			long lastInvocationTime) {
 		this.protocol = protocol;
 		this.id = id;
 		this.creationTime = creationTime;
-		this.lastAccessedTime = lastAccessedTime;
+		this.lastInvocationTime = lastInvocationTime;
 	}
 
 	public byte getProtocol() {
@@ -35,7 +35,7 @@ public class ClientSession implements Session, Transportable {
 		this.protocol = in.readByte();
 		this.id = in.readLong();
 		this.creationTime = in.readLong();
-		this.lastAccessedTime = in.readLong();
+		this.lastInvocationTime = in.readLong();
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class ClientSession implements Session, Transportable {
 		out.writeByte(protocol);
 		out.writeLong(id);
 		out.writeLong(creationTime);
-		out.writeLong(lastAccessedTime);
+		out.writeLong(lastInvocationTime);
 	}
 
 	@Override
@@ -57,8 +57,8 @@ public class ClientSession implements Session, Transportable {
 	}
 
 	@Override
-	public long getLastAccessedTime() {
-		return lastAccessedTime;
+	public long getLastInvocationTime() {
+		return lastInvocationTime;
 	}
 
 	@Override
@@ -74,8 +74,8 @@ public class ClientSession implements Session, Transportable {
 		sb.append("creatioTime: ");
 		sb.append(creationTime);
 		sb.append(", ");
-		sb.append("lastAccessedTime: ");
-		sb.append(lastAccessedTime);
+		sb.append("lastInvocationTime: ");
+		sb.append(lastInvocationTime);
 		sb.append("}");
 		return sb.toString();
 	}

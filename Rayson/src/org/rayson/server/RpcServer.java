@@ -15,7 +15,6 @@ import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.ServiceDescriptionImpl;
-import org.rayson.server.api.RpcSession;
 import org.rayson.transport.server.TransportServerImpl;
 
 class RpcServer extends TransportServerImpl implements ServerService {

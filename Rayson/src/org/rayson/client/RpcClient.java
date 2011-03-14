@@ -7,7 +7,6 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
@@ -35,7 +34,7 @@ class RpcClient {
 		private String serviceName;
 		private long sessionId;
 		private long creationTime;
-		private long lastAccessedTime;
+		private long lastInvocationTime;
 
 		public RpcServiceProxy(String serviceName, SocketAddress serverAddress) {
 			this.sessionId = System.currentTimeMillis() + this.hashCode();
@@ -44,13 +43,17 @@ class RpcClient {
 			this.creationTime = System.currentTimeMillis();
 		}
 
+		private ClientSession createLastSession() {
+			this.lastInvocationTime = System.currentTimeMillis();
+			return new ClientSession(protocol, sessionId, creationTime,
+					this.lastInvocationTime);
+		}
+
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args)
 				throws Throwable {
 			Invocation invocation = new Invocation(serviceName, method, args);
-			this.lastAccessedTime = System.currentTimeMillis();
-			return invokeRpcCall(new ClientSession(protocol, sessionId,
-					creationTime, this.lastAccessedTime), serverAddress, proxy,
+			return invokeRpcCall(createLastSession(), serverAddress, proxy,
 					invocation);
 		}
 
@@ -65,8 +68,8 @@ class RpcClient {
 		}
 
 		@Override
-		public long getLastAccessedTime() {
-			return this.lastAccessedTime;
+		public long getLastInvocationTime() {
+			return this.lastInvocationTime;
 		}
 
 		@Override

@@ -3,7 +3,7 @@ package org.rayson.server.impl;
 import java.net.SocketAddress;
 
 import org.rayson.common.ClientSession;
-import org.rayson.server.api.RpcSession;
+import org.rayson.server.RpcSession;
 
 public final class RpcSessionImpl implements RpcSession {
 	private SocketAddress remoteAddr;
@@ -25,8 +25,8 @@ public final class RpcSessionImpl implements RpcSession {
 	}
 
 	@Override
-	public long getLastAccessedTime() {
-		return clientSession.getLastAccessedTime();
+	public long getLastInvocationTime() {
+		return clientSession.getLastInvocationTime();
 	}
 
 	@Override

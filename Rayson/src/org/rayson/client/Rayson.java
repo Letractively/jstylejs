@@ -13,12 +13,12 @@ public final class Rayson {
 	private static RpcClient CLIENT = new RpcClient();
 	private static AtomicBoolean clientInited = new AtomicBoolean(false);
 
-	public static <T extends RpcProtocol> T createServiceProxy(
-			String serviceName, Class<T> serviceClass,
+	public static <T extends RpcProtocol> T getRpcService(
+			String serviceName, Class<T> serviceInterface,
 			SocketAddress serverAddress) throws IllegalServiceException,
 			RpcException {
 		tryInit();
-		return CLIENT.createServiceProxy(serviceName, serviceClass,
+		return CLIENT.createServiceProxy(serviceName, serviceInterface,
 				serverAddress);
 	}
 

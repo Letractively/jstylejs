@@ -6,7 +6,7 @@ public interface Session {
 
 	public long getCreationTime();
 
-	public long getLastAccessedTime();
+	public long getLastInvocationTime();
 
 	public byte getProtocol();
 }

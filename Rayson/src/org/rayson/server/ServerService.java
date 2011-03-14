@@ -6,7 +6,6 @@ import org.rayson.api.ServerProtocol;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
-import org.rayson.server.api.RpcSession;
 
 @Protocols(ServerProtocol.class)
 interface ServerService extends RpcService {

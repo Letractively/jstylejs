@@ -6,7 +6,6 @@ import org.rayson.annotation.Protocols;
 import org.rayson.api.RpcService;
 import org.rayson.api.TestRpcProtocol;
 import org.rayson.exception.RpcException;
-import org.rayson.server.api.RpcSession;
 
 @Protocols({ TestRpcProtocol.class })
 public interface TestRemoteService extends RpcService{

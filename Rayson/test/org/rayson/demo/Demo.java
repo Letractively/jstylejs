@@ -31,7 +31,7 @@ public class Demo {
 		System.out.println("Ping sucessfully");
 
 		ServerProtocol serverService = Rayson.getServerService(serverAddress);
-		TestRpcProtocol testRpcService = Rayson.createServiceProxy("demo",
+		TestRpcProtocol testRpcService = Rayson.getRpcService("demo",
 				TestRpcProtocol.class, serverAddress);
 
 		try { // list services.

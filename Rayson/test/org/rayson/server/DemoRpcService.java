@@ -3,7 +3,6 @@ package org.rayson.server;
 import java.io.EOFException;
 
 import org.rayson.exception.RpcException;
-import org.rayson.server.api.RpcSession;
 
 public class DemoRpcService implements TestRemoteService {
 	@Override
