@@ -9,7 +9,7 @@ import org.rayson.api.Transportable;
 
 public class ClientSession implements Session, Transportable {
 
-	private byte protocol;
+	private byte version;
 	private long id;
 	private long creationTime;
 	private long lastInvocationTime;
@@ -20,20 +20,20 @@ public class ClientSession implements Session, Transportable {
 	}
 
 	public ClientSession(Session session) {
-		this.protocol = session.getProtocol();
+		this.version = session.getVersion();
 		this.id = session.getId();
 		this.serviceName = session.getServiceName();
 		this.creationTime = session.getCreationTime();
-		this.lastInvocationTime = session.getLastInvocationTime();
+		this.lastInvocationTime = session.getInvocationTime();
 	}
 
-	public byte getProtocol() {
-		return protocol;
+	public byte getVersion() {
+		return version;
 	}
 
 	@Override
 	public void read(DataInput in) throws IOException {
-		this.protocol = in.readByte();
+		this.version = in.readByte();
 		this.id = in.readLong();
 		this.serviceName = in.readUTF();
 		this.creationTime = in.readLong();
@@ -42,7 +42,7 @@ public class ClientSession implements Session, Transportable {
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeByte(protocol);
+		out.writeByte(version);
 		out.writeLong(id);
 		out.writeUTF(serviceName);
 		out.writeLong(creationTime);
@@ -60,7 +60,7 @@ public class ClientSession implements Session, Transportable {
 	}
 
 	@Override
-	public long getLastInvocationTime() {
+	public long getInvocationTime() {
 		return lastInvocationTime;
 	}
 
@@ -72,7 +72,7 @@ public class ClientSession implements Session, Transportable {
 		sb.append(id);
 		sb.append(", ");
 		sb.append("protocol: ");
-		sb.append(protocol);
+		sb.append(version);
 		sb.append(", ");
 		sb.append("service name: ");
 		sb.append(this.serviceName);

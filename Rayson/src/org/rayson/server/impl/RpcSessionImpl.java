@@ -25,13 +25,13 @@ public final class RpcSessionImpl implements RpcSession {
 	}
 
 	@Override
-	public long getLastInvocationTime() {
-		return clientSession.getLastInvocationTime();
+	public long getInvocationTime() {
+		return clientSession.getInvocationTime();
 	}
 
 	@Override
-	public byte getProtocol() {
-		return clientSession.getProtocol();
+	public byte getVersion() {
+		return clientSession.getVersion();
 	}
 
 	@Override
@@ -41,13 +41,25 @@ public final class RpcSessionImpl implements RpcSession {
 
 	@Override
 	public String toString() {
-
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
-		sb.append("Client session: ");
-		sb.append(clientSession.toString());
-		sb.append(", remote addr: ");
-		sb.append(this.remoteAddr.toString());
+		sb.append("id: ");
+		sb.append(getId());
+		sb.append(", ");
+		sb.append("version: ");
+		sb.append(getVersion());
+		sb.append(", ");
+		sb.append("service name: ");
+		sb.append(getServiceName());
+		sb.append(", ");
+		sb.append("creationTime: ");
+		sb.append(getCreationTime());
+		sb.append(", ");
+		sb.append("invocation time: ");
+		sb.append(getInvocationTime());
+		sb.append(", ");
+		sb.append("remote addr: ");
+		sb.append(getRemoteAddr());
 		sb.append("}");
 		return sb.toString();
 	}

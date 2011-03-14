@@ -6,9 +6,9 @@ public interface Session {
 
 	public long getCreationTime();
 
-	public long getLastInvocationTime();
+	public long getInvocationTime();
 
-	public byte getProtocol();
+	public byte getVersion();
 
 	public String getServiceName();
 }

@@ -64,13 +64,13 @@ class RpcClient {
 		}
 
 		@Override
-		public long getLastInvocationTime() {
+		public long getInvocationTime() {
 			return this.lastInvocationTime;
 		}
 
 		@Override
-		public byte getProtocol() {
-			return protocol;
+		public byte getVersion() {
+			return version;
 		}
 
 		@Override
@@ -85,8 +85,8 @@ class RpcClient {
 			sb.append("id: ");
 			sb.append(sessionId);
 			sb.append(", ");
-			sb.append("protocol: ");
-			sb.append(protocol);
+			sb.append("version: ");
+			sb.append(version);
 			sb.append(", ");
 			sb.append("service name: ");
 			sb.append(this.serviceName);
@@ -101,10 +101,10 @@ class RpcClient {
 		}
 	}
 
-	private static byte protocol = 1;
+	private static byte version = 1;
 
-	public static byte getProtocol() {
-		return protocol;
+	public static byte getVersion() {
+		return version;
 	}
 
 	private ResponseWorker responseWorker;

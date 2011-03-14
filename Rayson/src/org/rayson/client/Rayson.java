@@ -37,6 +37,10 @@ public final class Rayson {
 		CLIENT.ping(serverAddress);
 	}
 
+	public static byte getCLientVersion() {
+		return CLIENT.getVersion();
+	}
+
 	/**
 	 * @param serviceProxy
 	 * @return Session Session information of the RPC service proxy.
