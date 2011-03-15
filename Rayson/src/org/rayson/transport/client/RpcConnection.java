@@ -207,7 +207,7 @@ class RpcConnection extends AbstractConnection {
 		// do connect to remote server.
 		SocketChannel socketChannel = SocketChannel.open(this.serverSocket);
 		this.socketChannel = socketChannel;
-		// write connection header to remote server in blocked mode。
+		// write connection header to remote server in blocked mode
 		this.socketChannel.write(connectHeaderBuffer);
 		// read response in blocked mode.
 		this.socketChannel.read(connectResponseBuffer);

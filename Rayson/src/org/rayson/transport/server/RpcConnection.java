@@ -96,6 +96,7 @@ class RpcConnection extends AbstractConnection {
 	private Queue<PacketWithType> sendPackets;
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
+	private String addressInfo;
 
 	RpcConnection(long id, SocketChannel clientChannel,
 			PacketManager packetManager, SelectionKey selectionKey) {
@@ -112,6 +113,7 @@ class RpcConnection extends AbstractConnection {
 		gotErrorPacket = new AtomicBoolean(false);
 		this.selectionKey = selectionKey;
 		this.socketChannel = clientChannel;
+		this.addressInfo = this.socketChannel.socket().toString();
 		packetWriter = new PacketWriter();
 		setConnectionState(ConnectionState.OK);
 		packetReader = new ServerPacketReader(this.socketChannel);
@@ -259,7 +261,7 @@ class RpcConnection extends AbstractConnection {
 		sb.append(", pending packets: ");
 		sb.append(this.pendingPacketCount());
 		sb.append(", address: ");
-		sb.append(this.socketChannel.socket().toString());
+		sb.append(this.addressInfo);
 		sb.append("}");
 		return sb.toString();
 	}
