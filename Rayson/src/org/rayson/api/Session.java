@@ -1,5 +1,7 @@
 package org.rayson.api;
 
+import java.net.SocketAddress;
+
 public interface Session {
 
 	public long getId();
@@ -11,4 +13,6 @@ public interface Session {
 	public byte getVersion();
 
 	public String getServiceName();
+
+	public SocketAddress getAddress();
 }

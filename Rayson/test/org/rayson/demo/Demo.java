@@ -35,10 +35,8 @@ public class Demo {
 		TestRpcProtocol testRpcService = Rayson.getRpcService("demo",
 				TestRpcProtocol.class, serverAddress);
 
-		Session session = Rayson.getSession(testRpcService);
-
 		System.out.println("Service porxy session information:"
-				+ session.toString());
+				+ testRpcService.getSession().toString());
 
 		try { // list services.
 
@@ -53,7 +51,7 @@ public class Demo {
 			// testRpcService.voidMethod();
 			System.out.println(testRpcService.echo("hello world"));
 			System.out.println("Service porxy session information:"
-					+ session.toString());
+					+ testRpcService.getSession().toString());
 
 		} catch (EOFException e) {
 			// TODO: handle exception

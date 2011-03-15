@@ -41,17 +41,6 @@ public final class Rayson {
 		return CLIENT.getVersion();
 	}
 
-	/**
-	 * @param serviceProxy
-	 * @return Session Session information of the RPC service proxy.
-	 * @throws IllegalArgumentException
-	 *             if the argument is not a service proxy instance
-	 */
-	public static Session getSession(RpcProtocol serviceProxy)
-			throws IllegalArgumentException {
-		return CLIENT.getSession(serviceProxy);
-	}
-
 	private static void tryInit() {
 		synchronized (clientInited) {
 			if (clientInited.compareAndSet(false, true))

@@ -2,14 +2,15 @@ package org.rayson.server.impl;
 
 import java.net.SocketAddress;
 
-import org.rayson.common.ClientSession;
-import org.rayson.server.RpcSession;
+import org.rayson.api.Session;
+import org.rayson.common.PortableSession;
 
-public final class RpcSessionImpl implements RpcSession {
+public final class RpcSessionImpl implements Session {
 	private SocketAddress remoteAddr;
-	private ClientSession clientSession;
+	private PortableSession clientSession;
 
-	public RpcSessionImpl(ClientSession clientSession, SocketAddress remoteAddr) {
+	public RpcSessionImpl(PortableSession clientSession,
+			SocketAddress remoteAddr) {
 		this.clientSession = clientSession;
 		this.remoteAddr = remoteAddr;
 	}
@@ -35,7 +36,7 @@ public final class RpcSessionImpl implements RpcSession {
 	}
 
 	@Override
-	public SocketAddress getRemoteAddr() {
+	public SocketAddress getAddress() {
 		return remoteAddr;
 	}
 
@@ -59,7 +60,7 @@ public final class RpcSessionImpl implements RpcSession {
 		sb.append(getInvocationTime());
 		sb.append(", ");
 		sb.append("remote addr: ");
-		sb.append(getRemoteAddr());
+		sb.append(getAddress());
 		sb.append("}");
 		return sb.toString();
 	}

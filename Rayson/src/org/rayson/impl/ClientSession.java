@@ -1,30 +1,32 @@
-package org.rayson.common;
+package org.rayson.impl;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.net.SocketAddress;
 
-import org.rayson.api.Session;
-import org.rayson.api.Transportable;
+import org.rayson.common.PortableSession;
 
-public class ClientSession implements Session, Transportable {
+public class ClientSession implements PortableSession {
 
 	private byte version;
 	private long id;
 	private long creationTime;
 	private long lastInvocationTime;
 	private String serviceName;
+	private SocketAddress serverAddress;
 
 	public ClientSession() {
 
 	}
 
-	public ClientSession(Session session) {
-		this.version = session.getVersion();
-		this.id = session.getId();
-		this.serviceName = session.getServiceName();
-		this.creationTime = session.getCreationTime();
-		this.lastInvocationTime = session.getInvocationTime();
+	public ClientSession(byte version, long sessionId,
+			String serviceName, long creationTime, SocketAddress serverAddress) {
+		this.version = version;
+		this.id = sessionId;
+		this.serviceName = serviceName;
+		this.creationTime = creationTime;
+		this.serverAddress = serverAddress;
 	}
 
 	public byte getVersion() {
@@ -71,8 +73,11 @@ public class ClientSession implements Session, Transportable {
 		sb.append("id: ");
 		sb.append(id);
 		sb.append(", ");
-		sb.append("protocol: ");
+		sb.append("version: ");
 		sb.append(version);
+		sb.append(", ");
+		sb.append("server address: ");
+		sb.append(this.serverAddress.toString());
 		sb.append(", ");
 		sb.append("service name: ");
 		sb.append(this.serviceName);
@@ -89,5 +94,14 @@ public class ClientSession implements Session, Transportable {
 	@Override
 	public String getServiceName() {
 		return this.serviceName;
+	}
+
+	public void touch() {
+		this.lastInvocationTime = System.currentTimeMillis();
+	}
+
+	@Override
+	public SocketAddress getAddress() {
+		return serverAddress;
 	}
 }

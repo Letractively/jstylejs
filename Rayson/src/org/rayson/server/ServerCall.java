@@ -8,12 +8,14 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.rayson.common.ClientSession;
+import org.rayson.api.Session;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
+import org.rayson.common.PortableSession;
 import org.rayson.common.Stream;
 import org.rayson.exception.CallException;
+import org.rayson.impl.ClientSession;
 import org.rayson.server.impl.RpcSessionImpl;
 import org.rayson.transport.common.Packet;
 
@@ -21,7 +23,7 @@ public class ServerCall {
 
 	private static final int BUFFER_SIZE = 1024;
 	private static final AtomicLong UID = new AtomicLong(0);
-	private RpcSession session;
+	private Session session;
 
 	public static ServerCall fromPacket(SocketAddress remoteAddress,
 			Packet requestPacket) {
@@ -40,11 +42,10 @@ public class ServerCall {
 		}
 		serverCall.clientCallId = clientCallId;
 		try {
-			ClientSession clientSession = new ClientSession();
+			PortableSession clientSession = new ClientSession();
 			clientSession.read(dataInputStream);
-			RpcSession rpcSession = new RpcSessionImpl(clientSession,
-					remoteAddress);
-			serverCall.session = rpcSession;
+			Session Session = new RpcSessionImpl(clientSession, remoteAddress);
+			serverCall.session = Session;
 			Invocation invocation = new Invocation();
 			invocation.read(dataInputStream);
 			serverCall.invocation = invocation;
@@ -95,7 +96,7 @@ public class ServerCall {
 		return responsePacket;
 	}
 
-	public RpcSession getSession() {
+	public Session getSession() {
 		return session;
 	}
 

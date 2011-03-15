@@ -21,7 +21,6 @@ public final class ServiceParser {
 		for (Class interfake : interfaces) {
 			if (!RpcService.class.isAssignableFrom(interfake))
 				continue;
-
 			Protocols rpcProtocols = ((Class<? extends RpcService>) interfake)
 					.getAnnotation(Protocols.class);
 			if (rpcProtocols == null)
@@ -70,7 +69,7 @@ public final class ServiceParser {
 		if (!protocol.isInterface())
 			throw new IllegalServiceException(
 					"Rpc protocol must be an interface");
-		Method[] methods = protocol.getMethods();
+		Method[] methods = protocol.getDeclaredMethods();
 		for (Method method : methods) {
 			verifyMethod(method);
 		}

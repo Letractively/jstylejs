@@ -7,15 +7,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.rayson.api.RpcService;
+import org.rayson.api.Session;
 import org.rayson.api.Transportable;
 import org.rayson.exception.ServiceNotFoundException;
-import org.rayson.server.RpcSession;
 
 public class Invocation implements Transportable {
 	private String methodName;
 	private Object[] parameters;
 	private Class<?>[] paraTypes;
-	private static final Class SESSION_CLASS = RpcSession.class;
+	private static final Class SESSION_CLASS = Session.class;
 
 	public Invocation() {
 
@@ -33,7 +33,7 @@ public class Invocation implements Transportable {
 		return methodName;
 	}
 
-	public Object invoke(RpcSession session, RpcService serviceObject)
+	public Object invoke(Session session, RpcService serviceObject)
 			throws InvocationException {
 		Method method;
 		try {

@@ -29,7 +29,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration find(RpcSession session, String serviceName)
+	public ServiceRegistration find(Session session, String serviceName)
 			throws ServiceNotFoundException {
 		Service service = getService(serviceName);
 		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
@@ -57,7 +57,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		Invocation invocation = call.getInvocation();
 		RpcService serviceObject;
 
-		RpcSession session = call.getSession();
+		Session session = call.getSession();
 		try {
 
 			serviceObject = getService(session.getServiceName()).getInstance();
@@ -72,7 +72,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public ServiceRegistration[] list(RpcSession session) {
+	public ServiceRegistration[] list(Session session) {
 		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
 		for (Entry<String, Service> entry : services.entrySet()) {
 			Service service = entry.getValue();
@@ -111,7 +111,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public String getServerInfo(RpcSession session) throws RpcException {
+	public String getServerInfo(Session session) throws RpcException {
 		return "Rpc server";
 	}
 }
