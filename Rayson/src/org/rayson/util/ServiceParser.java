@@ -52,13 +52,13 @@ public final class ServiceParser {
 					+ " must throws " + RpcException.class.getName());
 		// 2. return type must be portable.
 		Class returnType = method.getReturnType();
-		if (!Stream.isPortableType(returnType))
+		if (!Stream.isPortable(returnType))
 			throw new IllegalServiceException("Method " + method.getName()
 					+ " return type must be portable");
 		// 3. every parameter type must be portable.
 		Class[] parameterTypes = method.getParameterTypes();
 		for (Class type : parameterTypes) {
-			if (!Stream.isPortableType(type))
+			if (!Stream.isPortable(type))
 				throw new IllegalServiceException("Method " + method.getName()
 						+ " parameter type must be portable");
 		}

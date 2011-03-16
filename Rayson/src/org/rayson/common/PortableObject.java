@@ -252,6 +252,7 @@ abstract class PortableObject<T> {
 	private static final PortableObject<Long> LONG = new PortableObject<Long>(
 			LONG_TYPE) {
 
+		@Override
 		Class getJavaClass() {
 			return Short.class;
 		};

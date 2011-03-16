@@ -5,8 +5,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.rayson.api.Session;
 import org.rayson.api.Portable;
+import org.rayson.api.Session;
 
 public class ClientSession implements Portable, Session {
 
@@ -30,6 +30,7 @@ public class ClientSession implements Portable, Session {
 		this.serverAddress = serverAddress;
 	}
 
+	@Override
 	public byte getVersion() {
 		return version;
 	}

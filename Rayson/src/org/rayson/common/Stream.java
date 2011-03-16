@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public final class Stream {
-	public static boolean isPortableType(Class type) {
+	public static boolean isPortable(Class type) {
 		try {
 			PortableObject.verifyPortable(type);
 		} catch (UnportableTypeException e) {

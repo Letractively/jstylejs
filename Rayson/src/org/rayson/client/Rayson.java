@@ -37,7 +37,7 @@ public final class Rayson {
 	}
 
 	public static byte getCLientVersion() {
-		return CLIENT.getVersion();
+		return RpcClient.getVersion();
 	}
 
 	private static void tryInit() {
