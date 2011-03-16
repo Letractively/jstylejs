@@ -87,10 +87,10 @@ class RpcClient {
 		return rpcCall;
 	}
 
-	public <T extends RpcProxy> T createServiceProxy(String serviceName,
+	public <T extends RpcProxy> T createRpcProxy(String serviceName,
 			Class<T> serviceClass, SocketAddress serverAddress)
 			throws IllegalServiceException, RpcException {
-		ServerProxy serverService = getServerService(serverAddress);
+		ServerProxy serverService = getServerProxy(serverAddress);
 		T rpcService;
 		rpcService = (T) Proxy.newProxyInstance(
 				RpcClient.class.getClassLoader(), new Class[] { serviceClass },
@@ -106,7 +106,7 @@ class RpcClient {
 	 * @return
 	 * @throws IllegalServiceException
 	 */
-	<T extends RpcProxy> T getServerService(SocketAddress serverAddress)
+	<T extends RpcProxy> T getServerProxy(SocketAddress serverAddress)
 			throws IllegalServiceException {
 		ServerProxy rpcService;
 		synchronized (serverServices) {
@@ -134,7 +134,7 @@ class RpcClient {
 
 		ClientCall call = new ClientCall(clientSession, invocation);
 		try {
-			submitCall(clientSession.getAddress(), call);
+			submitCall(clientSession.getPeerAddress(), call);
 		} catch (IOException e) {
 			throw RemoteExceptionImpl.createNetWorkException(e);
 		}

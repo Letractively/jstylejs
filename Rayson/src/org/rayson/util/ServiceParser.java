@@ -39,7 +39,7 @@ public final class ServiceParser {
 
 	private static void verifyMethod(Method method)
 			throws IllegalServiceException {
-		// 1. must throws rpcexceptoion.
+		// 1. must throws rpc-exceptoion.
 		boolean foundRemoteException = false;
 		for (Class exceptionType : method.getExceptionTypes()) {
 			if (exceptionType == RpcException.class) {

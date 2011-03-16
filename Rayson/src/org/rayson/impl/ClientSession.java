@@ -101,7 +101,7 @@ public class ClientSession implements PortableSession {
 	}
 
 	@Override
-	public SocketAddress getAddress() {
+	public SocketAddress getPeerAddress() {
 		return serverAddress;
 	}
 }

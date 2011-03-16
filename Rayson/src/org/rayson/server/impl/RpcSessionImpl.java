@@ -36,7 +36,7 @@ public final class RpcSessionImpl implements Session {
 	}
 
 	@Override
-	public SocketAddress getAddress() {
+	public SocketAddress getPeerAddress() {
 		return remoteAddr;
 	}
 
@@ -60,7 +60,7 @@ public final class RpcSessionImpl implements Session {
 		sb.append(getInvocationTime());
 		sb.append(", ");
 		sb.append("remote addr: ");
-		sb.append(getAddress());
+		sb.append(getPeerAddress());
 		sb.append("}");
 		return sb.toString();
 	}

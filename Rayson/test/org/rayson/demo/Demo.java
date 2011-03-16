@@ -31,8 +31,8 @@ public class Demo {
 
 		System.out.println("Ping sucessfully");
 
-		ServerProxy serverService = Rayson.getServerService(serverAddress);
-		TestProxy testRpcService = Rayson.getRpcService("demo",
+		ServerProxy serverService = Rayson.getServerProxy(serverAddress);
+		TestProxy testRpcService = Rayson.createProxy("demo",
 				TestProxy.class, serverAddress);
 
 		System.out.println("Service porxy session information:"

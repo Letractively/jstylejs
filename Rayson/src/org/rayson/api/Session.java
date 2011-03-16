@@ -14,5 +14,5 @@ public interface Session {
 
 	public String getServiceName();
 
-	public SocketAddress getAddress();
+	public SocketAddress getPeerAddress();
 }
