@@ -19,12 +19,12 @@ class ServiceTypeVisitor extends
 		AbstractElementVisitor6<Boolean, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;
-	private AnnotationValue protocolClass;
+	private AnnotationValue proxyAnnotation;
 
 	public ServiceTypeVisitor(ProcessingEnvironment processingEnv,
-			AnnotationValue protocolClass) {
+			AnnotationValue proxyAnnotation) {
 		this.processingEnv = processingEnv;
-		this.protocolClass = protocolClass;
+		this.proxyAnnotation = proxyAnnotation;
 	}
 
 	@Override
@@ -51,7 +51,7 @@ class ServiceTypeVisitor extends
 		}
 
 		// 3.visit protocols annotation interfaces.
-		if (!protocolClass.accept(new ProtocolAnnotationValueVisitor(
+		if (!proxyAnnotation.accept(new ProtocolAnnotationValueVisitor(
 				this.processingEnv, e), p)) {
 			return false;
 		}
@@ -81,7 +81,7 @@ class ServiceTypeVisitor extends
 	@Override
 	public Boolean visitExecutable(ExecutableElement e, AnnotationMirror p) {
 		e.accept(new ServiceMethodVistor(this.processingEnv,
-				this.protocolClass), p);
+				this.proxyAnnotation), p);
 		return true;
 	}
 

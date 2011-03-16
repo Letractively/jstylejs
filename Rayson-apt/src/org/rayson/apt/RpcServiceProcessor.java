@@ -29,20 +29,20 @@ public class RpcServiceProcessor extends AbstractProcessor {
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnv) {
 		// 1. find annotation of Protocols.
-		TypeElement protocolsTypeElement = getProtocolsAnnotationTypeElement(annotations);
-		if (protocolsTypeElement == null)
+		TypeElement proxyTypeElement = getProxyAnnotationTypeElement(annotations);
+		if (proxyTypeElement == null)
 			return false;
 		try {
 			for (Element typeElement : roundEnv
-					.getElementsAnnotatedWith(protocolsTypeElement)) {
+					.getElementsAnnotatedWith(proxyTypeElement)) {
 				// 2. find protocols annotation mirror.
-				AnnotationMirror protocolsAnnotationMirror = getProtocolsAnnotationMirror(typeElement);
-				if (protocolsAnnotationMirror == null)
+				AnnotationMirror proxyAnnotationMirror = getProxyAnnotationMirror(typeElement);
+				if (proxyAnnotationMirror == null)
 					continue;
-				AnnotationValue protocolsClass = protocolsAnnotationMirror
+				AnnotationValue proxyAnnotation = proxyAnnotationMirror
 						.getElementValues().values().iterator().next();
 				typeElement.accept(new ServiceTypeVisitor(this.processingEnv,
-						protocolsClass), protocolsAnnotationMirror);
+						proxyAnnotation), proxyAnnotationMirror);
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -51,7 +51,7 @@ public class RpcServiceProcessor extends AbstractProcessor {
 		return false;
 	}
 
-	private AnnotationMirror getProtocolsAnnotationMirror(Element element) {
+	private AnnotationMirror getProxyAnnotationMirror(Element element) {
 		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
 			if (annotationMirror.getAnnotationType().toString()
 					.equals(Constants.PROXY_ANNOTATION_NAME))
@@ -60,7 +60,7 @@ public class RpcServiceProcessor extends AbstractProcessor {
 		return null;
 	}
 
-	private static TypeElement getProtocolsAnnotationTypeElement(
+	private static TypeElement getProxyAnnotationTypeElement(
 			Set<? extends TypeElement> annotations) {
 		for (TypeElement typeElement : annotations) {
 			if (typeElement.getQualifiedName().contentEquals(

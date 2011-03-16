@@ -12,18 +12,20 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
 class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;
-	private AnnotationValue protocolClass;
+	private DeclaredType protocolClass;
 
 	public ServiceMethodVistor(ProcessingEnvironment processingEnv,
-			AnnotationValue protocolClass) {
+			AnnotationValue proxyAnnotation) {
 		this.processingEnv = processingEnv;
-		this.protocolClass = protocolClass;
+		this.protocolClass = (DeclaredType) proxyAnnotation.getValue();
+
 	}
 
 	@Override
@@ -69,6 +71,7 @@ class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 		if (!foundRpcException)
 			this.processingEnv.getMessager().printMessage(Kind.ERROR,
 					Constants.PROXY_METHOD_MUST_THROWN_RPCEXCEPTION, e);
+
 		return null;
 	}
 
