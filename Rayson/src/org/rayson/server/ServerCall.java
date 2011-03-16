@@ -9,13 +9,12 @@ import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rayson.api.Session;
+import org.rayson.common.ClientSession;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
-import org.rayson.common.PortableSession;
 import org.rayson.common.Stream;
 import org.rayson.exception.CallException;
-import org.rayson.impl.ClientSession;
 import org.rayson.server.impl.RpcSessionImpl;
 import org.rayson.transport.common.Packet;
 
@@ -42,7 +41,7 @@ public class ServerCall {
 		}
 		serverCall.clientCallId = clientCallId;
 		try {
-			PortableSession clientSession = new ClientSession();
+			ClientSession clientSession = new ClientSession();
 			clientSession.read(dataInputStream);
 			Session Session = new RpcSessionImpl(clientSession, remoteAddress);
 			serverCall.session = Session;

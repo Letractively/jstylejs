@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 
 import org.rayson.api.RpcService;
 import org.rayson.api.Session;
-import org.rayson.api.Transportable;
+import org.rayson.api.Portable;
 import org.rayson.exception.ServiceNotFoundException;
 
-public class Invocation implements Transportable {
+public class Invocation implements Portable {
 	private String methodName;
 	private Object[] parameters;
 	private Class<?>[] paraTypes;

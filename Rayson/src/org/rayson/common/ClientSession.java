@@ -1,13 +1,14 @@
-package org.rayson.impl;
+package org.rayson.common;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.rayson.common.PortableSession;
+import org.rayson.api.Session;
+import org.rayson.api.Portable;
 
-public class ClientSession implements PortableSession {
+public class ClientSession implements Portable, Session {
 
 	private byte version;
 	private long id;
@@ -20,8 +21,8 @@ public class ClientSession implements PortableSession {
 
 	}
 
-	public ClientSession(byte version, long sessionId,
-			String serviceName, long creationTime, SocketAddress serverAddress) {
+	public ClientSession(byte version, long sessionId, String serviceName,
+			long creationTime, SocketAddress serverAddress) {
 		this.version = version;
 		this.id = sessionId;
 		this.serviceName = serviceName;

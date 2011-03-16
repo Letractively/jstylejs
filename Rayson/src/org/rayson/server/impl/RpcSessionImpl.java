@@ -3,14 +3,13 @@ package org.rayson.server.impl;
 import java.net.SocketAddress;
 
 import org.rayson.api.Session;
-import org.rayson.common.PortableSession;
+import org.rayson.common.ClientSession;
 
 public final class RpcSessionImpl implements Session {
 	private SocketAddress remoteAddr;
-	private PortableSession clientSession;
+	private ClientSession clientSession;
 
-	public RpcSessionImpl(PortableSession clientSession,
-			SocketAddress remoteAddr) {
+	public RpcSessionImpl(ClientSession clientSession, SocketAddress remoteAddr) {
 		this.clientSession = clientSession;
 		this.remoteAddr = remoteAddr;
 	}

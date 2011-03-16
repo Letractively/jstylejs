@@ -6,11 +6,11 @@ import java.io.IOException;
 
 import org.rayson.api.RpcProxy;
 import org.rayson.api.ServiceRegistration;
-import org.rayson.api.Transportable;
+import org.rayson.api.Portable;
 import org.rayson.common.Stream;
 
 public final class ServiceDescriptionImpl implements ServiceRegistration,
-		Transportable {
+		Portable {
 
 	private String description;
 

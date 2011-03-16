@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.HashMap;
 
-import org.rayson.api.Transportable;
+import org.rayson.api.Portable;
 import org.rayson.util.Reflection;
 
 abstract class PortableObject<T> {
@@ -140,17 +140,17 @@ abstract class PortableObject<T> {
 			return Array.class;
 		}
 	};
-	private static final PortableObject<Transportable> TRANSPORTABLE = new PortableObject<Transportable>(
+	private static final PortableObject<Portable> TRANSPORTABLE = new PortableObject<Portable>(
 			TRANSPORTABLE_TYPE) {
 
 		@Override
-		public Transportable read(DataInput in) throws IOException {
+		public Portable read(DataInput in) throws IOException {
 			// Read class name.
 			String className = in.readUTF();
 			// Read value.
-			Transportable transportable = null;
+			Portable transportable = null;
 			try {
-				transportable = (Transportable) Reflection
+				transportable = (Portable) Reflection
 						.newInstance(className);
 			} catch (Exception e) {
 				new IOException(e);
@@ -160,7 +160,7 @@ abstract class PortableObject<T> {
 		}
 
 		@Override
-		public void write(DataOutput out, Transportable value)
+		public void write(DataOutput out, Portable value)
 				throws IOException {
 			// Write class name.
 			out.writeUTF(value.getClass().getName());
@@ -170,7 +170,7 @@ abstract class PortableObject<T> {
 
 		@Override
 		Class getJavaClass() {
-			return Transportable.class;
+			return Portable.class;
 		}
 
 	};
@@ -390,7 +390,7 @@ abstract class PortableObject<T> {
 			throws UnportableTypeException {
 		if (klass.isArray())
 			return ARRAY;
-		if (Transportable.class.isAssignableFrom(klass))
+		if (Portable.class.isAssignableFrom(klass))
 			return TRANSPORTABLE;
 		PortableObject ioObject = CLASS_OBJECTS.get(klass);
 		if (ioObject == null)

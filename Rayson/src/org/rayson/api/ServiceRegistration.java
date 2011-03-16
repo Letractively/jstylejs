@@ -1,6 +1,7 @@
 package org.rayson.api;
 
-public interface ServiceRegistration extends Transportable {
+public interface ServiceRegistration extends Portable {
+
 	public String getDescription();
 
 	public String getName();

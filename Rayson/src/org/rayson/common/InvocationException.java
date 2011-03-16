@@ -4,10 +4,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.rayson.api.Transportable;
+import org.rayson.api.Portable;
 import org.rayson.util.Reflection;
 
-public class InvocationException extends Exception implements Transportable {
+public class InvocationException extends Exception implements Portable {
 
 	private static final Class[] DEFAULT_CONSTRUCTOR_PARAMETER_TYPES = new Class[] { String.class };
 	private static final long serialVersionUID = 1L;

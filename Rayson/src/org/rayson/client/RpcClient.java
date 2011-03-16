@@ -13,15 +13,14 @@ import java.util.concurrent.ExecutionException;
 import org.rayson.api.RpcProxy;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.Session;
+import org.rayson.common.ClientSession;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
-import org.rayson.common.PortableSession;
 import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
-import org.rayson.impl.ClientSession;
 import org.rayson.impl.RemoteExceptionImpl;
 import org.rayson.server.ServerService;
 import org.rayson.transport.client.TransportClient;
@@ -38,7 +37,7 @@ class RpcClient {
 					serviceName, creationTime, serverAddress);
 		}
 
-		private PortableSession touchAndGetSession() {
+		private ClientSession touchAndGetSession() {
 			this.currentSession.touch();
 			return this.currentSession;
 		}
@@ -129,7 +128,7 @@ class RpcClient {
 		responseWorker.start();
 	}
 
-	private Object invokeRpcCall(PortableSession clientSession, Object proxy,
+	private Object invokeRpcCall(ClientSession clientSession, Object proxy,
 			Invocation invocation) throws Throwable {
 
 		ClientCall call = new ClientCall(clientSession, invocation);
