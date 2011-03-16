@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.rayson.annotation.Proxy;
 import org.rayson.api.RpcProxy;
-import org.rayson.api.RpcProtocol;
+import org.rayson.api.RpcService;
 import org.rayson.common.Stream;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.RpcException;
@@ -14,21 +14,21 @@ import org.rayson.exception.RpcException;
 public final class ServiceParser {
 
 	public static Class<? extends RpcProxy>[] getProtocols(
-			Class<? extends RpcProtocol> serviceClass)
+			Class<? extends RpcService> serviceClass)
 			throws IllegalServiceException {
 		List<Class<? extends RpcProxy>> list = new ArrayList<Class<? extends RpcProxy>>();
 		Class[] interfaces = serviceClass.getInterfaces();
 		for (Class interfake : interfaces) {
-			if (!RpcProtocol.class.isAssignableFrom(interfake))
+			if (!RpcService.class.isAssignableFrom(interfake))
 				continue;
-			Proxy rpcProtocols = ((Class<? extends RpcProtocol>) interfake)
+			Proxy proxyAnnotation = ((Class<? extends RpcService>) interfake)
 					.getAnnotation(Proxy.class);
-			if (rpcProtocols == null)
+			if (proxyAnnotation == null)
 				continue;
 			// throw new IllegalServiceException("Interfae "
 			// + interfake.getName() + " must has annotaion "
 			// + Protocols.class.getSimpleName());
-			Class<? extends RpcProxy> interfake1 = rpcProtocols.value();
+			Class<? extends RpcProxy> interfake1 = proxyAnnotation.value();
 			verifyService(interfake1);
 			list.add(interfake1);
 

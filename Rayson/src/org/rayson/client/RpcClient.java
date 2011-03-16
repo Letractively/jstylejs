@@ -23,7 +23,7 @@ import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.ClientSession;
 import org.rayson.impl.RemoteExceptionImpl;
-import org.rayson.server.ServerProtocol;
+import org.rayson.server.ServerService;
 import org.rayson.transport.client.TransportClient;
 
 class RpcClient {
@@ -115,7 +115,7 @@ class RpcClient {
 				rpcService = (ServerProxy) Proxy.newProxyInstance(
 						RpcClient.class.getClassLoader(),
 						new Class[] { ServerProxy.class }, new RpcProxyInvoker(
-								ServerProtocol.NAME, serverAddress));
+								ServerService.NAME, serverAddress));
 				serverServices.put(serverAddress, rpcService);
 			}
 
