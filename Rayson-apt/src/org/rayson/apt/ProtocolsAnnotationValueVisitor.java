@@ -91,8 +91,13 @@ class ProtocolsAnnotationValueVisitor implements
 
 	@Override
 	public Boolean visitType(TypeMirror t, AnnotationMirror p) {
-		// TODO Auto-generated method stub
-		return null;
+		// here t is the rpc proxy.
+		if (t.toString().equals(Constants.PROXY_INTERFACE_NAME)) {
+			this.processingEnv.getMessager().printMessage(Kind.ERROR,
+					Constants.PROXY_MUST_BE_INTERFACE, this.typeElement, p);
+			return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -110,15 +115,15 @@ class ProtocolsAnnotationValueVisitor implements
 	@Override
 	public Boolean visitArray(List<? extends AnnotationValue> vals,
 			AnnotationMirror p) {
-		for (AnnotationValue annotationValue : vals) {
-			if (annotationValue.toString().equals(
-					Constants.RPCPROTOCOL_INTERFACE_NAME)) {
-				this.processingEnv.getMessager().printMessage(Kind.ERROR,
-						Constants.PROTOCOL_MUST_EXTENDS_RPCPROTOCOL,
-						this.typeElement, p, annotationValue);
-				return false;
-			}
-		}
+		// for (AnnotationValue annotationValue : vals) {
+		// if (annotationValue.toString().equals(
+		// Constants.PROXY_INTERFACE_NAME)) {
+		// this.processingEnv.getMessager().printMessage(Kind.ERROR,
+		// Constants.SERVICE_MUST_EXTENDS_RPCPROTOCOL,
+		// this.typeElement, p, annotationValue);
+		// return false;
+		// }
+		// }
 		return true;
 	}
 

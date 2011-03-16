@@ -19,12 +19,12 @@ class ServiceTypeVisitor extends
 		AbstractElementVisitor6<Boolean, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;
-	private AnnotationValue protocolsClasses;
+	private AnnotationValue protocolsClass;
 
 	public ServiceTypeVisitor(ProcessingEnvironment processingEnv,
-			AnnotationValue protocolsClasses) {
+			AnnotationValue protocolsClass) {
 		this.processingEnv = processingEnv;
-		this.protocolsClasses = protocolsClasses;
+		this.protocolsClass = protocolsClass;
 	}
 
 	@Override
@@ -38,7 +38,7 @@ class ServiceTypeVisitor extends
 		// 1.find whether interface.
 		if (!e.getKind().isInterface()) {
 			this.processingEnv.getMessager().printMessage(Kind.ERROR,
-					Constants.TYPE_MUST_BE_INTERFACE, e);
+					Constants.PROXY_MUST_BE_INTERFACE, e);
 			return false;
 		}
 
@@ -46,12 +46,12 @@ class ServiceTypeVisitor extends
 		List<? extends TypeMirror> interfaces = e.getInterfaces();
 		if (!findServiceInterface(interfaces)) {
 			this.processingEnv.getMessager().printMessage(Kind.ERROR,
-					Constants.TYPE_MUST_ANNOTATIONED_SERVICE, e);
+					Constants.Proxy_ANNOTATIONED_MUST_SERVICE, e);
 			return false;
 		}
 
 		// 3.visit protocols annotation interfaces.
-		if (!protocolsClasses.accept(new ProtocolsAnnotationValueVisitor(
+		if (!protocolsClass.accept(new ProtocolsAnnotationValueVisitor(
 				this.processingEnv, e), p)) {
 			return false;
 		}
@@ -81,7 +81,7 @@ class ServiceTypeVisitor extends
 	@Override
 	public Boolean visitExecutable(ExecutableElement e, AnnotationMirror p) {
 		e.accept(new ServiceMethodVistor(this.processingEnv,
-				this.protocolsClasses), p);
+				this.protocolsClass), p);
 		return true;
 	}
 

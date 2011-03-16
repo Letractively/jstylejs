@@ -17,13 +17,12 @@ import javax.tools.Diagnostic.Kind;
 class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;
-	private List<AnnotationValue> protocolsClasses;
+	private AnnotationValue protocolsClass;
 
 	public ServiceMethodVistor(ProcessingEnvironment processingEnv,
-			AnnotationValue protocolsClasses) {
+			AnnotationValue protocolsClass) {
 		this.processingEnv = processingEnv;
-		this.protocolsClasses = (List<AnnotationValue>) protocolsClasses
-				.getValue();
+		this.protocolsClass = protocolsClass;
 	}
 
 	@Override
@@ -41,16 +40,21 @@ class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 	@Override
 	public Void visitExecutable(ExecutableElement e, AnnotationMirror p) {
 		List<? extends VariableElement> parameters = e.getParameters();
+		boolean pass = true;
+		if (parameters.isEmpty())
+			pass = false;
 		for (int i = 0; i < parameters.size(); i++) {
 			VariableElement parameter = parameters.get(i);
 			if (i == 0) {
 				if (!parameter.asType().toString()
 						.equals(Constants.SESSION_INTERFACE_NAME))
-					this.processingEnv.getMessager().printMessage(Kind.ERROR,
-							Constants.FIRST_PARAMETER_MUST_BE_SESSION,
-							parameter);
+					pass = false;
+
 			}
 		}
+		if (!pass)
+			this.processingEnv.getMessager().printMessage(Kind.ERROR,
+					Constants.FIRST_PARAMETER_MUST_BE_SESSION, e);
 		return null;
 	}
 

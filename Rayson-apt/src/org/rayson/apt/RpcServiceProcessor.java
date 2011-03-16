@@ -22,7 +22,7 @@ public class RpcServiceProcessor extends AbstractProcessor {
 	private static final Set<String> SUPPORTED_ANNOTATION_TYPES;
 	static {
 		SUPPORTED_ANNOTATION_TYPES = new HashSet<String>();
-		SUPPORTED_ANNOTATION_TYPES.add(Constants.PROTOCOLS_ANNOTATION_NAME);
+		SUPPORTED_ANNOTATION_TYPES.add(Constants.PROXY_ANNOTATION_NAME);
 	}
 
 	@Override
@@ -39,10 +39,10 @@ public class RpcServiceProcessor extends AbstractProcessor {
 				AnnotationMirror protocolsAnnotationMirror = getProtocolsAnnotationMirror(typeElement);
 				if (protocolsAnnotationMirror == null)
 					continue;
-				AnnotationValue protocolsClasses = protocolsAnnotationMirror
+				AnnotationValue protocolsClass = protocolsAnnotationMirror
 						.getElementValues().values().iterator().next();
 				typeElement.accept(new ServiceTypeVisitor(this.processingEnv,
-						protocolsClasses), protocolsAnnotationMirror);
+						protocolsClass), protocolsAnnotationMirror);
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -54,7 +54,7 @@ public class RpcServiceProcessor extends AbstractProcessor {
 	private AnnotationMirror getProtocolsAnnotationMirror(Element element) {
 		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
 			if (annotationMirror.getAnnotationType().toString()
-					.equals(Constants.PROTOCOLS_ANNOTATION_NAME))
+					.equals(Constants.PROXY_ANNOTATION_NAME))
 				return annotationMirror;
 		}
 		return null;
@@ -64,7 +64,7 @@ public class RpcServiceProcessor extends AbstractProcessor {
 			Set<? extends TypeElement> annotations) {
 		for (TypeElement typeElement : annotations) {
 			if (typeElement.getQualifiedName().contentEquals(
-					Constants.PROTOCOLS_ANNOTATION_NAME))
+					Constants.PROXY_ANNOTATION_NAME))
 				return typeElement;
 		}
 		return null;
