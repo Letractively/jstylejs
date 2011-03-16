@@ -11,13 +11,13 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
-class ProtocolsAnnotationValueVisitor implements
+class ProtocolAnnotationValueVisitor implements
 		AnnotationValueVisitor<Boolean, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;
 	private TypeElement typeElement;
 
-	ProtocolsAnnotationValueVisitor(ProcessingEnvironment processingEnv,
+	ProtocolAnnotationValueVisitor(ProcessingEnvironment processingEnv,
 			TypeElement typeElement) {
 		this.processingEnv = processingEnv;
 		this.typeElement = typeElement;
