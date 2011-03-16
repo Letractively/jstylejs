@@ -1,17 +1,17 @@
 package org.rayson.server;
 
+import org.rayson.api.RpcProxy;
 import org.rayson.api.RpcProtocol;
-import org.rayson.api.RpcService;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.util.ServiceParser;
 
 class Service {
 	private String description;
-	private RpcService instance;
+	private RpcProtocol instance;
 	private String name;
-	private Class<? extends RpcProtocol>[] protocols;
+	private Class<? extends RpcProxy>[] protocols;
 
-	Service(String name, String description, RpcService instance)
+	Service(String name, String description, RpcProtocol instance)
 			throws IllegalServiceException {
 		// TODO: throw IllegalServiceException
 		this.name = name;
@@ -24,7 +24,7 @@ class Service {
 		return this.description;
 	}
 
-	public RpcService getInstance() {
+	public RpcProtocol getInstance() {
 		return instance;
 	}
 
@@ -32,7 +32,7 @@ class Service {
 		return name;
 	}
 
-	public Class<? extends RpcProtocol>[] getProtocols() {
+	public Class<? extends RpcProxy>[] getProtocols() {
 		return protocols;
 	}
 }

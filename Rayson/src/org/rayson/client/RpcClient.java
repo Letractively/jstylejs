@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 
-import org.rayson.api.RpcProtocol;
-import org.rayson.api.ServerProtocol;
+import org.rayson.api.RpcProxy;
+import org.rayson.api.ServerProxy;
 import org.rayson.api.Session;
-import org.rayson.common.PortableSession;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
+import org.rayson.common.PortableSession;
 import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
@@ -23,11 +23,12 @@ import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.ClientSession;
 import org.rayson.impl.RemoteExceptionImpl;
+import org.rayson.server.ServerProtocol;
 import org.rayson.transport.client.TransportClient;
 
 class RpcClient {
 
-	private class RpcProxyInvoker implements InvocationHandler, RpcProtocol {
+	private class RpcProxyInvoker implements InvocationHandler, RpcProxy {
 		private ClientSession currentSession;
 
 		public RpcProxyInvoker(String serviceName, SocketAddress serverAddress) {
@@ -76,7 +77,7 @@ class RpcClient {
 
 	private ResponseWorker responseWorker;
 
-	private WeakHashMap<SocketAddress, ServerProtocol> serverServices;
+	private WeakHashMap<SocketAddress, ServerProxy> serverServices;
 
 	RpcClient() {
 	}
@@ -86,10 +87,10 @@ class RpcClient {
 		return rpcCall;
 	}
 
-	public <T extends RpcProtocol> T createServiceProxy(String serviceName,
+	public <T extends RpcProxy> T createServiceProxy(String serviceName,
 			Class<T> serviceClass, SocketAddress serverAddress)
 			throws IllegalServiceException, RpcException {
-		ServerProtocol serverService = getServerService(serverAddress);
+		ServerProxy serverService = getServerService(serverAddress);
 		T rpcService;
 		rpcService = (T) Proxy.newProxyInstance(
 				RpcClient.class.getClassLoader(), new Class[] { serviceClass },
@@ -105,17 +106,16 @@ class RpcClient {
 	 * @return
 	 * @throws IllegalServiceException
 	 */
-	<T extends RpcProtocol> T getServerService(SocketAddress serverAddress)
+	<T extends RpcProxy> T getServerService(SocketAddress serverAddress)
 			throws IllegalServiceException {
-		ServerProtocol rpcService;
+		ServerProxy rpcService;
 		synchronized (serverServices) {
 			rpcService = serverServices.get(serverAddress);
 			if (rpcService == null) {
-				rpcService = (ServerProtocol) Proxy
-						.newProxyInstance(RpcClient.class.getClassLoader(),
-								new Class[] { ServerProtocol.class },
-								new RpcProxyInvoker(ServerProtocol.NAME,
-										serverAddress));
+				rpcService = (ServerProxy) Proxy.newProxyInstance(
+						RpcClient.class.getClassLoader(),
+						new Class[] { ServerProxy.class }, new RpcProxyInvoker(
+								ServerProtocol.NAME, serverAddress));
 				serverServices.put(serverAddress, rpcService);
 			}
 
@@ -124,7 +124,7 @@ class RpcClient {
 	}
 
 	void initialize() {
-		serverServices = new WeakHashMap<SocketAddress, ServerProtocol>();
+		serverServices = new WeakHashMap<SocketAddress, ServerProxy>();
 		responseWorker = new ResponseWorker();
 		responseWorker.start();
 	}

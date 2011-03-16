@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Protocols {
-	public Class<? extends org.rayson.api.RpcProtocol>[] value();
+public @interface Proxy {
+	public Class<? extends org.rayson.api.RpcProxy> value();
 }

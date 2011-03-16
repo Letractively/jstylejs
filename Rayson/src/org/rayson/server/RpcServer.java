@@ -6,8 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.rayson.api.RpcService;
-import org.rayson.api.ServerProtocol;
+import org.rayson.api.RpcProtocol;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Session;
 import org.rayson.common.Invocation;
@@ -18,7 +17,7 @@ import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.ServiceDescriptionImpl;
 import org.rayson.transport.server.TransportServerImpl;
 
-class RpcServer extends TransportServerImpl implements ServerService {
+class RpcServer extends TransportServerImpl implements ServerProtocol {
 	private static final int DEFAULT_WORKER_COUNT = 4;
 
 	private HashMap<String, Service> services;
@@ -55,7 +54,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 
 		Object result;
 		Invocation invocation = call.getInvocation();
-		RpcService serviceObject;
+		RpcProtocol serviceObject;
 
 		Session session = call.getSession();
 		try {
@@ -83,7 +82,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	public void registerService(String serviceName, String description,
-			RpcService serviceInstance) throws ServiceAlreadyExistedException,
+			RpcProtocol serviceInstance) throws ServiceAlreadyExistedException,
 			IllegalServiceException {
 		synchronized (services) {
 			if (services.containsKey(serviceName))
@@ -100,7 +99,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		// Register it self as a service.
 		try {
 			this.registerService(ServerProtocol.NAME,
-					ServerService.DESCRIPTION, this);
+					ServerProtocol.DESCRIPTION, this);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

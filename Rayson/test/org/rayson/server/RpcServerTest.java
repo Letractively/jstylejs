@@ -16,7 +16,7 @@ public class RpcServerTest {
 			rpcServer.start();
 
 			rpcServer.registerService("demo", "Demo service",
-					new DemoRpcService());
+					new TestProtocolImpl());
 		} catch (ServiceAlreadyExistedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

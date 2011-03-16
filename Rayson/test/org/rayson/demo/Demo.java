@@ -7,11 +7,11 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import org.rayson.annotation.Protocols;
-import org.rayson.api.ServerProtocol;
+import org.rayson.annotation.Proxy;
+import org.rayson.api.ServerProxy;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Session;
-import org.rayson.api.TestRpcProtocol;
+import org.rayson.api.TestProxy;
 import org.rayson.client.Rayson;
 import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
@@ -31,9 +31,9 @@ public class Demo {
 
 		System.out.println("Ping sucessfully");
 
-		ServerProtocol serverService = Rayson.getServerService(serverAddress);
-		TestRpcProtocol testRpcService = Rayson.getRpcService("demo",
-				TestRpcProtocol.class, serverAddress);
+		ServerProxy serverService = Rayson.getServerService(serverAddress);
+		TestProxy testRpcService = Rayson.getRpcService("demo",
+				TestProxy.class, serverAddress);
 
 		System.out.println("Service porxy session information:"
 				+ testRpcService.getSession().toString());
@@ -79,7 +79,7 @@ public class Demo {
 
 	}
 
-	public static void register(Protocols t) {
+	public static void register(Proxy t) {
 
 	}
 }

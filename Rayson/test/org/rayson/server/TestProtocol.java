@@ -2,14 +2,14 @@ package org.rayson.server;
 
 import java.io.EOFException;
 
-import org.rayson.annotation.Protocols;
-import org.rayson.api.RpcService;
+import org.rayson.annotation.Proxy;
+import org.rayson.api.RpcProtocol;
 import org.rayson.api.Session;
-import org.rayson.api.TestRpcProtocol;
+import org.rayson.api.TestProxy;
 import org.rayson.exception.RpcException;
 
-@Protocols({ TestRpcProtocol.class })
-public interface TestRemoteService extends RpcService {
+@Proxy(TestProxy.class)
+public interface TestProtocol extends RpcProtocol {
 	public String echo(Session session, String message) throws EOFException,
 			RpcException;
 

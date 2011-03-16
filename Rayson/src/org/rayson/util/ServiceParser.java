@@ -4,34 +4,34 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rayson.annotation.Protocols;
+import org.rayson.annotation.Proxy;
+import org.rayson.api.RpcProxy;
 import org.rayson.api.RpcProtocol;
-import org.rayson.api.RpcService;
 import org.rayson.common.Stream;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.RpcException;
 
 public final class ServiceParser {
 
-	public static Class<? extends RpcProtocol>[] getProtocols(
-			Class<? extends RpcService> serviceClass)
+	public static Class<? extends RpcProxy>[] getProtocols(
+			Class<? extends RpcProtocol> serviceClass)
 			throws IllegalServiceException {
-		List<Class<? extends RpcProtocol>> list = new ArrayList<Class<? extends RpcProtocol>>();
+		List<Class<? extends RpcProxy>> list = new ArrayList<Class<? extends RpcProxy>>();
 		Class[] interfaces = serviceClass.getInterfaces();
 		for (Class interfake : interfaces) {
-			if (!RpcService.class.isAssignableFrom(interfake))
+			if (!RpcProtocol.class.isAssignableFrom(interfake))
 				continue;
-			Protocols rpcProtocols = ((Class<? extends RpcService>) interfake)
-					.getAnnotation(Protocols.class);
+			Proxy rpcProtocols = ((Class<? extends RpcProtocol>) interfake)
+					.getAnnotation(Proxy.class);
 			if (rpcProtocols == null)
 				continue;
 			// throw new IllegalServiceException("Interfae "
 			// + interfake.getName() + " must has annotaion "
 			// + Protocols.class.getSimpleName());
-			for (Class<? extends RpcProtocol> interfake1 : rpcProtocols.value()) {
-				verifyService(interfake1);
-				list.add(interfake1);
-			}
+			Class<? extends RpcProxy> interfake1 = rpcProtocols.value();
+			verifyService(interfake1);
+			list.add(interfake1);
+
 		}
 
 		return list.toArray(new Class[0]);
@@ -64,7 +64,7 @@ public final class ServiceParser {
 		}
 	}
 
-	public static void verifyService(Class<? extends RpcProtocol> protocol)
+	public static void verifyService(Class<? extends RpcProxy> protocol)
 			throws IllegalServiceException {
 		if (!protocol.isInterface())
 			throw new IllegalServiceException(

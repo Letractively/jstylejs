@@ -5,7 +5,7 @@ import java.io.EOFException;
 import org.rayson.api.Session;
 import org.rayson.exception.RpcException;
 
-public class DemoRpcService implements TestRemoteService {
+public class TestProtocolImpl implements TestProtocol {
 	@Override
 	public String echo(Session session, String message) throws EOFException,
 			RpcException {

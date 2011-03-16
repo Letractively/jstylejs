@@ -3,9 +3,7 @@ package org.rayson.api;
 import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 
-public interface ServerProtocol extends RpcProtocol {
-
-	public static final String NAME = "server";
+public interface ServerProxy extends RpcProxy {
 
 	public ServiceRegistration find(String serviceName)
 			throws ServiceNotFoundException, RpcException;

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.rayson.api.RpcService;
+import org.rayson.api.RpcProtocol;
 import org.rayson.api.Session;
 import org.rayson.api.Transportable;
 import org.rayson.exception.ServiceNotFoundException;
@@ -33,7 +33,7 @@ public class Invocation implements Transportable {
 		return methodName;
 	}
 
-	public Object invoke(Session session, RpcService serviceObject)
+	public Object invoke(Session session, RpcProtocol serviceObject)
 			throws InvocationException {
 		Method method;
 		try {
