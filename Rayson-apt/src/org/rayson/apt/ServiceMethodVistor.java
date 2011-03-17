@@ -1,5 +1,6 @@
 package org.rayson.apt;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -21,17 +22,19 @@ class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;
 	private Element proxyElement;
-	private List<ExecutableElement> proxyMethods;
+	private HashMap<Integer, ProxyMethod> proxyMethods;
 
 	public ServiceMethodVistor(ProcessingEnvironment processingEnv,
 			AnnotationValue proxyAnnotation) {
 		this.processingEnv = processingEnv;
+		this.proxyMethods = new HashMap<Integer, ProxyMethod>();
 		DeclaredType proxyClass = (DeclaredType) proxyAnnotation.getValue();
 		this.proxyElement = proxyClass.asElement();
-		proxyMethods = ElementFilter.methodsIn(proxyElement
-				.getEnclosedElements());
-		for (ExecutableElement proxyMethod : proxyMethods) {
-
+		List<ExecutableElement> proxyMethods = ElementFilter
+				.methodsIn(proxyElement.getEnclosedElements());
+		for (ExecutableElement proxyMethodElement : proxyMethods) {
+			ProxyMethod proxyElement = new ProxyMethod(proxyMethodElement);
+			this.proxyMethods.put(proxyElement.hashCode(), proxyElement);
 		}
 	}
 
@@ -79,6 +82,16 @@ class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 			this.processingEnv.getMessager().printMessage(Kind.ERROR,
 					Constants.PROXY_METHOD_MUST_THROWN_RPCEXCEPTION, e);
 
+		// verify method in annotation proxy.
+		ServiceMethod serviceMethod = new ServiceMethod(e);
+
+		ProxyMethod proxyMethod = this.proxyMethods.get(serviceMethod
+				.hashCode());
+		if (proxyMethod == null) {
+			this.processingEnv.getMessager().printMessage(Kind.ERROR,
+					Constants.CAN_NOT_FOUND_METHOD_IN_PROXY, e);
+			return null;
+		}
 		return null;
 	}
 
