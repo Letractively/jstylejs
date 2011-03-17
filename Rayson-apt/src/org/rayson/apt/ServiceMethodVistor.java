@@ -14,18 +14,25 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic.Kind;
 
 class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;
-	private DeclaredType protocolClass;
+	private Element proxyElement;
+	private List<ExecutableElement> proxyMethods;
 
 	public ServiceMethodVistor(ProcessingEnvironment processingEnv,
 			AnnotationValue proxyAnnotation) {
 		this.processingEnv = processingEnv;
-		this.protocolClass = (DeclaredType) proxyAnnotation.getValue();
+		DeclaredType proxyClass = (DeclaredType) proxyAnnotation.getValue();
+		this.proxyElement = proxyClass.asElement();
+		proxyMethods = ElementFilter.methodsIn(proxyElement
+				.getEnclosedElements());
+		for (ExecutableElement proxyMethod : proxyMethods) {
 
+		}
 	}
 
 	@Override

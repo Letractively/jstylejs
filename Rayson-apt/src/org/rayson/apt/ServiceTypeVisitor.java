@@ -51,7 +51,7 @@ class ServiceTypeVisitor extends
 		}
 
 		// 3.visit protocols annotation interfaces.
-		if (!proxyAnnotation.accept(new ProtocolAnnotationValueVisitor(
+		if (!proxyAnnotation.accept(new ProxyAnnotationValueVisitor(
 				this.processingEnv, e), p)) {
 			return false;
 		}
