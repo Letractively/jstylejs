@@ -29,6 +29,7 @@ abstract class RpcMethod {
 	}
 
 	private int getHashCode() {
+		boolean wroteDot = false;
 		StringBuffer sb = new StringBuffer();
 		sb.append(this.name);
 		sb.append("(");
@@ -40,8 +41,9 @@ abstract class RpcMethod {
 				continue;
 			sb.append(parameterTypeName);
 			sb.append(",");
+			wroteDot = true;
 		}
-		if (!this.parameters.isEmpty())
+		if (wroteDot)
 			sb.deleteCharAt(sb.length() - 1);
 		sb.append(")");
 		return sb.toString().hashCode();
