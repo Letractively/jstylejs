@@ -2,6 +2,7 @@ package org.rayson.apt;
 
 import java.util.List;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -28,6 +29,22 @@ abstract class RpcMethod {
 		return element;
 	}
 
+	public List<? extends VariableElement> getParameters() {
+		return parameters;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public TypeMirror getReturnType() {
+		return returnType;
+	}
+
+	public List<? extends TypeMirror> getThrownTypes() {
+		return thrownTypes;
+	}
+
 	private int getHashCode() {
 		boolean wroteDot = false;
 		StringBuffer sb = new StringBuffer();
@@ -48,6 +65,8 @@ abstract class RpcMethod {
 		sb.append(")");
 		return sb.toString().hashCode();
 	}
+
+	abstract void verify(ProcessingEnvironment processingEnv);
 
 	@Override
 	public int hashCode() {

@@ -53,38 +53,9 @@ class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 	@Override
 	public Void visitExecutable(ExecutableElement e, AnnotationMirror p) {
 
-		// verify parameters.
-		List<? extends VariableElement> parameters = e.getParameters();
-		boolean parasPassed = true;
-		if (parameters.isEmpty())
-			parasPassed = false;
-		for (int i = 0; i < parameters.size(); i++) {
-			VariableElement parameter = parameters.get(i);
-			if (i == 0) {
-				if (!parameter.asType().toString()
-						.equals(Constants.SESSION_INTERFACE_NAME))
-					parasPassed = false;
-
-			}
-		}
-		if (!parasPassed)
-			this.processingEnv.getMessager().printMessage(Kind.ERROR,
-					Constants.PROXY_METHOD_FIRST_PARAMETER_MUST_BE_SESSION, e);
-
-		// verify exception
-		List<? extends TypeMirror> thrownTypes = e.getThrownTypes();
-		boolean foundRpcException = false;
-		for (TypeMirror typeMirror : thrownTypes) {
-			if (typeMirror.toString().equals(Constants.RPC_EXCEPTION_NAME))
-				foundRpcException = true;
-		}
-		if (!foundRpcException)
-			this.processingEnv.getMessager().printMessage(Kind.ERROR,
-					Constants.PROXY_METHOD_MUST_THROWN_RPCEXCEPTION, e);
-
 		// verify method in annotation proxy.
 		ServiceMethod serviceMethod = new ServiceMethod(e);
-
+		serviceMethod.verify(processingEnv);
 		ProxyMethod proxyMethod = this.proxyMethods.get(serviceMethod
 				.hashCode());
 		if (proxyMethod == null) {
@@ -92,6 +63,11 @@ class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 					Constants.CAN_NOT_FOUND_METHOD_IN_PROXY, e);
 			return null;
 		}
+
+		proxyMethod.verify(this.processingEnv);
+
+		serviceMethod.verifyProxyMethod(proxyMethod, this.processingEnv);
+
 		return null;
 	}
 
