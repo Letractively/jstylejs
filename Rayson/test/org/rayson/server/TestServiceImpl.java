@@ -3,35 +3,33 @@ package org.rayson.server;
 import java.io.EOFException;
 
 import org.rayson.api.Session;
-import org.rayson.exception.RpcException;
 
 public class TestServiceImpl implements TestService {
 	@Override
-	public String echo(Session session, String message) throws EOFException,
-			RpcException {
+	public String echo(Session session, String message) throws EOFException {
 		return message;
 	}
 
 	@Override
-	public int getInt(Session session) throws RpcException {
+	public int getInt(Session session) {
 		// TODO Auto-generated method stub
 		return 345;
 	}
 
 	@Override
-	public int[] getIntArray(Session session) throws RpcException {
+	public int[] getIntArray(Session session) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Integer getInteger(Session session) throws RpcException {
+	public Integer getInteger(Session session) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void voidMethod(Session session) throws RpcException {
+	public void voidMethod(Session session) {
 		// TODO Auto-generated method stub
 
 	}
