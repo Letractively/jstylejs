@@ -66,8 +66,6 @@ abstract class RpcMethod {
 		return sb.toString().hashCode();
 	}
 
-	abstract void verify(ProcessingEnvironment processingEnv);
-
 	@Override
 	public int hashCode() {
 		return this.hashCode;

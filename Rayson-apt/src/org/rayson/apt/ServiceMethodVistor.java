@@ -14,7 +14,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic.Kind;
 
@@ -64,7 +63,7 @@ class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 			return null;
 		}
 
-		proxyMethod.verify(this.processingEnv);
+		proxyMethod.verify(serviceMethod, this.processingEnv);
 
 		serviceMethod.verifyProxyMethod(proxyMethod, this.processingEnv);
 

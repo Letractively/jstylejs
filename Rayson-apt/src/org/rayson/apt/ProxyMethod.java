@@ -12,21 +12,20 @@ class ProxyMethod extends RpcMethod {
 		super(methodElement);
 	}
 
-	@Override
-	public void verify(ProcessingEnvironment processingEnv) {
+	public void verify(ServiceMethod serviceMethod,
+			ProcessingEnvironment processingEnv) {
 		// must throw rpcexception.
 		boolean foundRpcException = false;
 		for (TypeMirror thrownType : this.getThrownTypes()) {
 			if (thrownType.toString().equals(Constants.RPC_EXCEPTION_NAME)) {
 				foundRpcException = true;
-
 				break;
 			}
 		}
 		if (!foundRpcException)
 			processingEnv.getMessager().printMessage(Kind.ERROR,
 					Constants.PROXY_METHOD_MUST_THROWN_RPCEXCEPTION,
-					this.getElement());
+					serviceMethod.getElement());
 
 		// must has no session parameter.
 		VariableElement sessionPara = null;
@@ -38,7 +37,7 @@ class ProxyMethod extends RpcMethod {
 		if (sessionPara != null)
 			processingEnv.getMessager().printMessage(Kind.ERROR,
 					Constants.PROXY_METHOD_PARA_SHOULD_NOT_BE_SESSION,
-					sessionPara);
+					serviceMethod.getElement());
 
 	}
 

@@ -21,7 +21,7 @@ class ServiceMethod extends RpcMethod {
 				.equals(this.getReturnType().toString()))
 			processingEnv.getMessager().printMessage(Kind.ERROR,
 					Constants.PROXY_METHOD_RETURN_TYPE_NOT_MATCH_SERVICE,
-					proxyMethod.getElement());
+					this.getElement());
 
 		// verify throw types.
 		for (TypeMirror thrownType : proxyMethod.getThrownTypes()) {
@@ -35,11 +35,10 @@ class ServiceMethod extends RpcMethod {
 			if (!foundMatchedException)
 				processingEnv.getMessager().printMessage(Kind.ERROR,
 						Constants.PROXY_METHOD_EXCEPTION_NOT_MATCH,
-						proxyMethod.getElement());
+						this.getElement());
 		}
 	}
 
-	@Override
 	void verify(ProcessingEnvironment processingEnv) {
 		// verify parameters.
 		List<? extends VariableElement> parameters = this.getParameters();

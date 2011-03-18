@@ -31,7 +31,7 @@ public class RpcServiceProcessor extends AbstractProcessor {
 		// 1. find annotation of Protocols.
 		TypeElement proxyTypeElement = getProxyAnnotationTypeElement(annotations);
 		if (proxyTypeElement == null)
-			return false;
+			return true;
 		try {
 			for (Element typeElement : roundEnv
 					.getElementsAnnotatedWith(proxyTypeElement)) {
@@ -46,9 +46,9 @@ public class RpcServiceProcessor extends AbstractProcessor {
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
-			return false;
+			return true;
 		}
-		return false;
+		return true;
 	}
 
 	private AnnotationMirror getProxyAnnotationMirror(Element element) {
