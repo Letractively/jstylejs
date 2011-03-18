@@ -1,13 +1,16 @@
 package org.rayson.client;
 
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.rayson.api.ProtocolSocket;
 import org.rayson.api.RpcProxy;
 import org.rayson.api.ServerProxy;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RpcException;
+import org.rayson.exception.ServiceNotFoundException;
 
 public final class Rayson {
 	private static RpcClient CLIENT = new RpcClient();
@@ -19,6 +22,11 @@ public final class Rayson {
 		tryInit();
 		return CLIENT.createRpcProxy(serviceName, serviceInterface,
 				serverAddress);
+	}
+
+	public static ProtocolSocket openSocket(short protocol) throws IOException,
+			ServiceNotFoundException {
+		return CLIENT.openSocket(protocol);
 	}
 
 	public static ServerProxy getServerProxy(SocketAddress serverAddress) {
