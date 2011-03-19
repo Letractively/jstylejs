@@ -21,12 +21,12 @@ class ConnectionManager extends Thread {
 	}
 
 	private ConcurrentHashMap<SocketAddress, RpcConnection> rpcConnections;
-	private ConcurrentHashMap<Long, StreamConnection> streamConnections;
+	private ConcurrentHashMap<Long, ClientStreamConnection> streamConnections;
 
 	ConnectionManager() {
 		setName("Client connection manager");
 		rpcConnections = new ConcurrentHashMap<SocketAddress, RpcConnection>();
-		streamConnections = new ConcurrentHashMap<Long, StreamConnection>();
+		streamConnections = new ConcurrentHashMap<Long, ClientStreamConnection>();
 	}
 
 	public void accept(RpcConnection connection) {
@@ -52,9 +52,9 @@ class ConnectionManager extends Thread {
 				}
 
 		}
-		for (Iterator<StreamConnection> iterator = this.streamConnections
+		for (Iterator<ClientStreamConnection> iterator = this.streamConnections
 				.values().iterator(); iterator.hasNext();) {
-			StreamConnection conn = iterator.next();
+			ClientStreamConnection conn = iterator.next();
 			if (conn.isTimeOut())
 				try {
 					LOGGER.info("Remove and close time out conection: "
@@ -80,7 +80,7 @@ class ConnectionManager extends Thread {
 		this.rpcConnections.remove(connection.getServerSocket());
 	}
 
-	public void remove(StreamConnection connection) {
+	public void remove(ClientStreamConnection connection) {
 		this.streamConnections.remove(connection.getId());
 	}
 
@@ -104,7 +104,7 @@ class ConnectionManager extends Thread {
 		return this.rpcConnections.size();
 	}
 
-	public void accept(StreamConnection connection) {
+	public void accept(ClientStreamConnection connection) {
 		this.streamConnections.put(connection.getId(), connection);
 	}
 }

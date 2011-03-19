@@ -1,31 +1,23 @@
-package org.rayson.transport.client.impl;
+package org.rayson.transport.stream;
 
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.channels.SocketChannel;
 
 import org.rayson.api.ActivitySocket;
-import org.rayson.transport.client.StreamConnection;
+import org.rayson.transport.client.ClientStreamConnection;
 
 public class ActivitySocketImpl implements ActivitySocket {
 
-	private SocketChannel socketChannel;
 	private DataInput in;
 	private DataOutput out;
-	private StreamConnection connection;
-	private short activity;
+	private ClientStreamConnection connection;
 
-	public ActivitySocketImpl(StreamConnection connection,
-			SocketChannel socketChannel) throws IOException {
-		this.socketChannel = socketChannel;
-		this.in = new DataInputImpl(new DataInputStream(this.socketChannel
-				.socket().getInputStream()), connection);
-		this.out = new DataOuputImpl(new DataOutputStream(this.socketChannel
-				.socket().getOutputStream()), connection);
+	public ActivitySocketImpl(ClientStreamConnection connection)
+			throws IOException {
+		this.in = new DataInputImpl(connection.getInputBuffer());
+		this.out = new DataOuputImpl(connection.getOutputBuffer());
 		this.connection = connection;
 		this.out.writeShort(connection.getActivity());
 	}
@@ -57,11 +49,13 @@ public class ActivitySocketImpl implements ActivitySocket {
 
 	@Override
 	public SocketAddress getLocalAddr() {
-		return this.socketChannel.socket().getLocalSocketAddress();
+		// TODO:
+		return null;
 	}
 
 	@Override
 	public SocketAddress getRemoteAddr() {
-		return this.socketChannel.socket().getRemoteSocketAddress();
+		// TODO:
+		return null;
 	}
 }

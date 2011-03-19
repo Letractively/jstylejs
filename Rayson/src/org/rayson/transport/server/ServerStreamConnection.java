@@ -6,30 +6,35 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.logging.Logger;
 
+import org.rayson.transport.api.StreamConnection;
 import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ProtocolType;
+import org.rayson.transport.stream.StreamInputBuffer;
+import org.rayson.transport.stream.StreamOutputBuffer;
 import org.rayson.util.Log;
 
-class StreamConnection extends TimeLimitConnection {
+class ServerStreamConnection extends TimeLimitConnection implements
+		StreamConnection {
 	private static final int TIME_OUT_INTERVAL = 30000;
 	private static Logger LOGGER = Log.getLogger();
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
-
 	private long id;
 	private SocketChannel socketChannel;
 	private boolean readedConnectHeader = false;
-
+	private static final int STREAM_BUFFER_SIZE = 1024 * 60;
 	private SelectionKey selectionKey;
 	private short version = -1;
 	private short activity;
 
 	private ByteBuffer activityBuffer;
+	private StreamInputBuffer inputBuffer;
+	private StreamOutputBuffer outputBuffer;
 	private boolean readActivity = false;
 
-	public StreamConnection(long id, SocketChannel socketChannel,
+	public ServerStreamConnection(long id, SocketChannel socketChannel,
 			SelectionKey selectionKey) {
 		this.id = id;
 		this.socketChannel = socketChannel;
@@ -42,7 +47,6 @@ class StreamConnection extends TimeLimitConnection {
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 
 		setConnectionState(ConnectionState.OK);
-
 	}
 
 	@Override
@@ -81,9 +85,9 @@ class StreamConnection extends TimeLimitConnection {
 					this.readActivity = true;
 					return 2;
 				}
+
 			}
-			// TODO:
-			return 0;
+			return this.inputBuffer.asyncReadChannel();
 		} else {
 			init();
 			return 0;
@@ -105,6 +109,10 @@ class StreamConnection extends TimeLimitConnection {
 				setConnectionState(ConnectionState.UNSUPPORTED_VERSION);
 			this.selectionKey.interestOps(SelectionKey.OP_WRITE
 					| SelectionKey.OP_READ);
+			this.inputBuffer = new StreamInputBuffer(socketChannel,
+					STREAM_BUFFER_SIZE);
+			this.outputBuffer = new StreamOutputBuffer(socketChannel,
+					selectionKey, STREAM_BUFFER_SIZE);
 			readedConnectHeader = true;
 		}
 	}
@@ -127,7 +135,7 @@ class StreamConnection extends TimeLimitConnection {
 	@Override
 	public void write() throws IOException {
 		if (wroteConnectCode) {
-			// TODO:
+			this.outputBuffer.asyncWriteChannel();
 		} else {
 			// write connection response code.
 			this.socketChannel.write(connectResponseBuffer);
@@ -170,6 +178,16 @@ class StreamConnection extends TimeLimitConnection {
 		sb.append(this.activity);
 		sb.append("}");
 		return sb.toString();
+	}
+
+	@Override
+	public StreamInputBuffer getInputBuffer() {
+		return inputBuffer;
+	}
+
+	@Override
+	public StreamOutputBuffer getOutputBuffer() {
+		return outputBuffer;
 	}
 
 }

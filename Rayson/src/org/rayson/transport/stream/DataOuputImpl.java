@@ -1,20 +1,14 @@
-package org.rayson.transport.client.impl;
+package org.rayson.transport.stream;
 
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
-
-import org.rayson.transport.client.StreamConnection;
 
 class DataOuputImpl implements DataOutput {
 
-	private DataOutputStream innerOut;
-	private StreamConnection connection;
+	private StreamOutputBuffer outputBuffer;
 
-	public DataOuputImpl(DataOutputStream dataOutputStream,
-			StreamConnection connection) {
-		this.innerOut = dataOutputStream;
-		this.connection = connection;
+	public DataOuputImpl(StreamOutputBuffer outBuffer) {
+		this.outputBuffer = outBuffer;
 	}
 
 	@Override
@@ -92,17 +86,10 @@ class DataOuputImpl implements DataOutput {
 	@Override
 	public void writeShort(int v) throws IOException {
 		try {
-			innerOut.writeShort(v);
-			connection.touch();
-		} catch (IOException e) {
-			catchIOExcepion(e);
+			this.outputBuffer.writeShort(v);
+		} catch (BufferClosedException e) {
+			throw new IOException(e);
 		}
-	}
-
-	private void catchIOExcepion(IOException e) throws IOException {
-		connection.close();
-		connection.remove();
-		throw e;
 	}
 
 	@Override

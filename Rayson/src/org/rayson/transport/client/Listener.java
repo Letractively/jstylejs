@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.util.Log;
 
 class Listener extends Thread {
@@ -45,7 +46,7 @@ class Listener extends Thread {
 	}
 
 	SelectionKey register(SocketChannel socketChannel, int ops,
-			RpcConnection clientConnection) throws IOException {
+			TimeLimitConnection clientConnection) throws IOException {
 		SelectionKey key;
 		synchronized (registering) {
 			registering.set(true);

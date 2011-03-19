@@ -1,20 +1,15 @@
-package org.rayson.transport.client.impl;
+package org.rayson.transport.stream;
 
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.IOException;
 
-import org.rayson.transport.client.StreamConnection;
 
 class DataInputImpl implements DataInput {
 
-	private DataInputStream innerIn;
-	private StreamConnection connection;
+	private StreamInputBuffer inputBuffer;
 
-	public DataInputImpl(DataInputStream dataInputStream,
-			StreamConnection connection) {
-		this.innerIn = dataInputStream;
-		this.connection = connection;
+	public DataInputImpl(StreamInputBuffer inBuffer) {
+		this.inputBuffer = inBuffer;
 	}
 
 	@Override

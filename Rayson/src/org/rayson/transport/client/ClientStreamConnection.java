@@ -3,20 +3,30 @@ package org.rayson.transport.client;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import org.rayson.api.ActivitySocket;
+import org.rayson.transport.api.StreamConnection;
 import org.rayson.transport.api.TimeLimitConnection;
-import org.rayson.transport.client.impl.ActivitySocketImpl;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ProtocolType;
+import org.rayson.transport.stream.ActivitySocketImpl;
+import org.rayson.transport.stream.StreamInputBuffer;
+import org.rayson.transport.stream.StreamOutputBuffer;
 import org.rayson.util.Log;
 
-public class StreamConnection extends TimeLimitConnection {
+public class ClientStreamConnection extends TimeLimitConnection implements
+		StreamConnection {
 	private long id;
+
+	private StreamInputBuffer inputBuffer;
+	private StreamOutputBuffer outputBuffer;
+	private static final int STREAM_BUFFER_SIZE = 1024 * 60;
+
 	private SocketAddress serverAddress;
 	private static final short version = 1;
 	private static final long TIME_OUT_INTERVAL = 60 * 1000;
@@ -24,14 +34,16 @@ public class StreamConnection extends TimeLimitConnection {
 	private SocketChannel socketChannel;
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
-	private ConnectionManager connectionManager;
 	private AtomicBoolean closed;
+	private Listener listener;
+
+	private SelectionKey selectionKey;
 	private static Logger LOGGER = Log.getLogger();
 
-	public StreamConnection(SocketAddress serverAddress, short activity,
-			ConnectionManager connectionManager) {
+	public ClientStreamConnection(SocketAddress serverAddress, short activity,
+			Listener listener) {
 		this.id = ConnectionManager.getNextConnectionId();
-		this.connectionManager = connectionManager;
+		this.listener = listener;
 		this.serverAddress = serverAddress;
 		this.activity = activity;
 		connectHeaderBuffer = ByteBuffer
@@ -58,7 +70,12 @@ public class StreamConnection extends TimeLimitConnection {
 				.get());
 		if (state != ConnectionState.OK)
 			throw new ConnectException(state.name());
-		// socketChannel.configureBlocking(false);
+		socketChannel.configureBlocking(false);
+		this.selectionKey = listener.register(this.socketChannel,
+				SelectionKey.OP_READ, this);
+		this.inputBuffer = new StreamInputBuffer(socketChannel, STREAM_BUFFER_SIZE);
+		this.outputBuffer = new StreamOutputBuffer(socketChannel, selectionKey,
+				STREAM_BUFFER_SIZE);
 		LOGGER.info(this.toString() + " builded");
 	}
 
@@ -66,10 +83,6 @@ public class StreamConnection extends TimeLimitConnection {
 	public void close() throws IOException {
 		if (closed.compareAndSet(false, true))
 			this.socketChannel.close();
-	}
-
-	public void remove() {
-		this.connectionManager.remove(this);
 	}
 
 	@Override
@@ -83,9 +96,18 @@ public class StreamConnection extends TimeLimitConnection {
 	}
 
 	@Override
+	public StreamInputBuffer getInputBuffer() {
+		return inputBuffer;
+	}
+
+	@Override
+	public StreamOutputBuffer getOutputBuffer() {
+		return outputBuffer;
+	}
+
+	@Override
 	public int read() throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.inputBuffer.asyncReadChannel();
 	}
 
 	public short getVersion() {
@@ -94,8 +116,7 @@ public class StreamConnection extends TimeLimitConnection {
 
 	@Override
 	public void write() throws IOException {
-		// TODO Auto-generated method stub
-
+		this.outputBuffer.asyncWriteChannel();
 	}
 
 	public short getActivity() {
@@ -108,7 +129,7 @@ public class StreamConnection extends TimeLimitConnection {
 	}
 
 	ActivitySocket createActivitySocket() throws IOException {
-		return new ActivitySocketImpl(this, socketChannel);
+		return new ActivitySocketImpl(this);
 	}
 
 }

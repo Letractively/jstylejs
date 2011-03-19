@@ -133,8 +133,8 @@ public class TransportClient {
 
 	public ActivitySocket createActivitySocket(SocketAddress serverAddress,
 			short activity) throws IOException, ConnectException {
-		StreamConnection connection = new StreamConnection(serverAddress,
-				activity, connectionManager);
+		ClientStreamConnection connection = new ClientStreamConnection(serverAddress,
+				activity, listener);
 		connection.init();
 		connectionManager.accept(connection);
 		return connection.createActivitySocket();
