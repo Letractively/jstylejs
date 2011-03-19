@@ -183,10 +183,10 @@ class RpcClient {
 				.sumbitCall(serverAddress, call);
 	}
 
-	public ActivitySocket openSocket(short activity) throws IOException,
-			ServiceNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+	public ActivitySocket openActivitySocket(SocketAddress serverAddress, short activity)
+			throws IOException, ServiceNotFoundException {
+		return TransportClient.getSingleton().getConnector()
+				.openActivitySocket(serverAddress, activity);
 	}
 
 }

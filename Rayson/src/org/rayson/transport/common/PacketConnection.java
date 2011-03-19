@@ -2,22 +2,17 @@ package org.rayson.transport.common;
 
 import java.io.IOException;
 
-public abstract class PacketConnection implements Connection {
+import org.rayson.transport.api.TimeLimitConnection;
 
-	private volatile long lastContact;
+public abstract class PacketConnection extends TimeLimitConnection {
 
 	private ProtocolType protocol = ProtocolType.RPC;
 
 	protected PacketConnection() {
-		lastContact = System.currentTimeMillis();
 	}
 
 	public abstract void addSendPacket(Packet responsePacket)
 			throws IOException;
-
-	public final long getLastContact() {
-		return lastContact;
-	}
 
 	@Override
 	public final ProtocolType getProtocol() {
@@ -28,11 +23,6 @@ public abstract class PacketConnection implements Connection {
 
 	public abstract void init() throws IOException;
 
-
 	public abstract int pendingPacketCount();
-
-	public final void touch() {
-		this.lastContact = System.currentTimeMillis();
-	}
 
 }

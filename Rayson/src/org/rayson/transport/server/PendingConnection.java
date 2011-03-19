@@ -6,7 +6,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.rayson.transport.common.Connection;
+import org.rayson.transport.api.Connection;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ProtocolType;
 
@@ -76,6 +76,14 @@ class PendingConnection implements Connection {
 				this.selectionKey.attach(rpcConnection);
 			}
 				break;
+			case STREAM: {
+				StreamConnection streamConnection = new StreamConnection(id,
+						socketChannel, selectionKey);
+				this.server.getConnectionManager().accept(id, streamConnection);
+				// set acctchment to new connection.
+				this.selectionKey.attach(streamConnection);
+			}
+				break;
 			default:
 				throw new IOException("Unsupported protocol");
 			}
@@ -100,8 +108,4 @@ class PendingConnection implements Connection {
 		}
 	}
 
-	@Override
-	public boolean isTimeOut() {
-		return true;
-	}
 }

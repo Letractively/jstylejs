@@ -88,8 +88,6 @@ class RpcConnection extends PacketConnection {
 	 */
 	private static final int TIME_OUT_INTERVAL = 1000 * 60;
 
-	private static AtomicLong UID = new AtomicLong(0);
-
 	private static final short version = 1;
 
 	private AtomicBoolean closed;
@@ -114,7 +112,7 @@ class RpcConnection extends PacketConnection {
 	RpcConnection(SocketAddress serverSocket, PacketManager packetManager,
 			Listener listener) {
 		super();
-		this.id = UID.getAndIncrement();
+		this.id = ConnectionManager.getNextConnectionId();
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer
@@ -224,8 +222,8 @@ class RpcConnection extends PacketConnection {
 	}
 
 	@Override
-	public boolean isTimeOut() {
-		return System.currentTimeMillis() - getLastContact() > TIME_OUT_INTERVAL;
+	protected long getTimeoutInterval() {
+		return TIME_OUT_INTERVAL;
 	}
 
 	private boolean isTooManyPendingPackets() {
@@ -275,7 +273,7 @@ class RpcConnection extends PacketConnection {
 		sb.append(", version: ");
 		sb.append(this.getVersion());
 		sb.append(", last contact: ");
-		sb.append(getLastContact());
+		sb.append(getLastContactTime());
 		sb.append(", packet counter: ");
 		sb.append(this.packetCounter.toString());
 		sb.append(", pending packets: ");

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 
+import org.rayson.api.ActivitySocket;
 import org.rayson.client.ClientCall;
 import org.rayson.exception.NetWorkException;
 import org.rayson.transport.common.Packet;
@@ -145,5 +146,10 @@ public class RpcConnector {
 		addCall(call, connection.getId());
 		connection.addSendPacket(call.getRequestPacket());
 
+	}
+
+	public ActivitySocket openActivitySocket(SocketAddress serverAddress,
+			short activity) throws ConnectException, IOException {
+		return client.createActivitySocket(serverAddress, activity);
 	}
 }

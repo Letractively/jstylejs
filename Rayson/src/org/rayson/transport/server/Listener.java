@@ -8,7 +8,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import org.rayson.transport.common.Connection;
+import org.rayson.transport.api.Connection;
 import org.rayson.util.Log;
 
 class Listener extends Thread {

@@ -8,7 +8,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.rayson.api.ActivitySocket;
 import org.rayson.exception.NetWorkException;
+import org.rayson.transport.api.Connection;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
@@ -127,5 +129,14 @@ public class TransportClient {
 			if (loaded.compareAndSet(false, true))
 				lazyLoad();
 		}
+	}
+
+	public ActivitySocket createActivitySocket(SocketAddress serverAddress,
+			short activity) throws IOException, ConnectException {
+		StreamConnection connection = new StreamConnection(serverAddress,
+				activity, packetManager);
+		connection.init();
+		connectionManager.accept(connection);
+		return null;
 	}
 }

@@ -24,9 +24,9 @@ public final class Rayson {
 				serverAddress);
 	}
 
-	public static ActivitySocket openSocket(short activity) throws IOException,
-			ServiceNotFoundException {
-		return CLIENT.openSocket(activity);
+	public static ActivitySocket openActivitySocket(SocketAddress serverAddress,
+			short activity) throws IOException, ServiceNotFoundException {
+		return CLIENT.openActivitySocket(serverAddress, activity);
 	}
 
 	public static ServerProxy getServerProxy(SocketAddress serverAddress) {

@@ -190,8 +190,8 @@ class RpcConnection extends PacketConnection {
 	}
 
 	@Override
-	public boolean isTimeOut() {
-		return System.currentTimeMillis() - getLastContact() > ConnectionProtocol.TIME_OUT_INTERVAL;
+	protected long getTimeoutInterval() {
+		return ConnectionProtocol.TIME_OUT_INTERVAL;
 	}
 
 	@Override
@@ -255,7 +255,7 @@ class RpcConnection extends PacketConnection {
 		sb.append(", version: ");
 		sb.append(this.getVersion());
 		sb.append(", last contact: ");
-		sb.append(getLastContact());
+		sb.append(getLastContactTime());
 		sb.append(", packet counter: ");
 		sb.append(this.packetCounter.toString());
 		sb.append(", pending packets: ");
