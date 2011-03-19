@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.rayson.api.ActivityService;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Session;
@@ -81,6 +82,11 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		return list.toArray(new ServiceDescriptionImpl[0]);
 	}
 
+	public void registerService(ActivityService service)
+			throws ServiceAlreadyExistedException, IllegalServiceException {
+		
+	}
+
 	public void registerService(String serviceName, String description,
 			RpcService serviceInstance) throws ServiceAlreadyExistedException,
 			IllegalServiceException {
@@ -98,8 +104,8 @@ class RpcServer extends TransportServerImpl implements ServerService {
 		super.start();
 		// Register it self as a service.
 		try {
-			this.registerService(ServerService.NAME,
-					ServerService.DESCRIPTION, this);
+			this.registerService(ServerService.NAME, ServerService.DESCRIPTION,
+					this);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
