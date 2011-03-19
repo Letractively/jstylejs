@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-import org.rayson.transport.common.AbstractConnection;
+import org.rayson.transport.common.PacketConnection;
 import org.rayson.transport.common.CRC16;
 import org.rayson.transport.common.ChecksumMatchException;
 import org.rayson.transport.common.ConnectionProtocol;
@@ -24,7 +24,7 @@ import org.rayson.transport.common.PacketWithType;
 import org.rayson.transport.common.RequestType;
 import org.rayson.util.Log;
 
-class RpcConnection extends AbstractConnection {
+class RpcConnection extends PacketConnection {
 
 	private class PacketWriter {
 		private PacketWithType lastPacketCarrier;

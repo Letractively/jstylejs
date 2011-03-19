@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-public interface ProtocolSocket {
+public interface ActivitySocket {
 
 	public DataInputStream getInputStream() throws IOException;
 
@@ -13,7 +13,7 @@ public interface ProtocolSocket {
 
 	public void close() throws IOException;
 
-	public short getProtocol();
+	public short getActivity();
 
 	public byte getVersion();
 

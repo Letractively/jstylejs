@@ -1,4 +1,4 @@
-package org.rayson.impl;
+package org.rayson.client.impl;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -6,25 +6,25 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 
-import org.rayson.api.ProtocolSocket;
+import org.rayson.api.ActivitySocket;
 
-public class ProtocolSocketImpl implements ProtocolSocket {
+public class ActivitySocketImpl implements ActivitySocket {
 
 	private SocketChannel socketChannel;
 	private DataInputStream in;
 	private DataOutputStream out;
 	private byte version;
-	private short protocol;
+	private short activity;
 
-	public ProtocolSocketImpl(SocketChannel socketChannel, byte version,
-			short protocol) throws IOException {
+	public ActivitySocketImpl(SocketChannel socketChannel, byte version,
+			short activity) throws IOException {
 		this.socketChannel = socketChannel;
 		this.in = new DataInputStream(this.socketChannel.socket()
 				.getInputStream());
 		this.out = new DataOutputStream(this.socketChannel.socket()
 				.getOutputStream());
 		this.version = version;
-		this.protocol = protocol;
+		this.activity = activity;
 	}
 
 	@Override
@@ -44,8 +44,8 @@ public class ProtocolSocketImpl implements ProtocolSocket {
 	}
 
 	@Override
-	public short getProtocol() {
-		return protocol;
+	public short getActivity() {
+		return activity;
 	}
 
 	@Override

@@ -99,4 +99,9 @@ class PendingConnection implements Connection {
 
 		}
 	}
+
+	@Override
+	public boolean isTimeOut() {
+		return true;
+	}
 }

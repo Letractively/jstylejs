@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.rayson.transport.common.AbstractConnection;
+import org.rayson.transport.common.PacketConnection;
 import org.rayson.transport.common.Connection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.util.Log;
@@ -18,12 +18,12 @@ class ConnectionManager extends Thread {
 	private static final int MAX_PENDINGS = 10000;
 
 	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL / 2;
-	private ConcurrentHashMap<Long, AbstractConnection> connections;
+	private ConcurrentHashMap<Long, PacketConnection> connections;
 	private HashMap<Long, PendingConnection> pendings;
 
 	ConnectionManager() {
 		setName("Connection manager");
-		connections = new ConcurrentHashMap<Long, AbstractConnection>();
+		connections = new ConcurrentHashMap<Long, PacketConnection>();
 		pendings = new HashMap<Long, PendingConnection>();
 	}
 
@@ -41,9 +41,9 @@ class ConnectionManager extends Thread {
 	}
 
 	private void checkTimeouts() {
-		for (Iterator<AbstractConnection> iterator = this.connections.values()
+		for (Iterator<PacketConnection> iterator = this.connections.values()
 				.iterator(); iterator.hasNext();) {
-			AbstractConnection conn = iterator.next();
+			PacketConnection conn = iterator.next();
 			if (conn.isTimeOut())
 				try {
 					LOGGER.info("Remove and close time out conection: "

@@ -2,13 +2,13 @@ package org.rayson.transport.common;
 
 import java.io.IOException;
 
-public abstract class AbstractConnection implements Connection {
+public abstract class PacketConnection implements Connection {
 
 	private volatile long lastContact;
 
 	private ProtocolType protocol = ProtocolType.RPC;
 
-	protected AbstractConnection() {
+	protected PacketConnection() {
 		lastContact = System.currentTimeMillis();
 	}
 
@@ -28,7 +28,6 @@ public abstract class AbstractConnection implements Connection {
 
 	public abstract void init() throws IOException;
 
-	public abstract boolean isTimeOut();
 
 	public abstract int pendingPacketCount();
 

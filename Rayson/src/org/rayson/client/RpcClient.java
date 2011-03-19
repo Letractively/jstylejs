@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 
-import org.rayson.api.ProtocolSocket;
+import org.rayson.api.ActivitySocket;
 import org.rayson.api.RpcProxy;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.Session;
@@ -183,7 +183,7 @@ class RpcClient {
 				.sumbitCall(serverAddress, call);
 	}
 
-	public ProtocolSocket openSocket(short protocol) throws IOException,
+	public ActivitySocket openSocket(short activity) throws IOException,
 			ServiceNotFoundException {
 		// TODO Auto-generated method stub
 		return null;

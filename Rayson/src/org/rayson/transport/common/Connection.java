@@ -3,6 +3,7 @@ package org.rayson.transport.common;
 import java.io.IOException;
 
 public interface Connection {
+	public abstract boolean isTimeOut();
 
 	public void close() throws IOException;
 
