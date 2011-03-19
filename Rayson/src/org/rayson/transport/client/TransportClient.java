@@ -134,9 +134,14 @@ public class TransportClient {
 	public ActivitySocket createActivitySocket(SocketAddress serverAddress,
 			short activity) throws IOException, ConnectException {
 		StreamConnection connection = new StreamConnection(serverAddress,
-				activity, packetManager);
+				activity, connectionManager);
 		connection.init();
 		connectionManager.accept(connection);
-		return null;
+		try {
+			return connection.createActivitySocket();
+		} catch (IOException e) {
+			connectionManager.remove(connection);
+			throw e;
+		}
 	}
 }

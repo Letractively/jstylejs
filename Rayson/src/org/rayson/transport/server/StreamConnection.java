@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import org.rayson.transport.api.Connection;
 import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.transport.common.ProtocolType;
 
@@ -13,12 +12,18 @@ class StreamConnection extends TimeLimitConnection {
 	private long id;
 	private SocketChannel socketChannel;
 	private SelectionKey selectionKey;
+	private short version=-1;
 
 	public StreamConnection(long id, SocketChannel socketChannel,
 			SelectionKey selectionKey) {
 		this.id = id;
 		this.socketChannel = socketChannel;
 		this.selectionKey = selectionKey;
+	}
+
+	@Override
+	public short getVersion() {
+		return version;
 	}
 
 	@Override

@@ -19,8 +19,6 @@ public abstract class PacketConnection extends TimeLimitConnection {
 		return protocol;
 	}
 
-	public abstract int getVersion();
-
 	public abstract void init() throws IOException;
 
 	public abstract int pendingPacketCount();

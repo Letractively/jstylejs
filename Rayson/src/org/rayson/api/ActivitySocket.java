@@ -15,7 +15,7 @@ public interface ActivitySocket {
 
 	public short getActivity();
 
-	public byte getVersion();
+	public short getVersion();
 
 	public SocketAddress getLocalAddr();
 

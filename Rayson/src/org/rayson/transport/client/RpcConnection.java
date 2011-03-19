@@ -195,7 +195,7 @@ class RpcConnection extends PacketConnection {
 	}
 
 	@Override
-	public int getVersion() {
+	public short getVersion() {
 
 		return version;
 	}

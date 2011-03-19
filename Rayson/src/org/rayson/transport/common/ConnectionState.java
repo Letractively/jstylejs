@@ -1,7 +1,7 @@
 package org.rayson.transport.common;
 
 public enum ConnectionState {
-	OK((byte) 8), SERVICE_UNAVALIABLE((byte) 2), UNKNOWN((byte) 0), WRONG_VERSION(
+	OK((byte) 8), SERVICE_UNAVALIABLE((byte) 2), UNKNOWN((byte) 0), UNSUPPORTED_VERSION(
 			(byte) 1);
 	public static ConnectionState valueOf(byte state) {
 		for (ConnectionState stat : ConnectionState.values()) {
