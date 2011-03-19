@@ -1,15 +1,15 @@
 package org.rayson.api;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.net.SocketAddress;
 
 public interface ActivitySocket {
 
-	public DataInputStream getInputStream() throws IOException;
+	public DataInput getDataInput();
 
-	public DataOutputStream getOutputStream() throws IOException;
+	public DataOutput getDataOutput();
 
 	public void close() throws IOException;
 

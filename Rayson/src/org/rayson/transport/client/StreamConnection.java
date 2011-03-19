@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import org.rayson.api.ActivitySocket;
@@ -24,6 +25,7 @@ public class StreamConnection extends TimeLimitConnection {
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
 	private ConnectionManager connectionManager;
+	private AtomicBoolean closed;
 	private static Logger LOGGER = Log.getLogger();
 
 	public StreamConnection(SocketAddress serverAddress, short activity,
@@ -40,9 +42,10 @@ public class StreamConnection extends TimeLimitConnection {
 		this.connectHeaderBuffer.put(getProtocol().getType());
 		this.connectHeaderBuffer.putShort(version);
 		this.connectHeaderBuffer.clear();
+		closed = new AtomicBoolean(false);
 	}
 
-	public void init() throws IOException {
+	public void init() throws IOException, ConnectException {
 		// do connect to remote server.
 		SocketChannel socketChannel = SocketChannel.open(this.serverAddress);
 		this.socketChannel = socketChannel;
@@ -55,16 +58,17 @@ public class StreamConnection extends TimeLimitConnection {
 				.get());
 		if (state != ConnectionState.OK)
 			throw new ConnectException(state.name());
-		socketChannel.configureBlocking(false);
+		// socketChannel.configureBlocking(false);
 		LOGGER.info(this.toString() + " builded");
 	}
 
 	@Override
 	public void close() throws IOException {
-		this.socketChannel.close();
+		if (closed.compareAndSet(false, true))
+			this.socketChannel.close();
 	}
 
-	void remove() {
+	public void remove() {
 		this.connectionManager.remove(this);
 	}
 

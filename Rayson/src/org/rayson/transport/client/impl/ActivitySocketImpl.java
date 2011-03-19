@@ -1,6 +1,8 @@
 package org.rayson.transport.client.impl;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -12,38 +14,35 @@ import org.rayson.transport.client.StreamConnection;
 public class ActivitySocketImpl implements ActivitySocket {
 
 	private SocketChannel socketChannel;
-	private DataInputStream in;
-	private DataOutputStream out;
+	private DataInput in;
+	private DataOutput out;
 	private StreamConnection connection;
-
-	private ActivitySocketImpl(SocketChannel socketChannel) throws IOException {
-		this.socketChannel = socketChannel;
-		this.in = new DataInputStream(this.socketChannel.socket()
-				.getInputStream());
-		this.out = new DataOutputStream(this.socketChannel.socket()
-				.getOutputStream());
-	}
+	private short activity;
 
 	public ActivitySocketImpl(StreamConnection connection,
 			SocketChannel socketChannel) throws IOException {
-		this(socketChannel);
+		this.socketChannel = socketChannel;
+		this.in = new DataInputImpl(new DataInputStream(this.socketChannel
+				.socket().getInputStream()), connection);
+		this.out = new DataOuputImpl(new DataOutputStream(this.socketChannel
+				.socket().getOutputStream()), connection);
 		this.connection = connection;
+		this.out.writeShort(connection.getActivity());
 	}
 
 	@Override
-	public DataInputStream getInputStream() throws IOException {
+	public DataInput getDataInput() {
 		return in;
 	}
 
 	@Override
-	public DataOutputStream getOutputStream() throws IOException {
+	public DataOutput getDataOutput() {
 		return out;
 	}
 
 	@Override
 	public void close() throws IOException {
-
-		this.socketChannel.close();
+		this.connection.close();
 	}
 
 	@Override

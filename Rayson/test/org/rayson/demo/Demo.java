@@ -1,6 +1,7 @@
 package org.rayson.demo;
 
 import java.io.EOFException;
+import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -8,6 +9,7 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
 import org.rayson.annotation.Proxy;
+import org.rayson.api.ActivitySocket;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Session;
@@ -21,8 +23,9 @@ import org.rayson.exception.ServiceNotFoundException;
 
 public class Demo {
 
-	public static void main(String[] args) throws UnknownHostException,
-			IllegalServiceException, NetWorkException, RpcException {
+	public static void main(String[] args) throws IllegalServiceException,
+			NetWorkException, RpcException, IOException,
+			ServiceNotFoundException, InterruptedException {
 
 		SocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
@@ -32,8 +35,8 @@ public class Demo {
 		System.out.println("Ping sucessfully");
 
 		ServerProxy serverService = Rayson.getServerProxy(serverAddress);
-		TestProxy testRpcService = Rayson.createProxy("demo",
-				TestProxy.class, serverAddress);
+		TestProxy testRpcService = Rayson.createProxy("demo", TestProxy.class,
+				serverAddress);
 
 		System.out.println("Service porxy session information:"
 				+ testRpcService.getSession().toString());
@@ -74,6 +77,13 @@ public class Demo {
 				e1.printStackTrace();
 			}
 		}
+
+		// Test activity socekt
+
+		ActivitySocket activitySocket = Rayson.openActivitySocket(
+				serverAddress, (short) 1);
+
+		Thread.sleep(100000);
 
 		System.exit(0);
 

@@ -137,11 +137,6 @@ public class TransportClient {
 				activity, connectionManager);
 		connection.init();
 		connectionManager.accept(connection);
-		try {
-			return connection.createActivitySocket();
-		} catch (IOException e) {
-			connectionManager.remove(connection);
-			throw e;
-		}
+		return connection.createActivitySocket();
 	}
 }
