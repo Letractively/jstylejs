@@ -77,7 +77,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 					this.activityBuffer.flip();
 					this.activity = this.activityBuffer.getShort();
 					// set activity response code
-					setActivityResponse(ActivityResponse.NO_ACTIVITY);
+					setActivityResponse(ActivityResponse.OK);
 					this.selectionKey.interestOps(SelectionKey.OP_WRITE
 							| SelectionKey.OP_READ);
 					this.readActivity = true;

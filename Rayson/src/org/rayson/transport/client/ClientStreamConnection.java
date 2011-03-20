@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.rayson.api.ActivitySocket;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.transport.api.TimeLimitConnection;
+import org.rayson.transport.client.impl.ActivitySocketImpl;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ProtocolType;
@@ -26,10 +27,13 @@ public class ClientStreamConnection extends TimeLimitConnection {
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
 	private AtomicBoolean closed;
+	private ConnectionManager connectionManager;
 	private static Logger LOGGER = Log.getLogger();
 
-	public ClientStreamConnection(SocketAddress serverAddress, short activity) {
+	public ClientStreamConnection(SocketAddress serverAddress, short activity,
+			ConnectionManager connectionManager) {
 		this.id = ConnectionManager.getNextConnectionId();
+		this.connectionManager = connectionManager;
 		this.serverAddress = serverAddress;
 		this.activity = activity;
 		connectHeaderBuffer = ByteBuffer
@@ -85,8 +89,11 @@ public class ClientStreamConnection extends TimeLimitConnection {
 
 	@Override
 	public void close() throws IOException {
-		if (closed.compareAndSet(false, true))
+		if (closed.compareAndSet(false, true)) {
+			// first remove it from the connection manager.
+			this.connectionManager.remove(this);
 			this.socketChannel.close();
+		}
 	}
 
 	@Override
@@ -125,8 +132,8 @@ public class ClientStreamConnection extends TimeLimitConnection {
 	}
 
 	ActivitySocket createActivitySocket() throws IOException {
-
-		return null;
+		return new ActivitySocketImpl(this, socketChannel.socket(), activity,
+				version);
 	}
 
 }

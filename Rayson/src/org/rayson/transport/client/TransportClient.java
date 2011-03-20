@@ -135,9 +135,14 @@ public class TransportClient {
 			short activity) throws IOException, ConnectException,
 			ServiceNotFoundException {
 		ClientStreamConnection connection = new ClientStreamConnection(
-				serverAddress, activity);
+				serverAddress, activity, connectionManager);
 		connection.init();
 		connectionManager.accept(connection);
-		return connection.createActivitySocket();
+		try {
+			return connection.createActivitySocket();
+		} catch (IOException e) {
+			connectionManager.remove(connection);
+			throw e;
+		}
 	}
 }

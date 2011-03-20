@@ -11,6 +11,16 @@ public interface ActivitySocket {
 
 	public DataOutput getDataOutput();
 
+	public void shutdownInput() throws IOException;
+
+	public void shutdownOutput() throws IOException;
+
+	public boolean isClosed();
+
+	public boolean isInputShutdown();
+
+	public boolean isOutputShutdown();
+
 	public void close() throws IOException;
 
 	public short getActivity();
