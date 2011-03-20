@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.rayson.api.ActivitySocket;
 import org.rayson.exception.NetWorkException;
-import org.rayson.transport.api.Connection;
+import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
@@ -132,9 +132,10 @@ public class TransportClient {
 	}
 
 	public ActivitySocket createActivitySocket(SocketAddress serverAddress,
-			short activity) throws IOException, ConnectException {
-		ClientStreamConnection connection = new ClientStreamConnection(serverAddress,
-				activity, listener);
+			short activity) throws IOException, ConnectException,
+			ServiceNotFoundException {
+		ClientStreamConnection connection = new ClientStreamConnection(
+				serverAddress, activity);
 		connection.init();
 		connectionManager.accept(connection);
 		return connection.createActivitySocket();
