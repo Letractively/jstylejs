@@ -27,11 +27,13 @@ class ServerStreamConnection extends TimeLimitConnection {
 	private ActivityResponse activityResponse;
 	private ByteBuffer activityBuffer;
 	private boolean readActivity = false;
+	private ConnectionManager connectionManager;
 
 	public ServerStreamConnection(long id, SocketChannel socketChannel,
-			SelectionKey selectionKey) {
+			SelectionKey selectionKey, ConnectionManager connectionManager) {
 		this.id = id;
 		this.socketChannel = socketChannel;
+		this.connectionManager = connectionManager;
 		this.selectionKey = selectionKey;
 		activityBuffer = ByteBuffer.allocate(2);
 		connectHeaderBuffer = ByteBuffer
@@ -151,10 +153,16 @@ class ServerStreamConnection extends TimeLimitConnection {
 					}
 					break;
 				case OK:
-					// set socket channel to blocked mode.
 					// remove selection key.
 					this.selectionKey.cancel();
+					// set socket channel to blocked mode.
 					this.socketChannel.configureBlocking(true);
+					// add a new activityCall.
+					ActivityCall activityCall = new ActivityCall(
+							new ActivitySocketImpl(this,
+									socketChannel.socket(), activity, version));
+					// test activity process.
+					activityCall.testProcess();
 				default:
 					break;
 				}
@@ -202,5 +210,9 @@ class ServerStreamConnection extends TimeLimitConnection {
 		sb.append(this.activity);
 		sb.append("}");
 		return sb.toString();
+	}
+
+	public void remove() {
+		this.connectionManager.remove(this);
 	}
 }

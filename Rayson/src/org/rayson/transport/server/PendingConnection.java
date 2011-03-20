@@ -77,8 +77,9 @@ class PendingConnection implements Connection {
 			}
 				break;
 			case STREAM: {
-				ServerStreamConnection streamConnection = new ServerStreamConnection(id,
-						socketChannel, selectionKey);
+				ServerStreamConnection streamConnection = new ServerStreamConnection(
+						id, socketChannel, selectionKey,
+						this.server.getConnectionManager());
 				this.server.getConnectionManager().accept(id, streamConnection);
 				// set acctchment to new connection.
 				this.selectionKey.attach(streamConnection);
