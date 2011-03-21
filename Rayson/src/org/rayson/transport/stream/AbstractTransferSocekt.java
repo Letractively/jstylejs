@@ -8,21 +8,21 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-import org.rayson.api.ActivitySocket;
+import org.rayson.api.TransferSocket;
 
-public abstract class AbstractActivitySocekt implements ActivitySocket {
+public abstract class AbstractTransferSocekt implements TransferSocket {
 
 	private Socket socket;
 	private short version;
-	private short activity;
+	private short transfer;
 	private DataInput dataInput;
 	private DataOutput dataOutput;
 
-	protected AbstractActivitySocekt(Socket socket, short activity,
+	protected AbstractTransferSocekt(Socket socket, short transfer,
 			short version) throws IOException {
 		this.socket = socket;
 		this.version = version;
-		this.activity = activity;
+		this.transfer = transfer;
 		this.dataInput = new DataInputStream(this.socket.getInputStream());
 		this.dataOutput = new DataOutputStream(this.socket.getOutputStream());
 	}
@@ -68,8 +68,8 @@ public abstract class AbstractActivitySocekt implements ActivitySocket {
 	}
 
 	@Override
-	public short getActivity() {
-		return activity;
+	public short getTransfer() {
+		return transfer;
 	}
 
 	@Override

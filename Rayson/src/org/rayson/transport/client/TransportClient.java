@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.rayson.api.ActivitySocket;
+import org.rayson.api.TransferSocket;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.transport.common.ConnectionState;
@@ -131,15 +131,15 @@ public class TransportClient {
 		}
 	}
 
-	public ActivitySocket createActivitySocket(SocketAddress serverAddress,
-			short activity) throws IOException, ConnectException,
+	public TransferSocket createTransferSocket(SocketAddress serverAddress,
+			short transfer) throws IOException, ConnectException,
 			ServiceNotFoundException {
 		ClientStreamConnection connection = new ClientStreamConnection(
-				serverAddress, activity, connectionManager);
+				serverAddress, transfer, connectionManager);
 		connection.init();
 		connectionManager.accept(connection);
 		try {
-			return connection.createActivitySocket();
+			return connection.createTransferSocket();
 		} catch (IOException e) {
 			connectionManager.remove(connection);
 			throw e;

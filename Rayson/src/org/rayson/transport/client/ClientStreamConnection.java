@@ -7,13 +7,13 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-import org.rayson.api.ActivitySocket;
+import org.rayson.api.TransferSocket;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ProtocolType;
-import org.rayson.transport.stream.ActivityResponse;
+import org.rayson.transport.stream.TransferResponse;
 import org.rayson.util.Log;
 
 class ClientStreamConnection extends TimeLimitConnection {
@@ -21,7 +21,7 @@ class ClientStreamConnection extends TimeLimitConnection {
 	private SocketAddress serverAddress;
 	private static final short version = 1;
 	private static final long TIME_OUT_INTERVAL = 60 * 1000;
-	private short activity;
+	private short transfer;
 	private SocketChannel socketChannel;
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
@@ -29,12 +29,12 @@ class ClientStreamConnection extends TimeLimitConnection {
 	private ConnectionManager connectionManager;
 	private static Logger LOGGER = Log.getLogger();
 
-	public ClientStreamConnection(SocketAddress serverAddress, short activity,
+	public ClientStreamConnection(SocketAddress serverAddress, short transfer,
 			ConnectionManager connectionManager) {
 		this.id = ConnectionManager.getNextConnectionId();
 		this.connectionManager = connectionManager;
 		this.serverAddress = serverAddress;
-		this.activity = activity;
+		this.transfer = transfer;
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer
@@ -62,19 +62,19 @@ class ClientStreamConnection extends TimeLimitConnection {
 			if (state != ConnectionState.OK)
 				throw new ConnectException(state.name());
 			socketChannel.configureBlocking(true);
-			// send activity number to remote
+			// send transfer number to remote
 			connectHeaderBuffer.clear();
-			connectHeaderBuffer.putShort(activity);
+			connectHeaderBuffer.putShort(transfer);
 			connectHeaderBuffer.flip();
 			this.socketChannel.write(connectHeaderBuffer);
 			// read response from remote
 			connectResponseBuffer.clear();
 			this.socketChannel.read(connectResponseBuffer);
 			connectResponseBuffer.flip();
-			ActivityResponse response = ActivityResponse
+			TransferResponse response = TransferResponse
 					.valueOf(connectResponseBuffer.get());
-			if (response != ActivityResponse.OK)
-				throw new ServiceNotFoundException("No activity " + activity
+			if (response != TransferResponse.OK)
+				throw new ServiceNotFoundException("No transfer " + transfer
 						+ " service found in servder:" + response.name());
 		} catch (IOException e) {
 			this.socketChannel.close();
@@ -123,8 +123,8 @@ class ClientStreamConnection extends TimeLimitConnection {
 		return;
 	}
 
-	public short getActivity() {
-		return activity;
+	public short getTransfer() {
+		return transfer;
 	}
 
 	@Override
@@ -132,8 +132,8 @@ class ClientStreamConnection extends TimeLimitConnection {
 		return TIME_OUT_INTERVAL;
 	}
 
-	ActivitySocket createActivitySocket() throws IOException {
-		return new ActivitySocketImpl(this, socketChannel.socket(), activity,
+	TransferSocket createTransferSocket() throws IOException {
+		return new TransferSocketImpl(this, socketChannel.socket(), transfer,
 				version);
 	}
 

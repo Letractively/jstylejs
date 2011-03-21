@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Activity {
+public @interface Transfer {
 	public short value() default 0;
 }

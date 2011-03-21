@@ -3,14 +3,14 @@ package org.rayson.transport.client;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.rayson.transport.stream.AbstractActivitySocekt;
+import org.rayson.transport.stream.AbstractTransferSocekt;
 
-class ActivitySocketImpl extends AbstractActivitySocekt {
+class TransferSocketImpl extends AbstractTransferSocekt {
 	private ClientStreamConnection connection;
 
-	public ActivitySocketImpl(ClientStreamConnection connection, Socket socket,
-			short activity, short version) throws IOException {
-		super(socket, activity, version);
+	public TransferSocketImpl(ClientStreamConnection connection, Socket socket,
+			short transfer, short version) throws IOException {
+		super(socket, transfer, version);
 		this.connection = connection;
 	}
 

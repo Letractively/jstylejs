@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.rayson.api.ActivitySocket;
+import org.rayson.api.TransferSocket;
 import org.rayson.api.RpcProxy;
 import org.rayson.api.ServerProxy;
 import org.rayson.exception.IllegalServiceException;
@@ -24,9 +24,9 @@ public final class Rayson {
 				serverAddress);
 	}
 
-	public static ActivitySocket openActivitySocket(SocketAddress serverAddress,
-			short activity) throws IOException, ServiceNotFoundException {
-		return CLIENT.openActivitySocket(serverAddress, activity);
+	public static TransferSocket openTransferSocket(SocketAddress serverAddress,
+			short transfer) throws IOException, ServiceNotFoundException {
+		return CLIENT.openTransferSocket(serverAddress, transfer);
 	}
 
 	public static ServerProxy getServerProxy(SocketAddress serverAddress) {

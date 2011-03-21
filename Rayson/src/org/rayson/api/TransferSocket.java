@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-public interface ActivitySocket {
+public interface TransferSocket {
 
 	public DataInput getDataInput();
 
@@ -23,7 +23,7 @@ public interface ActivitySocket {
 
 	public void close() throws IOException;
 
-	public short getActivity();
+	public short getTransfer();
 
 	public short getVersion();
 

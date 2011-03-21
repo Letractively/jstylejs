@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.rayson.annotation.Proxy;
-import org.rayson.api.ActivitySocket;
+import org.rayson.api.TransferSocket;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.TestProxy;
@@ -76,12 +76,12 @@ public class Demo {
 			}
 		}
 
-		// Test activity socekt
+		// Test transfer socekt
 
-		ActivitySocket activitySocket = Rayson.openActivitySocket(
+		TransferSocket transferSocket = Rayson.openTransferSocket(
 				serverAddress, (short) 10);
 
-		activitySocket.getDataOutput().writeInt(1456);
+		transferSocket.getDataOutput().writeInt(1456);
 
 		Thread.sleep(100000);
 

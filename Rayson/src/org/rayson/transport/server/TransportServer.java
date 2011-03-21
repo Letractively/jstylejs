@@ -3,10 +3,10 @@ package org.rayson.transport.server;
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 
-import org.rayson.api.ActivityService;
+import org.rayson.api.TransferService;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.transport.api.ServiceAlreadyExistedException;
-import org.rayson.transport.server.activity.ActivityConnector;
+import org.rayson.transport.server.transfer.TransferConnector;
 
 public abstract class TransportServer {
 	public static final int PORT_NUMBER = 4465;
@@ -15,14 +15,14 @@ public abstract class TransportServer {
 	private PacketManager packetManager;
 	protected int portNumer;
 	protected ServerSocketChannel socketChannel;
-	private ActivityConnector activityConnector;
+	private TransferConnector transferConnector;
 
 	TransportServer(int portNum) {
 		this.portNumer = portNum;
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
 		connector = new RpcConnector(this);
-		activityConnector = new ActivityConnector();
+		transferConnector = new TransferConnector();
 	}
 
 	ConnectionManager getConnectionManager() {
@@ -33,8 +33,8 @@ public abstract class TransportServer {
 		return connector;
 	}
 
-	ActivityConnector getActivityConnector() {
-		return activityConnector;
+	TransferConnector getTransferConnector() {
+		return transferConnector;
 	}
 
 	PacketManager getPacketManager() {
@@ -45,9 +45,9 @@ public abstract class TransportServer {
 		return portNumer;
 	}
 
-	public void registerService(ActivityService service)
+	public void registerService(TransferService service)
 			throws ServiceAlreadyExistedException, IllegalServiceException {
-		this.activityConnector.registerService(service);
+		this.transferConnector.registerService(service);
 	}
 
 	ServerSocketChannel getSocketChannel() {

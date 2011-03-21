@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 
-import org.rayson.api.ActivitySocket;
+import org.rayson.api.TransferSocket;
 import org.rayson.client.ClientCall;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.ServiceNotFoundException;
@@ -149,9 +149,9 @@ public class RpcConnector {
 
 	}
 
-	public ActivitySocket openActivitySocket(SocketAddress serverAddress,
-			short activity) throws ConnectException, IOException,
+	public TransferSocket openTransferSocket(SocketAddress serverAddress,
+			short transfer) throws ConnectException, IOException,
 			ServiceNotFoundException {
-		return client.createActivitySocket(serverAddress, activity);
+		return client.createTransferSocket(serverAddress, transfer);
 	}
 }

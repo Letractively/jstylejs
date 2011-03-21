@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 
-import org.rayson.api.ActivitySocket;
+import org.rayson.api.TransferSocket;
 import org.rayson.api.RpcProxy;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.Session;
@@ -183,10 +183,10 @@ class RpcClient {
 				.sumbitCall(serverAddress, call);
 	}
 
-	public ActivitySocket openActivitySocket(SocketAddress serverAddress, short activity)
+	public TransferSocket openTransferSocket(SocketAddress serverAddress, short transfer)
 			throws IOException, ServiceNotFoundException {
 		return TransportClient.getSingleton().getConnector()
-				.openActivitySocket(serverAddress, activity);
+				.openTransferSocket(serverAddress, transfer);
 	}
 
 }

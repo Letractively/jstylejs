@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.rayson.api.ActivityService;
+import org.rayson.api.TransferService;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Session;

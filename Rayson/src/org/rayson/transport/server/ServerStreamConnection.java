@@ -10,9 +10,9 @@ import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ProtocolType;
-import org.rayson.transport.server.activity.ActivityCallException;
-import org.rayson.transport.server.activity.ActivityConnector;
-import org.rayson.transport.stream.ActivityResponse;
+import org.rayson.transport.server.transfer.TransferCallException;
+import org.rayson.transport.server.transfer.TransferConnector;
+import org.rayson.transport.stream.TransferResponse;
 import org.rayson.util.Log;
 
 class ServerStreamConnection extends TimeLimitConnection {
@@ -25,22 +25,22 @@ class ServerStreamConnection extends TimeLimitConnection {
 	private boolean readedConnectHeader = false;
 	private SelectionKey selectionKey;
 	private short version = -1;
-	private short activity;
-	private ActivityResponse activityResponse;
-	private ByteBuffer activityBuffer;
-	private boolean readActivity = false;
+	private short transfer;
+	private TransferResponse transferResponse;
+	private ByteBuffer transferBuffer;
+	private boolean readTransfer = false;
 	private ConnectionManager connectionManager;
-	private ActivityConnector activityConnector;
+	private TransferConnector transferConnector;
 
 	public ServerStreamConnection(long id, SocketChannel socketChannel,
 			SelectionKey selectionKey, ConnectionManager connectionManager,
-			ActivityConnector activityConnector) {
+			TransferConnector transferConnector) {
 		this.id = id;
 		this.socketChannel = socketChannel;
 		this.connectionManager = connectionManager;
-		this.activityConnector = activityConnector;
+		this.transferConnector = transferConnector;
 		this.selectionKey = selectionKey;
-		activityBuffer = ByteBuffer.allocate(2);
+		transferBuffer = ByteBuffer.allocate(2);
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH - 1);// header length
 		// -protocol
@@ -78,22 +78,22 @@ class ServerStreamConnection extends TimeLimitConnection {
 	@Override
 	public int read() throws IOException {
 		if (readedConnectHeader) {
-			if (!readActivity) {
-				this.socketChannel.read(activityBuffer);
-				if (!this.activityBuffer.hasRemaining()) {
-					this.activityBuffer.flip();
-					this.activity = this.activityBuffer.getShort();
-					boolean serviceExists = this.activityConnector
-							.serviceExists(this.activity);
-					// set activity response code
+			if (!readTransfer) {
+				this.socketChannel.read(transferBuffer);
+				if (!this.transferBuffer.hasRemaining()) {
+					this.transferBuffer.flip();
+					this.transfer = this.transferBuffer.getShort();
+					boolean serviceExists = this.transferConnector
+							.serviceExists(this.transfer);
+					// set transfer response code
 					if (serviceExists)
 
-						setActivityResponse(ActivityResponse.OK);
+						setTransferResponse(TransferResponse.OK);
 					else
-						setActivityResponse(ActivityResponse.NO_ACTIVITY_FOUND);
+						setTransferResponse(TransferResponse.NO_ACTIVITY_FOUND);
 					this.selectionKey.interestOps(SelectionKey.OP_WRITE
 							| SelectionKey.OP_READ);
-					this.readActivity = true;
+					this.readTransfer = true;
 					return 2;
 				}
 
@@ -106,15 +106,15 @@ class ServerStreamConnection extends TimeLimitConnection {
 		}
 	}
 
-	private void setActivityResponse(ActivityResponse response) {
-		this.activityResponse = response;
+	private void setTransferResponse(TransferResponse response) {
+		this.transferResponse = response;
 		this.connectResponseBuffer.clear();
 		this.connectResponseBuffer.put(response.getCode());
 		this.connectResponseBuffer.clear();
 	}
 
-	public short getActivity() {
-		return this.activity;
+	public short getTransfer() {
+		return this.transfer;
 	}
 
 	private ConnectionState connectionState;
@@ -150,11 +150,11 @@ class ServerStreamConnection extends TimeLimitConnection {
 	@Override
 	public void write() throws IOException {
 		if (wroteConnectCode) {
-			// write activity response code.
+			// write transfer response code.
 			this.socketChannel.write(connectResponseBuffer);
 			if (!this.connectResponseBuffer.hasRemaining()) {
 				// try close this connection itself.
-				switch (activityResponse) {
+				switch (transferResponse) {
 				case NO_ACTIVITY_FOUND:
 				case UNKNOWN:
 					try {
@@ -168,13 +168,13 @@ class ServerStreamConnection extends TimeLimitConnection {
 					this.selectionKey.cancel();
 					// set socket channel to blocked mode.
 					this.socketChannel.configureBlocking(true);
-					// // add a new activityCall.
+					// // add a new transferCall.
 					try {
-						this.activityConnector.submitCall(
-								this.activity,
-								new ActivitySocketImpl(this, this.socketChannel
-										.socket(), activity, version));
-					} catch (ActivityCallException e) {
+						this.transferConnector.submitCall(
+								this.transfer,
+								new TransferSocketImpl(this, this.socketChannel
+										.socket(), transfer, version));
+					} catch (TransferCallException e) {
 						throw new IOException(e);
 					}
 				default:
@@ -220,8 +220,8 @@ class ServerStreamConnection extends TimeLimitConnection {
 		sb.append(this.getVersion());
 		sb.append(", last contact: ");
 		sb.append(getLastContactTime());
-		sb.append(", activity: ");
-		sb.append(this.activity);
+		sb.append(", transfer: ");
+		sb.append(this.transfer);
 		sb.append("}");
 		return sb.toString();
 	}
