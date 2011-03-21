@@ -156,13 +156,13 @@ class ServerStreamConnection extends TimeLimitConnection {
 					// remove selection key.
 					this.selectionKey.cancel();
 					// set socket channel to blocked mode.
-					this.socketChannel.configureBlocking(true);
-					// add a new activityCall.
-					ActivityCall activityCall = new ActivityCall(
-							new ActivitySocketImpl(this,
-									socketChannel.socket(), activity, version));
-					// test activity process.
-					activityCall.testProcess();
+					// this.socketChannel.configureBlocking(true);
+					// // add a new activityCall.
+					// ActivityCall activityCall = new ActivityCall(
+					// new ActivitySocketImpl(this,
+					// socketChannel.socket(), activity, version));
+					// // test activity process.
+					// activityCall.testProcess();
 				default:
 					break;
 				}
