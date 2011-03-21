@@ -5,7 +5,6 @@ import org.rayson.api.RpcService;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Session;
-import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 
 @Proxy(ServerProxy.class)
@@ -14,10 +13,10 @@ public interface ServerService extends RpcService {
 	public static final String DESCRIPTION = "Rpc server default service";
 
 	public ServiceRegistration find(Session session, String serviceName)
-			throws ServiceNotFoundException, RpcException;
+			throws ServiceNotFoundException;
 
-	public ServiceRegistration[] list(Session session) throws RpcException;
+	public ServiceRegistration[] list(Session session);
 
-	public String getServerInfo(Session session) throws RpcException;
+	public String getServerInfo(Session session);
 
 }

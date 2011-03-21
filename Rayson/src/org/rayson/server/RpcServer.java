@@ -84,7 +84,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 
 	public void registerService(ActivityService service)
 			throws ServiceAlreadyExistedException, IllegalServiceException {
-		
+
 	}
 
 	public void registerService(String serviceName, String description,
@@ -116,7 +116,7 @@ class RpcServer extends TransportServerImpl implements ServerService {
 	}
 
 	@Override
-	public String getServerInfo(Session session) throws RpcException {
+	public String getServerInfo(Session session) {
 		return "Rpc server";
 	}
 }
