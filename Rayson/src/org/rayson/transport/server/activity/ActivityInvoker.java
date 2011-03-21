@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import org.rayson.api.ActivityService;
 import org.rayson.api.ActivitySocket;
 
-public class ActivityInvoker {
+class ActivityInvoker {
 
 	private short activity;
 

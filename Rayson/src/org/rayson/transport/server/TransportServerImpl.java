@@ -37,6 +37,7 @@ public class TransportServerImpl extends TransportServer {
 		this.listener = new Listener(this);
 		this.listener.start();
 		this.getConnectionManager().start();
+		this.getActivityConnector().start();
 		LOGGER.info("Server " + this.toString() + " started....");
 	}
 

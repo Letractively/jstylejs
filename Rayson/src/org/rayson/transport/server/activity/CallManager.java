@@ -2,7 +2,7 @@ package org.rayson.transport.server.activity;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class CallManager {
+class CallManager {
 
 	private LinkedBlockingQueue<ActivityCall> callQueue;
 

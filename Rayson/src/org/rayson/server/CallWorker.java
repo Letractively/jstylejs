@@ -29,10 +29,10 @@ class CallWorker extends Thread {
 
 		while (true) {
 			try {
-				ServerCall call = this.server.getConnector().takeCall();
+				ServerCall call = this.server.getRpcConnector().takeCall();
 				this.server.invokeCall(call);
 				try {
-					this.server.getConnector().responseCall(call.getId(),
+					this.server.getRpcConnector().responseCall(call.getId(),
 							call.getResponsePacket());
 				} catch (Throwable e) {
 					LOGGER.log(Level.SEVERE, "Response call " + call.getId()

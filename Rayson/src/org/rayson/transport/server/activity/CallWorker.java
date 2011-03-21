@@ -1,6 +1,6 @@
 package org.rayson.transport.server.activity;
 
-public class CallWorker extends Thread {
+class CallWorker extends Thread {
 
 	private CallManager manager;
 
@@ -15,7 +15,7 @@ public class CallWorker extends Thread {
 				ActivityCall call = manager.take();
 				try {
 					call.process();
-				} catch (CallException e) {
+				} catch (ActivityCallException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

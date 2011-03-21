@@ -10,6 +10,8 @@ import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.ConnectionState;
 import org.rayson.transport.common.ProtocolType;
+import org.rayson.transport.server.activity.ActivityCallException;
+import org.rayson.transport.server.activity.ActivityConnector;
 import org.rayson.transport.stream.ActivityResponse;
 import org.rayson.util.Log;
 
@@ -28,12 +30,15 @@ class ServerStreamConnection extends TimeLimitConnection {
 	private ByteBuffer activityBuffer;
 	private boolean readActivity = false;
 	private ConnectionManager connectionManager;
+	private ActivityConnector activityConnector;
 
 	public ServerStreamConnection(long id, SocketChannel socketChannel,
-			SelectionKey selectionKey, ConnectionManager connectionManager) {
+			SelectionKey selectionKey, ConnectionManager connectionManager,
+			ActivityConnector activityConnector) {
 		this.id = id;
 		this.socketChannel = socketChannel;
 		this.connectionManager = connectionManager;
+		this.activityConnector = activityConnector;
 		this.selectionKey = selectionKey;
 		activityBuffer = ByteBuffer.allocate(2);
 		connectHeaderBuffer = ByteBuffer
@@ -156,13 +161,16 @@ class ServerStreamConnection extends TimeLimitConnection {
 					// remove selection key.
 					this.selectionKey.cancel();
 					// set socket channel to blocked mode.
-					// this.socketChannel.configureBlocking(true);
+					this.socketChannel.configureBlocking(true);
 					// // add a new activityCall.
-					// ActivityCall activityCall = new ActivityCall(
-					// new ActivitySocketImpl(this,
-					// socketChannel.socket(), activity, version));
-					// // test activity process.
-					// activityCall.testProcess();
+					try {
+						this.activityConnector.submitCall(
+								this.activity,
+								new ActivitySocketImpl(this, this.socketChannel
+										.socket(), activity, version));
+					} catch (ActivityCallException e) {
+						throw new IOException(e);
+					}
 				default:
 					break;
 				}

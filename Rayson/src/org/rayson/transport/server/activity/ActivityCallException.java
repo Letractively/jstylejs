@@ -1,8 +1,8 @@
 package org.rayson.transport.server.activity;
 
-class CallException extends Exception {
+public class ActivityCallException extends Exception {
 
-	public CallException(Throwable cause) {
+	public ActivityCallException(Throwable cause) {
 		super(cause);
 	}
 
