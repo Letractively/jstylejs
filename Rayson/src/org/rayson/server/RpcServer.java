@@ -13,9 +13,9 @@ import org.rayson.api.Session;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.exception.IllegalServiceException;
-import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.ServiceDescriptionImpl;
+import org.rayson.transport.api.ServiceAlreadyExistedException;
 import org.rayson.transport.server.TransportServerImpl;
 
 class RpcServer extends TransportServerImpl implements ServerService {
@@ -80,11 +80,6 @@ class RpcServer extends TransportServerImpl implements ServerService {
 					.getDescription(), service.getProtocols()));
 		}
 		return list.toArray(new ServiceDescriptionImpl[0]);
-	}
-
-	public void registerService(ActivityService service)
-			throws ServiceAlreadyExistedException, IllegalServiceException {
-
 	}
 
 	public void registerService(String serviceName, String description,

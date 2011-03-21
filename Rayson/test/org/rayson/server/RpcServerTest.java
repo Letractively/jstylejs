@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.rayson.exception.IllegalServiceException;
+import org.rayson.transport.api.ServiceAlreadyExistedException;
 import org.rayson.transport.server.TransportServer;
 
 public class RpcServerTest {
@@ -17,6 +18,7 @@ public class RpcServerTest {
 
 			rpcServer.registerService("demo", "Demo service",
 					new TestServiceImpl());
+			rpcServer.registerService(new TestActivityService());
 		} catch (ServiceAlreadyExistedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

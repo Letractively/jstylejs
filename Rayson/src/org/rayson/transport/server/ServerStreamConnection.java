@@ -83,8 +83,14 @@ class ServerStreamConnection extends TimeLimitConnection {
 				if (!this.activityBuffer.hasRemaining()) {
 					this.activityBuffer.flip();
 					this.activity = this.activityBuffer.getShort();
+					boolean serviceExists = this.activityConnector
+							.serviceExists(this.activity);
 					// set activity response code
-					setActivityResponse(ActivityResponse.OK);
+					if (serviceExists)
+
+						setActivityResponse(ActivityResponse.OK);
+					else
+						setActivityResponse(ActivityResponse.NO_ACTIVITY_FOUND);
 					this.selectionKey.interestOps(SelectionKey.OP_WRITE
 							| SelectionKey.OP_READ);
 					this.readActivity = true;
@@ -149,7 +155,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 			if (!this.connectResponseBuffer.hasRemaining()) {
 				// try close this connection itself.
 				switch (activityResponse) {
-				case NO_ACTIVITY:
+				case NO_ACTIVITY_FOUND:
 				case UNKNOWN:
 					try {
 						this.close();

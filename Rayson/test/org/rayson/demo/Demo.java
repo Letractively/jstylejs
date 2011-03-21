@@ -6,13 +6,11 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
 
 import org.rayson.annotation.Proxy;
 import org.rayson.api.ActivitySocket;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.ServiceRegistration;
-import org.rayson.api.Session;
 import org.rayson.api.TestProxy;
 import org.rayson.client.Rayson;
 import org.rayson.exception.CallException;
@@ -81,7 +79,9 @@ public class Demo {
 		// Test activity socekt
 
 		ActivitySocket activitySocket = Rayson.openActivitySocket(
-				serverAddress, (short) 1);
+				serverAddress, (short) 10);
+
+		activitySocket.getDataOutput().writeInt(1456);
 
 		Thread.sleep(100000);
 

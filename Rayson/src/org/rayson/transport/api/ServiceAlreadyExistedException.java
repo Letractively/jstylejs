@@ -1,6 +1,6 @@
-package org.rayson.server;
+package org.rayson.transport.api;
 
-class ServiceAlreadyExistedException extends Exception {
+public class ServiceAlreadyExistedException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 

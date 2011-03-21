@@ -3,6 +3,9 @@ package org.rayson.transport.server;
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 
+import org.rayson.api.ActivityService;
+import org.rayson.exception.IllegalServiceException;
+import org.rayson.transport.api.ServiceAlreadyExistedException;
 import org.rayson.transport.server.activity.ActivityConnector;
 
 public abstract class TransportServer {
@@ -40,6 +43,11 @@ public abstract class TransportServer {
 
 	public int getPortNumer() {
 		return portNumer;
+	}
+
+	public void registerService(ActivityService service)
+			throws ServiceAlreadyExistedException, IllegalServiceException {
+		this.activityConnector.registerService(service);
 	}
 
 	ServerSocketChannel getSocketChannel() {

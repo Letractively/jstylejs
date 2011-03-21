@@ -7,5 +7,4 @@ public final class IllegalServiceException extends Exception {
 	public IllegalServiceException(String message) {
 		super(message);
 	}
-
 }

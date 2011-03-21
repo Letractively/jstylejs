@@ -1,7 +1,7 @@
 package org.rayson.transport.stream;
 
 public enum ActivityResponse {
-	OK((byte) 1), NO_ACTIVITY((byte) 2), UNKNOWN((byte) -1);
+	OK((byte) 1), NO_ACTIVITY_FOUND((byte) 2), UNKNOWN((byte) -1);
 	private ActivityResponse(byte code) {
 		this.code = code;
 	}
@@ -17,7 +17,7 @@ public enum ActivityResponse {
 		case 1:
 			return OK;
 		case 2:
-			return NO_ACTIVITY;
+			return NO_ACTIVITY_FOUND;
 		default:
 			return UNKNOWN;
 		}
