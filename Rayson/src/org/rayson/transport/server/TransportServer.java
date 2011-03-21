@@ -2,6 +2,9 @@ package org.rayson.transport.server;
 
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
+import java.util.HashMap;
+
+import org.rayson.transport.server.activity.ActivityInvoker;
 
 public abstract class TransportServer {
 	public static final int PORT_NUMBER = 4465;
@@ -11,8 +14,12 @@ public abstract class TransportServer {
 	protected int portNumer;
 	protected ServerSocketChannel socketChannel;
 
+	@SuppressWarnings("unused")
+	private HashMap<Short, ActivityInvoker> activityInvokers;
+
 	TransportServer(int portNum) {
 		this.portNumer = portNum;
+		activityInvokers = new HashMap<Short, ActivityInvoker>();
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
 		connector = new RpcConnector(this);

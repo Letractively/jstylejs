@@ -8,8 +8,12 @@ import org.rayson.api.ActivitySocket;
 
 public class ActivityInvoker {
 
-	public ActivityInvoker(ActivityService service, Method method) {
+	private short activity;
+
+	public ActivityInvoker(short activity, ActivityService service,
+			Method method) {
 		super();
+		this.activity = activity;
 		this.service = service;
 		this.method = method;
 	}
@@ -23,4 +27,7 @@ public class ActivityInvoker {
 		this.method.invoke(service, activitySocket);
 	}
 
+	public short getActivity() {
+		return activity;
+	}
 }
