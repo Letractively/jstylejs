@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.rayson.annotation.Transfer;
+import org.rayson.annotation.TransferCode;
 import org.rayson.api.TransferService;
 import org.rayson.api.TransferSocket;
 import org.rayson.exception.IllegalServiceException;
@@ -60,8 +60,8 @@ public class TransferConnector {
 		try {
 			Method processMethod = serviceClass.getMethod(PROCESS_METHOD_NAME,
 					PROCESS_METHOD_PARATYPE);
-			Transfer transferAnnotation = processMethod
-					.getAnnotation(Transfer.class);
+			TransferCode transferAnnotation = processMethod
+					.getAnnotation(TransferCode.class);
 			if (transferAnnotation == null)
 				throw new IllegalServiceException(
 						"No transfer annotation found in service method "
