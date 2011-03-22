@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 import org.rayson.transport.api.Connection;
 import org.rayson.transport.api.TimeLimitConnection;
-import org.rayson.transport.common.PacketConnection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.util.Log;
 
