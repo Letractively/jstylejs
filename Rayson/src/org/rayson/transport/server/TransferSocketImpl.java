@@ -12,7 +12,7 @@ class TransferSocketImpl extends AbstractTransferSocket {
 
 	public TransferSocketImpl(ServerStreamConnection connection, Socket socket,
 			short transfer, short version) throws IOException {
-		super(socket, transfer, version);
+		super(connection, socket, transfer, version);
 		this.connection = connection;
 		closed = new AtomicBoolean(false);
 	}

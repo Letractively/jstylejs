@@ -4,25 +4,16 @@ import java.io.DataInput;
 import java.io.IOException;
 
 import org.rayson.api.TransferSocket;
+import org.rayson.transport.api.TimeLimitConnection;
 
-class DataInputImpl implements DataInput {
+class DataInputImpl extends DataStreamer implements DataInput {
 
 	private DataInput innerInput;
-	private TransferSocket transferSocket;
 
-	public DataInputImpl(DataInput dataInput,
-			TransferSocket transferSocket) {
+	public DataInputImpl(DataInput dataInput, TransferSocket transferSocket,
+			TimeLimitConnection connection) {
+		super(transferSocket, connection);
 		this.innerInput = dataInput;
-		this.transferSocket = transferSocket;
-	}
-
-	private void catchIOException(IOException e) throws IOException {
-		try {
-			this.transferSocket.close();
-		} finally {
-
-		}
-		throw e;
 	}
 
 	@Override
@@ -31,6 +22,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readBoolean();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return false;
 	}
@@ -41,6 +34,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readByte();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -51,6 +46,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readChar();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -61,6 +58,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readDouble();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -71,6 +70,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readFloat();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -81,6 +82,8 @@ class DataInputImpl implements DataInput {
 			innerInput.readFully(b);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -91,6 +94,8 @@ class DataInputImpl implements DataInput {
 			innerInput.readFully(b);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -101,6 +106,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readInt();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -111,6 +118,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readLine();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return null;
 	}
@@ -121,6 +130,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readLong();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -131,6 +142,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readShort();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -141,6 +154,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readUnsignedByte();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -151,6 +166,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readUnsignedShort();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}
@@ -161,6 +178,8 @@ class DataInputImpl implements DataInput {
 			return innerInput.readUTF();
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return null;
 	}
@@ -171,6 +190,8 @@ class DataInputImpl implements DataInput {
 			innerInput.skipBytes(n);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 		return 0;
 	}

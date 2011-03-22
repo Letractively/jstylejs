@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 
 import org.rayson.api.TransferSocket;
+import org.rayson.transport.api.TimeLimitConnection;
 
 public abstract class AbstractTransferSocket implements TransferSocket {
 
@@ -18,15 +19,15 @@ public abstract class AbstractTransferSocket implements TransferSocket {
 	private short transfer;
 	private short version;
 
-	protected AbstractTransferSocket(Socket socket, short transfer,
-			short version) throws IOException {
+	protected AbstractTransferSocket(TimeLimitConnection connection,
+			Socket socket, short transfer, short version) throws IOException {
 		this.socket = socket;
 		this.version = version;
 		this.transfer = transfer;
 		this.dataInput = new DataInputImpl(new DataInputStream(
-				this.socket.getInputStream()), this);
+				this.socket.getInputStream()), this, connection);
 		this.dataOutput = new DataOutputImpl(new DataOutputStream(
-				this.socket.getOutputStream()), this);
+				this.socket.getOutputStream()), this, connection);
 	}
 
 	@Override

@@ -4,24 +4,16 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.rayson.api.TransferSocket;
+import org.rayson.transport.api.TimeLimitConnection;
 
-class DataOutputImpl implements DataOutput {
+class DataOutputImpl extends DataStreamer implements DataOutput {
 
 	private DataOutput innerOutput;
-	private TransferSocket transferSocket;
 
-	public DataOutputImpl(DataOutput dataOutput, TransferSocket transferSocket) {
+	public DataOutputImpl(DataOutput dataOutput, TransferSocket transferSocket,
+			TimeLimitConnection connection) {
+		super(transferSocket, connection);
 		this.innerOutput = dataOutput;
-		this.transferSocket = transferSocket;
-	}
-
-	private void catchIOException(IOException e) throws IOException {
-		try {
-			this.transferSocket.close();
-		} finally {
-
-		}
-		throw e;
 	}
 
 	@Override
@@ -30,6 +22,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.write(b);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 	}
 
@@ -39,6 +33,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.write(b);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -49,6 +45,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.write(b);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -59,6 +57,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeBoolean(v);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -69,6 +69,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeByte(v);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -79,6 +81,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeBytes(s);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -89,6 +93,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeChar(v);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -99,6 +105,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeChars(s);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -109,6 +117,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeDouble(v);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -119,6 +129,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeFloat(v);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -129,6 +141,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeInt(v);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -139,6 +153,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeLong(v);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -149,6 +165,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeShort(v);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
@@ -159,6 +177,8 @@ class DataOutputImpl implements DataOutput {
 			innerOutput.writeUTF(s);
 		} catch (IOException e) {
 			catchIOException(e);
+		} finally {
+			touch();
 		}
 
 	}
