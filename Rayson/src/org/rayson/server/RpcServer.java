@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.rayson.api.TransferService;
 import org.rayson.api.RpcService;
 import org.rayson.api.ServiceRegistration;
 import org.rayson.api.Session;
@@ -18,12 +17,12 @@ import org.rayson.impl.ServiceDescriptionImpl;
 import org.rayson.transport.api.ServiceAlreadyExistedException;
 import org.rayson.transport.server.TransportServerImpl;
 
-class RpcServer extends TransportServerImpl implements ServerService {
+public class RpcServer extends TransportServerImpl implements ServerService {
 	private static final int DEFAULT_WORKER_COUNT = 4;
 
 	private HashMap<String, Service> services;
 
-	RpcServer(int portNum) {
+	protected RpcServer(int portNum) {
 		super(portNum);
 		services = new HashMap<String, Service>();
 	}
