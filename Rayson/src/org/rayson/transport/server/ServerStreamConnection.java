@@ -91,14 +91,16 @@ class ServerStreamConnection extends TimeLimitConnection {
 						setTransferResponse(TransferResponse.OK);
 					else
 						setTransferResponse(TransferResponse.NO_ACTIVITY_FOUND);
+					transferBuffer.clear();
 					this.selectionKey.interestOps(SelectionKey.OP_WRITE
 							| SelectionKey.OP_READ);
 					this.readTransfer = true;
 					return 2;
 				}
-
+			} else {
+				// read argument.
 			}
-			// TODO:
+
 			return 0;
 		} else {
 			init();
@@ -157,6 +159,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 				switch (transferResponse) {
 				case NO_ACTIVITY_FOUND:
 				case UNKNOWN:
+				case ARGUMENT_ERROR:
 					try {
 						this.close();
 					} catch (IOException e) {
