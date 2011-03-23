@@ -12,14 +12,14 @@ public class TransportServerImpl extends TransportServer {
 	private static final int version = 1;
 
 	public static void main(String[] args) throws IOException {
-		TransportServerImpl server = new TransportServerImpl(PORT_NUMBER);
+		TransportServerImpl server = new TransportServerImpl();
 		server.start();
 	}
 
 	private Listener listener;
 
-	protected TransportServerImpl(int portNum) {
-		super(portNum);
+	protected TransportServerImpl() {
+		super();
 	}
 
 	@Override

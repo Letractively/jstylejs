@@ -7,13 +7,12 @@ import java.io.IOException;
 import org.junit.Test;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.transport.api.ServiceAlreadyExistedException;
-import org.rayson.transport.server.TransportServer;
 
 public class RpcServerTest {
 
 	public static void startTestServer() {
 		try {
-			RpcServer rpcServer = new RpcServer(TransportServer.PORT_NUMBER);
+			RpcServer rpcServer = new RpcServer();
 			rpcServer.start();
 
 			rpcServer.registerService("demo", "Demo service",

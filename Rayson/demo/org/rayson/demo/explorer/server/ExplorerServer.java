@@ -4,15 +4,17 @@ import java.io.IOException;
 
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.server.RpcServer;
+import org.rayson.server.ServerConfig;
 import org.rayson.transport.api.ServiceAlreadyExistedException;
 
+@ServerConfig(portNumber = 4466)
 class ExplorerServer extends RpcServer {
 	private static final String SERVICE_NAME = "explorer";
 	private static final String SERVICE_DESC = "explorer file";
 	private static final String ROOT_PATH = "/";
 
 	ExplorerServer() {
-		super(RpcServer.PORT_NUMBER);
+		super();
 	}
 
 	@Override

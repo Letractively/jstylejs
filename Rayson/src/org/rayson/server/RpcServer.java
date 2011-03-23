@@ -22,8 +22,8 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 
 	private HashMap<String, Service> services;
 
-	protected RpcServer(int portNum) {
-		super(portNum);
+	protected RpcServer() {
+		super();
 		services = new HashMap<String, Service>();
 	}
 
