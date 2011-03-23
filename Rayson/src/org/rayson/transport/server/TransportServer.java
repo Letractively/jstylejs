@@ -8,21 +8,19 @@ import org.rayson.exception.IllegalServiceException;
 import org.rayson.transport.api.ServiceAlreadyExistedException;
 import org.rayson.transport.server.transfer.TransferConnector;
 
+@ServerConfig()
 public abstract class TransportServer {
-	public static final int PORT_NUMBER = 4465;
 	private ConnectionManager connectionManager;
 	private RpcConnector connector;
 	private PacketManager packetManager;
 	protected int portNumer;
 	protected ServerSocketChannel socketChannel;
 	private TransferConnector transferConnector;
+	private ServerConfig config;
 
 	TransportServer() {
-		int portNumber = PORT_NUMBER;
-		ServerConfig config = this.getClass().getAnnotation(ServerConfig.class);
-		if (config != null && config.portNumber() > 0)
-			portNumber = config.portNumber();
-		this.portNumer = portNumber;
+		config = this.getClass().getAnnotation(ServerConfig.class);
+		this.portNumer = config.portNumber();
 		packetManager = new PacketManager();
 		connectionManager = new ConnectionManager();
 		connector = new RpcConnector(this);
@@ -31,6 +29,10 @@ public abstract class TransportServer {
 
 	ConnectionManager getConnectionManager() {
 		return connectionManager;
+	}
+
+	ServerConfig getConfig() {
+		return config;
 	}
 
 	public RpcConnector getRpcConnector() {
