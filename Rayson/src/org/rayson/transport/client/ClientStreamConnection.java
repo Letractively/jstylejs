@@ -1,5 +1,7 @@
 package org.rayson.transport.client;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -7,7 +9,10 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import org.rayson.annotation.TransferCode;
+import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferSocket;
+import org.rayson.common.Stream;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.transport.common.ConnectionProtocol;
@@ -21,20 +26,25 @@ class ClientStreamConnection extends TimeLimitConnection {
 	private SocketAddress serverAddress;
 	private static final short version = 1;
 	private static final long TIME_OUT_INTERVAL = 60 * 1000;
+	private static final int BUFFER_SIZE = 1024;
 	private short transfer;
 	private SocketChannel socketChannel;
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
 	private AtomicBoolean closed;
 	private ConnectionManager connectionManager;
+	private TransferArgument argument;
 	private static Logger LOGGER = Log.getLogger();
 
-	public ClientStreamConnection(SocketAddress serverAddress, short transfer,
-			ConnectionManager connectionManager) {
+	public ClientStreamConnection(SocketAddress serverAddress,
+			TransferArgument argument, ConnectionManager connectionManager) {
 		this.id = ConnectionManager.getNextConnectionId();
 		this.connectionManager = connectionManager;
 		this.serverAddress = serverAddress;
-		this.transfer = transfer;
+		TransferCode transferCode = argument.getClass().getAnnotation(
+				TransferCode.class);
+		this.transfer = transferCode.value();
+		this.argument = argument;
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer
@@ -76,6 +86,20 @@ class ClientStreamConnection extends TimeLimitConnection {
 			if (response != TransferResponse.OK)
 				throw new ServiceNotFoundException("No transfer " + transfer
 						+ " service found in servder:" + response.name());
+			// then write argument to remote server.
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
+					BUFFER_SIZE);
+			DataOutputStream dataOutputStream = new DataOutputStream(
+					byteArrayOutputStream);
+			Stream.write(dataOutputStream, argument);
+			byte[] argumentData = byteArrayOutputStream.toByteArray();
+			ByteBuffer argumentBuffer = ByteBuffer
+					.allocate(2 + argumentData.length);
+			argumentBuffer.putShort((short) argumentData.length);
+			argumentBuffer.put(argumentData);
+			argumentBuffer.flip();
+			socketChannel.write(argumentBuffer);
+
 		} catch (IOException e) {
 			this.socketChannel.close();
 			throw e;

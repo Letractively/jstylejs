@@ -140,7 +140,7 @@ abstract class PortableObject<T> {
 			return Array.class;
 		}
 	};
-	private static final PortableObject<Portable> TRANSPORTABLE = new PortableObject<Portable>(
+	static final PortableObject<Portable> TRANSPORTABLE = new PortableObject<Portable>(
 			TRANSPORTABLE_TYPE) {
 
 		@Override
@@ -150,8 +150,7 @@ abstract class PortableObject<T> {
 			// Read value.
 			Portable transportable = null;
 			try {
-				transportable = (Portable) Reflection
-						.newInstance(className);
+				transportable = (Portable) Reflection.newInstance(className);
 			} catch (Exception e) {
 				new IOException(e);
 			}
@@ -160,8 +159,7 @@ abstract class PortableObject<T> {
 		}
 
 		@Override
-		public void write(DataOutput out, Portable value)
-				throws IOException {
+		public void write(DataOutput out, Portable value) throws IOException {
 			// Write class name.
 			out.writeUTF(value.getClass().getName());
 			// Write value.

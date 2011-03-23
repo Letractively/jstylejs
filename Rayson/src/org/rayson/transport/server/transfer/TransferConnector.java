@@ -1,11 +1,14 @@
 package org.rayson.transport.server.transfer;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.rayson.annotation.TransferCode;
+import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferService;
 import org.rayson.api.TransferSocket;
 import org.rayson.exception.IllegalServiceException;
@@ -18,7 +21,8 @@ public class TransferConnector {
 	private List<CallWorker> callWorkers;
 	private static final String PROCESS_METHOD_NAME = "process";
 
-	private static final Class<?> PROCESS_METHOD_PARATYPE = TransferSocket.class;
+	private static final Class<?>[] PROCESS_METHOD_PARATYPES = new Class<?>[] {
+			TransferArgument.class, TransferSocket.class };
 
 	public TransferConnector() {
 		transferInvokers = new HashMap<Short, TransferInvoker>();
@@ -59,13 +63,15 @@ public class TransferConnector {
 		Class<? extends TransferService> serviceClass = service.getClass();
 		try {
 			Method processMethod = serviceClass.getMethod(PROCESS_METHOD_NAME,
-					PROCESS_METHOD_PARATYPE);
-			TransferCode transferAnnotation = processMethod
-					.getAnnotation(TransferCode.class);
+					PROCESS_METHOD_PARATYPES);
+			Class<? extends TransferArgument> argumentType = (Class<? extends TransferArgument>) getGenericParameterType(serviceClass);
+			TransferCode transferAnnotation = null;
+			if (argumentType != null)
+				transferAnnotation = argumentType
+						.getAnnotation(TransferCode.class);
 			if (transferAnnotation == null)
 				throw new IllegalServiceException(
-						"No transfer annotation found in service method "
-								+ PROCESS_METHOD_NAME + "()");
+						"No transfer annotation found in service generic type ");
 			short transfer = transferAnnotation.value();
 			TransferInvoker invoker = transferInvokers.get(transfer);
 			if (invoker != null)
@@ -78,6 +84,19 @@ public class TransferConnector {
 			throw new IllegalServiceException(e.getMessage());
 		}
 
+	}
+
+	private Type getGenericParameterType(
+			Class<? extends TransferService> serviceClass) {
+		Type[] ts = serviceClass.getGenericInterfaces();
+		for (Type t : ts) {
+			if (ParameterizedType.class.isAssignableFrom(t.getClass())) {
+				for (Type t1 : ((ParameterizedType) t).getActualTypeArguments()) {
+					return t1;
+				}
+			}
+		}
+		return null;
 	}
 
 	public boolean serviceExists(short transfer) {

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 
+import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferSocket;
 import org.rayson.client.ClientCall;
 import org.rayson.exception.NetWorkException;
@@ -150,8 +151,8 @@ public class RpcConnector {
 	}
 
 	public TransferSocket openTransferSocket(SocketAddress serverAddress,
-			short transfer) throws ConnectException, IOException,
+			TransferArgument argument) throws ConnectException, IOException,
 			ServiceNotFoundException {
-		return client.createTransferSocket(serverAddress, transfer);
+		return client.createTransferSocket(serverAddress, argument);
 	}
 }
