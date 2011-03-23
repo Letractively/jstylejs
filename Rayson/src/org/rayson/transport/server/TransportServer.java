@@ -5,7 +5,6 @@ import java.nio.channels.ServerSocketChannel;
 
 import org.rayson.api.TransferService;
 import org.rayson.exception.IllegalServiceException;
-import org.rayson.server.ServerConfig;
 import org.rayson.transport.api.ServiceAlreadyExistedException;
 import org.rayson.transport.server.transfer.TransferConnector;
 

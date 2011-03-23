@@ -1,10 +1,9 @@
-package org.rayson.server;
+package org.rayson.transport.server;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import org.rayson.annotation.Config;
-import org.rayson.transport.server.TransportServer;
 
 @Config
 @Retention(RetentionPolicy.RUNTIME)

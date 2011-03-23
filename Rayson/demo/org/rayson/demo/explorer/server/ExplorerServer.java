@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.server.RpcServer;
-import org.rayson.server.ServerConfig;
 import org.rayson.transport.api.ServiceAlreadyExistedException;
+import org.rayson.transport.server.ServerConfig;
 
 @ServerConfig(portNumber = 4466)
 class ExplorerServer extends RpcServer {
