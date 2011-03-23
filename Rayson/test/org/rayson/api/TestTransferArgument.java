@@ -8,17 +8,23 @@ import org.rayson.annotation.TransferCode;
 
 @TransferCode(10)
 public class TestTransferArgument implements TransferArgument {
+	private String path;
+
+	private TestTransferArgument() {
+	}
+
+	public TestTransferArgument(String path) {
+		this.path = path;
+	}
 
 	@Override
 	public void read(DataInput in) throws IOException {
-		// TODO Auto-generated method stub
-
+		this.path = in.readUTF();
 	}
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		// TODO Auto-generated method stub
-
+		out.writeUTF(path);
 	}
 
 }

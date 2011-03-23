@@ -30,15 +30,15 @@ public class TransferConnector {
 		callWorkers = new ArrayList<CallWorker>();
 	}
 
-	public void submitCall(short transfer, TransferSocket socket)
-			throws TransferCallException {
+	public void submitCall(short transfer, TransferArgument argument,
+			TransferSocket socket) throws TransferCallException {
 		TransferInvoker invoker = transferInvokers.get(transfer);
 		if (invoker == null)
 			throw new TransferCallException(
 					new IllegalStateException(
 							"Can not find transfer invoker assiosiated with"
 									+ transfer));
-		TransferCall call = new TransferCall(invoker, socket);
+		TransferCall call = new TransferCall(invoker, argument, socket);
 		try {
 			callManager.put(call);
 		} catch (InterruptedException e) {

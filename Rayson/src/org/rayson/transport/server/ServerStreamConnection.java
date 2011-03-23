@@ -1,11 +1,15 @@
 package org.rayson.transport.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.logging.Logger;
 
+import org.rayson.api.TransferArgument;
+import org.rayson.common.Stream;
 import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.transport.common.ConnectionProtocol;
 import org.rayson.transport.common.ConnectionState;
@@ -31,6 +35,9 @@ class ServerStreamConnection extends TimeLimitConnection {
 	private boolean readTransfer = false;
 	private ConnectionManager connectionManager;
 	private TransferConnector transferConnector;
+	private boolean readArgumentDataLength = false;
+	private ByteBuffer argumentBuffer;
+	private TransferArgument argument;
 
 	public ServerStreamConnection(long id, SocketChannel socketChannel,
 			SelectionKey selectionKey, ConnectionManager connectionManager,
@@ -77,9 +84,10 @@ class ServerStreamConnection extends TimeLimitConnection {
 
 	@Override
 	public int read() throws IOException {
+		int readCount = 0;
 		if (readedConnectHeader) {
 			if (!readTransfer) {
-				this.socketChannel.read(transferBuffer);
+				readCount = this.socketChannel.read(transferBuffer);
 				if (!this.transferBuffer.hasRemaining()) {
 					this.transferBuffer.flip();
 					this.transfer = this.transferBuffer.getShort();
@@ -92,19 +100,43 @@ class ServerStreamConnection extends TimeLimitConnection {
 					else
 						setTransferResponse(TransferResponse.NO_ACTIVITY_FOUND);
 					transferBuffer.clear();
-					this.selectionKey.interestOps(SelectionKey.OP_WRITE
-							| SelectionKey.OP_READ);
 					this.readTransfer = true;
 					return 2;
 				}
 			} else {
 				// read argument.
+				if (!readArgumentDataLength) {
+					readCount = this.socketChannel.read(transferBuffer);
+					if (!this.transferBuffer.hasRemaining()) {
+						this.transferBuffer.flip();
+						int dataLength = this.transferBuffer.getShort();
+						this.argumentBuffer = ByteBuffer.allocate(dataLength);
+						this.readArgumentDataLength = true;
+						return 2;
+					}
+				} else {
+					readCount = this.socketChannel.read(argumentBuffer);
+					if (!this.argumentBuffer.hasRemaining()) {
+						this.argumentBuffer.flip();
+						ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+								this.argumentBuffer.array());
+						DataInputStream dataInputStream = new DataInputStream(
+								byteArrayInputStream);
+						this.argument = (TransferArgument) Stream
+								.read(dataInputStream);
+						this.selectionKey.interestOps(SelectionKey.OP_WRITE
+								| SelectionKey.OP_READ);
+						this.readArgumentDataLength = true;
+						return argumentBuffer.capacity();
+					}
+
+				}
 			}
 
-			return 0;
+			return readCount;
 		} else {
 			init();
-			return 0;
+			return readCount;
 		}
 	}
 
@@ -173,10 +205,10 @@ class ServerStreamConnection extends TimeLimitConnection {
 					this.socketChannel.configureBlocking(true);
 					// // add a new transferCall.
 					try {
-						this.transferConnector.submitCall(
-								this.transfer,
-								new TransferSocketImpl(this, this.socketChannel
-										.socket(), transfer, version));
+						this.transferConnector.submitCall(this.transfer,
+								argument, new TransferSocketImpl(this,
+										this.socketChannel.socket(), transfer,
+										version));
 					} catch (TransferCallException e) {
 						throw new IOException(e);
 					}

@@ -3,16 +3,20 @@ package org.rayson.transport.server.transfer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferSocket;
 
 class TransferCall {
 
 	private TransferSocket transferSocket;
 	private TransferInvoker invoker;
+	private TransferArgument argument;
 
-	public TransferCall(TransferInvoker invoker, TransferSocket transferSocket) {
+	public TransferCall(TransferInvoker invoker, TransferArgument argument,
+			TransferSocket transferSocket) {
 		this.transferSocket = transferSocket;
 		this.invoker = invoker;
+		this.argument = argument;
 	}
 
 	/**
@@ -22,7 +26,7 @@ class TransferCall {
 	 */
 	public void process() throws TransferCallException {
 		try {
-			this.invoker.invoke(this.transferSocket);
+			this.invoker.invoke(this.argument, this.transferSocket);
 		} catch (Exception e) {
 			Throwable throwable = e;
 			if (e instanceof InvocationTargetException) {

@@ -77,15 +77,7 @@ class ClientStreamConnection extends TimeLimitConnection {
 			connectHeaderBuffer.putShort(transfer);
 			connectHeaderBuffer.flip();
 			this.socketChannel.write(connectHeaderBuffer);
-			// read response from remote
-			connectResponseBuffer.clear();
-			this.socketChannel.read(connectResponseBuffer);
-			connectResponseBuffer.flip();
-			TransferResponse response = TransferResponse
-					.valueOf(connectResponseBuffer.get());
-			if (response != TransferResponse.OK)
-				throw new ServiceNotFoundException("No transfer " + transfer
-						+ " service found in servder:" + response.name());
+
 			// then write argument to remote server.
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
 					BUFFER_SIZE);
@@ -99,6 +91,15 @@ class ClientStreamConnection extends TimeLimitConnection {
 			argumentBuffer.put(argumentData);
 			argumentBuffer.flip();
 			socketChannel.write(argumentBuffer);
+			// read response from remote
+			connectResponseBuffer.clear();
+			this.socketChannel.read(connectResponseBuffer);
+			connectResponseBuffer.flip();
+			TransferResponse response = TransferResponse
+					.valueOf(connectResponseBuffer.get());
+			if (response != TransferResponse.OK)
+				throw new ServiceNotFoundException("No transfer " + transfer
+						+ " service found in servder:" + response.name());
 
 		} catch (IOException e) {
 			this.socketChannel.close();

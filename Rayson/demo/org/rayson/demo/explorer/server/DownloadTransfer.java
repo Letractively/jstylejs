@@ -5,12 +5,14 @@ import java.io.IOException;
 import org.rayson.annotation.TransferCode;
 import org.rayson.api.TransferService;
 import org.rayson.api.TransferSocket;
+import org.rayson.demo.explorer.api.DownloadArgument;
 
-class DownloadTransfer implements TransferService {
+@TransferCode(1)
+class DownloadTransfer implements TransferService<DownloadArgument> {
 
 	@Override
-	@TransferCode(1)
-	public void process(TransferSocket socket) throws IOException {
+	public void process(DownloadArgument argument, TransferSocket socket)
+			throws IOException {
 
 	}
 

@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.rayson.annotation.Proxy;
+import org.rayson.api.TestTransferArgument;
 import org.rayson.api.TransferSocket;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.ServiceRegistration;
@@ -79,7 +80,7 @@ public class Demo {
 		// Test transfer socekt
 
 		TransferSocket transferSocket = Rayson.openTransferSocket(
-				serverAddress, (short) 10);
+				serverAddress, new TestTransferArgument("testPath"));
 
 		transferSocket.getDataOutput().writeInt(1456);
 

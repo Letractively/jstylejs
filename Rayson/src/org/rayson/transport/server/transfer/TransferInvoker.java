@@ -3,6 +3,7 @@ package org.rayson.transport.server.transfer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferService;
 import org.rayson.api.TransferSocket;
 
@@ -21,10 +22,10 @@ class TransferInvoker {
 	private TransferService service;
 	private Method method;
 
-	public void invoke(TransferSocket transferSocket)
+	public void invoke(TransferArgument argument, TransferSocket transferSocket)
 			throws IllegalArgumentException, IllegalAccessException,
 			InvocationTargetException {
-		this.method.invoke(service, transferSocket);
+		this.method.invoke(service, argument, transferSocket);
 	}
 
 	public short getTransfer() {

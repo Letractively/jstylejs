@@ -152,7 +152,7 @@ abstract class PortableObject<T> {
 			try {
 				transportable = (Portable) Reflection.newInstance(className);
 			} catch (Exception e) {
-				new IOException(e);
+				throw new IOException(e);
 			}
 			transportable.read(in);
 			return transportable;
