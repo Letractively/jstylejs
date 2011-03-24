@@ -33,7 +33,7 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 		Service service = getService(serviceName);
 		ServiceDescriptionImpl serviceDescription = new ServiceDescriptionImpl(
 				service.getName(), service.getDescription(),
-				service.getProtocols());
+				service.getProxys());
 		return serviceDescription;
 
 	}
@@ -54,13 +54,13 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 
 		Object result;
 		Invocation invocation = call.getInvocation();
-		RpcService serviceObject;
+		Service serviceObject;
 
 		Session session = call.getSession();
 		try {
 
-			serviceObject = getService(session.getServiceName()).getInstance();
-			result = invocation.invoke(call.getSession(), serviceObject);
+			serviceObject = getService(session.getServiceName());
+			result = serviceObject.invoke(call.getSession(), invocation);
 
 			call.setResult(result);
 		} catch (InvocationException e) {
@@ -76,7 +76,7 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 		for (Entry<String, Service> entry : services.entrySet()) {
 			Service service = entry.getValue();
 			list.add(new ServiceDescriptionImpl(service.getName(), service
-					.getDescription(), service.getProtocols()));
+					.getDescription(), service.getProxys()));
 		}
 		return list.toArray(new ServiceDescriptionImpl[0]);
 	}

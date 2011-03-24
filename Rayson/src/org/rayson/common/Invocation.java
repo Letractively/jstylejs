@@ -9,13 +9,15 @@ import java.lang.reflect.Method;
 import org.rayson.api.Portable;
 import org.rayson.api.RpcService;
 import org.rayson.api.Session;
-import org.rayson.exception.ServiceNotFoundException;
 
 public class Invocation implements Portable {
-	private String methodName;
+
 	private Object[] parameters;
-	private Class<?>[] paraTypes;
-	private static final Class SESSION_CLASS = Session.class;
+	private int hashCode;
+
+	private static final Object[] EMPTY_PARAMETERS = new Object[0];
+
+	private static final Class<?> SESSION_CLASS = Session.class;
 
 	public Invocation() {
 
@@ -24,31 +26,41 @@ public class Invocation implements Portable {
 	public Invocation(Method method, Object[] parameters)
 			throws UnportableTypeException {
 		// TODO: throws UnportableTypeException
-		this.methodName = method.getName();
-		this.parameters = parameters;
-		this.paraTypes = method.getParameterTypes();
+		if (parameters == null)
+			this.parameters = EMPTY_PARAMETERS;
+		else
+			this.parameters = parameters;
+		this.hashCode = getHashCode(method);
 	}
 
-	public String getMethodName() {
-		return methodName;
-	}
+	public static int getHashCode(Method method) {
+		if (method == null)
+			throw new IllegalArgumentException("Method should not be null");
+		StringBuffer idString = new StringBuffer();
+		idString.append(method.getName());
+		idString.append("(");
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		int parameterCount = parameterTypes.length;
 
-	public Object invoke(Session session, RpcService serviceObject)
-			throws InvocationException {
-		Method method;
-		try {
-			Class[] realParaTypes = new Class[this.paraTypes.length + 1];
-			realParaTypes[0] = SESSION_CLASS;
-			System.arraycopy(paraTypes, 0, realParaTypes, 1,
-					this.paraTypes.length);
-			method = serviceObject.getClass().getMethod(methodName,
-					realParaTypes);
-		} catch (Exception e) {
-			throw new InvocationException(false, new ServiceNotFoundException(
-					"service of " + session.getServiceName() + "." + methodName
-							+ " not found"));
+		for (int i = 0; i < parameterCount; i++) {
+			idString.append(parameterTypes[i].getName());
+			idString.append(",");
 		}
-		method.setAccessible(true);
+
+		if (parameterCount > 0)
+			idString.deleteCharAt(idString.length() - 1);
+		idString.append(")");
+		return idString.toString().hashCode();
+	}
+
+	public int getHashCode() {
+		return hashCode;
+	}
+
+	public Object invoke(Session session, RpcService serviceObject,
+			Method method) throws InvocationException {
+		Class[] realParaTypes = new Class[this.parameters.length + 1];
+		realParaTypes[0] = SESSION_CLASS;
 		Object result = null;
 		try {
 			Object[] realParameters = new Object[this.parameters.length + 1];
@@ -73,22 +85,10 @@ public class Invocation implements Portable {
 
 	@Override
 	public void read(DataInput in) throws IOException {
-		this.methodName = in.readUTF();
+		this.hashCode = in.readInt();
 		byte paraLength = in.readByte();
-		this.paraTypes = new Class[paraLength];
 		this.parameters = new Object[paraLength];
-		// read parameter type.
-		String parameterClassName;
-		Class parameterType;
-		for (int i = 0; i < paraLength; i++) {
-			parameterClassName = in.readUTF();
-			try {
-				parameterType = Class.forName(parameterClassName);
-				this.paraTypes[i] = parameterType;
-			} catch (ClassNotFoundException e) {
-				throw new IOException(e);
-			}
-		}
+
 		// read parameter object
 		for (int i = 0; i < paraLength; i++) {
 			this.parameters[i] = Stream.readPortable(in);
@@ -99,8 +99,8 @@ public class Invocation implements Portable {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
-		sb.append("method name: ");
-		sb.append(methodName);
+		sb.append("hash code: ");
+		sb.append(hashCode);
 		sb.append(", parameters: [");
 		for (Object parameter : parameters) {
 			sb.append((parameter == null) ? "null" : parameter.toString());
@@ -114,15 +114,12 @@ public class Invocation implements Portable {
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeUTF(methodName);
-		byte paraLenth = (byte) paraTypes.length;
-		out.writeByte(paraLenth);
-		// write parameter types.
-		for (int i = 0; i < paraLenth; i++) {
-			out.writeUTF(this.paraTypes[i].getName());
-		}
+		// write hash code
+		out.writeInt(hashCode);
+		byte paraLength = (byte) parameters.length;
+		out.writeByte(paraLength);
 		// write paramter objects.
-		for (int i = 0; i < paraLenth; i++) {
+		for (int i = 0; i < paraLength; i++) {
 			Stream.writePortable(out, this.parameters[i]);
 		}
 	}

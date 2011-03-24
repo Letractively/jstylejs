@@ -13,28 +13,35 @@ import org.rayson.exception.RpcException;
 
 public final class ServiceParser {
 
-	public static Class<? extends RpcProxy>[] getProtocols(
+	public static Class<? extends RpcService>[] getServices(
 			Class<? extends RpcService> serviceClass)
 			throws IllegalServiceException {
-		List<Class<? extends RpcProxy>> list = new ArrayList<Class<? extends RpcProxy>>();
-		Class[] interfaces = serviceClass.getInterfaces();
+		List<Class<? extends RpcService>> list = new ArrayList<Class<? extends RpcService>>();
+
+		Class<?>[] interfaces = serviceClass.getInterfaces();
 		for (Class interfake : interfaces) {
 			if (!RpcService.class.isAssignableFrom(interfake))
 				continue;
-			Proxy proxyAnnotation = ((Class<? extends RpcService>) interfake)
-					.getAnnotation(Proxy.class);
-			if (proxyAnnotation == null)
-				continue;
-			// throw new IllegalServiceException("Interfae "
-			// + interfake.getName() + " must has annotaion "
-			// + Protocols.class.getSimpleName());
-			Class<? extends RpcProxy> interfake1 = proxyAnnotation.value();
-			verifyService(interfake1);
-			list.add(interfake1);
-
+			list.add(interfake);
 		}
 
 		return list.toArray(new Class[0]);
+	}
+
+	public static Class<? extends RpcProxy> getProxy(
+			Class<? extends RpcService> serviceInterface)
+			throws IllegalServiceException {
+		Proxy proxyAnnotation = serviceInterface.getAnnotation(Proxy.class);
+		if (proxyAnnotation == null)
+			throw new IllegalServiceException(
+					"No proxy annotation found in interface "
+							+ serviceInterface.getName());
+		// throw new IllegalServiceException("Interfae "
+		// + interfake.getName() + " must has annotaion "
+		// + Protocols.class.getSimpleName());
+		Class<? extends RpcProxy> interfake1 = proxyAnnotation.value();
+		verifyService(interfake1);
+		return interfake1;
 	}
 
 	private static void verifyMethod(Method method)

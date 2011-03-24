@@ -140,7 +140,12 @@ class ServerStreamConnection extends TimeLimitConnection {
 						this.argumentBuffer.array());
 				DataInputStream dataInputStream = new DataInputStream(
 						byteArrayInputStream);
-				this.argument = (TransferArgument) Stream.read(dataInputStream);
+				try {
+					this.argument = (TransferArgument) Stream
+							.read(dataInputStream);
+				} catch (IOException e) {
+					throw e;
+				}
 				this.selectionKey.interestOps(SelectionKey.OP_WRITE
 						| SelectionKey.OP_READ);
 			}
