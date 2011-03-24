@@ -20,6 +20,11 @@ import org.rayson.transport.stream.TransferResponse;
 import org.rayson.util.Log;
 
 class ServerStreamConnection extends TimeLimitConnection {
+
+	private static enum ReadState {
+		VERSION, TRANSFER_CODE, DATA_SIZE, ARGUMENT_DATA;
+	}
+
 	private static final int TIME_OUT_INTERVAL = 30000;
 	private static Logger LOGGER = Log.getLogger();
 	private ByteBuffer connectHeaderBuffer;

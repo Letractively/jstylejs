@@ -26,7 +26,7 @@ import org.rayson.transport.stream.TransferResponse;
  * <table border="1">
  * <tr>
  * <td>request type(1)</td>
- * <td>data length(2)</td>
+ * <td>data size(2)</td>
  * <td>checksum(2)</td>
  * <td>data</td>
  * </tr>
@@ -38,7 +38,7 @@ import org.rayson.transport.stream.TransferResponse;
  * <table border="1">
  * <tr>
  * <td>response type(1)</td>
- * <td>data length(2)</td>
+ * <td>data size(2)</td>
  * <td>checksum(2)</td>
  * <td>data</td>
  * </tr>
@@ -49,7 +49,7 @@ import org.rayson.transport.stream.TransferResponse;
  * <table border="1">
  * <tr>
  * <td>transfer code(2)</td>
- * <td>data length(2)</td>
+ * <td>data size(2)</td>
  * <td>argument data</td>
  * </tr>
  * </table>
