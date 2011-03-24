@@ -25,22 +25,21 @@ class ServerStreamConnection extends TimeLimitConnection {
 		VERSION, TRANSFER_CODE, DATA_SIZE, ARGUMENT_DATA;
 	}
 
+	private ReadState readState;
 	private static final int TIME_OUT_INTERVAL = 30000;
 	private static Logger LOGGER = Log.getLogger();
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
+	private ByteBuffer transferResponseBuffer;
 	private long id;
 	private SocketChannel socketChannel;
-	private boolean readedConnectHeader = false;
 	private SelectionKey selectionKey;
 	private short version = -1;
 	private short transfer;
 	private TransferResponse transferResponse;
-	private ByteBuffer transferBuffer;
-	private boolean readTransfer = false;
+	private ByteBuffer transferCodeBuffer;
 	private ConnectionManager connectionManager;
 	private TransferConnector transferConnector;
-	private boolean readArgumentDataLength = false;
 	private ByteBuffer argumentBuffer;
 	private TransferArgument argument;
 
@@ -52,13 +51,15 @@ class ServerStreamConnection extends TimeLimitConnection {
 		this.connectionManager = connectionManager;
 		this.transferConnector = transferConnector;
 		this.selectionKey = selectionKey;
-		transferBuffer = ByteBuffer.allocate(2);
+		readState = ReadState.VERSION;
+		transferCodeBuffer = ByteBuffer.allocate(2);
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH - 1);// header length
 		// -protocol
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
-
+		transferResponseBuffer = ByteBuffer
+				.allocate(ConnectionProtocol.TRANSFER_RESPONSE_LENGTH);
 		setConnectionState(ConnectionState.OK);
 	}
 
@@ -89,67 +90,74 @@ class ServerStreamConnection extends TimeLimitConnection {
 
 	@Override
 	public int read() throws IOException {
-		int readCount = 0;
-		if (readedConnectHeader) {
-			if (!readTransfer) {
-				readCount = this.socketChannel.read(transferBuffer);
-				if (!this.transferBuffer.hasRemaining()) {
-					this.transferBuffer.flip();
-					this.transfer = this.transferBuffer.getShort();
-					boolean serviceExists = this.transferConnector
-							.serviceExists(this.transfer);
-					// set transfer response code
-					if (serviceExists)
+		int readCount = -1;
+		switch (readState) {
+		case VERSION:
+			readCount = this.socketChannel.read(connectHeaderBuffer);
+			if (!connectHeaderBuffer.hasRemaining()) {
+				connectHeaderBuffer.flip();
+				version = connectHeaderBuffer.getShort();
+				if (!isSupportedVersion(version))
+					setConnectionState(ConnectionState.UNSUPPORTED_VERSION);
+				this.selectionKey.interestOps(SelectionKey.OP_WRITE
+						| SelectionKey.OP_READ);
+				readState = ReadState.TRANSFER_CODE;
+			}
+			break;
+		case TRANSFER_CODE:
+			readCount = this.socketChannel.read(transferCodeBuffer);
+			if (!this.transferCodeBuffer.hasRemaining()) {
+				this.transferCodeBuffer.flip();
+				this.transfer = this.transferCodeBuffer.getShort();
+				boolean serviceExists = this.transferConnector
+						.serviceExists(this.transfer);
+				// set transfer response code
+				if (serviceExists)
 
-						setTransferResponse(TransferResponse.OK);
-					else
-						setTransferResponse(TransferResponse.NO_ACTIVITY_FOUND);
-					transferBuffer.clear();
-					this.readTransfer = true;
-					return 2;
-				}
-			} else {
-				// read argument.
-				if (!readArgumentDataLength) {
-					readCount = this.socketChannel.read(transferBuffer);
-					if (!this.transferBuffer.hasRemaining()) {
-						this.transferBuffer.flip();
-						int dataLength = this.transferBuffer.getShort();
-						this.argumentBuffer = ByteBuffer.allocate(dataLength);
-						this.readArgumentDataLength = true;
-						return 2;
-					}
-				} else {
-					readCount = this.socketChannel.read(argumentBuffer);
-					if (!this.argumentBuffer.hasRemaining()) {
-						this.argumentBuffer.flip();
-						ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-								this.argumentBuffer.array());
-						DataInputStream dataInputStream = new DataInputStream(
-								byteArrayInputStream);
-						this.argument = (TransferArgument) Stream
-								.read(dataInputStream);
-						this.selectionKey.interestOps(SelectionKey.OP_WRITE
-								| SelectionKey.OP_READ);
-						this.readArgumentDataLength = true;
-						return argumentBuffer.capacity();
-					}
+					setTransferResponse(TransferResponse.OK);
+				else
+					setTransferResponse(TransferResponse.NO_ACTIVITY_FOUND);
+				transferCodeBuffer.clear();
+				this.readState = ReadState.DATA_SIZE;
+			}
+			break;
 
-				}
+		case DATA_SIZE:
+			readCount = this.socketChannel.read(transferCodeBuffer);
+			if (!this.transferCodeBuffer.hasRemaining()) {
+				this.transferCodeBuffer.flip();
+				int dataLength = this.transferCodeBuffer.getShort();
+				this.argumentBuffer = ByteBuffer.allocate(dataLength);
+				this.readState = ReadState.ARGUMENT_DATA;
+			}
+			break;
+		case ARGUMENT_DATA:
+
+			readCount = this.socketChannel.read(argumentBuffer);
+			if (!this.argumentBuffer.hasRemaining()) {
+				this.argumentBuffer.flip();
+				ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+						this.argumentBuffer.array());
+				DataInputStream dataInputStream = new DataInputStream(
+						byteArrayInputStream);
+				this.argument = (TransferArgument) Stream.read(dataInputStream);
+				this.selectionKey.interestOps(SelectionKey.OP_WRITE
+						| SelectionKey.OP_READ);
 			}
 
-			return readCount;
-		} else {
-			init();
-			return readCount;
+			break;
+		default:
+			break;
 		}
+
+		return readCount;
 	}
 
 	private void setTransferResponse(TransferResponse response) {
 		this.transferResponse = response;
-		this.connectResponseBuffer.clear();
-		this.connectResponseBuffer.put(response.getCode());
-		this.connectResponseBuffer.clear();
+		this.transferResponseBuffer.clear();
+		this.transferResponseBuffer.put(response.getCode());
+		this.transferResponseBuffer.clear();
 	}
 
 	public short getTransfer() {
@@ -157,19 +165,6 @@ class ServerStreamConnection extends TimeLimitConnection {
 	}
 
 	private ConnectionState connectionState;
-
-	private void init() throws IOException {
-		this.socketChannel.read(connectHeaderBuffer);
-		if (!connectHeaderBuffer.hasRemaining()) {
-			connectHeaderBuffer.flip();
-			version = connectHeaderBuffer.getShort();
-			if (!isSupportedVersion(version))
-				setConnectionState(ConnectionState.UNSUPPORTED_VERSION);
-			this.selectionKey.interestOps(SelectionKey.OP_WRITE
-					| SelectionKey.OP_READ);
-			readedConnectHeader = true;
-		}
-	}
 
 	private void setConnectionState(ConnectionState connectionCode) {
 		this.connectionState = connectionCode;
@@ -190,8 +185,8 @@ class ServerStreamConnection extends TimeLimitConnection {
 	public void write() throws IOException {
 		if (wroteConnectCode) {
 			// write transfer response code.
-			this.socketChannel.write(connectResponseBuffer);
-			if (!this.connectResponseBuffer.hasRemaining()) {
+			this.socketChannel.write(transferResponseBuffer);
+			if (!this.transferResponseBuffer.hasRemaining()) {
 				// try close this connection itself.
 				switch (transferResponse) {
 				case NO_ACTIVITY_FOUND:

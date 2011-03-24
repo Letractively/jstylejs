@@ -31,6 +31,7 @@ class ClientStreamConnection extends TimeLimitConnection {
 	private SocketChannel socketChannel;
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
+	private ByteBuffer transferResponseBuffer;
 	private AtomicBoolean closed;
 	private ConnectionManager connectionManager;
 	private TransferArgument argument;
@@ -49,7 +50,8 @@ class ClientStreamConnection extends TimeLimitConnection {
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
 		connectResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
-
+		transferResponseBuffer = ByteBuffer
+				.allocate(ConnectionProtocol.TRANSFER_RESPONSE_LENGTH);
 		this.connectHeaderBuffer.put(getProtocol().getType());
 		this.connectHeaderBuffer.putShort(version);
 		this.connectHeaderBuffer.clear();
@@ -70,7 +72,8 @@ class ClientStreamConnection extends TimeLimitConnection {
 			ConnectionState state = ConnectionState
 					.valueOf(connectResponseBuffer.get());
 			if (state != ConnectionState.OK)
-				throw new ConnectException(state.name());
+				throw new ConnectException("Get wrong connection state: "
+						+ state.name());
 			socketChannel.configureBlocking(true);
 			// send transfer number to remote
 			connectHeaderBuffer.clear();
@@ -92,11 +95,10 @@ class ClientStreamConnection extends TimeLimitConnection {
 			argumentBuffer.flip();
 			socketChannel.write(argumentBuffer);
 			// read response from remote
-			connectResponseBuffer.clear();
-			this.socketChannel.read(connectResponseBuffer);
-			connectResponseBuffer.flip();
+			this.socketChannel.read(transferResponseBuffer);
+			transferResponseBuffer.flip();
 			TransferResponse response = TransferResponse
-					.valueOf(connectResponseBuffer.get());
+					.valueOf(transferResponseBuffer.get());
 			if (response != TransferResponse.OK)
 				throw new ServiceNotFoundException("No transfer " + transfer
 						+ " service found in servder:" + response.name());
