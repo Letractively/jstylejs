@@ -1,0 +1,73 @@
+package org.rayson.util;
+
+import java.lang.reflect.Method;
+
+import org.rayson.api.Session;
+import org.rayson.common.Stream;
+import org.rayson.exception.IllegalServiceException;
+import org.rayson.exception.RpcException;
+
+public final class ServiceVerifier {
+	public static void verifyServiceMethod(Method method)
+			throws IllegalServiceException {
+
+		// 1. return type must be portable.
+		Class returnType = method.getReturnType();
+		if (!Stream.isPortable(returnType))
+			throw new IllegalServiceException("Method " + method.getName()
+					+ " return type must be portable");
+		boolean firstParaSession = false;
+		Class<?>[] parameterTyps = method.getParameterTypes();
+
+		// 2. every parameter type must be portable.
+		for (int i = 0; i < parameterTyps.length; i++) {
+			if (i == 0 && Session.class.equals(parameterTyps[i]))
+				firstParaSession = true;
+			if (!Stream.isPortable(parameterTyps[i]))
+				throw new IllegalServiceException("Method " + method.getName()
+						+ " parameter type must be portable");
+		}
+
+		// 3. First parameter must be session type.
+		if (firstParaSession)
+			throw new IllegalServiceException(
+					"Service method first parameter type must be "
+							+ Session.class.getName());
+	}
+
+	public static void verifyProxyMethod(Method method)
+			throws IllegalServiceException {
+		// 1. must throws rpc-exceptoion.
+		boolean foundRemoteException = false;
+		for (Class exceptionType : method.getExceptionTypes()) {
+			if (exceptionType == RpcException.class) {
+				foundRemoteException = true;
+				break;
+			}
+		}
+		if (!foundRemoteException)
+			throw new IllegalServiceException("Method " + method.getName()
+					+ " must throws " + RpcException.class.getName());
+
+		// 2. return type must be portable.
+		Class returnType = method.getReturnType();
+		if (!Stream.isPortable(returnType))
+			throw new IllegalServiceException("Method " + method.getName()
+					+ " return type must be portable");
+		boolean foundSessionPara = false;
+		// 3. every parameter type must be portable.
+		Class[] parameterTypes = method.getParameterTypes();
+		for (Class type : parameterTypes) {
+			if (Session.class.isAssignableFrom(type))
+				foundSessionPara = true;
+			if (!Stream.isPortable(type))
+				throw new IllegalServiceException("Method " + method.getName()
+						+ " parameter type must be portable");
+		}
+		// 4. must not session paramter type.
+		if (foundSessionPara)
+			throw new IllegalServiceException(
+					"Proxy method parameter type must not "
+							+ Session.class.getName());
+	}
+}

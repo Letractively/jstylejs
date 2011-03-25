@@ -17,7 +17,7 @@ public class ServiceParserTest {
 	public void testVerifyService() {
 
 		try {
-			ServiceParser.verifyService(TestProxy.class);
+			ServiceVerifier.verifyService(TestProxy.class);
 		} catch (IllegalServiceException e) {
 			fail(e.getMessage());
 		}

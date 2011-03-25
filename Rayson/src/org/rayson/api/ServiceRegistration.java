@@ -6,5 +6,5 @@ public interface ServiceRegistration extends Portable {
 
 	public String getName();
 
-	public String[] getProtocols();
+	public String[] getProxys();
 }

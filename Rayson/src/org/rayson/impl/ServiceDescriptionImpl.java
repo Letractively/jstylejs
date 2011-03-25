@@ -16,17 +16,17 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 
 	private String name;
 
-	private String[] protocols;
+	private String[] proxys;
 	private ServiceDescriptionImpl() {
 		// Forbidden construct.
 	}
 	public ServiceDescriptionImpl(String serviceName, String description,
-			Class<? extends RpcProxy>[] protocols) {
+			Class<? extends RpcProxy>[] proxys) {
 		this.name = serviceName;
 		this.description = description;
-		this.protocols = new String[protocols.length];
-		for (int i = 0; i < protocols.length; i++) {
-			this.protocols[i] = protocols[i].getName();
+		this.proxys = new String[proxys.length];
+		for (int i = 0; i < proxys.length; i++) {
+			this.proxys[i] = proxys[i].getName();
 		}
 	}
 
@@ -41,15 +41,15 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 	}
 
 	@Override
-	public String[] getProtocols() {
-		return protocols;
+	public String[] getProxys() {
+		return proxys;
 	}
 
 	@Override
 	public void read(DataInput in) throws IOException {
 		this.name = in.readUTF();
 		this.description = in.readUTF();
-		this.protocols = (String[]) Stream.readPortable(in);
+		this.proxys = (String[]) Stream.readPortable(in);
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 		sb.append(this.description);
 		sb.append(", ");
 		sb.append("protocols: [");
-		for (String protocol : protocols) {
+		for (String protocol : proxys) {
 			sb.append(protocol);
 			sb.append(",");
 		}
@@ -76,6 +76,6 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 	public void write(DataOutput out) throws IOException {
 		out.writeUTF(name);
 		out.writeUTF(description);
-		Stream.writePortable(out, protocols);
+		Stream.writePortable(out, proxys);
 	}
 }
