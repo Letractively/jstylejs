@@ -3,6 +3,7 @@ package org.rayson.server;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.rayson.annotation.Proxy;
@@ -20,10 +21,13 @@ class ServiceReflection {
 	private RpcService instance;
 	private String name;
 	private Class<? extends RpcProxy>[] proxys;
+	/**
+	 * Map of <Proxy method hash code ==> service interface method>
+	 */
 	private HashMap<Integer, Method> methods;
-	private Class<? extends RpcService>[] interfaces;
+	private ServiceProxyPair[] pairs;
 
-	private static ServiceProxyPair[] getPair(
+	private static ServiceProxyPair[] getPairs(
 			final Class<? extends RpcService> serviceClass)
 			throws IllegalServiceException {
 		List<ServiceProxyPair> list = new ArrayList<ServiceProxyPair>();
@@ -48,19 +52,30 @@ class ServiceReflection {
 			throw new IllegalServiceException(
 					"No proxy annotation found in interface "
 							+ serviceInterface.getName());
-		Class<? extends RpcProxy> interfake1 = proxyAnnotation.value();
-		return interfake1;
+		Class<? extends RpcProxy> interfake = proxyAnnotation.value();
+		if (interfake == null || !interfake.isInterface())
+			throw new IllegalServiceException(
+					"Annotation proxy must be an interface");
+		return interfake;
 	}
 
 	private static class ServiceProxyPair {
 
 		private Class<? extends RpcService> serviceInterface;
 		private Class<? extends RpcProxy> proxyInterface;
+		private List<ServiceMethod> serviceMethods;
 
 		ServiceProxyPair(Class<? extends RpcService> serviceInterface,
-				Class<? extends RpcProxy> proxyInterface) {
+				Class<? extends RpcProxy> proxyInterface)
+				throws IllegalServiceException {
 			this.serviceInterface = serviceInterface;
 			this.proxyInterface = proxyInterface;
+			this.serviceMethods = new ArrayList<ServiceReflection.ServiceMethod>();
+			ServiceMethod serviceMethod;
+			for (Method method : this.serviceInterface.getMethods()) {
+				serviceMethod = new ServiceMethod(method, this.proxyInterface);
+				this.serviceMethods.add(serviceMethod);
+			}
 		}
 
 		public Class<? extends RpcProxy> getProxyInterface() {
@@ -76,9 +91,42 @@ class ServiceReflection {
 		private Method method;
 		private Method proxyMethod;
 
-		ServiceMethod(Method method, RpcProxy proxy)
-				throws IllegalServiceException {
+		private int hashCode;
 
+		private static Method findProxyMethod(Method serviceMethod,
+				Class<? extends RpcProxy> proxyInterface)
+				throws IllegalServiceException {
+			Class<?>[] parameterTypes = serviceMethod.getParameterTypes();
+			Class[] proxyMethodParaTypes = new Class[parameterTypes.length - 1];
+			System.arraycopy(parameterTypes, 1, proxyMethodParaTypes, 0,
+					proxyMethodParaTypes.length);
+			// remove first parameter type of service method.
+			Method proxyMethod;
+			try {
+				proxyMethod = proxyInterface.getMethod(serviceMethod.getName(),
+						proxyMethodParaTypes);
+			} catch (Exception e) {
+				throw new IllegalServiceException(
+						"Can not find associated method "
+								+ serviceMethod.toGenericString()
+								+ "in proxy interface");
+			}
+
+			return proxyMethod;
+		}
+
+		ServiceMethod(Method method, Class<? extends RpcProxy> proxyClass)
+				throws IllegalServiceException {
+			// 1. verify service method .
+			ServiceVerifier.verifyServiceMethod(method);
+			// 2. find associated proxy method.
+			Method proxyMethod = findProxyMethod(method, proxyClass);
+			// 3. verify proxy method.
+			ServiceVerifier.verifyProxyMethod(proxyMethod);
+
+			this.method = method;
+			this.proxyMethod = proxyMethod;
+			this.hashCode = Invocation.getHashCode(proxyMethod);
 		}
 
 		public Method getMethod() {
@@ -87,6 +135,10 @@ class ServiceReflection {
 
 		public Method getProxyMethod() {
 			return proxyMethod;
+		}
+
+		public int getHashCode() {
+			return hashCode;
 		}
 	}
 
@@ -98,15 +150,18 @@ class ServiceReflection {
 		this.instance = instance;
 
 		methods = new HashMap<Integer, Method>();
-		this.interfaces = ServiceVerifier.getServices(instance.getClass());
-		this.proxys = new Class[this.interfaces.length];
-		for (int i = 0; i < this.interfaces.length; i++) {
-			this.proxys[i] = ServiceVerifier.getProxy(this.interfaces[i]);
+		this.pairs = getPairs(instance.getClass());
+		this.proxys = new Class[this.pairs.length];
+		for (int i = 0; i < this.pairs.length; i++) {
+			this.proxys[i] = this.pairs[i].getProxyInterface();
 		}
 		// Initialize all the methods.
-		for (Class<? extends RpcService> interfake : this.interfaces) {
-			for (Method method : interfake.getMethods()) {
-				methods.put(Invocation.getHashCode(method), method);
+		for (ServiceProxyPair pair : this.pairs) {
+			for (Iterator<ServiceMethod> iterator = pair.serviceMethods
+					.iterator(); iterator.hasNext();) {
+				ServiceMethod serviceMethod = iterator.next();
+				this.methods.put(serviceMethod.getHashCode(),
+						serviceMethod.method);
 			}
 		}
 	}

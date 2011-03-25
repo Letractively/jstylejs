@@ -23,13 +23,13 @@ public final class ServiceVerifier {
 		for (int i = 0; i < parameterTyps.length; i++) {
 			if (i == 0 && Session.class.equals(parameterTyps[i]))
 				firstParaSession = true;
-			if (!Stream.isPortable(parameterTyps[i]))
+			if (i != 0 && !Stream.isPortable(parameterTyps[i]))
 				throw new IllegalServiceException("Method " + method.getName()
 						+ " parameter type must be portable");
 		}
 
 		// 3. First parameter must be session type.
-		if (firstParaSession)
+		if (!firstParaSession)
 			throw new IllegalServiceException(
 					"Service method first parameter type must be "
 							+ Session.class.getName());
