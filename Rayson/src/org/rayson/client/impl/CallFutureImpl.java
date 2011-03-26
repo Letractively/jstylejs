@@ -1,7 +1,6 @@
 package org.rayson.client.impl;
 
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -84,11 +83,16 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 	@Override
 	public V get(long timeout, TimeUnit unit) throws InterruptedException,
 			RpcException, TimeoutException {
+		long startTime = System.currentTimeMillis();
+		long timeOutMillis = unit.toMillis(timeout);
 		synchronized (done) {
 			while (!isDone()) {
-				done.wait(unit.toMillis(timeout));
+				done.wait(timeOutMillis);
 			}
 		}
+		if (System.currentTimeMillis() - startTime > timeOutMillis)
+			throw new TimeoutException();
+
 		if (invocationException != null) {
 			throwRpcException(invocationException);
 		}
