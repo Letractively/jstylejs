@@ -18,7 +18,7 @@ public final class RemoteExceptionImpl extends RpcException {
 		return remoteException;
 	}
 
-	public static Exception createParameterException(CallException exception) {
+	public static RpcException createParameterException(CallException exception) {
 		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
 				RemoteExceptionType.CALL, exception);
 		return remoteException;

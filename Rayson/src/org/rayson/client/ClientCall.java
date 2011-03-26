@@ -4,22 +4,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.rayson.api.CallFuture;
+import org.rayson.client.impl.CallFutureImpl;
 import org.rayson.common.ClientSession;
 import org.rayson.common.Invocation;
 import org.rayson.common.InvocationException;
 import org.rayson.common.InvocationResultType;
 import org.rayson.common.Stream;
 import org.rayson.exception.CallException;
+import org.rayson.exception.RpcException;
 import org.rayson.transport.common.Packet;
 import org.rayson.transport.common.PacketException;
 
 public class ClientCall<V> {
 	private static final int BUFFER_SIZE = 1024;
 	private static final AtomicLong UID = new AtomicLong(0);
-	private CallFuture<V> future;
+	private CallFutureImpl<V> future;
 	private long id;
 	private Invocation invocation;
 	private Packet requestPacket;
@@ -30,7 +32,7 @@ public class ClientCall<V> {
 		this.id = UID.getAndIncrement();
 		this.session = session;
 		this.invocation = invocation;
-		this.future = new CallFuture<V>();
+		this.future = new CallFutureImpl<V>();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
 				BUFFER_SIZE);
 		DataOutputStream dataOutputStream = new DataOutputStream(
@@ -58,7 +60,11 @@ public class ClientCall<V> {
 		return this.requestPacket;
 	}
 
-	public V getResult() throws InterruptedException, ExecutionException {
+	public CallFuture<V> getFuture() {
+		return future;
+	}
+
+	public V getResult() throws InterruptedException, RpcException {
 		return future.get();
 	}
 

@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 
+import org.rayson.api.AsyncProxy;
+import org.rayson.api.CallFuture;
 import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferSocket;
 import org.rayson.api.RpcProxy;
@@ -39,7 +41,7 @@ class RpcClient {
 					serviceName, creationTime, serverAddress);
 		}
 
-		private ClientSession touchAndGetSession() {
+		protected ClientSession touchAndGetSession() {
 			this.currentSession.touch();
 			return this.currentSession;
 		}
@@ -70,6 +72,23 @@ class RpcClient {
 		}
 	}
 
+	private class AsyncProxyInvoker extends RpcProxyInvoker {
+
+		public AsyncProxyInvoker(String serviceName, SocketAddress serverAddress) {
+			super(serviceName, serverAddress);
+		}
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args)
+				throws Throwable {
+			// If it's getSession method, then invoke locally.
+			if (method.getName().equals("getSession") && args == null)
+				return getSession();
+			Invocation invocation = new Invocation(method, args);
+			return invokeAsyncCall(touchAndGetSession(), proxy, invocation);
+		}
+	}
+
 	private static byte version = 1;
 
 	public static byte getVersion() {
@@ -89,14 +108,25 @@ class RpcClient {
 	}
 
 	public <T extends RpcProxy> T createRpcProxy(String serviceName,
-			Class<T> serviceClass, SocketAddress serverAddress)
+			Class<T> proxyInterface, SocketAddress serverAddress)
 			throws IllegalServiceException, RpcException {
 		ServerProxy serverService = getServerProxy(serverAddress);
-		T rpcService;
-		rpcService = (T) Proxy.newProxyInstance(
-				RpcClient.class.getClassLoader(), new Class[] { serviceClass },
-				new RpcProxyInvoker(serviceName, serverAddress));
-		return rpcService;
+		T rpcProxy;
+		rpcProxy = (T) Proxy.newProxyInstance(RpcClient.class.getClassLoader(),
+				new Class[] { proxyInterface }, new RpcProxyInvoker(
+						serviceName, serverAddress));
+		return rpcProxy;
+	}
+
+	public <T extends AsyncProxy> T createAsyncProxy(String serviceName,
+			Class<T> proxyInterface, SocketAddress serverAddress)
+			throws IllegalServiceException, RpcException {
+		ServerProxy serverService = getServerProxy(serverAddress);
+		T rpcProxy;
+		rpcProxy = (T) Proxy.newProxyInstance(RpcClient.class.getClassLoader(),
+				new Class[] { proxyInterface }, new AsyncProxyInvoker(
+						serviceName, serverAddress));
+		return rpcProxy;
 	}
 
 	/**
@@ -132,7 +162,6 @@ class RpcClient {
 
 	private Object invokeRpcCall(ClientSession clientSession, Object proxy,
 			Invocation invocation) throws Throwable {
-
 		ClientCall call = new ClientCall(clientSession, invocation);
 		try {
 			submitCall(clientSession.getPeerAddress(), call);
@@ -141,37 +170,20 @@ class RpcClient {
 		}
 		try {
 			return call.getResult();
-		} catch (ExecutionException e) {
-			InvocationException invocationException = (InvocationException) e
-					.getCause();
-			Throwable remoteException = invocationException
-					.getRemoteException();
-			StackTraceElement[] stackTraceElements = Thread.currentThread()
-					.getStackTrace();
-			remoteException.setStackTrace(Arrays.copyOfRange(
-					stackTraceElements, stackTraceElements.length - 1,
-					stackTraceElements.length));
-
-			if (invocationException.isUnDeclaredException())
-				throw RemoteExceptionImpl
-						.createUndecleardException(remoteException);
-
-			if (remoteException instanceof CallException)
-				throw RemoteExceptionImpl
-						.createParameterException((CallException) remoteException);
-
-			if (remoteException instanceof ConnectionClosedException)
-
-				throw RemoteExceptionImpl
-						.createNetWorkException((ConnectionClosedException) remoteException);
-
-			if (remoteException instanceof ServiceNotFoundException)
-
-				throw RemoteExceptionImpl
-						.createServiceNotFoundException((ServiceNotFoundException) remoteException);
-
-			throw remoteException;
+		} catch (Throwable e) {
+			throw RemoteExceptionImpl.createUndecleardException(e);
 		}
+	}
+
+	private CallFuture invokeAsyncCall(ClientSession clientSession,
+			Object proxy, Invocation invocation) throws Throwable {
+		ClientCall call = new ClientCall(clientSession, invocation);
+		try {
+			submitCall(clientSession.getPeerAddress(), call);
+		} catch (IOException e) {
+			throw RemoteExceptionImpl.createNetWorkException(e);
+		}
+		return call.getFuture();
 	}
 
 	public void ping(SocketAddress serverAddress) throws NetWorkException {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.rayson.api.AsyncProxy;
 import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferSocket;
 import org.rayson.api.RpcProxy;
@@ -18,10 +19,18 @@ public final class Rayson {
 	private static AtomicBoolean clientInited = new AtomicBoolean(false);
 
 	public static <T extends RpcProxy> T createProxy(String serviceName,
-			Class<T> serviceInterface, SocketAddress serverAddress)
+			Class<T> proxyInterface, SocketAddress serverAddress)
 			throws IllegalServiceException, RpcException {
 		tryInit();
-		return CLIENT.createRpcProxy(serviceName, serviceInterface,
+		return CLIENT
+				.createRpcProxy(serviceName, proxyInterface, serverAddress);
+	}
+
+	public static <T extends AsyncProxy> T createAsyncProxy(String serviceName,
+			Class<T> proxyInterface, SocketAddress serverAddress)
+			throws IllegalServiceException, RpcException {
+		tryInit();
+		return CLIENT.createAsyncProxy(serviceName, proxyInterface,
 				serverAddress);
 	}
 
