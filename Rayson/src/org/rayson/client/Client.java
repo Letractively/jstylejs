@@ -121,6 +121,10 @@ class Client {
 			throw new IllegalServiceException("Proxy interface "
 					+ proxyInterface.getName() + " must be an interface");
 		for (Method proxyMethod : proxyInterface.getMethods()) {
+			// Ignore getSession method.
+			if (proxyMethod.getName().equals("getSession")
+					&& proxyMethod.getParameterTypes().length == 0)
+				continue;
 			ServiceVerifier.verifyProxyMethod(proxyMethod);
 		}
 
@@ -149,6 +153,10 @@ class Client {
 			throw new IllegalServiceException("Proxy interface "
 					+ proxyInterface.getName() + " must be an interface");
 		for (Method proxyMethod : proxyInterface.getMethods()) {
+			// Ignore getSession method.
+			if (proxyMethod.getName().equals("getSession")
+					&& proxyMethod.getParameterTypes().length == 0)
+				continue;
 			ServiceVerifier.verifyAsyncProxyMethod(proxyMethod);
 		}
 

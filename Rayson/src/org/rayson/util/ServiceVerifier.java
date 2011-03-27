@@ -1,6 +1,9 @@
 package org.rayson.util;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import org.rayson.api.CallFuture;
 import org.rayson.api.Session;
@@ -89,9 +92,17 @@ public final class ServiceVerifier {
 			throw new IllegalServiceException("Return type must be "
 					+ CallFuture.class.getName());
 		// 3. call future parameter type must be portable.
-		Class<? extends CallFuture> callFutureClass = (Class<? extends CallFuture>) returnType;
-		// TODO:
-		if (!Stream.isPortable(returnType))
+		ParameterizedType genericReturnType = (ParameterizedType) method
+				.getGenericReturnType();
+		Type[] actualTypeArguments = genericReturnType.getActualTypeArguments();
+
+		Type genericType = actualTypeArguments[0];
+
+		if (GenericArrayType.class.isAssignableFrom(genericType.getClass()))
+			genericType = ((GenericArrayType) genericType)
+					.getGenericComponentType();
+
+		if (!Stream.isPortable((Class) genericType))
 			throw new IllegalServiceException("Method " + method.getName()
 					+ " return type must be portable");
 		boolean foundSessionPara = false;
