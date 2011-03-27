@@ -6,21 +6,17 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
-import java.util.Arrays;
 import java.util.WeakHashMap;
-import java.util.concurrent.ExecutionException;
 
 import org.rayson.api.AsyncProxy;
 import org.rayson.api.CallFuture;
-import org.rayson.api.TransferArgument;
-import org.rayson.api.TransferSocket;
 import org.rayson.api.RpcProxy;
 import org.rayson.api.ServerProxy;
 import org.rayson.api.Session;
+import org.rayson.api.TransferArgument;
+import org.rayson.api.TransferSocket;
 import org.rayson.common.ClientSession;
 import org.rayson.common.Invocation;
-import org.rayson.common.InvocationException;
-import org.rayson.exception.CallException;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RpcException;
@@ -110,6 +106,16 @@ class RpcClient {
 	public <T extends RpcProxy> T createRpcProxy(String serviceName,
 			Class<T> proxyInterface, SocketAddress serverAddress)
 			throws IllegalServiceException, RpcException {
+		if (serviceName == null)
+			throw new IllegalArgumentException(
+					"Service name should not be null");
+		if (proxyInterface == null)
+			throw new IllegalArgumentException(
+					"Proxy interface  should not be null");
+		if (serverAddress == null)
+			throw new IllegalArgumentException(
+					"Server address name should not be null");
+
 		ServerProxy serverService = getServerProxy(serverAddress);
 		T rpcProxy;
 		rpcProxy = (T) Proxy.newProxyInstance(RpcClient.class.getClassLoader(),
@@ -121,6 +127,15 @@ class RpcClient {
 	public <T extends AsyncProxy> T createAsyncProxy(String serviceName,
 			Class<T> proxyInterface, SocketAddress serverAddress)
 			throws IllegalServiceException, RpcException {
+		if (serviceName == null)
+			throw new IllegalArgumentException(
+					"Service name should not be null");
+		if (proxyInterface == null)
+			throw new IllegalArgumentException(
+					"Proxy interface  should not be null");
+		if (serverAddress == null)
+			throw new IllegalArgumentException(
+					"Server address name should not be null");
 		ServerProxy serverService = getServerProxy(serverAddress);
 		T rpcProxy;
 		rpcProxy = (T) Proxy.newProxyInstance(RpcClient.class.getClassLoader(),
@@ -181,7 +196,7 @@ class RpcClient {
 		try {
 			submitCall(clientSession.getPeerAddress(), call);
 		} catch (IOException e) {
-			throw RemoteExceptionImpl.createNetWorkException(e);
+			throw new NetWorkException(e);
 		}
 		return call.getFuture();
 	}

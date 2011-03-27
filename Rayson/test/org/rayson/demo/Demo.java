@@ -8,6 +8,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.rayson.annotation.Proxy;
+import org.rayson.api.CallFuture;
+import org.rayson.api.TestAsyncProxy;
 import org.rayson.api.TestTransferArgument;
 import org.rayson.api.TransferSocket;
 import org.rayson.api.ServerProxy;
@@ -84,8 +86,15 @@ public class Demo {
 
 		transferSocket.getDataOutput().writeInt(1456);
 
-		Thread.sleep(100000);
+		// close transfer socket.
+		transferSocket.close();
 
+		// test asynchronous call.
+		TestAsyncProxy asyncProxy = Rayson.createAsyncProxy("demo",
+				TestAsyncProxy.class, serverAddress);
+		CallFuture<String> echoFuture = asyncProxy
+				.echo("Async call echo message");
+		System.out.println("Async call echo:" + echoFuture.get());
 		System.exit(0);
 
 	}
