@@ -24,8 +24,9 @@ import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.impl.RemoteExceptionImpl;
 import org.rayson.server.ServerService;
 import org.rayson.transport.client.TransportClient;
+import org.rayson.util.ServiceVerifier;
 
-class RpcClient {
+class Client {
 
 	private class RpcProxyInvoker implements InvocationHandler, RpcProxy {
 		private ClientSession currentSession;
@@ -95,7 +96,7 @@ class RpcClient {
 
 	private WeakHashMap<SocketAddress, ServerProxy> serverServices;
 
-	RpcClient() {
+	Client() {
 	}
 
 	<T> T call(final T rpcCall) throws IOException, ServiceNotFoundException,
@@ -115,10 +116,16 @@ class RpcClient {
 		if (serverAddress == null)
 			throw new IllegalArgumentException(
 					"Server address name should not be null");
+		// verify rpc proxy interface.
+		if (!proxyInterface.isInterface())
+			throw new IllegalServiceException("Proxy interface "
+					+ proxyInterface.getName() + " must be an interface");
+		for (Method proxyMethod : proxyInterface.getMethods()) {
+			ServiceVerifier.verifyProxyMethod(proxyMethod);
+		}
 
-		ServerProxy serverService = getServerProxy(serverAddress);
 		T rpcProxy;
-		rpcProxy = (T) Proxy.newProxyInstance(RpcClient.class.getClassLoader(),
+		rpcProxy = (T) Proxy.newProxyInstance(Client.class.getClassLoader(),
 				new Class[] { proxyInterface }, new RpcProxyInvoker(
 						serviceName, serverAddress));
 		return rpcProxy;
@@ -136,9 +143,17 @@ class RpcClient {
 		if (serverAddress == null)
 			throw new IllegalArgumentException(
 					"Server address name should not be null");
-		ServerProxy serverService = getServerProxy(serverAddress);
+
+		// verify rpc proxy interface.
+		if (!proxyInterface.isInterface())
+			throw new IllegalServiceException("Proxy interface "
+					+ proxyInterface.getName() + " must be an interface");
+		for (Method proxyMethod : proxyInterface.getMethods()) {
+			ServiceVerifier.verifyAsyncProxyMethod(proxyMethod);
+		}
+
 		T rpcProxy;
-		rpcProxy = (T) Proxy.newProxyInstance(RpcClient.class.getClassLoader(),
+		rpcProxy = (T) Proxy.newProxyInstance(Client.class.getClassLoader(),
 				new Class[] { proxyInterface }, new AsyncProxyInvoker(
 						serviceName, serverAddress));
 		return rpcProxy;
@@ -158,10 +173,9 @@ class RpcClient {
 		synchronized (serverServices) {
 			rpcService = serverServices.get(serverAddress);
 			if (rpcService == null) {
-				rpcService = (ServerProxy) Proxy.newProxyInstance(
-						RpcClient.class.getClassLoader(),
-						new Class[] { ServerProxy.class }, new RpcProxyInvoker(
-								ServerService.NAME, serverAddress));
+				rpcService = (ServerProxy) Proxy.newProxyInstance(Client.class
+						.getClassLoader(), new Class[] { ServerProxy.class },
+						new RpcProxyInvoker(ServerService.NAME, serverAddress));
 				serverServices.put(serverAddress, rpcService);
 			}
 

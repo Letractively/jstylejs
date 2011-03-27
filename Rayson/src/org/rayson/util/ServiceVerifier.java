@@ -2,9 +2,11 @@ package org.rayson.util;
 
 import java.lang.reflect.Method;
 
+import org.rayson.api.CallFuture;
 import org.rayson.api.Session;
 import org.rayson.common.Stream;
 import org.rayson.exception.IllegalServiceException;
+import org.rayson.exception.NetWorkException;
 import org.rayson.exception.RpcException;
 
 public final class ServiceVerifier {
@@ -65,6 +67,44 @@ public final class ServiceVerifier {
 						+ " parameter type must be portable");
 		}
 		// 4. must not session paramter type.
+		if (foundSessionPara)
+			throw new IllegalServiceException(
+					"Proxy method parameter type must not "
+							+ Session.class.getName());
+	}
+
+	public static void verifyAsyncProxyMethod(Method method)
+			throws IllegalServiceException {
+		// 1. must throws only network-exceptoion.
+		Class<?>[] exceptionTypes = method.getExceptionTypes();
+		if (exceptionTypes.length != 1
+				|| !NetWorkException.class.isAssignableFrom(exceptionTypes[0])) {
+			throw new IllegalServiceException("Method " + method.getName()
+					+ " should onky throws " + NetWorkException.class.getName());
+		}
+
+		// 2. return type must be call future.
+		Class returnType = method.getReturnType();
+		if (!CallFuture.class.isAssignableFrom(returnType))
+			throw new IllegalServiceException("Return type must be "
+					+ CallFuture.class.getName());
+		// 3. call future parameter type must be portable.
+		Class<? extends CallFuture> callFutureClass = (Class<? extends CallFuture>) returnType;
+		// TODO:
+		if (!Stream.isPortable(returnType))
+			throw new IllegalServiceException("Method " + method.getName()
+					+ " return type must be portable");
+		boolean foundSessionPara = false;
+		// 4. every parameter type must be portable.
+		Class[] parameterTypes = method.getParameterTypes();
+		for (Class type : parameterTypes) {
+			if (Session.class.isAssignableFrom(type))
+				foundSessionPara = true;
+			if (!Stream.isPortable(type))
+				throw new IllegalServiceException("Method " + method.getName()
+						+ " parameter type must be portable");
+		}
+		// 5. must not session paramter type.
 		if (foundSessionPara)
 			throw new IllegalServiceException(
 					"Proxy method parameter type must not "

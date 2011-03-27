@@ -15,7 +15,7 @@ import org.rayson.exception.RpcException;
 import org.rayson.exception.ServiceNotFoundException;
 
 public final class Rayson {
-	private static RpcClient CLIENT = new RpcClient();
+	private static Client CLIENT = new Client();
 	private static AtomicBoolean clientInited = new AtomicBoolean(false);
 
 	public static <T extends RpcProxy> T createProxy(String serviceName,
@@ -56,7 +56,7 @@ public final class Rayson {
 	}
 
 	public static byte getCLientVersion() {
-		return RpcClient.getVersion();
+		return Client.getVersion();
 	}
 
 	private static void tryInit() {
