@@ -8,6 +8,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
 import java.util.WeakHashMap;
 
+import org.rayson.annotation.TransferCode;
 import org.rayson.api.AsyncProxy;
 import org.rayson.api.CallFuture;
 import org.rayson.api.RpcProxy;
@@ -235,7 +236,17 @@ class Client {
 
 	public TransferSocket openTransferSocket(SocketAddress serverAddress,
 			TransferArgument argument) throws IOException,
-			ServiceNotFoundException {
+			ServiceNotFoundException, IllegalServiceException {
+		if (argument == null)
+			throw new IllegalArgumentException(
+					"Transfer argument  should not be null");
+		if (serverAddress == null)
+			throw new IllegalArgumentException(
+					"Server address name should not be null");
+		// Verify transfer code.
+		if (argument.getClass().getAnnotation(TransferCode.class) == null)
+			throw new IllegalServiceException(
+					"No transfer code annotation found in argument class");
 		return TransportClient.getSingleton().getConnector()
 				.openTransferSocket(serverAddress, argument);
 	}

@@ -36,7 +36,8 @@ public final class Rayson {
 
 	public static TransferSocket openTransferSocket(
 			SocketAddress serverAddress, TransferArgument argument)
-			throws IOException, ServiceNotFoundException {
+			throws IOException, ServiceNotFoundException,
+			IllegalServiceException {
 		return CLIENT.openTransferSocket(serverAddress, argument);
 	}
 
