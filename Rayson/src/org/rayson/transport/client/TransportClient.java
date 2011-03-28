@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferSocket;
+import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.transport.common.ConnectionState;
@@ -134,7 +135,7 @@ public class TransportClient {
 
 	public TransferSocket createTransferSocket(SocketAddress serverAddress,
 			TransferArgument argument) throws IOException, ConnectException,
-			ServiceNotFoundException {
+			ServiceNotFoundException, IllegalServiceException {
 		ClientStreamConnection connection = new ClientStreamConnection(
 				serverAddress, argument, connectionManager);
 		connection.init();

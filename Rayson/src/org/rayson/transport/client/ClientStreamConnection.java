@@ -13,6 +13,7 @@ import org.rayson.annotation.TransferCode;
 import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferSocket;
 import org.rayson.common.Stream;
+import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.transport.api.TimeLimitConnection;
 import org.rayson.transport.common.ConnectionProtocol;
@@ -38,12 +39,17 @@ class ClientStreamConnection extends TimeLimitConnection {
 	private static Logger LOGGER = Log.getLogger();
 
 	public ClientStreamConnection(SocketAddress serverAddress,
-			TransferArgument argument, ConnectionManager connectionManager) {
+			TransferArgument argument, ConnectionManager connectionManager)
+			throws IllegalServiceException {
 		this.id = ConnectionManager.getNextConnectionId();
 		this.connectionManager = connectionManager;
 		this.serverAddress = serverAddress;
 		TransferCode transferCode = argument.getClass().getAnnotation(
 				TransferCode.class);
+		// Verify transfer code.
+		if (transferCode == null)
+			throw new IllegalServiceException(
+					"No transfer code annotation found in argument class");
 		this.transfer = transferCode.value();
 		this.argument = argument;
 		connectHeaderBuffer = ByteBuffer

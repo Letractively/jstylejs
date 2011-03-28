@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import org.rayson.api.TransferArgument;
 import org.rayson.api.TransferSocket;
 import org.rayson.client.ClientCall;
+import org.rayson.exception.IllegalServiceException;
 import org.rayson.exception.NetWorkException;
 import org.rayson.exception.ServiceNotFoundException;
 import org.rayson.transport.common.Packet;
@@ -152,7 +153,7 @@ public class RpcConnector {
 
 	public TransferSocket openTransferSocket(SocketAddress serverAddress,
 			TransferArgument argument) throws ConnectException, IOException,
-			ServiceNotFoundException {
+			ServiceNotFoundException, IllegalServiceException {
 		return client.createTransferSocket(serverAddress, argument);
 	}
 }

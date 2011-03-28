@@ -1,5 +1,9 @@
 package org.rayson.transport.common;
 
+/**
+ * TODO: add protocol type data structure.
+ * 
+ */
 public enum ProtocolType {
 	PING((byte) 0), RPC((byte) 1), STREAM((byte) 2), UNKNOWN((byte) 8);
 	public static ProtocolType valueOf(byte type) {

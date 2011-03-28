@@ -243,10 +243,6 @@ class Client {
 		if (serverAddress == null)
 			throw new IllegalArgumentException(
 					"Server address name should not be null");
-		// Verify transfer code.
-		if (argument.getClass().getAnnotation(TransferCode.class) == null)
-			throw new IllegalServiceException(
-					"No transfer code annotation found in argument class");
 		return TransportClient.getSingleton().getConnector()
 				.openTransferSocket(serverAddress, argument);
 	}
