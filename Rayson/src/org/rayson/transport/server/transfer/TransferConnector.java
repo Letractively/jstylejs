@@ -14,11 +14,12 @@ import org.rayson.api.TransferSocket;
 import org.rayson.exception.IllegalServiceException;
 import org.rayson.transport.api.ServiceAlreadyExistedException;
 
+@TransferConfig
 public class TransferConnector {
 	private HashMap<Short, TransferInvoker> transferInvokers;
 	private CallManager callManager;
-	private static final int INIT_WORKER_COUNT = 4;
 	private List<CallWorker> callWorkers;
+	private TransferConfig config;
 	private static final String PROCESS_METHOD_NAME = "process";
 
 	private static final Class<?>[] PROCESS_METHOD_PARATYPES = new Class<?>[] {
@@ -28,6 +29,7 @@ public class TransferConnector {
 		transferInvokers = new HashMap<Short, TransferInvoker>();
 		callManager = new CallManager();
 		callWorkers = new ArrayList<CallWorker>();
+		config = this.getClass().getAnnotation(TransferConfig.class);
 	}
 
 	public void submitCall(short transfer, TransferArgument argument,
@@ -48,7 +50,7 @@ public class TransferConnector {
 
 	public void start() {
 		CallWorker worker;
-		for (int i = 0; i < INIT_WORKER_COUNT; i++) {
+		for (int i = 0; i < this.config.workerCount(); i++) {
 			worker = new CallWorker(callManager);
 			worker.start();
 			this.callWorkers.add(worker);

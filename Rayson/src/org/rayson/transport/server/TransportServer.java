@@ -31,7 +31,7 @@ public abstract class TransportServer {
 		return connectionManager;
 	}
 
-	ServerConfig getConfig() {
+	protected ServerConfig getConfig() {
 		return config;
 	}
 

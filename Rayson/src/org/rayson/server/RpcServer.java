@@ -18,7 +18,6 @@ import org.rayson.transport.api.ServiceAlreadyExistedException;
 import org.rayson.transport.server.TransportServerImpl;
 
 public class RpcServer extends TransportServerImpl implements ServerService {
-	private static final int DEFAULT_WORKER_COUNT = 4;
 
 	private HashMap<String, ServiceReflection> services;
 
@@ -75,8 +74,9 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
 		for (Entry<String, ServiceReflection> entry : services.entrySet()) {
 			ServiceReflection serviceReflection = entry.getValue();
-			list.add(new ServiceDescriptionImpl(serviceReflection.getName(), serviceReflection
-					.getDescription(), serviceReflection.getProxys()));
+			list.add(new ServiceDescriptionImpl(serviceReflection.getName(),
+					serviceReflection.getDescription(), serviceReflection
+							.getProxys()));
 		}
 		return list.toArray(new ServiceDescriptionImpl[0]);
 	}
@@ -87,8 +87,8 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 		synchronized (services) {
 			if (services.containsKey(serviceName))
 				throw new ServiceAlreadyExistedException(serviceName);
-			ServiceReflection service = new ServiceReflection(serviceName, description,
-					serviceInstance);
+			ServiceReflection service = new ServiceReflection(serviceName,
+					description, serviceInstance);
 			services.put(serviceName, service);
 		}
 	}
@@ -103,7 +103,7 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		for (int i = 0; i < DEFAULT_WORKER_COUNT; i++) {
+		for (int i = 0; i < this.getConfig().workerCount(); i++) {
 			CallWorker callWorker = new CallWorker(this);
 			callWorker.start();
 		}
