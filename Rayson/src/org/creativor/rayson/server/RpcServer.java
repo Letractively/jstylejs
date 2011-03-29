@@ -15,15 +15,25 @@ import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.impl.ServiceDescriptionImpl;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
-import org.creativor.rayson.transport.server.TransportServerImpl;
+import org.creativor.rayson.transport.server.TransportServer;
 
-public class RpcServer extends TransportServerImpl implements ServerService {
+public class RpcServer extends TransportServer implements ServerService {
 
 	private HashMap<String, ServiceReflection> services;
 
-	protected RpcServer() {
+	public RpcServer() {
 		super();
+		initFields();
+	}
+
+	public RpcServer(short portNumber) {
+		super(portNumber);
+		initFields();
+	}
+
+	private void initFields() {
 		services = new HashMap<String, ServiceReflection>();
+
 	}
 
 	@Override
@@ -35,6 +45,11 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 				service.getProxys());
 		return serviceDescription;
 
+	}
+
+	@Override
+	public String getServerInfo(Session session) {
+		return "Rpc server";
 	}
 
 	private ServiceReflection getService(String serviceName)
@@ -107,10 +122,5 @@ public class RpcServer extends TransportServerImpl implements ServerService {
 			CallWorker callWorker = new CallWorker(this);
 			callWorker.start();
 		}
-	}
-
-	@Override
-	public String getServerInfo(Session session) {
-		return "Rpc server";
 	}
 }
