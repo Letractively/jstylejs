@@ -1,5 +1,1 @@
-［
-	localhost:6660,
-	localhost:6760,
-	localhost:6860
-］
+{nodes:["localhost:6660","localhost:6760","localhost:6860"]}
