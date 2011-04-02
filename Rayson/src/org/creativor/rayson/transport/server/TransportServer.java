@@ -35,7 +35,7 @@ public class TransportServer {
 		transferConnector = new TransferConnector();
 	}
 
-	public TransportServer(short portNumber) {
+	public TransportServer(int portNumber) {
 		this();
 		this.portNumber = portNumber;
 	}

@@ -26,7 +26,7 @@ public class RpcServer extends TransportServer implements ServerService {
 		initFields();
 	}
 
-	public RpcServer(short portNumber) {
+	public RpcServer(int portNumber) {
 		super(portNumber);
 		initFields();
 	}
