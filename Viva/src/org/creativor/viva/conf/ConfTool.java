@@ -36,8 +36,8 @@ public class ConfTool {
 	public static void main(String[] args) {
 		ConfTool tool = ConfTool.getSingleton();
 		try {
-			Seeds seeds = tool.getConfiguration(Seeds.class);
-			seeds = tool.getConfiguration(Seeds.class);
+			Servants seeds = tool.getConfiguration(Servants.class);
+			seeds = tool.getConfiguration(Servants.class);
 			System.out.println(seeds.toString());
 		} catch (LoadConfigException e) {
 			// TODO Auto-generated catch block
