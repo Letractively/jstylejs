@@ -6,8 +6,8 @@ import org.creativor.rayson.exception.RpcException;
 
 public interface CardProxy extends RpcProxy {
 
-	public Card getCard(int hashCode) throws RpcException;
+	public Portable get(int hashCode) throws RpcException;
 
-	public void putCard(int hashCode, Portable value) throws RpcException;
+	public void put(int hashCode, Portable value) throws RpcException;
 
 }

@@ -17,6 +17,7 @@ final class VivaServiceImpl implements VivaService {
 
 	public VivaServiceImpl(Staff me) {
 		this.me = me;
+		this.staffs = new TreeMap<Integer, StaffLocal>();
 	}
 
 	public void addStaff(StaffLocal staff) {
