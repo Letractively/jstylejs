@@ -11,6 +11,11 @@ import org.creativor.viva.api.VivaService;
 final class VivaServiceImpl implements VivaService {
 
 	private TreeMap<Integer, Staff> staffs;
+	private Staff me;
+
+	public VivaServiceImpl(Staff me) {
+		this.me = me;
+	}
 
 	@Override
 	public void join(Session session, int hashCode) {
