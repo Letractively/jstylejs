@@ -21,6 +21,7 @@ abstract class PortableObject<T> {
 	public static final byte DOUBLE_TYPE = 6;
 	public static final byte FLOAT_TYPE = 7;
 	public static final byte STRING_TYPE = 10;
+	public static final byte BOOLEAN_TYPE = 11;
 	public static final byte TRANSPORTABLE_TYPE = 30;
 	public static final byte NULL_TYPE = 0;
 	public static final byte VOID_TYPE = -1;
@@ -265,6 +266,26 @@ abstract class PortableObject<T> {
 			out.writeLong(value);
 		}
 	};
+
+	private static final PortableObject<Boolean> BOOLEAN = new PortableObject<Boolean>(
+			BOOLEAN_TYPE) {
+
+		@Override
+		Class getJavaClass() {
+			return Boolean.class;
+		}
+
+		@Override
+		public Boolean read(DataInput in) throws IOException {
+			return in.readBoolean();
+		}
+
+		@Override
+		public void write(DataOutput out, Boolean value) throws IOException {
+			out.writeBoolean(value);
+		}
+
+	};
 	private static final PortableObject<Double> DOUBLE = new PortableObject<Double>(
 			DOUBLE_TYPE) {
 
@@ -334,6 +355,7 @@ abstract class PortableObject<T> {
 		TYPE_OBJECTS.put(NULL_TYPE, NULL);
 		TYPE_OBJECTS.put(ARRAY_TYPE, ARRAY);
 		TYPE_OBJECTS.put(STRING_TYPE, STRING);
+		TYPE_OBJECTS.put(BOOLEAN_TYPE, BOOLEAN);
 		TYPE_OBJECTS.put(VOID_TYPE, VOID);
 
 	}
@@ -348,6 +370,7 @@ abstract class PortableObject<T> {
 		CLASS_OBJECTS.put(Float.class, FLOAT);
 		CLASS_OBJECTS.put(Double.class, DOUBLE);
 		CLASS_OBJECTS.put(String.class, STRING);
+		CLASS_OBJECTS.put(Boolean.class, BOOLEAN);
 		CLASS_OBJECTS.put(Void.class, VOID);
 
 		CLASS_OBJECTS.put(byte.class, BYTE);
@@ -357,6 +380,8 @@ abstract class PortableObject<T> {
 		CLASS_OBJECTS.put(long.class, LONG);
 		CLASS_OBJECTS.put(long.class, FLOAT);
 		CLASS_OBJECTS.put(double.class, DOUBLE);
+		CLASS_OBJECTS.put(boolean.class, BOOLEAN);
+
 		CLASS_OBJECTS.put(void.class, VOID);
 	}
 
