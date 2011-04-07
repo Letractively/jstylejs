@@ -13,6 +13,12 @@ final class StaffImpl implements Staff {
 	}
 
 	@Override
+	public Card getCard(String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public int getId() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -28,12 +34,6 @@ final class StaffImpl implements Staff {
 	public short getPort() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public Card getCard(String key) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

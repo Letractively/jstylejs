@@ -18,13 +18,32 @@ import org.creativor.viva.conf.Servants;
 
 public final class Viva {
 	private static Logger LOGGER = Log.getLogger();
-	private VivaService service;
-	private List<Servant> servants;
-	boolean imServant;
+
+	/**
+	 * @param args
+	 * @throws LoadConfigException
+	 * @throws IOException
+	 * @throws IllegalServiceException
+	 * @throws ServiceAlreadyExistedException
+	 */
+	public static void main(String[] args) throws LoadConfigException,
+			IOException, ServiceAlreadyExistedException,
+			IllegalServiceException {
+		if (args == null || args.length != 1)
+			throw new IllegalArgumentException(
+					"Should tell me the port number to start this viva system");
+		short portNumber = Short.parseShort(args[0]);
+		Viva viva = new Viva(portNumber);
+		viva.start();
+	}
 
 	private InetSocketAddress address;
-	private static String SERVICE_DESCRIPTION = "Viva rpc service";
-	private static String SERVICE_NAME = "viva";
+	boolean imServant;
+	private List<Servant> servants;
+
+	private RpcServer server;
+
+	private VivaService service;
 
 	Viva(short portNumber) throws LoadConfigException, IllegalArgumentException {
 		imServant = false;
@@ -49,7 +68,10 @@ public final class Viva {
 	public boolean start() throws IOException, ServiceAlreadyExistedException,
 			IllegalServiceException {
 		this.server = new RpcServer((short) this.address.getPort());
-		this.server.registerService(SERVICE_NAME, SERVICE_DESCRIPTION, service);
+		this.server.registerService(VivaServiceImpl.SERVICE_NAME,
+				VivaServiceImpl.SERVICE_DESCRIPTION, service);
+		this.server.registerService(CardServiceImpl.SERVICE_NAME,
+				CardServiceImpl.SERVICE_DESCRIPTION, new CardServiceImpl());
 		this.server.start();
 		for (Servant servant : this.servants) {
 			if (this.address.equals(servant.getAddress())) {
@@ -58,26 +80,6 @@ public final class Viva {
 			}
 		}
 		return true;
-	}
-
-	private RpcServer server;
-
-	/**
-	 * @param args
-	 * @throws LoadConfigException
-	 * @throws IOException
-	 * @throws IllegalServiceException
-	 * @throws ServiceAlreadyExistedException
-	 */
-	public static void main(String[] args) throws LoadConfigException,
-			IOException, ServiceAlreadyExistedException,
-			IllegalServiceException {
-		if (args == null || args.length != 1)
-			throw new IllegalArgumentException(
-					"Should tell me the port number to start this viva system");
-		short portNumber = Short.parseShort(args[0]);
-		Viva viva = new Viva(portNumber);
-		viva.start();
 	}
 
 }

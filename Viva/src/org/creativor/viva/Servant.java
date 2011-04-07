@@ -7,16 +7,6 @@ import java.util.StringTokenizer;
 
 public class Servant {
 
-	private InetSocketAddress address;
-
-	private Servant(short portNumber, String ip) {
-		this.address = new InetSocketAddress(ip, portNumber);
-	}
-
-	public InetSocketAddress getAddress() {
-		return address;
-	}
-
 	private static String SERVANT_ADDRESS_HINTS = "Servant address format should be \"ip:port\"";
 
 	public static Servant fromAddress(String servantAddress)
@@ -41,6 +31,16 @@ public class Servant {
 
 		Servant servant = new Servant(portNumber, ip);
 		return servant;
+	}
+
+	private InetSocketAddress address;
+
+	private Servant(short portNumber, String ip) {
+		this.address = new InetSocketAddress(ip, portNumber);
+	}
+
+	public InetSocketAddress getAddress() {
+		return address;
 	}
 
 	@Override
