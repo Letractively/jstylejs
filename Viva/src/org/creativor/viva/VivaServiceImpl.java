@@ -1,5 +1,8 @@
 package org.creativor.viva;
 
+import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 import org.creativor.rayson.api.Session;
@@ -20,20 +23,31 @@ final class VivaServiceImpl implements VivaService {
 		this.staffs.put(staff.getId(), staff);
 	}
 
+	Iterator<StaffLocal> staffItor() {
+		return Collections.unmodifiableCollection(staffs.values()).iterator();
+	}
+
 	@Override
 	public int getId(Session session) {
 		return me.getId();
 	}
 
 	@Override
-	public void join(Session session, int hashCode) {
-		// TODO Auto-generated method stub
+	public boolean join(Session session, int hashCode) {
+		return join(hashCode, session.getPeerAddress());
+	}
 
+	boolean join(int hashCode, InetSocketAddress address) {
+		return true;
 	}
 
 	@Override
 	public void notifyJoin(Session session, int hashCode) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public Staff getMe() {
+		return me;
 	}
 }

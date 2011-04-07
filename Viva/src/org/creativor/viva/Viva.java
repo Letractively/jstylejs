@@ -3,6 +3,7 @@ package org.creativor.viva;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -38,13 +39,16 @@ public final class Viva {
 	}
 
 	private InetSocketAddress address;
+	boolean imServant;
 	private List<Servant> servants;
+
 	private RpcServer server;
 
 	private VivaServiceImpl service;
 
 	Viva(short portNumber) throws LoadConfigException,
 			IllegalArgumentException, IllegalServiceException {
+		imServant = false;
 		this.address = new InetSocketAddress(portNumber);
 		int hashCode = HashCoder.getHashCode(this.address.toString());
 		Staff me = new StaffLocal(hashCode, this.address);
@@ -74,8 +78,7 @@ public final class Viva {
 		StaffLocal servantStaff;
 		for (Servant servant : this.servants) {
 			if (this.address.equals(servant.getAddress())) {
-				// ignore myself.
-				continue;
+				imServant = true;
 			} else {
 				// try to add this servant.
 				try {
@@ -88,8 +91,28 @@ public final class Viva {
 				this.service.addStaff(servantStaff);
 			}
 		}
+		boolean joinResult = false;
 		// Join in.
-		
-		return true;
+		if (imServant) {// If i am servant.
+			joinResult = this.service.join(this.service.getMe().getId(),
+					address);
+		} else {
+			// Find one servant to join
+			for (Iterator<StaffLocal> iterator = this.service.staffItor(); iterator
+					.hasNext();) {
+				StaffLocal staff = iterator.next();
+				try {
+					joinResult = staff.getVivaProxy().join(
+							this.service.getMe().getId());
+					if (joinResult)
+						break;
+				} catch (RpcException e) {
+					e.printStackTrace();
+					continue;
+				}
+			}
+
+		}
+		return joinResult;
 	}
 }

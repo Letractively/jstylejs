@@ -7,7 +7,7 @@ import org.creativor.rayson.api.Session;
 @Proxy(VivaProxy.class)
 public interface VivaService extends RpcService {
 
-	public void join(Session session, int hashCode);
+	public boolean join(Session session, int hashCode);
 
 	public int getId(Session session);
 

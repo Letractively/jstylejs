@@ -1,6 +1,6 @@
 package org.creativor.viva;
 
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.client.Rayson;
@@ -17,7 +17,7 @@ final class StaffLocal implements Staff {
 	private int id;
 	private VivaProxy vivaProxy;
 
-	public StaffLocal(int hashCode, SocketAddress serverAddress)
+	public StaffLocal(int hashCode, InetSocketAddress serverAddress)
 			throws IllegalServiceException {
 		this.id = hashCode;
 		this.vivaProxy = Rayson.createProxy(VivaServiceImpl.SERVICE_NAME,
@@ -26,7 +26,7 @@ final class StaffLocal implements Staff {
 				CardProxy.class, serverAddress);
 	}
 
-	public StaffLocal(SocketAddress serverAddress)
+	public StaffLocal(InetSocketAddress serverAddress)
 			throws IllegalServiceException, RpcException {
 		this.vivaProxy = Rayson.createProxy(VivaServiceImpl.SERVICE_NAME,
 				VivaProxy.class, serverAddress);
