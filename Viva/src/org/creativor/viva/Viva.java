@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.creativor.rayson.exception.IllegalServiceException;
+import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.server.RpcServer;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.util.Log;
 import org.creativor.viva.api.Staff;
-import org.creativor.viva.api.VivaService;
 import org.creativor.viva.conf.ConfTool;
 import org.creativor.viva.conf.LoadConfigException;
 import org.creativor.viva.conf.Servants;
@@ -38,18 +38,16 @@ public final class Viva {
 	}
 
 	private InetSocketAddress address;
-	boolean imServant;
 	private List<Servant> servants;
-
 	private RpcServer server;
 
-	private VivaService service;
+	private VivaServiceImpl service;
 
-	Viva(short portNumber) throws LoadConfigException, IllegalArgumentException {
-		imServant = false;
+	Viva(short portNumber) throws LoadConfigException,
+			IllegalArgumentException, IllegalServiceException {
 		this.address = new InetSocketAddress(portNumber);
 		int hashCode = HashCoder.getHashCode(this.address.toString());
-		Staff me = new StaffImpl(hashCode);
+		Staff me = new StaffLocal(hashCode, this.address);
 		this.service = new VivaServiceImpl(me);
 		Servants confServants = ConfTool.getSingleton().getConfiguration(
 				Servants.class);
@@ -73,13 +71,25 @@ public final class Viva {
 		this.server.registerService(CardServiceImpl.SERVICE_NAME,
 				CardServiceImpl.SERVICE_DESCRIPTION, new CardServiceImpl());
 		this.server.start();
+		StaffLocal servantStaff;
 		for (Servant servant : this.servants) {
 			if (this.address.equals(servant.getAddress())) {
-				imServant = true;
-				break;
+				// ignore myself.
+				continue;
+			} else {
+				// try to add this servant.
+				try {
+					servantStaff = new StaffLocal(servant.getAddress());
+				} catch (RpcException e) {
+					e.printStackTrace();
+					// ignore it
+					continue;
+				}
+				this.service.addStaff(servantStaff);
 			}
 		}
+		// Join in.
+		
 		return true;
 	}
-
 }

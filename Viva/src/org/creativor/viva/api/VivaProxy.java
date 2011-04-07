@@ -7,6 +7,8 @@ public interface VivaProxy extends RpcProxy {
 
 	public void join(int hashCode) throws RpcException;
 
+	public int getId() throws RpcException;
+
 	public void notifyJoin(int hashCode) throws RpcException;
 
 }

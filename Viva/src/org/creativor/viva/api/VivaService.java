@@ -9,6 +9,8 @@ public interface VivaService extends RpcService {
 
 	public void join(Session session, int hashCode);
 
+	public int getId(Session session);
+
 	public void notifyJoin(Session session, int hashCode);
 
 }

@@ -10,10 +10,19 @@ final class VivaServiceImpl implements VivaService {
 	static String SERVICE_DESCRIPTION = "Viva rpc service";
 	static String SERVICE_NAME = "viva";
 	private Staff me;
-	private TreeMap<Integer, Staff> staffs;
+	private TreeMap<Integer, StaffLocal> staffs;
 
 	public VivaServiceImpl(Staff me) {
 		this.me = me;
+	}
+
+	public void addStaff(StaffLocal staff) {
+		this.staffs.put(staff.getId(), staff);
+	}
+
+	@Override
+	public int getId(Session session) {
+		return me.getId();
 	}
 
 	@Override
@@ -27,5 +36,4 @@ final class VivaServiceImpl implements VivaService {
 		// TODO Auto-generated method stub
 
 	}
-
 }
