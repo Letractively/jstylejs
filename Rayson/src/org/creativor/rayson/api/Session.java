@@ -1,6 +1,6 @@
 package org.creativor.rayson.api;
 
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 
 public interface Session {
 
@@ -14,5 +14,5 @@ public interface Session {
 
 	public String getServiceName();
 
-	public SocketAddress getPeerAddress();
+	public InetSocketAddress getPeerAddress();
 }

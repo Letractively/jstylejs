@@ -1,7 +1,7 @@
 package org.creativor.rayson.transport.server;
 
 import java.io.IOException;
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -97,6 +97,7 @@ class RpcConnection extends PacketConnection {
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
 	private String addressInfo;
+	private InetSocketAddress remoteAddr;
 
 	RpcConnection(long id, SocketChannel clientChannel,
 			PacketManager packetManager, SelectionKey selectionKey) {
@@ -186,11 +187,13 @@ class RpcConnection extends PacketConnection {
 			this.selectionKey.interestOps(SelectionKey.OP_WRITE
 					| SelectionKey.OP_READ);
 			readedConnectHeader = true;
+			this.remoteAddr = new InetSocketAddress(this.socketChannel.socket()
+					.getInetAddress().getHostAddress(), this.socketChannel
+					.socket().getPort());
 		}
 	}
 
-	
-	 boolean isSupportedVersion(short version) {
+	boolean isSupportedVersion(short version) {
 		if (version < -1 || version > 3)
 			return false;
 		return true;
@@ -247,8 +250,8 @@ class RpcConnection extends PacketConnection {
 		return gotErrorPacket.get() && this.sendPackets.isEmpty();
 	}
 
-	public SocketAddress getRemoteAddr() {
-		return this.socketChannel.socket().getRemoteSocketAddress();
+	public InetSocketAddress getRemoteAddr() {
+		return remoteAddr;
 	}
 
 	@Override

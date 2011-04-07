@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 import org.creativor.rayson.annotation.Proxy;
 import org.creativor.rayson.api.CallFuture;
@@ -28,7 +27,7 @@ public class Demo {
 			NetWorkException, RpcException, IOException,
 			ServiceNotFoundException, InterruptedException {
 
-		SocketAddress serverAddress = new InetSocketAddress(
+		InetSocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
 		Rayson.ping(serverAddress);

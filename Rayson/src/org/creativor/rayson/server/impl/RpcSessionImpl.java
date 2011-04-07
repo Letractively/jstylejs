@@ -1,15 +1,16 @@
 package org.creativor.rayson.server.impl;
 
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.common.ClientSession;
 
 public final class RpcSessionImpl implements Session {
-	private SocketAddress remoteAddr;
+	private InetSocketAddress remoteAddr;
 	private ClientSession clientSession;
 
-	public RpcSessionImpl(ClientSession clientSession, SocketAddress remoteAddr) {
+	public RpcSessionImpl(ClientSession clientSession,
+			InetSocketAddress remoteAddr) {
 		this.clientSession = clientSession;
 		this.remoteAddr = remoteAddr;
 	}
@@ -35,7 +36,7 @@ public final class RpcSessionImpl implements Session {
 	}
 
 	@Override
-	public SocketAddress getPeerAddress() {
+	public InetSocketAddress getPeerAddress() {
 		return remoteAddr;
 	}
 

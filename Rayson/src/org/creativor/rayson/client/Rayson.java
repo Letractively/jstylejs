@@ -1,6 +1,7 @@
 package org.creativor.rayson.client;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -18,7 +19,7 @@ public final class Rayson {
 	private static AtomicBoolean clientInited = new AtomicBoolean(false);
 
 	public static <T extends RpcProxy> T createProxy(String serviceName,
-			Class<T> proxyInterface, SocketAddress serverAddress)
+			Class<T> proxyInterface, InetSocketAddress serverAddress)
 			throws IllegalServiceException {
 		tryInit();
 		return CLIENT
@@ -26,7 +27,7 @@ public final class Rayson {
 	}
 
 	public static <T extends AsyncProxy> T createAsyncProxy(String serviceName,
-			Class<T> proxyInterface, SocketAddress serverAddress)
+			Class<T> proxyInterface, InetSocketAddress serverAddress)
 			throws IllegalServiceException {
 		tryInit();
 		return CLIENT.createAsyncProxy(serviceName, proxyInterface,
@@ -40,7 +41,7 @@ public final class Rayson {
 		return CLIENT.openTransferSocket(serverAddress, argument);
 	}
 
-	public static ServerProxy getServerProxy(SocketAddress serverAddress) {
+	public static ServerProxy getServerProxy(InetSocketAddress serverAddress) {
 		tryInit();
 
 		try {

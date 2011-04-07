@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.creativor.rayson.api.Session;
@@ -24,7 +24,7 @@ public class ServerCall {
 	private static final AtomicLong UID = new AtomicLong(0);
 	private Session session;
 
-	public static ServerCall fromPacket(SocketAddress remoteAddress,
+	public static ServerCall fromPacket(InetSocketAddress remoteAddress,
 			Packet requestPacket) {
 
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(

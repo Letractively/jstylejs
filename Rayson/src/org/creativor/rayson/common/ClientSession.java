@@ -3,7 +3,7 @@ package org.creativor.rayson.common;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.api.Session;
@@ -15,14 +15,14 @@ public class ClientSession implements Portable, Session {
 	private long creationTime;
 	private long lastInvocationTime;
 	private String serviceName;
-	private SocketAddress serverAddress;
+	private InetSocketAddress serverAddress;
 
 	public ClientSession() {
 
 	}
 
 	public ClientSession(byte version, long sessionId, String serviceName,
-			long creationTime, SocketAddress serverAddress) {
+			long creationTime, InetSocketAddress serverAddress) {
 		this.version = version;
 		this.id = sessionId;
 		this.serviceName = serviceName;
@@ -103,7 +103,7 @@ public class ClientSession implements Portable, Session {
 	}
 
 	@Override
-	public SocketAddress getPeerAddress() {
+	public InetSocketAddress getPeerAddress() {
 		return serverAddress;
 	}
 }

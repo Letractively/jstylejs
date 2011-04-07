@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.WeakHashMap;
 
@@ -30,7 +31,8 @@ class Client {
 	private class RpcProxyInvoker implements InvocationHandler, RpcProxy {
 		private ClientSession currentSession;
 
-		public RpcProxyInvoker(String serviceName, SocketAddress serverAddress) {
+		public RpcProxyInvoker(String serviceName,
+				InetSocketAddress serverAddress) {
 			long sessionId = System.currentTimeMillis() + this.hashCode();
 			long creationTime = System.currentTimeMillis();
 			this.currentSession = new ClientSession(version, sessionId,
@@ -70,7 +72,8 @@ class Client {
 
 	private class AsyncProxyInvoker extends RpcProxyInvoker {
 
-		public AsyncProxyInvoker(String serviceName, SocketAddress serverAddress) {
+		public AsyncProxyInvoker(String serviceName,
+				InetSocketAddress serverAddress) {
 			super(serviceName, serverAddress);
 		}
 
@@ -104,7 +107,7 @@ class Client {
 	}
 
 	public <T extends RpcProxy> T createRpcProxy(String serviceName,
-			Class<T> proxyInterface, SocketAddress serverAddress)
+			Class<T> proxyInterface, InetSocketAddress serverAddress)
 			throws IllegalServiceException {
 		if (serviceName == null)
 			throw new IllegalArgumentException(
@@ -135,7 +138,7 @@ class Client {
 	}
 
 	public <T extends AsyncProxy> T createAsyncProxy(String serviceName,
-			Class<T> proxyInterface, SocketAddress serverAddress)
+			Class<T> proxyInterface, InetSocketAddress serverAddress)
 			throws IllegalServiceException {
 		if (serviceName == null)
 			throw new IllegalArgumentException(
@@ -174,7 +177,7 @@ class Client {
 	 * @return
 	 * @throws IllegalServiceException
 	 */
-	<T extends RpcProxy> T getServerProxy(SocketAddress serverAddress)
+	<T extends RpcProxy> T getServerProxy(InetSocketAddress serverAddress)
 			throws IllegalServiceException {
 		ServerProxy rpcService;
 		synchronized (serverServices) {
