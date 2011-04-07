@@ -11,7 +11,6 @@ import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
-import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 
 public final class Rayson {
@@ -20,7 +19,7 @@ public final class Rayson {
 
 	public static <T extends RpcProxy> T createProxy(String serviceName,
 			Class<T> proxyInterface, SocketAddress serverAddress)
-			throws IllegalServiceException, RpcException {
+			throws IllegalServiceException {
 		tryInit();
 		return CLIENT
 				.createRpcProxy(serviceName, proxyInterface, serverAddress);
@@ -28,7 +27,7 @@ public final class Rayson {
 
 	public static <T extends AsyncProxy> T createAsyncProxy(String serviceName,
 			Class<T> proxyInterface, SocketAddress serverAddress)
-			throws IllegalServiceException, RpcException {
+			throws IllegalServiceException {
 		tryInit();
 		return CLIENT.createAsyncProxy(serviceName, proxyInterface,
 				serverAddress);

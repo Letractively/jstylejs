@@ -8,7 +8,6 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.net.SocketAddress;
 import java.util.WeakHashMap;
 
-import org.creativor.rayson.annotation.TransferCode;
 import org.creativor.rayson.api.AsyncProxy;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.RpcProxy;
@@ -20,7 +19,6 @@ import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
-import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.impl.RemoteExceptionImpl;
 import org.creativor.rayson.server.ServerService;
@@ -107,7 +105,7 @@ class Client {
 
 	public <T extends RpcProxy> T createRpcProxy(String serviceName,
 			Class<T> proxyInterface, SocketAddress serverAddress)
-			throws IllegalServiceException, RpcException {
+			throws IllegalServiceException {
 		if (serviceName == null)
 			throw new IllegalArgumentException(
 					"Service name should not be null");
@@ -138,7 +136,7 @@ class Client {
 
 	public <T extends AsyncProxy> T createAsyncProxy(String serviceName,
 			Class<T> proxyInterface, SocketAddress serverAddress)
-			throws IllegalServiceException, RpcException {
+			throws IllegalServiceException {
 		if (serviceName == null)
 			throw new IllegalArgumentException(
 					"Service name should not be null");
