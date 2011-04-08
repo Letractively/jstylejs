@@ -17,13 +17,18 @@ final class StaffLocal implements Staff {
 	private int id;
 	private VivaProxy vivaProxy;
 
-	public StaffLocal(int hashCode, InetSocketAddress serverAddress)
-			throws IllegalServiceException {
+	public StaffLocal(int hashCode, InetSocketAddress serverAddress) {
 		this.id = hashCode;
-		this.vivaProxy = Rayson.createProxy(VivaServiceImpl.SERVICE_NAME,
-				VivaProxy.class, serverAddress);
-		this.cardProxy = Rayson.createProxy(CardServiceImpl.SERVICE_NAME,
-				CardProxy.class, serverAddress);
+		try {
+			this.vivaProxy = Rayson.createProxy(VivaServiceImpl.SERVICE_NAME,
+					VivaProxy.class, serverAddress);
+
+			this.cardProxy = Rayson.createProxy(CardServiceImpl.SERVICE_NAME,
+					CardProxy.class, serverAddress);
+		} catch (IllegalServiceException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 	}
 
 	public StaffLocal(InetSocketAddress serverAddress)

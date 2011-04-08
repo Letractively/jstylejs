@@ -94,8 +94,7 @@ public final class Viva {
 		boolean joinResult = false;
 		// Join in.
 		if (imServant) {// If i am servant.
-			joinResult = this.service.join(this.service.getMe().getId(),
-					address);
+			joinResult = this.service.joinMe();
 		} else {
 			// Find one servant to join
 			for (Iterator<StaffLocal> iterator = this.service.staffItor(); iterator

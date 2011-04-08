@@ -3,9 +3,11 @@ package org.creativor.viva;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.creativor.rayson.api.Session;
+import org.creativor.rayson.exception.RpcException;
 import org.creativor.viva.api.Staff;
 import org.creativor.viva.api.VivaService;
 
@@ -35,20 +37,85 @@ final class VivaServiceImpl implements VivaService {
 
 	@Override
 	public boolean join(Session session, int hashCode) {
-		return join(hashCode, session.getPeerAddress());
+		// Add to list first.
+		this.staffs.put(hashCode,
+				new StaffLocal(hashCode, session.getPeerAddress()));
+		return join1(hashCode);
 	}
 
-	boolean join(int hashCode, InetSocketAddress address) {
-		return true;
+	private boolean join1(int hashCode) {
+		Entry<Integer, StaffLocal> left = staffs.lowerEntry(hashCode);
+		Entry<Integer, StaffLocal> right = staffs.ceilingEntry(hashCode);
+
+		boolean leftResult = false;
+		boolean rightResult = false;
+		if (left != null && left.getValue().equals(me)) {
+			try {
+				leftResult = left
+						.getValue()
+						.getVivaProxy()
+						.notifyJoin(hashCode, this.me.getIp(),
+								this.me.getPort(), true);
+			} catch (RpcException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (right != null && right.getValue().equals(me)) {
+			try {
+				rightResult = right
+						.getValue()
+						.getVivaProxy()
+						.notifyJoin(hashCode, this.me.getIp(),
+								this.me.getPort(), false);
+			} catch (RpcException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		boolean result = leftResult || rightResult;
+		return result;
+
 	}
 
 	@Override
-	public void notifyJoin(Session session, int hashCode) {
-		// TODO Auto-generated method stub
-
+	public boolean notifyJoin(Session session, int joiner, String ip,
+			short port, boolean leftDirection) {
+		// If joiner has already joined in, end the notify progress.
+		if (this.staffs.containsKey(joiner))
+			return true;
+		// add to list first.
+		this.staffs.put(joiner, new StaffLocal(joiner, new InetSocketAddress(
+				SERVICE_DESCRIPTION, port)));
+		Entry<Integer, StaffLocal> next;
+		if (leftDirection)
+			next = staffs.lowerEntry(this.me.getId());
+		else
+			next = staffs.ceilingEntry(this.me.getId());
+		if (next == null)
+			return true;
+		try {
+			next.getValue().getVivaProxy()
+					.notifyJoin(joiner, ip, port, leftDirection);
+		} catch (RpcException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	public Staff getMe() {
 		return me;
+	}
+
+	/**
+	 * join myself into the viva system. That will get all staffs from other
+	 * Servant. <br>
+	 * Servant will use this way to join into system.
+	 * 
+	 * @return
+	 */
+	public boolean joinMe() {
+		return join1(me.getId());
 	}
 }
