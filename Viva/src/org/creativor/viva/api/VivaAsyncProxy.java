@@ -6,7 +6,8 @@ import org.creativor.rayson.exception.NetWorkException;
 
 public interface VivaAsyncProxy extends AsyncProxy {
 
-	public CallFuture<Boolean> join(int joiner) throws NetWorkException;
+	public CallFuture<Boolean> join(int jioner, short port)
+			throws NetWorkException;
 
 	public CallFuture<Integer> getId() throws NetWorkException;
 

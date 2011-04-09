@@ -52,7 +52,8 @@ public final class Viva {
 		imServant = false;
 		this.address = new InetSocketAddress(portNumber);
 		int hashCode = HashCoder.getHashCode(this.address.toString());
-		Staff me = new StaffLocal(hashCode, this.address);
+		Staff me = new StaffLocal(hashCode, this.address.getHostName(),
+				(short) this.address.getPort());
 		this.service = new VivaServiceImpl(me);
 		Servants confServants = ConfTool.getSingleton().getConfiguration(
 				Servants.class);
@@ -111,7 +112,8 @@ public final class Viva {
 				StaffLocal staff = iterator.next();
 				try {
 					joinResult = staff.getVivaProxy().join(
-							this.service.getMe().getId());
+							this.service.getMe().getId(),
+							(short) this.address.getPort());
 					if (joinResult)
 						break;
 				} catch (RpcException e) {

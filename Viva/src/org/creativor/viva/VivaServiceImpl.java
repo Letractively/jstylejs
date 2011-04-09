@@ -1,9 +1,6 @@
 package org.creativor.viva;
 
-import java.lang.reflect.Array;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -46,10 +43,10 @@ final class VivaServiceImpl implements VivaService {
 	}
 
 	@Override
-	public boolean join(Session session, int hashCode) {
+	public boolean join(Session session, int hashCode, short port) {
 		// Add to list first.
-		this.staffs.put(hashCode,
-				new StaffLocal(hashCode, session.getPeerAddress()));
+		this.staffs.put(hashCode, new StaffLocal(hashCode, session
+				.getPeerAddress().getHostName(), port));
 		return join1(hashCode);
 	}
 
@@ -95,8 +92,7 @@ final class VivaServiceImpl implements VivaService {
 		if (this.staffs.containsKey(joiner))
 			return true;
 		// add to list first.
-		this.staffs.put(joiner, new StaffLocal(joiner, new InetSocketAddress(
-				SERVICE_DESCRIPTION, port)));
+		this.staffs.put(joiner, new StaffLocal(joiner, ip, port));
 		Entry<Integer, StaffLocal> next;
 		if (leftDirection)
 			next = staffs.lowerEntry(this.me.getId());

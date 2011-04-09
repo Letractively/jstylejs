@@ -8,14 +8,11 @@ import org.creativor.rayson.api.Session;
 public interface VivaService extends RpcService {
 
 	/**
-	 * Notify the left and right staff that one new staff has joining into the
-	 * Viva system.
-	 * 
 	 * @param session
 	 * @param jioner
 	 * @return
 	 */
-	public boolean join(Session session, int jioner);
+	public boolean join(Session session, int jioner, short port);
 
 	public int getId(Session session);
 

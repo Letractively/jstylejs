@@ -48,4 +48,9 @@ public class PortableStaff implements Portable {
 	public short getPort() {
 		return port;
 	}
+
+	@Override
+	public String toString() {
+		return "{id: " + id + ", ip: " + ip + ", port: " + port + "}";
+	}
 }
