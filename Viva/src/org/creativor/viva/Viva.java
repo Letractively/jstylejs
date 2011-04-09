@@ -12,6 +12,7 @@ import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.server.RpcServer;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.util.Log;
+import org.creativor.viva.api.PortableStaff;
 import org.creativor.viva.api.Staff;
 import org.creativor.viva.conf.ConfTool;
 import org.creativor.viva.conf.LoadConfigException;
@@ -69,12 +70,17 @@ public final class Viva {
 
 	public boolean start() throws IOException, ServiceAlreadyExistedException,
 			IllegalServiceException {
+
+		// 1 start rpc server and register services.
 		this.server = new RpcServer((short) this.address.getPort());
 		this.server.registerService(VivaServiceImpl.SERVICE_NAME,
 				VivaServiceImpl.SERVICE_DESCRIPTION, service);
 		this.server.registerService(CardServiceImpl.SERVICE_NAME,
 				CardServiceImpl.SERVICE_DESCRIPTION, new CardServiceImpl());
 		this.server.start();
+
+		// 2 add servants from configuration file.
+		boolean foundServant = false;
 		StaffLocal servantStaff;
 		for (Servant servant : this.servants) {
 			if (this.address.equals(servant.getAddress())) {
@@ -88,11 +94,14 @@ public final class Viva {
 					// ignore it
 					continue;
 				}
+				foundServant = true;
 				this.service.addStaff(servantStaff);
 			}
 		}
+		if (!imServant && !foundServant)
+			throw new IOException("No servant found");
 		boolean joinResult = false;
-		// Join in.
+		// 3 Join into Viva system.
 		if (imServant) {// If i am servant.
 			joinResult = this.service.joinMe();
 		} else {
@@ -110,8 +119,27 @@ public final class Viva {
 					continue;
 				}
 			}
-
 		}
-		return joinResult;
+		if (!joinResult)
+			return false;
+		// 4 Got all staffs from one servant.
+		for (Iterator<StaffLocal> iterator = this.service.staffItor(); iterator
+				.hasNext();) {
+			StaffLocal staff = iterator.next();
+			try {
+				PortableStaff[] list = staff.getVivaProxy().list();
+				for (PortableStaff portableStaff : list) {
+					if (!this.service.exists(portableStaff.getId()))
+						this.service.addStaff(StaffLocal
+								.fromPortable(portableStaff));
+				}
+				break;
+			} catch (RpcException e) {
+				e.printStackTrace();
+				continue;
+			}
+		}
+
+		return true;
 	}
 }

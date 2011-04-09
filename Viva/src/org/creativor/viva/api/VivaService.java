@@ -19,17 +19,22 @@ public interface VivaService extends RpcService {
 
 	public int getId(Session session);
 
+	public PortableStaff[] list(Session session);
+
 	/**
 	 * Notify that one staff is joining into the Viva system.
 	 * 
 	 * @param session
 	 * @param joiner
-	 * @param ip TODO
-	 * @param port TODO
+	 * @param ip
+	 *            TODO
+	 * @param port
+	 *            TODO
 	 * @param leftDirection
 	 *            True if the direction is left.
 	 * @return
 	 */
-	public boolean notifyJoin(Session session, int joiner, String ip, short port, boolean leftDirection);
+	public boolean notifyJoin(Session session, int joiner, String ip,
+			short port, boolean leftDirection);
 
 }

@@ -1,13 +1,19 @@
 package org.creativor.viva;
 
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.creativor.rayson.api.Session;
+import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
+import org.creativor.viva.api.PortableStaff;
 import org.creativor.viva.api.Staff;
 import org.creativor.viva.api.VivaService;
 
@@ -28,6 +34,10 @@ final class VivaServiceImpl implements VivaService {
 
 	Iterator<StaffLocal> staffItor() {
 		return Collections.unmodifiableCollection(staffs.values()).iterator();
+	}
+
+	public boolean exists(int staffId) {
+		return this.staffs.containsKey(staffId);
 	}
 
 	@Override
@@ -95,9 +105,9 @@ final class VivaServiceImpl implements VivaService {
 		if (next == null)
 			return true;
 		try {
-			next.getValue().getVivaProxy()
+			next.getValue().getVivaAsyncProxy()
 					.notifyJoin(joiner, ip, port, leftDirection);
-		} catch (RpcException e) {
+		} catch (NetWorkException e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -117,5 +127,14 @@ final class VivaServiceImpl implements VivaService {
 	 */
 	public boolean joinMe() {
 		return join1(me.getId());
+	}
+
+	@Override
+	public PortableStaff[] list(Session session) {
+		List<PortableStaff> list = new ArrayList<PortableStaff>();
+		for (StaffLocal staff : staffs.values()) {
+			list.add(staff.getPortable());
+		}
+		return list.toArray(new PortableStaff[0]);
 	}
 }

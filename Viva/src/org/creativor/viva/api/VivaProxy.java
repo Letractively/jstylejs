@@ -9,6 +9,8 @@ public interface VivaProxy extends RpcProxy {
 
 	public int getId() throws RpcException;
 
+	public PortableStaff[] list() throws RpcException;
+
 	/**
 	 * 
 	 * @param joiner
