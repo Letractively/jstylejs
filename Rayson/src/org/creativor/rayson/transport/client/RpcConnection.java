@@ -64,8 +64,9 @@ class RpcConnection extends PacketConnection {
 
 			socketChannel.write(this.writeDataBuffer);
 			if (!this.writeDataBuffer.hasRemaining()) {
-				LOGGER.info("Write packet " + this.lastPacketCarrier.toString()
-						+ " out!");
+				// LOGGER.info("Write packet " +
+				// this.lastPacketCarrier.toString()
+				// + " out!");
 				touch();
 				packetCounter.writeOne();
 				this.lastPacketCarrier = null;
@@ -134,7 +135,7 @@ class RpcConnection extends PacketConnection {
 	}
 
 	private void addReceivedPacket(Packet packet) throws IOException {
-		LOGGER.info("Read packet:" + packet.toString());
+		// LOGGER.info("Read packet:" + packet.toString());
 		this.touch();
 		this.packetCounter.readOne();
 		// add packet to manager
@@ -147,7 +148,7 @@ class RpcConnection extends PacketConnection {
 		this.selectionKey.interestOps(this.selectionKey.interestOps()
 				| SelectionKey.OP_WRITE);
 		this.selectionKey.selector().wakeup();
-		LOGGER.info("add  packet " + packetWithType.toString() + " to send");
+		// LOGGER.info("add  packet " + packetWithType.toString() + " to send");
 	}
 
 	@Override
