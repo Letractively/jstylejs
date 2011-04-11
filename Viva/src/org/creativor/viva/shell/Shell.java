@@ -18,11 +18,15 @@ import org.creativor.viva.api.PortableStaff;
 final class Shell {
 	private static final String COMMAND_DELIM = " ";
 
+	public static final short VERSION = 1;
+
 	private static final String TYPE_TIPS = "Please type you command:";
 
-	private static final String COMMAND_FLAG = "$viva>";
+	private static final String COMMAND_INPUT_TITLE = "$viva>";
 
 	private static StringBuffer HELP_INFO = null;
+
+	private static final int HELP_INFO_MAX_LENGTH = 160;
 
 	private static Console CONSOLE;
 
@@ -91,6 +95,7 @@ final class Shell {
 		@Override
 		public void execute(String[] args) throws CommandArgumentException,
 				CommandExecutionException {
+			CONSOLE.writer().println("bye!");
 			System.exit(0);
 		}
 	};
@@ -264,7 +269,7 @@ final class Shell {
 		String[] commandArgs;
 		String commandName;
 		Command command = null;
-		CONSOLE.writer().print(COMMAND_FLAG);
+		CONSOLE.writer().print(COMMAND_INPUT_TITLE);
 		CONSOLE.writer().flush();
 		while ((commandString = CONSOLE.readLine()) != null) {
 			if (commandString.isEmpty())
@@ -295,7 +300,7 @@ final class Shell {
 						"Command execute error: " + e.getMessage());
 			}
 			CONSOLE.writer().print("\n");
-			CONSOLE.writer().print(COMMAND_FLAG);
+			CONSOLE.writer().print(COMMAND_INPUT_TITLE);
 			CONSOLE.writer().flush();
 		}
 	}
@@ -308,21 +313,39 @@ final class Shell {
 		return UNKNOWN_COMMAND;
 	}
 
+	private static String appendString(String source, int toLength,
+			char fillChar) {
+		int sourceLength = source.length();
+		if (toLength < sourceLength)
+			toLength = sourceLength;
+		char[] fillChars = new char[toLength - sourceLength];
+		Arrays.fill(fillChars, fillChar);
+		return source + new String(fillChars);
+	}
+
+	private static String getCommandHelpString(Command command) {
+		int namePartLength = 15;
+		String namePart = appendString(command.getName(), namePartLength, ' ');
+		int usagePartLegth = 35;
+		String usagePart = appendString(command.getUsage(), usagePartLegth, ' ');
+		String descriptionPart = appendString(command.getDescription(),
+				HELP_INFO_MAX_LENGTH - namePartLength - usagePartLegth - 7, ' ');
+		return "| " + namePart + "| " + descriptionPart + "| " + usagePart
+				+ "|";
+	}
+
 	private static void setupHelpInformation() {
 		HELP_INFO = new StringBuffer();
-		HELP_INFO
-				.append("*****************help information****************************");
+		String helpTitle = " Viva system shell, version " + VERSION + " ";
+		int starsLength = HELP_INFO_MAX_LENGTH / 2 - helpTitle.length();
+		HELP_INFO.append(appendString(appendString("*", starsLength, '*')
+				+ helpTitle, HELP_INFO_MAX_LENGTH, '*'));
 		HELP_INFO.append("\n");
 		for (Command command : COMMANDS) {
-			HELP_INFO.append(command.getName());
-			HELP_INFO.append("       ");
-			HELP_INFO.append(command.getDescription());
-			HELP_INFO.append("       usage: ");
-			HELP_INFO.append(command.getUsage());
+			HELP_INFO.append(getCommandHelpString(command));
 			HELP_INFO.append("\n");
 		}
-		HELP_INFO
-				.append("******************************************************************");
+		HELP_INFO.append(appendString("*", HELP_INFO_MAX_LENGTH, '*'));
 	}
 
 	private static void setupKnownCommands() {
