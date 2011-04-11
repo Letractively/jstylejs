@@ -20,6 +20,8 @@ final class Shell {
 
 	private static final String TYPE_TIPS = "Please type you command:";
 
+	private static final String COMMAND_FLAG = "$viva>";
+
 	private static StringBuffer HELP_INFO = null;
 
 	private static Console CONSOLE;
@@ -28,8 +30,8 @@ final class Shell {
 	private static PrintStream DEFAULT_PRINT_STREAM = System.out;
 	static {
 		try {
-			SILENT_PRINT_STREAM = new PrintStream(File.createTempFile("viva_log",
-					""));
+			SILENT_PRINT_STREAM = new PrintStream(File.createTempFile(
+					"viva_log", ""));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -202,8 +204,9 @@ final class Shell {
 
 		@Override
 		public void execute(String[] args) {
-			System.err
-					.println("Unknown command, please type help for help information of this shell");
+			CONSOLE.writer()
+					.println(
+							"Unknown command, please type help for help information of this shell");
 		}
 
 		@Override
@@ -261,6 +264,8 @@ final class Shell {
 		String[] commandArgs;
 		String commandName;
 		Command command = null;
+		CONSOLE.writer().print(COMMAND_FLAG);
+		CONSOLE.writer().flush();
 		while ((commandString = CONSOLE.readLine()) != null) {
 			if (commandString.isEmpty())
 				commandString = UNKNOWN_COMMAND.getName();
@@ -289,8 +294,9 @@ final class Shell {
 				CONSOLE.writer().println(
 						"Command execute error: " + e.getMessage());
 			}
-
-			CONSOLE.writer().println(TYPE_TIPS);
+			CONSOLE.writer().print("\n");
+			CONSOLE.writer().print(COMMAND_FLAG);
+			CONSOLE.writer().flush();
 		}
 	}
 
