@@ -34,6 +34,8 @@ public final class Viva {
 		if (args == null || args.length != 1)
 			throw new IllegalArgumentException(
 					"Should tell me the port number to start this viva system");
+		System.out.println("Start Viva staff with port number: \"" + args[0]
+				+ "\"");
 		short portNumber = Short.parseShort(args[0]);
 		Viva viva = new Viva(portNumber);
 		viva.start();
