@@ -1,6 +1,10 @@
 package org.creativor.viva.shell;
 
 import java.io.Console;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +22,20 @@ final class Shell {
 
 	private static StringBuffer HELP_INFO = null;
 
+	private static Console CONSOLE;
+
+	private static PrintStream SILENT_PRINT_STREAM;
+	private static PrintStream DEFAULT_PRINT_STREAM = System.out;
+	static {
+		try {
+			SILENT_PRINT_STREAM = new PrintStream(File.createTempFile("viva_log",
+					""));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	private static List<Command> COMMANDS = null;
 
 	private static Command CONNECT_COMMAND = new Command() {
@@ -97,6 +115,46 @@ final class Shell {
 			STAFF_LOCAL = null;
 		}
 	};
+
+	private static Command ECHO_COMMAND = new Command() {
+
+		@Override
+		public String getName() {
+			return "echo";
+		}
+
+		@Override
+		public String getDescription() {
+			return "Make system logger informations on or off";
+		}
+
+		@Override
+		public String getUsage() {
+			return getName() + " on(off)";
+		}
+
+		@Override
+		public void execute(String[] args) throws CommandArgumentException,
+				CommandExecutionException {
+			boolean echo = false;
+			if (args == null || args.length == 0)
+				echo = true;
+			else {
+				String arg = args[0];
+				if (arg.equalsIgnoreCase("on"))
+					echo = true;
+			}
+			if (!echo) {
+				System.setErr(SILENT_PRINT_STREAM);
+				System.setOut(SILENT_PRINT_STREAM);
+			} else {
+				System.setErr(DEFAULT_PRINT_STREAM);
+				System.setOut(DEFAULT_PRINT_STREAM);
+			}
+
+		}
+	};
+
 	private static Command LIST_COMMAND = new Command() {
 
 		@Override
@@ -124,7 +182,7 @@ final class Shell {
 			} catch (RpcException e) {
 				throw new CommandExecutionException(e);
 			}
-			System.out.println(Arrays.toString(staffs));
+			CONSOLE.writer().println(Arrays.toString(staffs));
 		}
 	};
 
@@ -169,7 +227,7 @@ final class Shell {
 
 		@Override
 		public void execute(String[] args) {
-			System.out.println(HELP_INFO.toString());
+			CONSOLE.writer().println(HELP_INFO.toString());
 		}
 
 		@Override
@@ -186,15 +244,24 @@ final class Shell {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		CONSOLE = System.console();
+
 		// show help information first
-		System.out.println(HELP_INFO.toString());
-		System.out.println(TYPE_TIPS);
-		Console console = System.console();
+		CONSOLE.writer().println(HELP_INFO.toString());
+		CONSOLE.writer().println(TYPE_TIPS);
+		// echo off
+		try {
+			ECHO_COMMAND.execute(new String[] { "off" });
+		} catch (CommandArgumentException e1) {
+			CONSOLE.writer().print(e1.getMessage());
+		} catch (CommandExecutionException e1) {
+			CONSOLE.writer().print(e1.getMessage());
+		}
 		String commandString;
 		String[] commandArgs;
 		String commandName;
 		Command command = null;
-		while ((commandString = console.readLine()) != null) {
+		while ((commandString = CONSOLE.readLine()) != null) {
 			if (commandString.isEmpty())
 				commandString = UNKNOWN_COMMAND.getName();
 			StringTokenizer stringTokenizer = new StringTokenizer(
@@ -215,13 +282,15 @@ final class Shell {
 			try {
 				command.execute(commandArgs);
 			} catch (CommandArgumentException e) {
-				System.out.println(command.getName() + " usage: "
-						+ command.getUsage());
+				CONSOLE.writer().println(
+						command.getName() + " usage: " + command.getUsage());
 			} catch (CommandExecutionException e) {
 				e.printStackTrace();
+				CONSOLE.writer().println(
+						"Command execute error: " + e.getMessage());
 			}
 
-			System.out.println(TYPE_TIPS);
+			CONSOLE.writer().println(TYPE_TIPS);
 		}
 	}
 
@@ -257,6 +326,7 @@ final class Shell {
 		COMMANDS.add(HELP_COMMAND);
 		COMMANDS.add(LIST_COMMAND);
 		COMMANDS.add(QUIT_COMMAND);
+		COMMANDS.add(ECHO_COMMAND);
 	}
 
 	private static void checkConnection() throws CommandExecutionException {
