@@ -232,7 +232,7 @@ class Client {
 	private void submitCall(SocketAddress serverAddress, ClientCall call)
 			throws IOException {
 		TransportClient.getSingleton().getConnector()
-				.sumbitCall(serverAddress, call);
+				.submitCall(serverAddress, call);
 	}
 
 	public TransferSocket openTransferSocket(SocketAddress serverAddress,

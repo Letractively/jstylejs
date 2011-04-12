@@ -143,9 +143,19 @@ public class RpcConnector {
 		call.readResult(inputStream);
 	}
 
-	public synchronized void sumbitCall(SocketAddress serverAddress,
-			ClientCall call) throws ConnectException, IOException {
+	public void submitCall(SocketAddress serverAddress, ClientCall call)
+			throws ConnectException, IOException {
 		RpcConnection connection = client.getConnection(serverAddress);
+		// if the connection is closed, the we will retry.
+		if (connection.isClosed()) {
+			try {
+				connection.waitForRemoved();
+			} catch (InterruptedException e) {
+				// Ignore it.
+			}
+			submitCall(serverAddress, call);
+			return;
+		}
 		addCall(call, connection.getId());
 		connection.addSendPacket(call.getRequestPacket());
 

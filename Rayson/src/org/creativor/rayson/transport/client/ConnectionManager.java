@@ -42,8 +42,8 @@ class ConnectionManager extends Thread {
 				try {
 					LOGGER.info("Remove and close time out conection: "
 							+ conn.toString());
-					iterator.remove();
 					conn.close();
+					this.remove(conn);
 				} catch (IOException e) {
 					LOGGER.log(
 							Level.SEVERE,
@@ -59,8 +59,8 @@ class ConnectionManager extends Thread {
 				try {
 					LOGGER.info("Remove and close time out conection: "
 							+ conn.toString());
-					iterator.remove();
 					conn.close();
+					this.remove(conn);
 				} catch (IOException e) {
 					LOGGER.log(
 							Level.SEVERE,
@@ -78,6 +78,7 @@ class ConnectionManager extends Thread {
 
 	public void remove(RpcConnection connection) {
 		this.rpcConnections.remove(connection.getServerSocket());
+		connection.notifyRemoved();
 	}
 
 	public void remove(ClientStreamConnection connection) {

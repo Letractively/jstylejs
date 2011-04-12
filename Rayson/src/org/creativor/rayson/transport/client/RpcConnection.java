@@ -109,6 +109,8 @@ class RpcConnection extends PacketConnection {
 	private SocketChannel socketChannel;
 	private Object thresholdLock;
 
+	private AtomicBoolean removed;
+
 	RpcConnection(SocketAddress serverSocket, PacketManager packetManager,
 			Listener listener) {
 		super();
@@ -119,6 +121,7 @@ class RpcConnection extends PacketConnection {
 				.allocate(ConnectionProtocol.RESPONSE_LENGTH);
 		this.packetManager = packetManager;
 		closed = new AtomicBoolean(false);
+		removed = new AtomicBoolean(false);
 
 		packetManager = new PacketManager();
 		packetCounter = new PacketCounter();
@@ -183,6 +186,13 @@ class RpcConnection extends PacketConnection {
 			TransportClient.getSingleton().notifyConnectionClosed(this);
 		}
 		LOGGER.info(this.toString() + " closed!");
+	}
+
+	/**
+	 * @return True if this connection is closed.
+	 */
+	public synchronized boolean isClosed() {
+		return closed.get();
 	}
 
 	@Override
@@ -298,4 +308,29 @@ class RpcConnection extends PacketConnection {
 		}
 	}
 
+	/**
+	 * Notify other thread that this connection is removed from
+	 * {@link ConnectionManager}.
+	 */
+	public void notifyRemoved() {
+		synchronized (removed) {
+			removed.set(true);
+			removed.notifyAll();
+		}
+	}
+
+	/**
+	 * Wait until this connection is removed from {@link ConnectionManager}.
+	 * 
+	 * @throws InterruptedException
+	 */
+	public void waitForRemoved() throws InterruptedException {
+
+		synchronized (removed) {
+			while (!removed.get()) {
+				removed.wait();
+			}
+		}
+
+	}
 }
