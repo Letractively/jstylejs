@@ -338,14 +338,16 @@ final class Shell {
 		HELP_INFO = new StringBuffer();
 		String helpTitle = " Viva system shell, version " + VERSION + " ";
 		int starsLength = HELP_INFO_MAX_LENGTH / 2 - helpTitle.length();
-		HELP_INFO.append(appendString(appendString("*", starsLength, '*')
-				+ helpTitle, HELP_INFO_MAX_LENGTH, '*'));
+		HELP_INFO.append("+"
+				+ appendString(appendString("=", starsLength, '=') + helpTitle,
+						HELP_INFO_MAX_LENGTH - 2, '=') + "+");
 		HELP_INFO.append("\n");
 		for (Command command : COMMANDS) {
 			HELP_INFO.append(getCommandHelpString(command));
 			HELP_INFO.append("\n");
 		}
-		HELP_INFO.append(appendString("*", HELP_INFO_MAX_LENGTH, '*'));
+		HELP_INFO.append("+" + appendString("=", HELP_INFO_MAX_LENGTH - 2, '=')
+				+ "+");
 	}
 
 	private static void setupKnownCommands() {
