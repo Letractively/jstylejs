@@ -6,13 +6,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 
+import org.creativor.viva.Environment;
+
 import com.google.gson.Gson;
 
 public class ConfTool {
 	private static ConfTool singleton = new ConfTool();
-	private String filesPath;
 	private static final String CONF_FILE_POSTFIX = ".json";
-	private static final String CONF_DIRECTORY = "conf";
 	private Gson gson;
 	private HashMap<Class<? extends Configuration>, Configuration> caches;
 
@@ -20,9 +20,6 @@ public class ConfTool {
 		try {
 			caches = new HashMap<Class<? extends Configuration>, Configuration>();
 			gson = new Gson();
-			filesPath = ConfTool.class.getClassLoader().getResource(".")
-					.getFile()
-					+ CONF_DIRECTORY;
 		} catch (Throwable e) {
 			throw new RuntimeException(
 					"Initialize the configuration tool error", e);
@@ -51,7 +48,8 @@ public class ConfTool {
 		if (configuration == null) {
 			String confFileName = confClass.getSimpleName().toLowerCase()
 					+ CONF_FILE_POSTFIX;
-			String confFilePath = filesPath + File.separator + confFileName;
+			String confFilePath = Environment.getEnvironment().getConfDir()
+					+ File.separator + confFileName;
 			Reader reader;
 			try {
 				reader = new InputStreamReader(

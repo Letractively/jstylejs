@@ -33,6 +33,15 @@ public final class Environment {
 	}
 
 	/**
+	 * Get configuration files directory.
+	 * 
+	 * @return
+	 */
+	public String getConfDir() {
+		return getHomeDir() + File.separatorChar + "conf";
+	}
+
+	/**
 	 * Set log file name. The new log file will using the formatter
 	 * {@link SimpleFormatter}.
 	 * 
