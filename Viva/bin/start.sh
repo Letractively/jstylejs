@@ -6,5 +6,5 @@ CLASS_PATH=$PATENT_PATH/build/
 for f in $PATENT_PATH/lib/*.jar;do
 CLASS_PATH=$CLASS_PATH:$f;
 done
-cd $CURRENT_DIR
 java -cp $CLASS_PATH  org.creativor.viva.Viva $*
+cd $CURRENT_DIR
