@@ -53,6 +53,16 @@ public final class Viva {
 			IllegalArgumentException, IllegalServiceException {
 		imServant = false;
 		this.address = new InetSocketAddress(portNumber);
+
+		// setup log file
+		String logFileName = "viva_" + this.address.getHostName() + "_"
+				+ this.address.getPort();
+		try {
+			Environment.getEnvironment().setupLogFile(logFileName);
+		} catch (Exception e1) {
+			throw new RuntimeException(e1);
+		}
+
 		int hashCode = HashCoder.getHashCode(this.address.toString());
 		Staff me = new StaffLocal(hashCode, this.address.getHostName(),
 				(short) this.address.getPort());
