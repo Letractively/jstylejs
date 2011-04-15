@@ -62,8 +62,8 @@ final class VivaServiceImpl implements VivaService {
 	}
 
 	private boolean join1(int hashCode) {
-		Entry<Integer, StaffLocal> left = staffs.lowerEntry(hashCode);
-		Entry<Integer, StaffLocal> right = staffs.ceilingEntry(hashCode);
+		Entry<Integer, StaffLocal> left = staffs.floorEntry(myself.getId());
+		Entry<Integer, StaffLocal> right = staffs.ceilingEntry(myself.getId());
 
 		boolean leftResult = true;
 		boolean rightResult = true;
