@@ -71,14 +71,12 @@ public final class StaffLocal implements Staff {
 
 	@Override
 	public String getIp() {
-		// TODO Auto-generated method stub
-		return null;
+		return portable.getIp();
 	}
 
 	@Override
 	public short getPort() {
-		// TODO Auto-generated method stub
-		return 0;
+		return portable.getPort();
 	}
 
 	public PortableStaff getPortable() {

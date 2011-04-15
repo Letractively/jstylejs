@@ -27,6 +27,9 @@ final class VivaServiceImpl implements VivaService {
 	}
 
 	public void addStaff(StaffLocal staff) {
+		// do not add myself.
+		if (staff.getId() == me.getId())
+			return;
 		this.staffs.put(staff.getId(), staff);
 	}
 
@@ -45,10 +48,13 @@ final class VivaServiceImpl implements VivaService {
 
 	@Override
 	public boolean join(Session session, int hashCode, short port) {
-		// Add to list first.
-		this.staffs.put(hashCode, new StaffLocal(hashCode, session
-				.getPeerAddress().getHostName(), port));
-		return join1(hashCode);
+		// 1. do join operation.
+		boolean result = join1(hashCode);
+		// 2. add to list.
+		if (result)
+			this.staffs.put(hashCode, new StaffLocal(hashCode, session
+					.getPeerAddress().getHostName(), port));
+		return result;
 	}
 
 	private boolean join1(int hashCode) {
