@@ -12,7 +12,7 @@ public interface VivaService extends RpcService {
 	 * @param jioner
 	 * @return
 	 */
-	public boolean join(Session session, int jioner, short port)
+	public boolean join(Session session, int jioner, int port)
 			throws HashCodeCollisionException;
 
 	public int getId(Session session);
@@ -33,7 +33,7 @@ public interface VivaService extends RpcService {
 	 * @return
 	 */
 	public boolean notifyJoin(Session session, int joiner, String ip,
-			short port, boolean leftDirection);
+			int port, boolean leftDirection);
 
 	/**
 	 * Return a string that picture all the staffs of the Viva system in this

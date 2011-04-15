@@ -6,17 +6,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
+import org.creativor.rayson.util.Log;
 import org.creativor.viva.api.HashCodeCollisionException;
 import org.creativor.viva.api.PortableStaff;
 import org.creativor.viva.api.Staff;
 import org.creativor.viva.api.VivaService;
 
 final class VivaServiceImpl implements VivaService {
+
+	private static Logger LOGGER = Log.getLogger();
 	static String SERVICE_DESCRIPTION = "Viva rpc service";
 	static String SERVICE_NAME = "viva";
 	private Staff myself;
@@ -52,24 +56,31 @@ final class VivaServiceImpl implements VivaService {
 	}
 
 	@Override
-	public boolean join(Session session, int hashCode, short port)
+	public boolean join(Session session, int hashCode, int port)
 			throws HashCodeCollisionException {
 		if (this.staffs.containsKey(hashCode))
 			throw new HashCodeCollisionException(hashCode
 					+ " staff is already exists");
+		String hostName = session.getPeerAddress().getHostName();
+		LOGGER.info(hashCode + " host:" + hostName + ", port: " + port
+				+ " is joining into the viva system");
 		// 1. do join operation.
-		boolean result = join1(hashCode,
-				session.getPeerAddress().getHostName(), (short) session
-						.getPeerAddress().getPort());
+		boolean result = join1(hashCode, hostName, port);
 		// 2. If failed, remove it.
 		if (!result)
 			this.staffs.remove(hashCode);
 		return result;
 	}
 
-	private boolean join1(int hashCode, String ip, short port) {
+	private boolean join1(int hashCode, String ip, int port) {
+
 		Entry<Integer, StaffLocal> left = staffs.higherEntry(myself.getId());
+		if (left != null && left.getKey() == hashCode)
+			left = staffs.higherEntry(hashCode);
+
 		Entry<Integer, StaffLocal> right = staffs.lowerEntry(myself.getId());
+		if (right != null && right.getKey() == hashCode)
+			right = staffs.higherEntry(hashCode);
 
 		// IF not myself, add to list first.
 		if (hashCode != myself.getId())
@@ -77,6 +88,7 @@ final class VivaServiceImpl implements VivaService {
 
 		boolean leftResult = true;
 		boolean rightResult = true;
+		// Notify left staff join in
 		if (left != null) {
 			try {
 				leftResult = left.getValue().getVivaProxy()
@@ -86,6 +98,8 @@ final class VivaServiceImpl implements VivaService {
 				e.printStackTrace();
 			}
 		}
+
+		// Notify right staff join in
 		if (right != null) {
 			try {
 				rightResult = right.getValue().getVivaProxy()
@@ -101,8 +115,8 @@ final class VivaServiceImpl implements VivaService {
 	}
 
 	@Override
-	public boolean notifyJoin(Session session, int joiner, String ip,
-			short port, boolean leftDirection) {
+	public boolean notifyJoin(Session session, int joiner, String ip, int port,
+			boolean leftDirection) {
 		// If joiner has already joined in, end the notify progress.
 		if (this.staffs.containsKey(joiner))
 			return true;

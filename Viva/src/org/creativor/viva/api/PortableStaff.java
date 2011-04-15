@@ -8,7 +8,7 @@ import org.creativor.rayson.api.Portable;
 
 public class PortableStaff implements Portable {
 
-	public PortableStaff(int id, String ip, short port) {
+	public PortableStaff(int id, String ip, int port) {
 		super();
 		this.id = id;
 		this.ip = ip;
@@ -21,7 +21,7 @@ public class PortableStaff implements Portable {
 
 	private int id;
 	private String ip;
-	private short port;
+	private int port;
 
 	@Override
 	public void read(DataInput in) throws IOException {
@@ -45,7 +45,7 @@ public class PortableStaff implements Portable {
 		return ip;
 	}
 
-	public short getPort() {
+	public int getPort() {
 		return port;
 	}
 

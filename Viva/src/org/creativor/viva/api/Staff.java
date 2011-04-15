@@ -10,7 +10,7 @@ public interface Staff {
 
 	public String getIp();
 
-	public short getPort();
+	public int getPort();
 
 	public void putCard(String key, Portable value);
 }

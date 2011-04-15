@@ -3,6 +3,7 @@ package org.creativor.viva;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -37,7 +38,7 @@ public final class Viva {
 					"Should tell me the port number to start this viva system");
 		System.out.println("Start Viva staff with port number: \"" + args[0]
 				+ "\"");
-		short portNumber = Short.parseShort(args[0]);
+		int portNumber = Integer.parseInt(args[0]);
 		Viva viva = new Viva(portNumber);
 		viva.start();
 	}
@@ -50,8 +51,8 @@ public final class Viva {
 
 	private VivaServiceImpl service;
 
-	Viva(short portNumber) throws LoadConfigException,
-			IllegalArgumentException, IllegalServiceException {
+	Viva(int portNumber) throws LoadConfigException, IllegalArgumentException,
+			IllegalServiceException {
 		imServant = false;
 		this.address = new InetSocketAddress(portNumber);
 
@@ -66,7 +67,7 @@ public final class Viva {
 
 		int hashCode = HashCoder.getHashCode(this.address.toString());
 		StaffLocal me = new StaffLocal(hashCode, this.address.getHostName(),
-				(short) this.address.getPort());
+				this.address.getPort());
 		this.service = new VivaServiceImpl(me);
 		Servants confServants = ConfTool.getSingleton().getConfiguration(
 				Servants.class);
@@ -86,7 +87,7 @@ public final class Viva {
 			IllegalServiceException, HashCodeCollisionException {
 
 		// 1 start rpc server and register services.
-		this.server = new RpcServer((short) this.address.getPort());
+		this.server = new RpcServer(this.address.getPort());
 		this.server.registerService(VivaServiceImpl.SERVICE_NAME,
 				VivaServiceImpl.SERVICE_DESCRIPTION, service);
 		this.server.registerService(CardServiceImpl.SERVICE_NAME,
@@ -129,7 +130,7 @@ public final class Viva {
 						continue;
 					joinResult = staff.getVivaProxy().join(
 							this.service.getMyself().getId(),
-							(short) this.address.getPort());
+							this.service.getMyself().getPort());
 					if (joinResult)
 						break;
 				} catch (RpcException e) {
@@ -146,8 +147,8 @@ public final class Viva {
 			StaffLocal staff = iterator.next();
 			try {
 				PortableStaff[] list = staff.getVivaProxy().list();
-				LOGGER.info("Picture staffs  from servant " + staff.toString()
-						+ ": " + staff.getVivaProxy().pictureStaffs());
+				LOGGER.info("List staffs  from servant " + staff.toString()
+						+ ": " + Arrays.toString(list));
 				for (PortableStaff portableStaff : list) {
 					if (!this.service.exists(portableStaff.getId()))
 						this.service.addStaff(StaffLocal

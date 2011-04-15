@@ -46,7 +46,7 @@ public final class StaffLocal implements Staff {
 		init(serverAddress);
 	}
 
-	public StaffLocal(int hashCode, String hostName, short port) {
+	public StaffLocal(int hashCode, String hostName, int port) {
 		this(hashCode, new InetSocketAddress(hostName, port));
 	}
 
@@ -75,7 +75,7 @@ public final class StaffLocal implements Staff {
 	}
 
 	@Override
-	public short getPort() {
+	public int getPort() {
 		return portable.getPort();
 	}
 
@@ -93,7 +93,7 @@ public final class StaffLocal implements Staff {
 
 	private void init(InetSocketAddress serverAddress) {
 		this.portable = new PortableStaff(id, serverAddress.getAddress()
-				.getHostAddress(), (short) serverAddress.getPort());
+				.getHostAddress(), serverAddress.getPort());
 		try {
 			if (this.vivaProxy == null)
 				this.vivaProxy = Rayson.createProxy(
