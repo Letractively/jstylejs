@@ -13,7 +13,7 @@ import org.creativor.rayson.util.Log;
 
 @ServerConfig()
 public class TransportServer {
-	private static Logger LOGGER = Log.getLogger();
+	protected static Logger LOGGER = Log.getLogger();
 	private static final int version = 1;
 	private ServerConfig config;
 	private ConnectionManager connectionManager;

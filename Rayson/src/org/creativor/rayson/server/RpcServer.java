@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.ServiceRegistration;
@@ -78,6 +79,12 @@ public class RpcServer extends TransportServer implements ServerService {
 
 			call.setResult(result);
 		} catch (InvocationException e) {
+			if (e.isUnDeclaredException()) {
+				// do log the undeclared excepion.
+				LOGGER.log(Level.SEVERE,
+						"Invoke rpc throws an undeclared exception",
+						e.getRemoteException());
+			}
 			call.setException(e);
 		} catch (ServiceNotFoundException e) {
 			call.setException(new InvocationException(false, e));
