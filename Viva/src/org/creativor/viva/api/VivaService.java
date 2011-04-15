@@ -12,7 +12,8 @@ public interface VivaService extends RpcService {
 	 * @param jioner
 	 * @return
 	 */
-	public boolean join(Session session, int jioner, short port);
+	public boolean join(Session session, int jioner, short port)
+			throws HashCodeCollisionException;
 
 	public int getId(Session session);
 

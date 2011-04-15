@@ -12,6 +12,7 @@ import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.server.RpcServer;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.util.Log;
+import org.creativor.viva.api.HashCodeCollisionException;
 import org.creativor.viva.api.PortableStaff;
 import org.creativor.viva.conf.ConfTool;
 import org.creativor.viva.conf.LoadConfigException;
@@ -26,10 +27,11 @@ public final class Viva {
 	 * @throws IOException
 	 * @throws IllegalServiceException
 	 * @throws ServiceAlreadyExistedException
+	 * @throws HashCodeCollisionException
 	 */
 	public static void main(String[] args) throws LoadConfigException,
 			IOException, ServiceAlreadyExistedException,
-			IllegalServiceException {
+			IllegalServiceException, HashCodeCollisionException {
 		if (args == null || args.length != 1)
 			throw new IllegalArgumentException(
 					"Should tell me the port number to start this viva system");
@@ -81,7 +83,7 @@ public final class Viva {
 	}
 
 	public boolean start() throws IOException, ServiceAlreadyExistedException,
-			IllegalServiceException {
+			IllegalServiceException, HashCodeCollisionException {
 
 		// 1 start rpc server and register services.
 		this.server = new RpcServer((short) this.address.getPort());
@@ -122,6 +124,9 @@ public final class Viva {
 					.hasNext();) {
 				StaffLocal staff = iterator.next();
 				try {
+					// Do not join into my self.
+					if (staff.getId() == this.service.getMyself().getId())
+						continue;
 					joinResult = staff.getVivaProxy().join(
 							this.service.getMyself().getId(),
 							(short) this.address.getPort());
@@ -148,6 +153,8 @@ public final class Viva {
 						this.service.addStaff(StaffLocal
 								.fromPortable(portableStaff));
 				}
+				LOGGER.info("Picture my staffs: "
+						+ this.service.pictureStaffs(null));
 				break;
 			} catch (RpcException e) {
 				e.printStackTrace();

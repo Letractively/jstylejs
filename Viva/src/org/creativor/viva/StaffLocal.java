@@ -119,4 +119,9 @@ public final class StaffLocal implements Staff {
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public String toString() {
+		return portable.toString();
+	}
 }

@@ -11,6 +11,7 @@ import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
+import org.creativor.viva.api.HashCodeCollisionException;
 import org.creativor.viva.api.PortableStaff;
 import org.creativor.viva.api.Staff;
 import org.creativor.viva.api.VivaService;
@@ -51,41 +52,44 @@ final class VivaServiceImpl implements VivaService {
 	}
 
 	@Override
-	public boolean join(Session session, int hashCode, short port) {
+	public boolean join(Session session, int hashCode, short port)
+			throws HashCodeCollisionException {
+		if (this.staffs.containsKey(hashCode))
+			throw new HashCodeCollisionException(hashCode
+					+ " staff is already exists");
 		// 1. do join operation.
-		boolean result = join1(hashCode);
-		// 2. add to list.
-		if (result)
-			this.staffs.put(hashCode, new StaffLocal(hashCode, session
-					.getPeerAddress().getHostName(), port));
+		boolean result = join1(hashCode,
+				session.getPeerAddress().getHostName(), (short) session
+						.getPeerAddress().getPort());
+		// 2. If failed, remove it.
+		if (!result)
+			this.staffs.remove(hashCode);
 		return result;
 	}
 
-	private boolean join1(int hashCode) {
-		Entry<Integer, StaffLocal> left = staffs.floorEntry(myself.getId());
-		Entry<Integer, StaffLocal> right = staffs.ceilingEntry(myself.getId());
+	private boolean join1(int hashCode, String ip, short port) {
+		Entry<Integer, StaffLocal> left = staffs.higherEntry(myself.getId());
+		Entry<Integer, StaffLocal> right = staffs.lowerEntry(myself.getId());
+
+		// IF not myself, add to list first.
+		if (hashCode != myself.getId())
+			this.staffs.put(hashCode, new StaffLocal(hashCode, ip, port));
 
 		boolean leftResult = true;
 		boolean rightResult = true;
-		if (left != null && left.getValue().equals(myself)) {
+		if (left != null) {
 			try {
-				leftResult = left
-						.getValue()
-						.getVivaProxy()
-						.notifyJoin(hashCode, this.myself.getIp(),
-								this.myself.getPort(), true);
+				leftResult = left.getValue().getVivaProxy()
+						.notifyJoin(myself.getId(), ip, port, true);
 			} catch (RpcException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		if (right != null && right.getValue().equals(myself)) {
+		if (right != null) {
 			try {
-				rightResult = right
-						.getValue()
-						.getVivaProxy()
-						.notifyJoin(hashCode, this.myself.getIp(),
-								this.myself.getPort(), false);
+				rightResult = right.getValue().getVivaProxy()
+						.notifyJoin(myself.getId(), ip, port, false);
 			} catch (RpcException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -108,9 +112,11 @@ final class VivaServiceImpl implements VivaService {
 		if (leftDirection)
 			next = staffs.lowerEntry(this.myself.getId());
 		else
-			next = staffs.ceilingEntry(this.myself.getId());
+			next = staffs.higherEntry(this.myself.getId());
+
 		if (next == null)
 			return true;
+
 		try {
 			CallFuture<Boolean> future = next.getValue().getVivaAsyncProxy()
 					.notifyJoin(joiner, ip, port, leftDirection);
@@ -118,6 +124,7 @@ final class VivaServiceImpl implements VivaService {
 			e.printStackTrace();
 			return false;
 		}
+
 		return true;
 	}
 
@@ -133,7 +140,7 @@ final class VivaServiceImpl implements VivaService {
 	 * @return
 	 */
 	public boolean joinMyself() {
-		return join1(myself.getId());
+		return join1(myself.getId(), myself.getIp(), myself.getPort());
 	}
 
 	@Override

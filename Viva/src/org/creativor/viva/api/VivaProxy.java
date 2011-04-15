@@ -5,7 +5,8 @@ import org.creativor.rayson.exception.RpcException;
 
 public interface VivaProxy extends RpcProxy {
 
-	public boolean join(int jioner, short port) throws RpcException;
+	public boolean join(int jioner, short port) throws RpcException,
+			HashCodeCollisionException;
 
 	public int getId() throws RpcException;
 
