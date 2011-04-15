@@ -183,13 +183,12 @@ final class Shell {
 		public void execute(String[] args) throws CommandArgumentException,
 				CommandExecutionException {
 			checkConnection();
-			PortableStaff[] staffs;
 			try {
-				staffs = STAFF_LOCAL.getVivaProxy().list();
+				CONSOLE.writer().println(
+						STAFF_LOCAL.getVivaProxy().pictureStaffs());
 			} catch (RpcException e) {
 				throw new CommandExecutionException(e);
 			}
-			CONSOLE.writer().println(Arrays.toString(staffs));
 		}
 	};
 

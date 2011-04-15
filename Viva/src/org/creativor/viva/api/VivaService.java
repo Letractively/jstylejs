@@ -34,4 +34,16 @@ public interface VivaService extends RpcService {
 	public boolean notifyJoin(Session session, int joiner, String ip,
 			short port, boolean leftDirection);
 
+	/**
+	 * Return a string that picture all the staffs of the Viva system in this
+	 * peer.<br>
+	 * The string looks like that:<br>
+	 * |->first staff id-> next staff id -> next staff id* -> last staff id ->| <br>
+	 * Where * indicate that it's the current staff id.
+	 * 
+	 * @param session
+	 * @return
+	 */
+	public String pictureStaffs(Session session);
+
 }

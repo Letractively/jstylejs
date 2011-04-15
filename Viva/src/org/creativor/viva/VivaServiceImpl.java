@@ -18,17 +18,21 @@ import org.creativor.viva.api.VivaService;
 final class VivaServiceImpl implements VivaService {
 	static String SERVICE_DESCRIPTION = "Viva rpc service";
 	static String SERVICE_NAME = "viva";
-	private Staff me;
+	private Staff myself;
 	private TreeMap<Integer, StaffLocal> staffs;
 
-	public VivaServiceImpl(Staff me) {
-		this.me = me;
+	public VivaServiceImpl(StaffLocal myself) {
+		if (myself == null)
+			throw new NullPointerException("Myself should not be empty");
+		this.myself = myself;
 		this.staffs = new TreeMap<Integer, StaffLocal>();
+		// add myself to circle.
+		this.staffs.put(myself.getId(), myself);
 	}
 
 	public void addStaff(StaffLocal staff) {
 		// do not add myself.
-		if (staff.getId() == me.getId())
+		if (staff.getId() == myself.getId())
 			return;
 		this.staffs.put(staff.getId(), staff);
 	}
@@ -43,7 +47,7 @@ final class VivaServiceImpl implements VivaService {
 
 	@Override
 	public int getId(Session session) {
-		return me.getId();
+		return myself.getId();
 	}
 
 	@Override
@@ -63,25 +67,25 @@ final class VivaServiceImpl implements VivaService {
 
 		boolean leftResult = true;
 		boolean rightResult = true;
-		if (left != null && left.getValue().equals(me)) {
+		if (left != null && left.getValue().equals(myself)) {
 			try {
 				leftResult = left
 						.getValue()
 						.getVivaProxy()
-						.notifyJoin(hashCode, this.me.getIp(),
-								this.me.getPort(), true);
+						.notifyJoin(hashCode, this.myself.getIp(),
+								this.myself.getPort(), true);
 			} catch (RpcException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		if (right != null && right.getValue().equals(me)) {
+		if (right != null && right.getValue().equals(myself)) {
 			try {
 				rightResult = right
 						.getValue()
 						.getVivaProxy()
-						.notifyJoin(hashCode, this.me.getIp(),
-								this.me.getPort(), false);
+						.notifyJoin(hashCode, this.myself.getIp(),
+								this.myself.getPort(), false);
 			} catch (RpcException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -102,9 +106,9 @@ final class VivaServiceImpl implements VivaService {
 		this.staffs.put(joiner, new StaffLocal(joiner, ip, port));
 		Entry<Integer, StaffLocal> next;
 		if (leftDirection)
-			next = staffs.lowerEntry(this.me.getId());
+			next = staffs.lowerEntry(this.myself.getId());
 		else
-			next = staffs.ceilingEntry(this.me.getId());
+			next = staffs.ceilingEntry(this.myself.getId());
 		if (next == null)
 			return true;
 		try {
@@ -117,8 +121,8 @@ final class VivaServiceImpl implements VivaService {
 		return true;
 	}
 
-	public Staff getMe() {
-		return me;
+	public Staff getMyself() {
+		return myself;
 	}
 
 	/**
@@ -128,8 +132,8 @@ final class VivaServiceImpl implements VivaService {
 	 * 
 	 * @return
 	 */
-	public boolean joinMe() {
-		return join1(me.getId());
+	public boolean joinMyself() {
+		return join1(myself.getId());
 	}
 
 	@Override
@@ -139,5 +143,21 @@ final class VivaServiceImpl implements VivaService {
 			list.add(staff.getPortable());
 		}
 		return list.toArray(new PortableStaff[0]);
+	}
+
+	@Override
+	public String pictureStaffs(Session session) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("|->");
+		for (Staff staff : staffs.values()) {
+			sb.append(pictureOneStaff(staff));
+		}
+		sb.append("|");
+		return sb.toString();
+	}
+
+	private String pictureOneStaff(Staff staff) {
+		return ((staff.getId() == myself.getId()) ? (staff.getId() + "*")
+				: staff.getId()) + "->";
 	}
 }

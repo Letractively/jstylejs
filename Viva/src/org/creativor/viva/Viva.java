@@ -3,7 +3,6 @@ package org.creativor.viva;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -14,7 +13,6 @@ import org.creativor.rayson.server.RpcServer;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.util.Log;
 import org.creativor.viva.api.PortableStaff;
-import org.creativor.viva.api.Staff;
 import org.creativor.viva.conf.ConfTool;
 import org.creativor.viva.conf.LoadConfigException;
 import org.creativor.viva.conf.Servants;
@@ -65,7 +63,7 @@ public final class Viva {
 		}
 
 		int hashCode = HashCoder.getHashCode(this.address.toString());
-		Staff me = new StaffLocal(hashCode, this.address.getHostName(),
+		StaffLocal me = new StaffLocal(hashCode, this.address.getHostName(),
 				(short) this.address.getPort());
 		this.service = new VivaServiceImpl(me);
 		Servants confServants = ConfTool.getSingleton().getConfiguration(
@@ -117,7 +115,7 @@ public final class Viva {
 		boolean joinResult = false;
 		// 3 Join into Viva system.
 		if (imServant) {// If i am servant.
-			joinResult = this.service.joinMe();
+			joinResult = this.service.joinMyself();
 		} else {
 			// Find one servant to join
 			for (Iterator<StaffLocal> iterator = this.service.staffItor(); iterator
@@ -125,7 +123,7 @@ public final class Viva {
 				StaffLocal staff = iterator.next();
 				try {
 					joinResult = staff.getVivaProxy().join(
-							this.service.getMe().getId(),
+							this.service.getMyself().getId(),
 							(short) this.address.getPort());
 					if (joinResult)
 						break;
@@ -143,8 +141,8 @@ public final class Viva {
 			StaffLocal staff = iterator.next();
 			try {
 				PortableStaff[] list = staff.getVivaProxy().list();
-				LOGGER.info("Get staff list from servant: "
-						+ Arrays.toString(list));
+				LOGGER.info("Picture staffs  from servant " + staff.toString()
+						+ ": " + staff.getVivaProxy().pictureStaffs());
 				for (PortableStaff portableStaff : list) {
 					if (!this.service.exists(portableStaff.getId()))
 						this.service.addStaff(StaffLocal

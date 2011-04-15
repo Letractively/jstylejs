@@ -24,4 +24,6 @@ public interface VivaAsyncProxy extends AsyncProxy {
 	 */
 	public CallFuture<Boolean> notifyJoin(int joiner, String ip, short port,
 			boolean leftDirection) throws NetWorkException;
+
+	public CallFuture<String> pictureStaffs() throws NetWorkException;
 }

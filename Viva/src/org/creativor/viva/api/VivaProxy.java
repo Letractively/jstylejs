@@ -23,4 +23,6 @@ public interface VivaProxy extends RpcProxy {
 	public boolean notifyJoin(int joiner, String ip, short port,
 			boolean leftDirection) throws RpcException;
 
+	public String pictureStaffs() throws RpcException;
+
 }
