@@ -83,7 +83,7 @@ public final class ServiceVerifier {
 		if (exceptionTypes.length != 1
 				|| !NetWorkException.class.isAssignableFrom(exceptionTypes[0])) {
 			throw new IllegalServiceException("Method " + method.getName()
-					+ " should onky throws " + NetWorkException.class.getName());
+					+ " should only throws " + NetWorkException.class.getName());
 		}
 
 		// 2. return type must be call future.
