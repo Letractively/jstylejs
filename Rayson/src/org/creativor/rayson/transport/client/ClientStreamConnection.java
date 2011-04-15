@@ -170,4 +170,21 @@ class ClientStreamConnection extends TimeLimitConnection {
 				version);
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("id: ");
+		sb.append(this.id);
+		sb.append(", protocol: ");
+		sb.append(this.getProtocol());
+		sb.append(", version: ");
+		sb.append(this.getVersion());
+		sb.append(", last contact: ");
+		sb.append(getLastContactTime());
+		sb.append(", address: ");
+		sb.append(this.socketChannel.socket().toString());
+		sb.append("}");
+		return sb.toString();
+	}
 }

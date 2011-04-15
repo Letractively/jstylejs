@@ -15,6 +15,8 @@ class PendingConnection implements Connection {
 	private ByteBuffer connectpProtocolBuffer;
 	private ByteBuffer connectResponseBuffer;
 	private long id;
+	private String addressInfo;
+
 	private SelectionKey selectionKey;
 	private TransportServer server;
 	private SocketChannel socketChannel;
@@ -25,6 +27,7 @@ class PendingConnection implements Connection {
 		this.server = server;
 		this.selectionKey = selectionKey;
 		this.socketChannel = clientChannel;
+		this.addressInfo = this.socketChannel.socket().toString();
 		connectpProtocolBuffer = ByteBuffer.allocate(1);
 		connectResponseBuffer = ByteBuffer.allocate(1);
 		setConnectionState(ConnectionState.OK);
@@ -115,4 +118,19 @@ class PendingConnection implements Connection {
 		return -1;
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("id: ");
+		sb.append(this.id);
+		sb.append(", protocol: ");
+		sb.append(this.getProtocol());
+		sb.append(", version: ");
+		sb.append(this.getVersion());
+		sb.append(", address: ");
+		sb.append(this.addressInfo);
+		sb.append("}");
+		return sb.toString();
+	}
 }
