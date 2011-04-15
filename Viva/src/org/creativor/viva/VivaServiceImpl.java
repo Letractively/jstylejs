@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
@@ -54,8 +55,8 @@ final class VivaServiceImpl implements VivaService {
 		Entry<Integer, StaffLocal> left = staffs.lowerEntry(hashCode);
 		Entry<Integer, StaffLocal> right = staffs.ceilingEntry(hashCode);
 
-		boolean leftResult = false;
-		boolean rightResult = false;
+		boolean leftResult = true;
+		boolean rightResult = true;
 		if (left != null && left.getValue().equals(me)) {
 			try {
 				leftResult = left
@@ -101,7 +102,7 @@ final class VivaServiceImpl implements VivaService {
 		if (next == null)
 			return true;
 		try {
-			next.getValue().getVivaAsyncProxy()
+			CallFuture<Boolean> future = next.getValue().getVivaAsyncProxy()
 					.notifyJoin(joiner, ip, port, leftDirection);
 		} catch (NetWorkException e) {
 			e.printStackTrace();

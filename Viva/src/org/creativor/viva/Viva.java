@@ -3,6 +3,7 @@ package org.creativor.viva;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -142,6 +143,8 @@ public final class Viva {
 			StaffLocal staff = iterator.next();
 			try {
 				PortableStaff[] list = staff.getVivaProxy().list();
+				LOGGER.info("Get staff list from servant: "
+						+ Arrays.toString(list));
 				for (PortableStaff portableStaff : list) {
 					if (!this.service.exists(portableStaff.getId()))
 						this.service.addStaff(StaffLocal
