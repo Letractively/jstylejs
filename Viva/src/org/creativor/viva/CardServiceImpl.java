@@ -21,4 +21,9 @@ final class CardServiceImpl implements CardService {
 
 	}
 
+	@Override
+	public boolean isSupportedVersion(Session session) {
+		return true;
+	}
+
 }

@@ -181,4 +181,9 @@ final class VivaServiceImpl implements VivaService {
 		return ((staff.getId() == myself.getId()) ? (staff.getId() + "*")
 				: staff.getId()) + "->";
 	}
+
+	@Override
+	public boolean isSupportedVersion(Session session) {
+		return true;
+	}
 }
