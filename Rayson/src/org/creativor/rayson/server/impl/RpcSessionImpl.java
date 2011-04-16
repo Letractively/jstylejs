@@ -56,6 +56,9 @@ public final class RpcSessionImpl implements Session {
 		sb.append("version: ");
 		sb.append(getVersion());
 		sb.append(", ");
+		sb.append("proxy version: ");
+		sb.append(getProxyVersion());
+		sb.append(", ");
 		sb.append("service name: ");
 		sb.append(getServiceName());
 		sb.append(", ");

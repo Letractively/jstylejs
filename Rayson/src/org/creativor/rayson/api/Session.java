@@ -2,6 +2,11 @@ package org.creativor.rayson.api;
 
 import java.net.InetSocketAddress;
 
+/**
+ * One {@link RpcProxy} associated with one {@link Session}.
+ * 
+ * @author hp
+ */
 public interface Session {
 
 	public long getId();

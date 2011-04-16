@@ -93,6 +93,9 @@ public class ClientSession implements Portable, Session {
 		sb.append("version: ");
 		sb.append(version);
 		sb.append(", ");
+		sb.append("proxy version: ");
+		sb.append(proxyVersion);
+		sb.append(", ");
 		sb.append("server address: ");
 		sb.append(this.serverAddress.toString());
 		sb.append(", ");
