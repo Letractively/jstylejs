@@ -1,18 +1,24 @@
 package org.creativor.rayson.server.impl;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.common.ClientSession;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 
 public final class RpcSessionImpl implements Session {
 	private InetSocketAddress remoteAddr;
 	private ClientSession clientSession;
+	private AtomicBoolean proxyVersionChecked;
+	private boolean proxyVersionSupported = false;
 
 	public RpcSessionImpl(ClientSession clientSession,
 			InetSocketAddress remoteAddr) {
 		this.clientSession = clientSession;
 		this.remoteAddr = remoteAddr;
+		proxyVersionChecked = new AtomicBoolean(false);
 	}
 
 	@Override
@@ -73,5 +79,22 @@ public final class RpcSessionImpl implements Session {
 	@Override
 	public short getProxyVersion() {
 		return clientSession.getProxyVersion();
+	}
+
+	/**
+	 * Check remote RPC proxy version.<br/>
+	 * 
+	 * @param service
+	 * @throws UnsupportedVersionException
+	 */
+	public void checkProxyVersion(RpcService service)
+			throws UnsupportedVersionException {
+		if (proxyVersionChecked.compareAndSet(false, true)) {
+			proxyVersionSupported = service.isSupportedVersion(this);
+		}
+		if (!proxyVersionSupported)
+			throw new UnsupportedVersionException("Proxy version "
+					+ this.getProxyVersion()
+					+ " is unsupported by server service");
 	}
 }

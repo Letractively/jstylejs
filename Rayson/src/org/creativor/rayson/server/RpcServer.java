@@ -14,7 +14,9 @@ import org.creativor.rayson.common.Invocation;
 import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.impl.ServiceDescriptionImpl;
+import org.creativor.rayson.server.impl.RpcSessionImpl;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.transport.server.TransportServer;
 
@@ -75,8 +77,10 @@ public class RpcServer extends TransportServer implements ServerService {
 		try {
 
 			serviceObject = getService(session.getServiceName());
+			// Check proxy version first.
+			((RpcSessionImpl) session).checkProxyVersion(serviceObject
+					.getInstance());
 			result = serviceObject.invoke(call.getSession(), invocation);
-
 			call.setResult(result);
 		} catch (InvocationException e) {
 			if (e.isUnDeclaredException()) {
@@ -87,6 +91,8 @@ public class RpcServer extends TransportServer implements ServerService {
 			}
 			call.setException(e);
 		} catch (ServiceNotFoundException e) {
+			call.setException(new InvocationException(false, e));
+		} catch (UnsupportedVersionException e) {
 			call.setException(new InvocationException(false, e));
 		}
 	}

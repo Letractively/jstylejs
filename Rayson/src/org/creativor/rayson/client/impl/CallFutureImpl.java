@@ -11,6 +11,7 @@ import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.exception.CallException;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.impl.RemoteExceptionImpl;
 
 public class CallFutureImpl<V> implements CallFuture<V> {
@@ -65,6 +66,10 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 		if (remoteException instanceof CallException)
 			throw RemoteExceptionImpl
 					.createParameterException((CallException) remoteException);
+
+		if (remoteException instanceof UnsupportedVersionException)
+			throw RemoteExceptionImpl
+					.createUnsupportedProxyVersion((UnsupportedVersionException) remoteException);
 
 		if (remoteException instanceof ConnectionClosedException)
 

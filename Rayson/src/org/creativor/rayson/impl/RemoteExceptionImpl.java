@@ -7,6 +7,7 @@ import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RemoteExceptionType;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 
 public final class RemoteExceptionImpl extends RpcException {
 
@@ -16,6 +17,14 @@ public final class RemoteExceptionImpl extends RpcException {
 		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
 				RemoteExceptionType.NETWORK, new NetWorkException(cause));
 		return remoteException;
+	}
+
+	public static RpcException createUnsupportedProxyVersion(
+			UnsupportedVersionException exception) {
+		RemoteExceptionImpl remoteException = new RemoteExceptionImpl(
+				RemoteExceptionType.UNSUPPORTED_PROXY_VERSION, exception);
+		return remoteException;
+
 	}
 
 	public static RpcException createParameterException(CallException exception) {

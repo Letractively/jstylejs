@@ -20,6 +20,7 @@ import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 
 public class Demo {
 
@@ -75,6 +76,9 @@ public class Demo {
 			} catch (CallException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			} catch (UnsupportedVersionException e1) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 

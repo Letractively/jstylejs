@@ -38,9 +38,13 @@ public abstract class RpcException extends Exception {
 	 *             If remote RPC service not found.
 	 * @throws UndeclaredThrowableException
 	 *             If undeclared exception occurred in remote server.
+	 * @throws UnsupportedVersionException
+	 *             If the local RPC proxy version is unsupported by remote
+	 *             server.
 	 */
 	public void throwCause() throws NetWorkException, ServiceNotFoundException,
-			CallException, UndeclaredThrowableException {
+			CallException, UndeclaredThrowableException,
+			UnsupportedVersionException {
 		switch (type) {
 
 		case CALL:
