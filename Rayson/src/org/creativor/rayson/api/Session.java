@@ -12,6 +12,8 @@ public interface Session {
 
 	public byte getVersion();
 
+	public short getProxyVersion();
+
 	public String getServiceName();
 
 	public InetSocketAddress getPeerAddress();

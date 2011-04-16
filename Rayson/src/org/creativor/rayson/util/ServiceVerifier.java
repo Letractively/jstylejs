@@ -35,9 +35,9 @@ public final class ServiceVerifier {
 
 		// 3. First parameter must be session type.
 		if (!firstParaSession)
-			throw new IllegalServiceException(
-					"Service method first parameter type must be "
-							+ Session.class.getName());
+			throw new IllegalServiceException("Service method "
+					+ method.getName() + " first parameter type must be "
+					+ Session.class.getName());
 	}
 
 	public static void verifyProxyMethod(Method method)
@@ -71,9 +71,9 @@ public final class ServiceVerifier {
 		}
 		// 4. must not session paramter type.
 		if (foundSessionPara)
-			throw new IllegalServiceException(
-					"Proxy method parameter type must not "
-							+ Session.class.getName());
+			throw new IllegalServiceException("Proxy method "
+					+ method.getName() + " parameter type must not "
+					+ Session.class.getName());
 	}
 
 	public static void verifyAsyncProxyMethod(Method method)

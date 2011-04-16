@@ -72,7 +72,7 @@ class ServiceReflection {
 			this.proxyInterface = proxyInterface;
 			this.serviceMethods = new ArrayList<ServiceReflection.ServiceMethod>();
 			ServiceMethod serviceMethod;
-			for (Method method : this.serviceInterface.getMethods()) {
+			for (Method method : this.serviceInterface.getDeclaredMethods()) {
 				serviceMethod = new ServiceMethod(method, this.proxyInterface);
 				this.serviceMethods.add(serviceMethod);
 			}

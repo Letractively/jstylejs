@@ -130,4 +130,9 @@ public class RpcServer extends TransportServer implements ServerService {
 			callWorker.start();
 		}
 	}
+
+	@Override
+	public boolean isSupportedVersion(Session session) {
+		return true;
+	}
 }

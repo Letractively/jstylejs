@@ -34,4 +34,9 @@ public class TestServiceImpl implements TestService {
 
 	}
 
+	@Override
+	public boolean isSupportedVersion(Session session) {
+		return false;
+	}
+
 }

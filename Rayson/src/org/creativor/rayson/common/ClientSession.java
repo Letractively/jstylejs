@@ -15,15 +15,28 @@ public class ClientSession implements Portable, Session {
 	private long creationTime;
 	private long lastInvocationTime;
 	private String serviceName;
+
+	private short proxyVersion;
 	private InetSocketAddress serverAddress;
+
+	/**
+	 * Get next global unique session id.
+	 * 
+	 * @return
+	 */
+	public static long getNextUID() {
+		return System.currentTimeMillis();
+	}
 
 	public ClientSession() {
 
 	}
 
-	public ClientSession(byte version, long sessionId, String serviceName,
-			long creationTime, InetSocketAddress serverAddress) {
+	public ClientSession(byte version, short proxyVersion, long sessionId,
+			String serviceName, long creationTime,
+			InetSocketAddress serverAddress) {
 		this.version = version;
+		this.proxyVersion = proxyVersion;
 		this.id = sessionId;
 		this.serviceName = serviceName;
 		this.creationTime = creationTime;
@@ -38,6 +51,7 @@ public class ClientSession implements Portable, Session {
 	@Override
 	public void read(DataInput in) throws IOException {
 		this.version = in.readByte();
+		this.proxyVersion = in.readShort();
 		this.id = in.readLong();
 		this.serviceName = in.readUTF();
 		this.creationTime = in.readLong();
@@ -47,6 +61,7 @@ public class ClientSession implements Portable, Session {
 	@Override
 	public void write(DataOutput out) throws IOException {
 		out.writeByte(version);
+		out.writeShort(proxyVersion);
 		out.writeLong(id);
 		out.writeUTF(serviceName);
 		out.writeLong(creationTime);
@@ -105,5 +120,10 @@ public class ClientSession implements Portable, Session {
 	@Override
 	public InetSocketAddress getPeerAddress() {
 		return serverAddress;
+	}
+
+	@Override
+	public short getProxyVersion() {
+		return proxyVersion;
 	}
 }

@@ -1,5 +1,4 @@
 package org.creativor.rayson.api;
 
-public interface AsyncProxy {
-	public Session getSession();
+public interface AsyncProxy extends RpcProxy {
 }

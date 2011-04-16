@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.WeakHashMap;
 
+import org.creativor.rayson.annotation.ProxyVersion;
 import org.creativor.rayson.api.AsyncProxy;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.RpcProxy;
@@ -31,12 +32,12 @@ class Client {
 	private class RpcProxyInvoker implements InvocationHandler, RpcProxy {
 		private ClientSession currentSession;
 
-		public RpcProxyInvoker(String serviceName,
+		public RpcProxyInvoker(short version, String serviceName,
 				InetSocketAddress serverAddress) {
-			long sessionId = System.currentTimeMillis() + this.hashCode();
+			long sessionId = ClientSession.getNextUID();
 			long creationTime = System.currentTimeMillis();
-			this.currentSession = new ClientSession(version, sessionId,
-					serviceName, creationTime, serverAddress);
+			this.currentSession = new ClientSession(VERSION, version,
+					sessionId, serviceName, creationTime, serverAddress);
 		}
 
 		protected ClientSession touchAndGetSession() {
@@ -72,9 +73,9 @@ class Client {
 
 	private class AsyncProxyInvoker extends RpcProxyInvoker {
 
-		public AsyncProxyInvoker(String serviceName,
+		public AsyncProxyInvoker(short version, String serviceName,
 				InetSocketAddress serverAddress) {
-			super(serviceName, serverAddress);
+			super(version, serviceName, serverAddress);
 		}
 
 		@Override
@@ -88,10 +89,12 @@ class Client {
 		}
 	}
 
-	private static byte version = 1;
+	private static byte VERSION = 1;
+
+	private static short SERVER_PROXY_VERSION = 0;
 
 	public static byte getVersion() {
-		return version;
+		return VERSION;
 	}
 
 	private ResponseWorker responseWorker;
@@ -133,8 +136,18 @@ class Client {
 		T rpcProxy;
 		rpcProxy = (T) Proxy.newProxyInstance(Client.class.getClassLoader(),
 				new Class[] { proxyInterface }, new RpcProxyInvoker(
-						serviceName, serverAddress));
+						getProxyVersion(proxyInterface), serviceName,
+						serverAddress));
 		return rpcProxy;
+	}
+
+	private short getProxyVersion(Class<? extends RpcProxy> proxyInterface) {
+		short proxyVersion = ProxyVersion.DEFAULT_VALUE;
+		ProxyVersion annotation = proxyInterface
+				.getAnnotation(ProxyVersion.class);
+		if (annotation != null)
+			proxyVersion = annotation.value();
+		return proxyVersion;
 	}
 
 	public <T extends AsyncProxy> T createAsyncProxy(String serviceName,
@@ -165,7 +178,8 @@ class Client {
 		T rpcProxy;
 		rpcProxy = (T) Proxy.newProxyInstance(Client.class.getClassLoader(),
 				new Class[] { proxyInterface }, new AsyncProxyInvoker(
-						serviceName, serverAddress));
+						getProxyVersion(proxyInterface), serviceName,
+						serverAddress));
 		return rpcProxy;
 	}
 
@@ -185,7 +199,8 @@ class Client {
 			if (rpcService == null) {
 				rpcService = (ServerProxy) Proxy.newProxyInstance(Client.class
 						.getClassLoader(), new Class[] { ServerProxy.class },
-						new RpcProxyInvoker(ServerService.NAME, serverAddress));
+						new RpcProxyInvoker(SERVER_PROXY_VERSION,
+								ServerService.NAME, serverAddress));
 				serverServices.put(serverAddress, rpcService);
 			}
 
@@ -194,6 +209,10 @@ class Client {
 	}
 
 	void initialize() {
+		ProxyVersion proxyVersion = ServerProxy.class
+				.getAnnotation(ProxyVersion.class);
+		if (proxyVersion != null)
+			SERVER_PROXY_VERSION = proxyVersion.value();
 		serverServices = new WeakHashMap<SocketAddress, ServerProxy>();
 		responseWorker = new ResponseWorker();
 		responseWorker.start();

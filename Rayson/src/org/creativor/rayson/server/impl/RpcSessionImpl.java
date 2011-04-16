@@ -69,4 +69,9 @@ public final class RpcSessionImpl implements Session {
 	public String getServiceName() {
 		return clientSession.getServiceName();
 	}
+
+	@Override
+	public short getProxyVersion() {
+		return clientSession.getProxyVersion();
+	}
 }
