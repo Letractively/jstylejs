@@ -92,8 +92,12 @@ public final class RpcSessionImpl implements Session {
 	 */
 	public void checkProxyVersion(RpcService service)
 			throws UnsupportedVersionException {
-		if (proxyVersionChecked.compareAndSet(false, true)) {
-			proxyVersionSupported = service.isSupportedVersion(this);
+
+		synchronized (proxyVersionChecked) {
+
+			if (proxyVersionChecked.compareAndSet(false, true)) {
+				proxyVersionSupported = service.isSupportedVersion(this);
+			}
 		}
 		if (!proxyVersionSupported)
 			throw new UnsupportedVersionException("Proxy version "
