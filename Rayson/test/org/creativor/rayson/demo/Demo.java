@@ -95,9 +95,15 @@ public class Demo {
 		// test asynchronous call.
 		TestAsyncProxy asyncProxy = Rayson.createAsyncProxy("demo",
 				TestAsyncProxy.class, serverAddress);
-		CallFuture<String> echoFuture = asyncProxy
-				.echo("Async call echo message");
-		System.out.println("Async call echo:" + echoFuture.get());
+		CallFuture<String> echoFuture;
+		for (int i = 0; i < 3; i++) {
+			try {
+				echoFuture = asyncProxy.echo("Async call echo message");
+				System.out.println("Async call echo:" + echoFuture.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		System.exit(0);
 
 	}

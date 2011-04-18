@@ -14,13 +14,15 @@ import org.creativor.rayson.api.AsyncProxy;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.ServerProxy;
-import org.creativor.rayson.api.Session;
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
+import org.creativor.rayson.client.impl.CallFutureImpl;
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
+import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
+import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.impl.RemoteExceptionImpl;
 import org.creativor.rayson.server.ServerService;
@@ -28,7 +30,6 @@ import org.creativor.rayson.transport.client.TransportClient;
 import org.creativor.rayson.util.ServiceVerifier;
 
 class Client {
-
 	private class AsyncProxyInvoker extends RpcProxyInvoker {
 
 		public AsyncProxyInvoker(short version, String serviceName,
@@ -42,36 +43,43 @@ class Client {
 			// If it's getSession method, then invoke locally.
 			if (method.getName().equals("getSession") && args == null)
 				return getSession();
+
+			getSession().touch();
+			if (getSession().isUnsupportedVersion()) {
+				CallFutureImpl callFuture = new CallFutureImpl();
+				callFuture.setException(new InvocationException(false,
+						getSession().getUnsupportedVersionException()));
+				return callFuture;
+			}
 			Invocation invocation = new Invocation(method, args);
-			return invokeAsyncCall(touchAndGetSession(), proxy, invocation);
+			return invokeAsyncCall(proxy, invocation);
 		}
 
-		private CallFuture invokeAsyncCall(ClientSession clientSession,
-				Object proxy, Invocation invocation) throws Throwable {
-			ClientCall call = new ClientCall(clientSession, invocation);
+		private CallFuture invokeAsyncCall(Object proxy, Invocation invocation)
+				throws Throwable {
+			getSession().touch();
+
+			ClientCall call = new ClientCall(getSession(), invocation);
 			try {
-				submitCall(clientSession.getPeerAddress(), call);
+				submitCall(getSession().getPeerAddress(), call);
 			} catch (IOException e) {
 				throw new NetWorkException(e);
 			}
+
 			return call.getFuture();
+
 		}
 	}
 
 	private class RpcProxyInvoker implements InvocationHandler, RpcProxy {
-		private ClientSession currentSession;
+		private ProxySession session;
 
 		public RpcProxyInvoker(short version, String serviceName,
 				InetSocketAddress serverAddress) {
 			long sessionId = ClientSession.getNextUID();
 			long creationTime = System.currentTimeMillis();
-			this.currentSession = new ClientSession(VERSION, version,
-					sessionId, serviceName, creationTime, serverAddress);
-		}
-
-		@Override
-		public Session getSession() {
-			return currentSession;
+			this.session = new ProxySession(VERSION, version, sessionId,
+					serviceName, creationTime, serverAddress);
 		}
 
 		@Override
@@ -80,21 +88,33 @@ class Client {
 			// If it's getSession method, then invoke locally.
 			if (method.getName().equals("getSession") && args == null)
 				return getSession();
+			session.touch();
+			if (getSession().isUnsupportedVersion()) {
+				CallFutureImpl callFuture = new CallFutureImpl();
+				callFuture.setException(new InvocationException(false,
+						getSession().getUnsupportedVersionException()));
+				return callFuture.get();
+			}
 			Invocation invocation = new Invocation(method, args);
-			return invokeRpcCall(touchAndGetSession(), proxy, invocation);
+			return invokeRpcCall(proxy, invocation);
 		}
 
-		private Object invokeRpcCall(ClientSession clientSession, Object proxy,
-				Invocation invocation) throws Throwable {
-			ClientCall call = new ClientCall(clientSession, invocation);
+		@Override
+		public ProxySession getSession() {
+			return session;
+		}
+
+		private Object invokeRpcCall(Object proxy, Invocation invocation)
+				throws Throwable {
+			ClientCall call = new ClientCall(session, invocation);
 			try {
-				submitCall(clientSession.getPeerAddress(), call);
+				submitCall(session.getPeerAddress(), call);
 			} catch (IOException e) {
 				throw RemoteExceptionImpl.createNetWorkException(e);
 			}
 			try {
 				return call.getResult();
-			} catch (Throwable e) {
+			} catch (InterruptedException e) {
 				throw RemoteExceptionImpl.createUndecleardException(e);
 			}
 		}
@@ -104,14 +124,9 @@ class Client {
 			StringBuffer sb = new StringBuffer();
 			sb.append("{");
 			sb.append("session: ");
-			sb.append(currentSession.toString());
+			sb.append(session.toString());
 			sb.append("}");
 			return sb.toString();
-		}
-
-		protected ClientSession touchAndGetSession() {
-			this.currentSession.touch();
-			return this.currentSession;
 		}
 	}
 

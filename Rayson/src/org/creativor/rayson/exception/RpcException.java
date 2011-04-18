@@ -55,6 +55,9 @@ public abstract class RpcException extends Exception {
 		case SERVICE_NOT_FOUND:
 			throw (ServiceNotFoundException) cause;
 
+		case UNSUPPORTED_PROXY_VERSION:
+			throw (UnsupportedVersionException) cause;
+
 		case UNDECLARED:
 			throw new UndeclaredThrowableException(cause);
 

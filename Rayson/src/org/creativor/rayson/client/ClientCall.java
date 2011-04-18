@@ -8,13 +8,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.client.impl.CallFutureImpl;
-import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
 import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.common.InvocationResultType;
 import org.creativor.rayson.common.Stream;
 import org.creativor.rayson.exception.CallException;
 import org.creativor.rayson.exception.RpcException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.common.Packet;
 import org.creativor.rayson.transport.common.PacketException;
 
@@ -25,9 +25,9 @@ public class ClientCall<V> {
 	private long id;
 	private Invocation invocation;
 	private Packet requestPacket;
-	private ClientSession session;
+	private ProxySession session;
 
-	public ClientCall(ClientSession session, Invocation invocation)
+	public ClientCall(ProxySession session, Invocation invocation)
 			throws PacketException {
 		this.id = UID.getAndIncrement();
 		this.session = session;
@@ -85,6 +85,9 @@ public class ClientCall<V> {
 			case EXCEPTION:
 				InvocationException remoteExceptionHandler = new InvocationException();
 				remoteExceptionHandler.read(in);
+				if (remoteExceptionHandler.getRemoteException() instanceof UnsupportedVersionException)
+					session.getUnsupportedVersionException(remoteExceptionHandler
+							.getRemoteException().getMessage());
 				this.future.setException(remoteExceptionHandler);
 				break;
 			default:
