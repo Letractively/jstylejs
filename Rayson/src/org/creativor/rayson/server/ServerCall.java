@@ -8,21 +8,19 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.creativor.rayson.api.Session;
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
 import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.common.InvocationResultType;
 import org.creativor.rayson.common.Stream;
 import org.creativor.rayson.exception.CallException;
-import org.creativor.rayson.server.impl.RpcSessionImpl;
 import org.creativor.rayson.transport.common.Packet;
 
 public class ServerCall {
 
 	private static final int BUFFER_SIZE = 1024;
 	private static final AtomicLong UID = new AtomicLong(0);
-	private Session session;
+	private ClientSession clientSession;
 
 	public static ServerCall fromPacket(InetSocketAddress remoteAddress,
 			Packet requestPacket) {
@@ -43,8 +41,10 @@ public class ServerCall {
 		try {
 			ClientSession clientSession = new ClientSession();
 			clientSession.read(dataInputStream);
-			Session Session = new RpcSessionImpl(clientSession, remoteAddress);
-			serverCall.session = Session;
+			// Session Session = new RpcSessionImpl(clientSession,
+			// remoteAddress);
+			serverCall.clientSession = ClientSession.fromPortableSession(
+					clientSession, remoteAddress);
 			Invocation invocation = new Invocation();
 			invocation.read(dataInputStream);
 			serverCall.invocation = invocation;
@@ -83,6 +83,10 @@ public class ServerCall {
 		return invocation;
 	}
 
+	InetSocketAddress getRemoteAddress() {
+		return clientSession.getPeerAddress();
+	}
+
 	/**
 	 * @return
 	 * @throws RuntimeException
@@ -95,8 +99,8 @@ public class ServerCall {
 		return responsePacket;
 	}
 
-	public Session getSession() {
-		return session;
+	public ClientSession getClientSession() {
+		return clientSession;
 	}
 
 	void setException(InvocationException exception) {
@@ -155,7 +159,7 @@ public class ServerCall {
 		sb.append("id: ");
 		sb.append(id);
 		sb.append(", session: ");
-		sb.append(this.session.toString());
+		sb.append(this.clientSession.toString());
 		sb.append(", invocation: ");
 		sb.append(this.invocation.toString());
 		sb.append("}");

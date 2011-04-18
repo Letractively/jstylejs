@@ -29,48 +29,6 @@ import org.creativor.rayson.util.ServiceVerifier;
 
 class Client {
 
-	private class RpcProxyInvoker implements InvocationHandler, RpcProxy {
-		private ClientSession currentSession;
-
-		public RpcProxyInvoker(short version, String serviceName,
-				InetSocketAddress serverAddress) {
-			long sessionId = ClientSession.getNextUID();
-			long creationTime = System.currentTimeMillis();
-			this.currentSession = new ClientSession(VERSION, version,
-					sessionId, serviceName, creationTime, serverAddress);
-		}
-
-		protected ClientSession touchAndGetSession() {
-			this.currentSession.touch();
-			return this.currentSession;
-		}
-
-		@Override
-		public Object invoke(Object proxy, Method method, Object[] args)
-				throws Throwable {
-			// If it's getSession method, then invoke locally.
-			if (method.getName().equals("getSession") && args == null)
-				return getSession();
-			Invocation invocation = new Invocation(method, args);
-			return invokeRpcCall(touchAndGetSession(), proxy, invocation);
-		}
-
-		@Override
-		public String toString() {
-			StringBuffer sb = new StringBuffer();
-			sb.append("{");
-			sb.append("session: ");
-			sb.append(currentSession.toString());
-			sb.append("}");
-			return sb.toString();
-		}
-
-		@Override
-		public Session getSession() {
-			return currentSession;
-		}
-	}
-
 	private class AsyncProxyInvoker extends RpcProxyInvoker {
 
 		public AsyncProxyInvoker(short version, String serviceName,
@@ -87,11 +45,79 @@ class Client {
 			Invocation invocation = new Invocation(method, args);
 			return invokeAsyncCall(touchAndGetSession(), proxy, invocation);
 		}
+
+		private CallFuture invokeAsyncCall(ClientSession clientSession,
+				Object proxy, Invocation invocation) throws Throwable {
+			ClientCall call = new ClientCall(clientSession, invocation);
+			try {
+				submitCall(clientSession.getPeerAddress(), call);
+			} catch (IOException e) {
+				throw new NetWorkException(e);
+			}
+			return call.getFuture();
+		}
 	}
 
-	private static byte VERSION = 1;
+	private class RpcProxyInvoker implements InvocationHandler, RpcProxy {
+		private ClientSession currentSession;
+
+		public RpcProxyInvoker(short version, String serviceName,
+				InetSocketAddress serverAddress) {
+			long sessionId = ClientSession.getNextUID();
+			long creationTime = System.currentTimeMillis();
+			this.currentSession = new ClientSession(VERSION, version,
+					sessionId, serviceName, creationTime, serverAddress);
+		}
+
+		@Override
+		public Session getSession() {
+			return currentSession;
+		}
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args)
+				throws Throwable {
+			// If it's getSession method, then invoke locally.
+			if (method.getName().equals("getSession") && args == null)
+				return getSession();
+			Invocation invocation = new Invocation(method, args);
+			return invokeRpcCall(touchAndGetSession(), proxy, invocation);
+		}
+
+		private Object invokeRpcCall(ClientSession clientSession, Object proxy,
+				Invocation invocation) throws Throwable {
+			ClientCall call = new ClientCall(clientSession, invocation);
+			try {
+				submitCall(clientSession.getPeerAddress(), call);
+			} catch (IOException e) {
+				throw RemoteExceptionImpl.createNetWorkException(e);
+			}
+			try {
+				return call.getResult();
+			} catch (Throwable e) {
+				throw RemoteExceptionImpl.createUndecleardException(e);
+			}
+		}
+
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			sb.append("{");
+			sb.append("session: ");
+			sb.append(currentSession.toString());
+			sb.append("}");
+			return sb.toString();
+		}
+
+		protected ClientSession touchAndGetSession() {
+			this.currentSession.touch();
+			return this.currentSession;
+		}
+	}
 
 	private static short SERVER_PROXY_VERSION = 0;
+
+	private static byte VERSION = 1;
 
 	public static byte getVersion() {
 		return VERSION;
@@ -107,6 +133,39 @@ class Client {
 	<T> T call(final T rpcCall) throws IOException, ServiceNotFoundException,
 			UndeclaredThrowableException {
 		return rpcCall;
+	}
+
+	public <T extends AsyncProxy> T createAsyncProxy(String serviceName,
+			Class<T> proxyInterface, InetSocketAddress serverAddress)
+			throws IllegalServiceException {
+		if (serviceName == null)
+			throw new IllegalArgumentException(
+					"Service name should not be null");
+		if (proxyInterface == null)
+			throw new IllegalArgumentException(
+					"Proxy interface  should not be null");
+		if (serverAddress == null)
+			throw new IllegalArgumentException(
+					"Server address name should not be null");
+
+		// verify rpc proxy interface.
+		if (!proxyInterface.isInterface())
+			throw new IllegalServiceException("Proxy interface "
+					+ proxyInterface.getName() + " must be an interface");
+		for (Method proxyMethod : proxyInterface.getMethods()) {
+			// Ignore getSession method.
+			if (proxyMethod.getName().equals("getSession")
+					&& proxyMethod.getParameterTypes().length == 0)
+				continue;
+			ServiceVerifier.verifyAsyncProxyMethod(proxyMethod);
+		}
+
+		T rpcProxy;
+		rpcProxy = (T) Proxy.newProxyInstance(Client.class.getClassLoader(),
+				new Class[] { proxyInterface }, new AsyncProxyInvoker(
+						getProxyVersion(proxyInterface), serviceName,
+						serverAddress));
+		return rpcProxy;
 	}
 
 	public <T extends RpcProxy> T createRpcProxy(String serviceName,
@@ -150,39 +209,6 @@ class Client {
 		return proxyVersion;
 	}
 
-	public <T extends AsyncProxy> T createAsyncProxy(String serviceName,
-			Class<T> proxyInterface, InetSocketAddress serverAddress)
-			throws IllegalServiceException {
-		if (serviceName == null)
-			throw new IllegalArgumentException(
-					"Service name should not be null");
-		if (proxyInterface == null)
-			throw new IllegalArgumentException(
-					"Proxy interface  should not be null");
-		if (serverAddress == null)
-			throw new IllegalArgumentException(
-					"Server address name should not be null");
-
-		// verify rpc proxy interface.
-		if (!proxyInterface.isInterface())
-			throw new IllegalServiceException("Proxy interface "
-					+ proxyInterface.getName() + " must be an interface");
-		for (Method proxyMethod : proxyInterface.getMethods()) {
-			// Ignore getSession method.
-			if (proxyMethod.getName().equals("getSession")
-					&& proxyMethod.getParameterTypes().length == 0)
-				continue;
-			ServiceVerifier.verifyAsyncProxyMethod(proxyMethod);
-		}
-
-		T rpcProxy;
-		rpcProxy = (T) Proxy.newProxyInstance(Client.class.getClassLoader(),
-				new Class[] { proxyInterface }, new AsyncProxyInvoker(
-						getProxyVersion(proxyInterface), serviceName,
-						serverAddress));
-		return rpcProxy;
-	}
-
 	/**
 	 * @param <T>
 	 * @param serviceClass
@@ -218,42 +244,6 @@ class Client {
 		responseWorker.start();
 	}
 
-	private Object invokeRpcCall(ClientSession clientSession, Object proxy,
-			Invocation invocation) throws Throwable {
-		ClientCall call = new ClientCall(clientSession, invocation);
-		try {
-			submitCall(clientSession.getPeerAddress(), call);
-		} catch (IOException e) {
-			throw RemoteExceptionImpl.createNetWorkException(e);
-		}
-		try {
-			return call.getResult();
-		} catch (Throwable e) {
-			throw RemoteExceptionImpl.createUndecleardException(e);
-		}
-	}
-
-	private CallFuture invokeAsyncCall(ClientSession clientSession,
-			Object proxy, Invocation invocation) throws Throwable {
-		ClientCall call = new ClientCall(clientSession, invocation);
-		try {
-			submitCall(clientSession.getPeerAddress(), call);
-		} catch (IOException e) {
-			throw new NetWorkException(e);
-		}
-		return call.getFuture();
-	}
-
-	public void ping(SocketAddress serverAddress) throws NetWorkException {
-		TransportClient.getSingleton().getConnector().ping(serverAddress);
-	}
-
-	private void submitCall(SocketAddress serverAddress, ClientCall call)
-			throws IOException {
-		TransportClient.getSingleton().getConnector()
-				.submitCall(serverAddress, call);
-	}
-
 	public TransferSocket openTransferSocket(SocketAddress serverAddress,
 			TransferArgument argument) throws IOException,
 			ServiceNotFoundException, IllegalServiceException {
@@ -265,6 +255,16 @@ class Client {
 					"Server address name should not be null");
 		return TransportClient.getSingleton().getConnector()
 				.openTransferSocket(serverAddress, argument);
+	}
+
+	public void ping(SocketAddress serverAddress) throws NetWorkException {
+		TransportClient.getSingleton().getConnector().ping(serverAddress);
+	}
+
+	private void submitCall(SocketAddress serverAddress, ClientCall call)
+			throws IOException {
+		TransportClient.getSingleton().getConnector()
+				.submitCall(serverAddress, call);
 	}
 
 }

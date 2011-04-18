@@ -17,7 +17,7 @@ public class ClientSession implements Portable, Session {
 	private String serviceName;
 
 	private short proxyVersion;
-	private InetSocketAddress serverAddress;
+	private InetSocketAddress peerAddress;
 
 	/**
 	 * Get next global unique session id.
@@ -33,14 +33,20 @@ public class ClientSession implements Portable, Session {
 	}
 
 	public ClientSession(byte version, short proxyVersion, long sessionId,
-			String serviceName, long creationTime,
-			InetSocketAddress serverAddress) {
+			String serviceName, long creationTime, InetSocketAddress peerAddress) {
 		this.version = version;
 		this.proxyVersion = proxyVersion;
 		this.id = sessionId;
 		this.serviceName = serviceName;
 		this.creationTime = creationTime;
-		this.serverAddress = serverAddress;
+		this.peerAddress = peerAddress;
+	}
+
+	public static ClientSession fromPortableSession(ClientSession portable,
+			InetSocketAddress peerAddress) {
+		return new ClientSession(portable.version, portable.proxyVersion,
+				portable.id, portable.serviceName, portable.creationTime,
+				peerAddress);
 	}
 
 	@Override
@@ -97,7 +103,7 @@ public class ClientSession implements Portable, Session {
 		sb.append(proxyVersion);
 		sb.append(", ");
 		sb.append("server address: ");
-		sb.append(this.serverAddress.toString());
+		sb.append(this.peerAddress.toString());
 		sb.append(", ");
 		sb.append("service name: ");
 		sb.append(this.serviceName);
@@ -122,7 +128,7 @@ public class ClientSession implements Portable, Session {
 
 	@Override
 	public InetSocketAddress getPeerAddress() {
-		return serverAddress;
+		return peerAddress;
 	}
 
 	@Override

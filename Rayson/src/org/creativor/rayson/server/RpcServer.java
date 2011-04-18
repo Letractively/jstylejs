@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.ServiceRegistration;
 import org.creativor.rayson.api.Session;
+import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
 import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.exception.IllegalServiceException;
@@ -73,14 +74,15 @@ public class RpcServer extends TransportServer implements ServerService {
 		Invocation invocation = call.getInvocation();
 		ServiceReflection serviceObject;
 
-		Session session = call.getSession();
+		ClientSession clientSession = call.getClientSession();
 		try {
 
-			serviceObject = getService(session.getServiceName());
+			serviceObject = getService(clientSession.getServiceName());
+			RpcSession rpcSession = SessionManager.getSingleton()
+					.getRpcSession(clientSession, serviceObject.getInstance());
 			// Check proxy version first.
-			((RpcSessionImpl) session).checkProxyVersion(serviceObject
-					.getInstance());
-			result = serviceObject.invoke(call.getSession(), invocation);
+			rpcSession.checkProxyVersion(serviceObject.getInstance());
+			result = serviceObject.invoke(call.getClientSession(), invocation);
 			call.setResult(result);
 		} catch (InvocationException e) {
 			if (e.isUnDeclaredException()) {
