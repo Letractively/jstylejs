@@ -56,7 +56,7 @@ public final class Rayson {
 		CLIENT.ping(serverAddress);
 	}
 
-	public static byte getCLientVersion() {
+	public static byte getClientVersion() {
 		return Client.getVersion();
 	}
 
