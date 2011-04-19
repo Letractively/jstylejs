@@ -23,26 +23,30 @@ import org.creativor.rayson.util.Log;
 class ServerStreamConnection extends TimeLimitConnection {
 
 	private static enum ReadState {
-		VERSION, TRANSFER_CODE, DATA_SIZE, ARGUMENT_DATA;
+		ARGUMENT_DATA, DATA_SIZE, TRANSFER_CODE, VERSION;
 	}
 
-	private ReadState readState;
-	private static final int TIME_OUT_INTERVAL = 30000;
 	private static Logger LOGGER = Log.getLogger();
-	private ByteBuffer connectHeaderBuffer;
-	private ByteBuffer connectResponseBuffer;
-	private ByteBuffer transferResponseBuffer;
-	private long id;
-	private SocketChannel socketChannel;
-	private SelectionKey selectionKey;
-	private short version = -1;
-	private short transfer;
-	private TransferResponse transferResponse;
-	private ByteBuffer transferCodeBuffer;
-	private ConnectionManager connectionManager;
-	private TransferConnector transferConnector;
-	private ByteBuffer argumentBuffer;
+	private static final int TIME_OUT_INTERVAL = 30000;
 	private TransferArgument argument;
+	private ByteBuffer argumentBuffer;
+	private short code;
+	private ByteBuffer connectHeaderBuffer;
+	private ConnectionManager connectionManager;
+	private ConnectionState connectionState;
+	private ByteBuffer connectResponseBuffer;
+	private long id;
+	private ReadState readState;
+	private SelectionKey selectionKey;
+	private SocketChannel socketChannel;
+	private ByteBuffer transferCodeBuffer;
+	private TransferConnector transferConnector;
+	private TransferResponse transferResponse;
+	private ByteBuffer transferResponseBuffer;
+
+	private short version = -1;
+
+	private boolean wroteConnectCode = false;
 
 	public ServerStreamConnection(long id, SocketChannel socketChannel,
 			SelectionKey selectionKey, ConnectionManager connectionManager,
@@ -65,18 +69,12 @@ class ServerStreamConnection extends TimeLimitConnection {
 	}
 
 	@Override
-	public short getVersion() {
-		return version;
-	}
-
-	@Override
-	protected long getTimeoutInterval() {
-		return TIME_OUT_INTERVAL;
-	}
-
-	@Override
 	public void close() throws IOException {
 		this.socketChannel.close();
+	}
+
+	public short getCode() {
+		return this.code;
 	}
 
 	@Override
@@ -87,6 +85,22 @@ class ServerStreamConnection extends TimeLimitConnection {
 	@Override
 	public ProtocolType getProtocol() {
 		return ProtocolType.STREAM;
+	}
+
+	@Override
+	protected long getTimeoutInterval() {
+		return TIME_OUT_INTERVAL;
+	}
+
+	@Override
+	public short getVersion() {
+		return version;
+	}
+
+	boolean isSupportedVersion(short version) {
+		if (version < -1 || version > 3)
+			return false;
+		return true;
 	}
 
 	@Override
@@ -109,9 +123,9 @@ class ServerStreamConnection extends TimeLimitConnection {
 			readCount = this.socketChannel.read(transferCodeBuffer);
 			if (!this.transferCodeBuffer.hasRemaining()) {
 				this.transferCodeBuffer.flip();
-				this.transfer = this.transferCodeBuffer.getShort();
+				this.code = this.transferCodeBuffer.getShort();
 				boolean serviceExists = this.transferConnector
-						.serviceExists(this.transfer);
+						.serviceExists(this.code);
 				// set transfer response code
 				if (serviceExists)
 
@@ -159,18 +173,9 @@ class ServerStreamConnection extends TimeLimitConnection {
 		return readCount;
 	}
 
-	private void setTransferResponse(TransferResponse response) {
-		this.transferResponse = response;
-		this.transferResponseBuffer.clear();
-		this.transferResponseBuffer.put(response.getCode());
-		this.transferResponseBuffer.clear();
+	public void remove() {
+		this.connectionManager.remove(this);
 	}
-
-	public short getTransfer() {
-		return this.transfer;
-	}
-
-	private ConnectionState connectionState;
 
 	private void setConnectionState(ConnectionState connectionCode) {
 		this.connectionState = connectionCode;
@@ -179,13 +184,30 @@ class ServerStreamConnection extends TimeLimitConnection {
 		this.connectResponseBuffer.clear();
 	}
 
-	boolean isSupportedVersion(short version) {
-		if (version < -1 || version > 3)
-			return false;
-		return true;
+	private void setTransferResponse(TransferResponse response) {
+		this.transferResponse = response;
+		this.transferResponseBuffer.clear();
+		this.transferResponseBuffer.put(response.getCode());
+		this.transferResponseBuffer.clear();
 	}
 
-	private boolean wroteConnectCode = false;
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("id: ");
+		sb.append(this.id);
+		sb.append(", protocol: ");
+		sb.append(this.getProtocol());
+		sb.append(", version: ");
+		sb.append(this.getVersion());
+		sb.append(", last contact: ");
+		sb.append(getLastContactTime());
+		sb.append(", code: ");
+		sb.append(this.code);
+		sb.append("}");
+		return sb.toString();
+	}
 
 	@Override
 	public void write() throws IOException {
@@ -211,14 +233,13 @@ class ServerStreamConnection extends TimeLimitConnection {
 					this.socketChannel.configureBlocking(true);
 					// // add a new transferCall.
 					TransferSocket transferSocket = new TransferSocketImpl(
-							this, this.socketChannel.socket(), transfer,
-							version);
+							this, this.socketChannel.socket(), code, version);
 
 					LOGGER.info("Transfer socket: " + transferSocket.toString()
 							+ " build");
 					try {
-						this.transferConnector.submitCall(this.transfer,
-								argument, transferSocket);
+						this.transferConnector.submitCall(this.code, argument,
+								transferSocket);
 					} catch (TransferCallException e) {
 						throw new IOException(e);
 					}
@@ -251,27 +272,5 @@ class ServerStreamConnection extends TimeLimitConnection {
 
 			}
 		}
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("{");
-		sb.append("id: ");
-		sb.append(this.id);
-		sb.append(", protocol: ");
-		sb.append(this.getProtocol());
-		sb.append(", version: ");
-		sb.append(this.getVersion());
-		sb.append(", last contact: ");
-		sb.append(getLastContactTime());
-		sb.append(", transfer: ");
-		sb.append(this.transfer);
-		sb.append("}");
-		return sb.toString();
-	}
-
-	public void remove() {
-		this.connectionManager.remove(this);
 	}
 }
