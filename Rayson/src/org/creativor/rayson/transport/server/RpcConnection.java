@@ -73,7 +73,7 @@ class RpcConnection extends PacketConnection {
 	}
 
 	private static Logger LOGGER = Log.getLogger();
-	private short version = -1;
+	private byte version = -1;
 
 	private AtomicBoolean closed;
 
@@ -155,7 +155,7 @@ class RpcConnection extends PacketConnection {
 	}
 
 	@Override
-	public short getVersion() {
+	public byte getVersion() {
 		return version;
 	}
 
@@ -182,7 +182,7 @@ class RpcConnection extends PacketConnection {
 		this.socketChannel.read(connectHeaderBuffer);
 		if (!connectHeaderBuffer.hasRemaining()) {
 			connectHeaderBuffer.flip();
-			version = connectHeaderBuffer.getShort();
+			version = connectHeaderBuffer.get();
 			if (!isSupportedVersion(version))
 				setConnectionState(ConnectionState.UNSUPPORTED_VERSION);
 			this.selectionKey.interestOps(SelectionKey.OP_WRITE

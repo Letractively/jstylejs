@@ -14,5 +14,5 @@ public interface RpcService {
 	 *            Session information.
 	 * @return True is the proxy version is supported by this service.
 	 */
-	boolean isSupportedVersion(Session session);
+	public boolean isSupportedVersion(Session session);
 }

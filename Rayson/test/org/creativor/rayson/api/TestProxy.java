@@ -2,11 +2,11 @@ package org.creativor.rayson.api;
 
 import java.io.EOFException;
 
-import org.creativor.rayson.annotation.ProxyVersion;
+import org.creativor.rayson.annotation.ClientVersion;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.exception.RpcException;
 
-@ProxyVersion(10)
+@ClientVersion(10)
 public interface TestProxy extends RpcProxy {
 
 	public String echo(String message) throws EOFException, RpcException;

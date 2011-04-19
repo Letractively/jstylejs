@@ -25,7 +25,7 @@ public interface TransferSocket {
 
 	public short getCode();
 
-	public short getVersion();
+	public short getClientVersion();
 
 	public SocketAddress getLocalAddr();
 

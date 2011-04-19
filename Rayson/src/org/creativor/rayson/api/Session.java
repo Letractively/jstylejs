@@ -15,9 +15,15 @@ public interface Session {
 
 	public long getInvocationTime();
 
+	/**
+	 * Get version of Rayson client.
+	 */
 	public byte getVersion();
 
-	public short getProxyVersion();
+	/**
+	 * The version of the {@link RpcProxy} .
+	 */
+	public short getClientVersion();
 
 	public String getServiceName();
 

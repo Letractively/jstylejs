@@ -132,7 +132,7 @@ public class ClientSession implements Portable, Session {
 	}
 
 	@Override
-	public short getProxyVersion() {
+	public short getClientVersion() {
 		return proxyVersion;
 	}
 }

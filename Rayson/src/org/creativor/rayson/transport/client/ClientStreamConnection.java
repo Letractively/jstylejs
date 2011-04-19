@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import org.creativor.rayson.annotation.TransferCode;
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
+import org.creativor.rayson.client.Rayson;
 import org.creativor.rayson.common.Stream;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
@@ -25,7 +26,7 @@ import org.creativor.rayson.util.Log;
 class ClientStreamConnection extends TimeLimitConnection {
 	private long id;
 	private SocketAddress serverAddress;
-	private static final short version = 1;
+	private static final byte version = Rayson.getClientVersion();
 	private static final long TIME_OUT_INTERVAL = 60 * 1000;
 	private static final int BUFFER_SIZE = 1024;
 	private short transfer;
@@ -59,7 +60,7 @@ class ClientStreamConnection extends TimeLimitConnection {
 		transferResponseBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.TRANSFER_RESPONSE_LENGTH);
 		this.connectHeaderBuffer.put(getProtocol().getType());
-		this.connectHeaderBuffer.putShort(version);
+		this.connectHeaderBuffer.put(version);
 		this.connectHeaderBuffer.clear();
 		closed = new AtomicBoolean(false);
 	}
@@ -146,7 +147,7 @@ class ClientStreamConnection extends TimeLimitConnection {
 		return 0;
 	}
 
-	public short getVersion() {
+	public byte getVersion() {
 		return version;
 	}
 

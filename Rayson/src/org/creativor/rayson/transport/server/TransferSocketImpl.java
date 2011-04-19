@@ -11,8 +11,8 @@ class TransferSocketImpl extends AbstractTransferSocket {
 	private AtomicBoolean closed;
 
 	public TransferSocketImpl(ServerStreamConnection connection, Socket socket,
-			short transfer, short version) throws IOException {
-		super(connection, socket, transfer, version);
+			short transfer, short clientVersion) throws IOException {
+		super(connection, socket, transfer, clientVersion);
 		this.connection = connection;
 		closed = new AtomicBoolean(false);
 	}

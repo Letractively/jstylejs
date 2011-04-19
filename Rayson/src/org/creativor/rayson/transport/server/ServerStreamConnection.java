@@ -44,9 +44,10 @@ class ServerStreamConnection extends TimeLimitConnection {
 	private TransferResponse transferResponse;
 	private ByteBuffer transferResponseBuffer;
 
-	private short version = -1;
+	private short clientVersion = -1;
 
 	private boolean wroteConnectCode = false;
+	private byte version = -1;
 
 	public ServerStreamConnection(long id, SocketChannel socketChannel,
 			SelectionKey selectionKey, ConnectionManager connectionManager,
@@ -93,7 +94,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 	}
 
 	@Override
-	public short getVersion() {
+	public byte getVersion() {
 		return version;
 	}
 
@@ -111,8 +112,8 @@ class ServerStreamConnection extends TimeLimitConnection {
 			readCount = this.socketChannel.read(connectHeaderBuffer);
 			if (!connectHeaderBuffer.hasRemaining()) {
 				connectHeaderBuffer.flip();
-				version = connectHeaderBuffer.getShort();
-				if (!isSupportedVersion(version))
+				clientVersion = connectHeaderBuffer.get();
+				if (!isSupportedVersion(clientVersion))
 					setConnectionState(ConnectionState.UNSUPPORTED_VERSION);
 				this.selectionKey.interestOps(SelectionKey.OP_WRITE
 						| SelectionKey.OP_READ);
@@ -233,7 +234,8 @@ class ServerStreamConnection extends TimeLimitConnection {
 					this.socketChannel.configureBlocking(true);
 					// // add a new transferCall.
 					TransferSocket transferSocket = new TransferSocketImpl(
-							this, this.socketChannel.socket(), code, version);
+							this, this.socketChannel.socket(), code,
+							clientVersion);
 
 					LOGGER.info("Transfer socket: " + transferSocket.toString()
 							+ " build");

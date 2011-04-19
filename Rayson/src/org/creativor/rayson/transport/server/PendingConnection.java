@@ -114,7 +114,7 @@ class PendingConnection implements Connection {
 	}
 
 	@Override
-	public short getVersion() {
+	public byte getVersion() {
 		return -1;
 	}
 

@@ -17,12 +17,13 @@ public abstract class AbstractTransferSocket implements TransferSocket {
 	private DataOutput dataOutput;
 	private Socket socket;
 	private short code;
-	private short version;
+	private short clientVersion;
 
 	protected AbstractTransferSocket(TimeLimitConnection connection,
-			Socket socket, short transfer, short version) throws IOException {
+			Socket socket, short transfer, short clientVersion)
+			throws IOException {
 		this.socket = socket;
-		this.version = version;
+		this.clientVersion = clientVersion;
 		this.code = transfer;
 		this.dataInput = new DataInputImpl(new DataInputStream(
 				this.socket.getInputStream()), this, connection);
@@ -61,8 +62,8 @@ public abstract class AbstractTransferSocket implements TransferSocket {
 	}
 
 	@Override
-	public short getVersion() {
-		return version;
+	public short getClientVersion() {
+		return clientVersion;
 	}
 
 	@Override
@@ -94,15 +95,14 @@ public abstract class AbstractTransferSocket implements TransferSocket {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("{");
-		sb.append("code:");
+		sb.append("code: ");
 		sb.append(this.code);
-		sb.append(",");
-		sb.append("version:");
-		sb.append(this.version);
-		sb.append(",");
-		sb.append("socket:");
+		sb.append(", ");
+		sb.append("client version: ");
+		sb.append(this.clientVersion);
+		sb.append(", ");
+		sb.append("socket: ");
 		sb.append(this.socket.toString());
-		sb.append(",");
 		sb.append("}");
 		return sb.toString();
 	}

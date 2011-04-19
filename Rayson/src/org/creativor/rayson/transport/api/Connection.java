@@ -11,7 +11,7 @@ public interface Connection {
 
 	public ProtocolType getProtocol();
 
-	public short getVersion();
+	public byte getVersion();
 
 	public int read() throws IOException;
 

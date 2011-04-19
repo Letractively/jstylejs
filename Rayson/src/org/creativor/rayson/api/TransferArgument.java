@@ -1,8 +1,8 @@
 package org.creativor.rayson.api;
 
-import org.creativor.rayson.annotation.ProxyVersion;
+import org.creativor.rayson.annotation.ClientVersion;
 
-@ProxyVersion
+@ClientVersion
 public interface TransferArgument extends Portable {
 
 }

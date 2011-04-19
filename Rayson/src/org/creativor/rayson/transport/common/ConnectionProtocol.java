@@ -8,7 +8,7 @@ import org.creativor.rayson.transport.stream.TransferResponse;
  * <table border="1">
  * <tr>
  * <td>protocol(1)</td>
- * <td>version(2)</td>
+ * <td>version(1)</td>
  * <td>reserved(125)</td>
  * </tr>
  * </table>

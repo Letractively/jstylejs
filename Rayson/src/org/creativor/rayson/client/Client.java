@@ -9,7 +9,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.WeakHashMap;
 
-import org.creativor.rayson.annotation.ProxyVersion;
+import org.creativor.rayson.annotation.ClientVersion;
 import org.creativor.rayson.api.AsyncProxy;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.ServerProxy;
@@ -216,9 +216,9 @@ class Client {
 	}
 
 	private short getProxyVersion(Class<? extends RpcProxy> proxyInterface) {
-		short proxyVersion = ProxyVersion.DEFAULT_VALUE;
-		ProxyVersion annotation = proxyInterface
-				.getAnnotation(ProxyVersion.class);
+		short proxyVersion = ClientVersion.DEFAULT_VALUE;
+		ClientVersion annotation = proxyInterface
+				.getAnnotation(ClientVersion.class);
 		if (annotation != null)
 			proxyVersion = annotation.value();
 		return proxyVersion;
@@ -250,8 +250,8 @@ class Client {
 	}
 
 	void initialize() {
-		ProxyVersion proxyVersion = ServerProxy.class
-				.getAnnotation(ProxyVersion.class);
+		ClientVersion proxyVersion = ServerProxy.class
+				.getAnnotation(ClientVersion.class);
 		if (proxyVersion != null)
 			SERVER_PROXY_VERSION = proxyVersion.value();
 		serverServices = new WeakHashMap<SocketAddress, ServerProxy>();

@@ -15,4 +15,9 @@ public class TestTransferService implements
 		System.out.println("TransferSocket read int: "
 				+ socket.getDataInput().readInt());
 	}
+
+	@Override
+	public boolean isSupportedVersion(short clientVersion) {
+		return false;
+	}
 }

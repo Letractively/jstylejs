@@ -10,6 +10,7 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import org.creativor.rayson.client.Rayson;
 import org.creativor.rayson.transport.common.CRC16;
 import org.creativor.rayson.transport.common.ChecksumMatchException;
 import org.creativor.rayson.transport.common.ConnectionProtocol;
@@ -88,7 +89,7 @@ class RpcConnection extends PacketConnection {
 	 */
 	private static final int TIME_OUT_INTERVAL = 1000 * 60;
 
-	private static final short version = 1;
+	private static final byte version = Rayson.getClientVersion();
 
 	private AtomicBoolean closed;
 
@@ -132,7 +133,7 @@ class RpcConnection extends PacketConnection {
 		this.listener = listener;
 		this.serverSocket = serverSocket;
 		this.connectHeaderBuffer.put(getProtocol().getType());
-		this.connectHeaderBuffer.putShort(version);
+		this.connectHeaderBuffer.put(version);
 		this.connectHeaderBuffer.clear();
 		thresholdLock = new Object();
 	}
@@ -205,7 +206,7 @@ class RpcConnection extends PacketConnection {
 	}
 
 	@Override
-	public short getVersion() {
+	public byte getVersion() {
 
 		return version;
 	}

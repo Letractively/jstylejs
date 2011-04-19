@@ -52,7 +52,7 @@ public final class RpcSessionImpl implements RpcSession {
 		sb.append(getVersion());
 		sb.append(", ");
 		sb.append("proxy version: ");
-		sb.append(getProxyVersion());
+		sb.append(getClientVersion());
 		sb.append(", ");
 		sb.append("service name: ");
 		sb.append(getServiceName());
@@ -75,8 +75,8 @@ public final class RpcSessionImpl implements RpcSession {
 	}
 
 	@Override
-	public short getProxyVersion() {
-		return clientSession.getProxyVersion();
+	public short getClientVersion() {
+		return clientSession.getClientVersion();
 	}
 
 	/**
@@ -89,7 +89,7 @@ public final class RpcSessionImpl implements RpcSession {
 			throws UnsupportedVersionException {
 		if (!proxyVersionSupported)
 			throw new UnsupportedVersionException("Proxy version "
-					+ this.getProxyVersion()
+					+ this.getClientVersion()
 					+ " is unsupported by server service");
 	}
 }
