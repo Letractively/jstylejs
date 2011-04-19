@@ -7,7 +7,8 @@ import org.creativor.rayson.api.Session;
 public class TestServiceImpl implements TestService {
 	@Override
 	public String echo(Session session, String message) throws EOFException {
-		return message;
+		throw new EOFException("eof");
+		// return message;
 	}
 
 	@Override
@@ -36,7 +37,7 @@ public class TestServiceImpl implements TestService {
 
 	@Override
 	public boolean isSupportedVersion(Session session) {
-		return false;
+		return true;
 	}
 
 }

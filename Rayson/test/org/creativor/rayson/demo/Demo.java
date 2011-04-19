@@ -31,7 +31,7 @@ public class Demo {
 		InetSocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
 
-		Rayson.ping(serverAddress);
+		// Rayson.ping(serverAddress);
 
 		System.out.println("Ping sucessfully");
 

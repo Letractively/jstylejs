@@ -13,6 +13,7 @@ import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.common.InvocationResultType;
 import org.creativor.rayson.common.Stream;
 import org.creativor.rayson.exception.CallException;
+import org.creativor.rayson.exception.CallExecutionException;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.common.Packet;
@@ -27,12 +28,12 @@ public class ClientCall<V> {
 	private Packet requestPacket;
 	private ProxySession session;
 
-	public ClientCall(ProxySession session, Invocation invocation)
-			throws PacketException {
+	public ClientCall(ProxySession session, Invocation invocation,
+			CallFutureImpl<V> future) throws PacketException {
 		this.id = UID.getAndIncrement();
 		this.session = session;
 		this.invocation = invocation;
-		this.future = new CallFutureImpl<V>();
+		this.future = future;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
 				BUFFER_SIZE);
 		DataOutputStream dataOutputStream = new DataOutputStream(
@@ -64,7 +65,8 @@ public class ClientCall<V> {
 		return future;
 	}
 
-	public V getResult() throws InterruptedException, RpcException {
+	public V getResult() throws InterruptedException, RpcException,
+			CallExecutionException {
 		return future.get();
 	}
 

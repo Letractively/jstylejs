@@ -9,10 +9,11 @@ import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.client.ConnectionClosedException;
 import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.exception.CallException;
+import org.creativor.rayson.exception.CallExecutionException;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
-import org.creativor.rayson.impl.RemoteExceptionImpl;
+import org.creativor.rayson.impl.RpcExceptionImpl;
 
 public class CallFutureImpl<V> implements CallFuture<V> {
 
@@ -20,10 +21,12 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 	private AtomicBoolean done;
 	private InvocationException invocationException;
 	private V result;
+	private Class<?>[] exceptionTypes;
 
-	public CallFutureImpl() {
+	public CallFutureImpl(Class<?>[] exceptionTypes) {
 		done = new AtomicBoolean(false);
 		cancelled = new AtomicBoolean(false);
+		this.exceptionTypes = exceptionTypes;
 	}
 
 	@Override
@@ -38,20 +41,21 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 	}
 
 	@Override
-	public V get() throws InterruptedException, RpcException {
+	public V get() throws InterruptedException, RpcException,
+			CallExecutionException {
 		synchronized (done) {
 			while (!isDone()) {
 				done.wait();
 			}
 		}
 		if (invocationException != null) {
-			throwRpcException(invocationException);
+			throwException(invocationException);
 		}
 		return result;
 	}
 
-	private void throwRpcException(InvocationException invocationException)
-			throws RpcException {
+	private void throwException(InvocationException invocationException)
+			throws RpcException, CallExecutionException {
 		//
 		Throwable remoteException = invocationException.getRemoteException();
 		StackTraceElement[] stackTraceElements = Thread.currentThread()
@@ -60,34 +64,45 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 				stackTraceElements.length - 1, stackTraceElements.length));
 
 		if (invocationException.isUnDeclaredException())
-			throw RemoteExceptionImpl
-					.createUndecleardException(remoteException);
+			throw RpcExceptionImpl.createUndecleardException(remoteException);
 
 		if (remoteException instanceof CallException)
-			throw RemoteExceptionImpl
+			throw RpcExceptionImpl
 					.createParameterException((CallException) remoteException);
 
 		if (remoteException instanceof UnsupportedVersionException)
-			throw RemoteExceptionImpl
+			throw RpcExceptionImpl
 					.createUnsupportedProxyVersion((UnsupportedVersionException) remoteException);
 
 		if (remoteException instanceof ConnectionClosedException)
 
-			throw RemoteExceptionImpl
+			throw RpcExceptionImpl
 					.createNetWorkException((ConnectionClosedException) remoteException);
 
 		if (remoteException instanceof ServiceNotFoundException)
 
-			throw RemoteExceptionImpl
+			throw RpcExceptionImpl
 					.createServiceNotFoundException((ServiceNotFoundException) remoteException);
 
-		throw RemoteExceptionImpl.createUndecleardException(remoteException);
+		boolean declaredExcutionException = false;
+		if (this.exceptionTypes != null) {
+			for (Class exception : this.exceptionTypes) {
+				if (remoteException instanceof Exception)
+					declaredExcutionException = true;
+				break;
+			}
+		}
+
+		if (declaredExcutionException) {
+			throw new CallExecutionException(remoteException);
+		} else
+			throw RpcExceptionImpl.createUndecleardException(remoteException);
 
 	}
 
 	@Override
 	public V get(long timeout, TimeUnit unit) throws InterruptedException,
-			RpcException, TimeoutException {
+			RpcException, TimeoutException, CallExecutionException {
 		long startTime = System.currentTimeMillis();
 		long timeOutMillis = unit.toMillis(timeout);
 		synchronized (done) {
@@ -99,7 +114,7 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 			throw new TimeoutException();
 
 		if (invocationException != null) {
-			throwRpcException(invocationException);
+			throwException(invocationException);
 		}
 		return result;
 	}

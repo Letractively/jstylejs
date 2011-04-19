@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.creativor.rayson.exception.CallExecutionException;
 import org.creativor.rayson.exception.RpcException;
 
 public interface CallFuture<V> {
@@ -58,13 +59,15 @@ public interface CallFuture<V> {
 	 * 
 	 * @return the computed result
 	 * @throws CancellationException
-	 *             if the computation was cancelled
+	 *             if the computation was cancel.
 	 * @throws ExecutionException
 	 *             if the computation threw an exception
 	 * @throws InterruptedException
-	 *             if the current thread was interrupted while waiting
+	 *             if the current thread was interrupted while waiting.
+	 * @throws CallExecutionException
+	 *             If this call execution throws a defined exception.
 	 */
-	V get() throws InterruptedException, RpcException;
+	V get() throws InterruptedException, RpcException, CallExecutionException;
 
 	/**
 	 * Waits if necessary for at most the given time for the computation to
@@ -76,14 +79,16 @@ public interface CallFuture<V> {
 	 *            the time unit of the timeout argument
 	 * @return the computed result
 	 * @throws CancellationException
-	 *             if the computation was cancelled
+	 *             if the computation was cancel.
 	 * @throws RpcException
 	 *             if the computation threw an exception
 	 * @throws InterruptedException
-	 *             if the current thread was interrupted while waiting
+	 *             if the current thread was interrupted while waiting.
 	 * @throws TimeoutException
-	 *             if the wait timed out
+	 *             if the wait timed out.
+	 * @throws CallExecutionException
+	 *             If this call execution throws a defined exception.
 	 */
 	V get(long timeout, TimeUnit unit) throws InterruptedException,
-			RpcException, TimeoutException;
+			RpcException, TimeoutException, CallExecutionException;
 }

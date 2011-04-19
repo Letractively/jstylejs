@@ -2,6 +2,7 @@ package org.creativor.rayson.client;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -11,7 +12,6 @@ import java.util.WeakHashMap;
 
 import org.creativor.rayson.annotation.ProxyVersion;
 import org.creativor.rayson.api.AsyncProxy;
-import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.ServerProxy;
 import org.creativor.rayson.api.TransferArgument;
@@ -20,11 +20,11 @@ import org.creativor.rayson.client.impl.CallFutureImpl;
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
 import org.creativor.rayson.common.InvocationException;
+import org.creativor.rayson.exception.CallExecutionException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
-import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
-import org.creativor.rayson.impl.RemoteExceptionImpl;
+import org.creativor.rayson.impl.RpcExceptionImpl;
 import org.creativor.rayson.server.ServerService;
 import org.creativor.rayson.transport.client.TransportClient;
 import org.creativor.rayson.util.ServiceVerifier;
@@ -46,20 +46,19 @@ class Client {
 
 			getSession().touch();
 			if (getSession().isUnsupportedVersion()) {
-				CallFutureImpl callFuture = new CallFutureImpl();
+				CallFutureImpl callFuture = new CallFutureImpl(
+						method.getExceptionTypes());
 				callFuture.setException(new InvocationException(false,
 						getSession().getUnsupportedVersionException()));
 				return callFuture;
 			}
 			Invocation invocation = new Invocation(method, args);
-			return invokeAsyncCall(proxy, invocation);
-		}
 
-		private CallFuture invokeAsyncCall(Object proxy, Invocation invocation)
-				throws Throwable {
 			getSession().touch();
 
-			ClientCall call = new ClientCall(getSession(), invocation);
+			ClientCall call = new ClientCall(getSession(), invocation,
+					new CallFutureImpl(method.getExceptionTypes()));
+
 			try {
 				submitCall(getSession().getPeerAddress(), call);
 			} catch (IOException e) {
@@ -67,7 +66,6 @@ class Client {
 			}
 
 			return call.getFuture();
-
 		}
 	}
 
@@ -90,33 +88,36 @@ class Client {
 				return getSession();
 			session.touch();
 			if (getSession().isUnsupportedVersion()) {
-				CallFutureImpl callFuture = new CallFutureImpl();
+				CallFutureImpl callFuture = new CallFutureImpl(
+						method.getExceptionTypes());
 				callFuture.setException(new InvocationException(false,
 						getSession().getUnsupportedVersionException()));
 				return callFuture.get();
 			}
+
 			Invocation invocation = new Invocation(method, args);
-			return invokeRpcCall(proxy, invocation);
+
+			ClientCall call = new ClientCall(session, invocation,
+					new CallFutureImpl(method.getExceptionTypes()));
+
+			try {
+				submitCall(session.getPeerAddress(), call);
+			} catch (IOException e) {
+				throw RpcExceptionImpl.createNetWorkException(e);
+			}
+
+			try {
+				return call.getResult();
+			} catch (CallExecutionException e) {
+				throw e.getCause();
+			} catch (InterruptedException e) {
+				throw RpcExceptionImpl.createUndecleardException(e);
+			}
 		}
 
 		@Override
 		public ProxySession getSession() {
 			return session;
-		}
-
-		private Object invokeRpcCall(Object proxy, Invocation invocation)
-				throws Throwable {
-			ClientCall call = new ClientCall(session, invocation);
-			try {
-				submitCall(session.getPeerAddress(), call);
-			} catch (IOException e) {
-				throw RemoteExceptionImpl.createNetWorkException(e);
-			}
-			try {
-				return call.getResult();
-			} catch (InterruptedException e) {
-				throw RemoteExceptionImpl.createUndecleardException(e);
-			}
 		}
 
 		@Override
