@@ -25,6 +25,11 @@ public interface TransferSocket {
 
 	public short getCode();
 
+	/**
+	 * Get the remote client connection version number.
+	 */
+	public byte getConnectionVersion();
+
 	public short getClientVersion();
 
 	public SocketAddress getLocalAddr();
