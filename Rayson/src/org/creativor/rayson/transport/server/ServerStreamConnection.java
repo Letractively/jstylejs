@@ -9,6 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.util.logging.Logger;
 
 import org.creativor.rayson.api.TransferArgument;
+import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.common.Stream;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 import org.creativor.rayson.transport.common.ConnectionProtocol;
@@ -209,11 +210,15 @@ class ServerStreamConnection extends TimeLimitConnection {
 					// set socket channel to blocked mode.
 					this.socketChannel.configureBlocking(true);
 					// // add a new transferCall.
+					TransferSocket transferSocket = new TransferSocketImpl(
+							this, this.socketChannel.socket(), transfer,
+							version);
+
+					LOGGER.info("Transfer socket: " + transferSocket.toString()
+							+ " build");
 					try {
 						this.transferConnector.submitCall(this.transfer,
-								argument, new TransferSocketImpl(this,
-										this.socketChannel.socket(), transfer,
-										version));
+								argument, transferSocket);
 					} catch (TransferCallException e) {
 						throw new IOException(e);
 					}

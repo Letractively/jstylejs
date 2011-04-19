@@ -16,14 +16,14 @@ public abstract class AbstractTransferSocket implements TransferSocket {
 	private DataInput dataInput;
 	private DataOutput dataOutput;
 	private Socket socket;
-	private short transfer;
+	private short code;
 	private short version;
 
 	protected AbstractTransferSocket(TimeLimitConnection connection,
 			Socket socket, short transfer, short version) throws IOException {
 		this.socket = socket;
 		this.version = version;
-		this.transfer = transfer;
+		this.code = transfer;
 		this.dataInput = new DataInputImpl(new DataInputStream(
 				this.socket.getInputStream()), this, connection);
 		this.dataOutput = new DataOutputImpl(new DataOutputStream(
@@ -56,8 +56,8 @@ public abstract class AbstractTransferSocket implements TransferSocket {
 	}
 
 	@Override
-	public short getTransfer() {
-		return transfer;
+	public short getCode() {
+		return code;
 	}
 
 	@Override
@@ -88,5 +88,22 @@ public abstract class AbstractTransferSocket implements TransferSocket {
 	@Override
 	public void shutdownOutput() throws IOException {
 		this.socket.shutdownOutput();
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		sb.append("code:");
+		sb.append(this.code);
+		sb.append(",");
+		sb.append("version:");
+		sb.append(this.version);
+		sb.append(",");
+		sb.append("socket:");
+		sb.append(this.socket.toString());
+		sb.append(",");
+		sb.append("}");
+		return sb.toString();
 	}
 }

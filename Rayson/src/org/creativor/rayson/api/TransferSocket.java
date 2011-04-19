@@ -23,7 +23,7 @@ public interface TransferSocket {
 
 	public void close() throws IOException;
 
-	public short getTransfer();
+	public short getCode();
 
 	public short getVersion();
 
