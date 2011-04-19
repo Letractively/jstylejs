@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.common.Stream;
+import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 import org.creativor.rayson.transport.common.ConnectionProtocol;
 import org.creativor.rayson.transport.common.ConnectionState;
@@ -23,14 +24,14 @@ import org.creativor.rayson.util.Log;
 class ServerStreamConnection extends TimeLimitConnection {
 
 	private static enum ReadState {
-		ARGUMENT_DATA, DATA_SIZE, TRANSFER_CODE, VERSION;
+		ARGUMENT_DATA, DATA_SIZE, TRANSFER_CODE, CLIENT_VERSION, VERSION;
 	}
 
 	private static Logger LOGGER = Log.getLogger();
 	private static final int TIME_OUT_INTERVAL = 30000;
 	private TransferArgument argument;
 	private ByteBuffer argumentBuffer;
-	private short code;
+	private short transferCode;
 	private ByteBuffer connectHeaderBuffer;
 	private ConnectionManager connectionManager;
 	private ConnectionState connectionState;
@@ -75,7 +76,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 	}
 
 	public short getCode() {
-		return this.code;
+		return this.transferCode;
 	}
 
 	@Override
@@ -108,30 +109,49 @@ class ServerStreamConnection extends TimeLimitConnection {
 	public int read() throws IOException {
 		int readCount = -1;
 		switch (readState) {
+
 		case VERSION:
 			readCount = this.socketChannel.read(connectHeaderBuffer);
 			if (!connectHeaderBuffer.hasRemaining()) {
 				connectHeaderBuffer.flip();
-				clientVersion = connectHeaderBuffer.get();
+				version = connectHeaderBuffer.get();
 				if (!isSupportedVersion(clientVersion))
 					setConnectionState(ConnectionState.UNSUPPORTED_VERSION);
 				this.selectionKey.interestOps(SelectionKey.OP_WRITE
 						| SelectionKey.OP_READ);
-				readState = ReadState.TRANSFER_CODE;
+				readState = ReadState.CLIENT_VERSION;
 			}
 			break;
+
+		case CLIENT_VERSION:
+			readCount = this.socketChannel.read(transferCodeBuffer);
+			if (!this.transferCodeBuffer.hasRemaining()) {
+				this.transferCodeBuffer.flip();
+				this.clientVersion = this.transferCodeBuffer.getShort();
+				transferCodeBuffer.clear();
+				this.readState = ReadState.TRANSFER_CODE;
+			}
+			break;
+
 		case TRANSFER_CODE:
 			readCount = this.socketChannel.read(transferCodeBuffer);
 			if (!this.transferCodeBuffer.hasRemaining()) {
 				this.transferCodeBuffer.flip();
-				this.code = this.transferCodeBuffer.getShort();
+				this.transferCode = this.transferCodeBuffer.getShort();
 				boolean serviceExists = this.transferConnector
-						.serviceExists(this.code);
+						.serviceExists(this.transferCode);
 				// set transfer response code
-				if (serviceExists)
-
+				if (serviceExists) {
 					setTransferResponse(TransferResponse.OK);
-				else
+					try {
+						if (!this.transferConnector.isSupportedVersion(
+								this.transferCode, this.clientVersion)) {
+							setTransferResponse(TransferResponse.UNSUPPORTED_VERSION);
+						}
+					} catch (ServiceNotFoundException e) {
+						e.printStackTrace();
+					}
+				} else
 					setTransferResponse(TransferResponse.NO_ACTIVITY_FOUND);
 				transferCodeBuffer.clear();
 				this.readState = ReadState.DATA_SIZE;
@@ -147,6 +167,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 				this.readState = ReadState.ARGUMENT_DATA;
 			}
 			break;
+
 		case ARGUMENT_DATA:
 
 			readCount = this.socketChannel.read(argumentBuffer);
@@ -167,6 +188,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 			}
 
 			break;
+
 		default:
 			break;
 		}
@@ -205,7 +227,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 		sb.append(", last contact: ");
 		sb.append(getLastContactTime());
 		sb.append(", code: ");
-		sb.append(this.code);
+		sb.append(this.transferCode);
 		sb.append("}");
 		return sb.toString();
 	}
@@ -221,6 +243,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 				case NO_ACTIVITY_FOUND:
 				case UNKNOWN:
 				case ARGUMENT_ERROR:
+				case UNSUPPORTED_VERSION:
 					try {
 						this.close();
 					} catch (IOException e) {
@@ -234,14 +257,14 @@ class ServerStreamConnection extends TimeLimitConnection {
 					this.socketChannel.configureBlocking(true);
 					// // add a new transferCall.
 					TransferSocket transferSocket = new TransferSocketImpl(
-							this, this.socketChannel.socket(), code,
+							this, this.socketChannel.socket(), transferCode,
 							clientVersion);
 
 					LOGGER.info("Transfer socket: " + transferSocket.toString()
 							+ " build");
 					try {
-						this.transferConnector.submitCall(this.code, argument,
-								transferSocket);
+						this.transferConnector.submitCall(this.transferCode,
+								argument, transferSocket);
 					} catch (TransferCallException e) {
 						throw new IOException(e);
 					}

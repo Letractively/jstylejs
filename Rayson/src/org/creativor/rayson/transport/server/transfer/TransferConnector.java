@@ -12,6 +12,7 @@ import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferService;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.exception.IllegalServiceException;
+import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 
 @TransferConfig
@@ -74,13 +75,13 @@ public class TransferConnector {
 			if (transferAnnotation == null)
 				throw new IllegalServiceException(
 						"No transfer annotation found in service generic type ");
-			short transfer = transferAnnotation.value();
-			TransferInvoker invoker = transferInvokers.get(transfer);
+			short transferCode = transferAnnotation.value();
+			TransferInvoker invoker = transferInvokers.get(transferCode);
 			if (invoker != null)
 				throw new ServiceAlreadyExistedException("Transfer service "
-						+ transfer);
-			invoker = new TransferInvoker(transfer, service, processMethod);
-			this.transferInvokers.put(transfer, invoker);
+						+ transferCode);
+			invoker = new TransferInvoker(transferCode, service, processMethod);
+			this.transferInvokers.put(transferCode, invoker);
 
 		} catch (Exception e) {
 			throw new IllegalServiceException(e.getMessage());
@@ -101,7 +102,21 @@ public class TransferConnector {
 		return null;
 	}
 
-	public boolean serviceExists(short transfer) {
-		return this.transferInvokers.containsKey(transfer);
+	public boolean serviceExists(short transferCode) {
+		return this.transferInvokers.containsKey(transferCode);
+	}
+
+	/**
+	 * 
+	 * @param transferCode
+	 * @param clientVersion
+	 * @return
+	 * @throws ServiceNotFoundException
+	 *             If transfer code associated service is not found.
+	 */
+	public boolean isSupportedVersion(short transferCode, short clientVersion)
+			throws ServiceNotFoundException {
+		TransferInvoker invoker = this.transferInvokers.get(transferCode);
+		return invoker.isSupportedVersion(clientVersion);
 	}
 }

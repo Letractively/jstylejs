@@ -9,6 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import org.creativor.rayson.annotation.ClientVersion;
 import org.creativor.rayson.annotation.TransferCode;
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
@@ -29,7 +30,8 @@ class ClientStreamConnection extends TimeLimitConnection {
 	private static final byte version = Rayson.getClientVersion();
 	private static final long TIME_OUT_INTERVAL = 60 * 1000;
 	private static final int BUFFER_SIZE = 1024;
-	private short transfer;
+	private short transferCode;
+	private short clientVersion;
 	private SocketChannel socketChannel;
 	private ByteBuffer connectHeaderBuffer;
 	private ByteBuffer connectResponseBuffer;
@@ -45,13 +47,19 @@ class ClientStreamConnection extends TimeLimitConnection {
 		this.id = ConnectionManager.getNextConnectionId();
 		this.connectionManager = connectionManager;
 		this.serverAddress = serverAddress;
+		ClientVersion clientVersionAnnotation = argument.getClass()
+				.getAnnotation(ClientVersion.class);
+		if (clientVersionAnnotation == null)
+			clientVersion = ClientVersion.DEFAULT_VALUE;
+		else
+			clientVersion = clientVersionAnnotation.value();
 		TransferCode transferCode = argument.getClass().getAnnotation(
 				TransferCode.class);
 		// Verify transfer code.
 		if (transferCode == null)
 			throw new IllegalServiceException(
 					"No transfer code annotation found in argument class");
-		this.transfer = transferCode.value();
+		this.transferCode = transferCode.value();
 		this.argument = argument;
 		connectHeaderBuffer = ByteBuffer
 				.allocate(ConnectionProtocol.HEADER_LENGTH);
@@ -82,9 +90,11 @@ class ClientStreamConnection extends TimeLimitConnection {
 				throw new ConnectException("Get wrong connection state: "
 						+ state.name());
 			socketChannel.configureBlocking(true);
-			// send transfer number to remote
 			connectHeaderBuffer.clear();
-			connectHeaderBuffer.putShort(transfer);
+			// send client version to remote.
+			connectHeaderBuffer.putShort(clientVersion);
+			// send transfer number to remote
+			connectHeaderBuffer.putShort(transferCode);
 			connectHeaderBuffer.flip();
 			this.socketChannel.write(connectHeaderBuffer);
 
@@ -106,9 +116,11 @@ class ClientStreamConnection extends TimeLimitConnection {
 			transferResponseBuffer.flip();
 			TransferResponse response = TransferResponse
 					.valueOf(transferResponseBuffer.get());
-			if (response != TransferResponse.OK)
-				throw new ServiceNotFoundException("No transfer " + transfer
-						+ " service found in servder:" + response.name());
+			if (response == TransferResponse.NO_ACTIVITY_FOUND)
+				throw new ServiceNotFoundException("No transfer "
+						+ transferCode + " service found in servder:"
+						+ response.name());
+			// if(response==TransferResponse.UNSUPPORTED_VERSION) throw new unsu
 
 		} catch (IOException e) {
 			this.socketChannel.close();
@@ -158,7 +170,7 @@ class ClientStreamConnection extends TimeLimitConnection {
 	}
 
 	public short getTransfer() {
-		return transfer;
+		return transferCode;
 	}
 
 	@Override
@@ -167,8 +179,8 @@ class ClientStreamConnection extends TimeLimitConnection {
 	}
 
 	TransferSocket createTransferSocket() throws IOException {
-		return new TransferSocketImpl(this, socketChannel.socket(), transfer,
-				version);
+		return new TransferSocketImpl(this, socketChannel.socket(),
+				transferCode, version);
 	}
 
 	@Override

@@ -9,12 +9,11 @@ import org.creativor.rayson.api.TransferSocket;
 
 class TransferInvoker {
 
-	private short transfer;
+	private short code;
 
-	public TransferInvoker(short transfer, TransferService service,
-			Method method) {
+	public TransferInvoker(short code, TransferService service, Method method) {
 		super();
-		this.transfer = transfer;
+		this.code = code;
 		this.service = service;
 		this.method = method;
 	}
@@ -28,7 +27,11 @@ class TransferInvoker {
 		this.method.invoke(service, argument, transferSocket);
 	}
 
-	public short getTransfer() {
-		return transfer;
+	public short getCode() {
+		return code;
+	}
+
+	public boolean isSupportedVersion(short clientVersion) {
+		return service.isSupportedVersion(clientVersion);
 	}
 }

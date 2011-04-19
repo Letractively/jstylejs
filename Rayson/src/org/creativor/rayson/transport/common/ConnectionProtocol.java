@@ -48,6 +48,7 @@ import org.creativor.rayson.transport.stream.TransferResponse;
  * <h4>Transfer request header format:</h4>
  * <table border="1">
  * <tr>
+ * <td>client version(2)</td>
  * <td>transfer code(2)</td>
  * <td>data size(2)</td>
  * <td>argument data</td>
