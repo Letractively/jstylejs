@@ -13,6 +13,7 @@ import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.common.ConnectionState;
 import org.creativor.rayson.transport.common.Packet;
 import org.creativor.rayson.transport.common.PacketException;
@@ -135,7 +136,8 @@ public class TransportClient {
 
 	public TransferSocket createTransferSocket(SocketAddress serverAddress,
 			TransferArgument argument) throws IOException, ConnectException,
-			ServiceNotFoundException, IllegalServiceException {
+			ServiceNotFoundException, IllegalServiceException,
+			UnsupportedVersionException {
 		ClientStreamConnection connection = new ClientStreamConnection(
 				serverAddress, argument, connectionManager);
 		connection.init();

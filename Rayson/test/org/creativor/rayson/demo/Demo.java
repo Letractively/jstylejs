@@ -26,7 +26,8 @@ public class Demo {
 
 	public static void main(String[] args) throws IllegalServiceException,
 			NetWorkException, RpcException, IOException,
-			ServiceNotFoundException, InterruptedException {
+			ServiceNotFoundException, InterruptedException,
+			UnsupportedVersionException {
 
 		InetSocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);

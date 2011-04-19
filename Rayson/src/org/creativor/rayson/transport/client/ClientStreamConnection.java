@@ -17,6 +17,7 @@ import org.creativor.rayson.client.Rayson;
 import org.creativor.rayson.common.Stream;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 import org.creativor.rayson.transport.common.ConnectionProtocol;
 import org.creativor.rayson.transport.common.ConnectionState;
@@ -74,7 +75,7 @@ class ClientStreamConnection extends TimeLimitConnection {
 	}
 
 	public void init() throws IOException, ConnectException,
-			ServiceNotFoundException {
+			ServiceNotFoundException, UnsupportedVersionException {
 		// do connect to remote server.
 		SocketChannel socketChannel = SocketChannel.open(this.serverAddress);
 		this.socketChannel = socketChannel;
@@ -116,16 +117,26 @@ class ClientStreamConnection extends TimeLimitConnection {
 			transferResponseBuffer.flip();
 			TransferResponse response = TransferResponse
 					.valueOf(transferResponseBuffer.get());
-			if (response == TransferResponse.NO_ACTIVITY_FOUND)
+			switch (response) {
+			case NO_ACTIVITY_FOUND:
 				throw new ServiceNotFoundException("No transfer "
 						+ transferCode + " service found in servder:"
 						+ response.name());
-			// if(response==TransferResponse.UNSUPPORTED_VERSION) throw new unsu
-
+			case UNSUPPORTED_VERSION:
+				throw new UnsupportedVersionException(
+						"Client version is unsuppported");
+			case UNKNOWN:
+				throw new IOException("Got unknown response");
+			default:
+				break;
+			}
 		} catch (IOException e) {
 			this.socketChannel.close();
 			throw e;
 		} catch (ServiceNotFoundException e) {
+			this.socketChannel.close();
+			throw e;
+		} catch (UnsupportedVersionException e) {
 			this.socketChannel.close();
 			throw e;
 		}

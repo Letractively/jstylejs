@@ -15,6 +15,7 @@ import org.creativor.rayson.client.ClientCall;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.common.Packet;
 import org.creativor.rayson.util.Log;
 
@@ -163,7 +164,8 @@ public class RpcConnector {
 
 	public TransferSocket openTransferSocket(SocketAddress serverAddress,
 			TransferArgument argument) throws ConnectException, IOException,
-			ServiceNotFoundException, IllegalServiceException {
+			ServiceNotFoundException, IllegalServiceException,
+			UnsupportedVersionException {
 		return client.createTransferSocket(serverAddress, argument);
 	}
 }

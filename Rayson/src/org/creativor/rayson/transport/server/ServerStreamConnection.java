@@ -147,6 +147,8 @@ class ServerStreamConnection extends TimeLimitConnection {
 						if (!this.transferConnector.isSupportedVersion(
 								this.transferCode, this.clientVersion)) {
 							setTransferResponse(TransferResponse.UNSUPPORTED_VERSION);
+							this.selectionKey.interestOps(SelectionKey.OP_WRITE
+									| SelectionKey.OP_READ);
 						}
 					} catch (ServiceNotFoundException e) {
 						e.printStackTrace();
@@ -244,12 +246,8 @@ class ServerStreamConnection extends TimeLimitConnection {
 				case UNKNOWN:
 				case ARGUMENT_ERROR:
 				case UNSUPPORTED_VERSION:
-					try {
-						this.close();
-					} catch (IOException e) {
-						// Ignore.
-					}
-					break;
+					throw new IOException("Send error response:"
+							+ transferResponse);
 				case OK:
 					// remove selection key.
 					this.selectionKey.cancel();

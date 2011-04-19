@@ -13,6 +13,7 @@ import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 
 public final class Rayson {
 	private static Client CLIENT = new Client();
@@ -37,7 +38,7 @@ public final class Rayson {
 	public static TransferSocket openTransferSocket(
 			SocketAddress serverAddress, TransferArgument argument)
 			throws IOException, ServiceNotFoundException,
-			IllegalServiceException {
+			IllegalServiceException, UnsupportedVersionException {
 		return CLIENT.openTransferSocket(serverAddress, argument);
 	}
 

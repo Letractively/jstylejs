@@ -23,6 +23,7 @@ import org.creativor.rayson.exception.CallExecutionException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.impl.RpcExceptionImpl;
 import org.creativor.rayson.server.ServerService;
 import org.creativor.rayson.transport.client.TransportClient;
@@ -261,7 +262,8 @@ class Client {
 
 	public TransferSocket openTransferSocket(SocketAddress serverAddress,
 			TransferArgument argument) throws IOException,
-			ServiceNotFoundException, IllegalServiceException {
+			ServiceNotFoundException, IllegalServiceException,
+			UnsupportedVersionException {
 		if (argument == null)
 			throw new IllegalArgumentException(
 					"Transfer argument  should not be null");
