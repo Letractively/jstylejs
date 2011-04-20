@@ -14,7 +14,7 @@ import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class Invocation implements Portable {
@@ -40,6 +40,16 @@ public class Invocation implements Portable {
 		this.hashCode = getHashCode(method);
 	}
 
+	/**
+	 * Get hash code of one java Method.<br>
+	 * For example, method M
+	 * "Integer sum(int a, Integer b) throws IllegalArgumentException" will got
+	 * hash code:<br>
+	 * <b> M -> "Integer sum(int,b)" -> hash code</b>
+	 * 
+	 * @param method
+	 * @return
+	 */
 	public static int getHashCode(Method method) {
 		if (method == null)
 			throw new IllegalArgumentException("Method should not be null");

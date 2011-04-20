@@ -20,7 +20,6 @@ import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.util.ServiceVerifier;
 
 /**
- *
  * @author Nick Zhang
  */
 class ServiceReflection {
@@ -78,6 +77,7 @@ class ServiceReflection {
 			this.serviceInterface = serviceInterface;
 			this.proxyInterface = proxyInterface;
 			this.serviceMethods = new ArrayList<ServiceReflection.ServiceMethod>();
+
 			ServiceMethod serviceMethod;
 			for (Method method : this.serviceInterface.getDeclaredMethods()) {
 				serviceMethod = new ServiceMethod(method, this.proxyInterface);
@@ -133,7 +133,6 @@ class ServiceReflection {
 
 			this.method = method;
 			this.proxyMethod = proxyMethod;
-			this.hashCode = Invocation.getHashCode(proxyMethod);
 		}
 
 		public Method getMethod() {
@@ -144,9 +143,6 @@ class ServiceReflection {
 			return proxyMethod;
 		}
 
-		public int getHashCode() {
-			return hashCode;
-		}
 	}
 
 	ServiceReflection(String name, String description, RpcService instance)
@@ -167,7 +163,8 @@ class ServiceReflection {
 			for (Iterator<ServiceMethod> iterator = pair.serviceMethods
 					.iterator(); iterator.hasNext();) {
 				ServiceMethod serviceMethod = iterator.next();
-				this.methods.put(serviceMethod.getHashCode(),
+				this.methods.put(
+						Invocation.getHashCode(serviceMethod.getProxyMethod()),
 						serviceMethod.method);
 			}
 		}
