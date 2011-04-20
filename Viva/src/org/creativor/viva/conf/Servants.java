@@ -7,6 +7,10 @@ package org.creativor.viva.conf;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class Servants implements Configuration {
 	private List<String> nodes;
 

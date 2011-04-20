@@ -6,6 +6,10 @@ package org.creativor.viva.api;
 
 import org.creativor.rayson.api.Portable;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface Card {
 
 	public int getHashCode();

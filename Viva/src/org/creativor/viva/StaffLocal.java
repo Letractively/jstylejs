@@ -5,7 +5,6 @@
 package org.creativor.viva;
 
 import java.net.InetSocketAddress;
-
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.client.Rayson;
 import org.creativor.rayson.exception.IllegalServiceException;
@@ -18,6 +17,10 @@ import org.creativor.viva.api.Staff;
 import org.creativor.viva.api.VivaAsyncProxy;
 import org.creativor.viva.api.VivaProxy;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public final class StaffLocal implements Staff {
 
 	public static StaffLocal fromPortable(PortableStaff portable) {

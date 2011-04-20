@@ -8,6 +8,10 @@ import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.exception.RpcException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface CardProxy extends RpcProxy {
 
 	public Portable get(int hashCode) throws RpcException;

@@ -14,11 +14,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.viva.StaffLocal;
 import org.creativor.viva.api.PortableStaff;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 final class Shell {
 	private static final String COMMAND_DELIM = " ";
 

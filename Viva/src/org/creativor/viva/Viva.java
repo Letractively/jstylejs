@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.server.RpcServer;
@@ -23,6 +22,10 @@ import org.creativor.viva.conf.ConfTool;
 import org.creativor.viva.conf.LoadConfigException;
 import org.creativor.viva.conf.Servants;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public final class Viva {
 	private static Logger LOGGER = Log.getLogger();
 

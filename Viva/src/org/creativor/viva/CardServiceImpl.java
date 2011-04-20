@@ -8,6 +8,10 @@ import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.api.Session;
 import org.creativor.viva.api.CardService;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 final class CardServiceImpl implements CardService {
 	static String SERVICE_DESCRIPTION = "Card rpc service";
 

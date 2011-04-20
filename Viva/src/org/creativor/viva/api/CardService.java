@@ -9,6 +9,10 @@ import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @Proxy(CardProxy.class)
 public interface CardService extends RpcService {
 

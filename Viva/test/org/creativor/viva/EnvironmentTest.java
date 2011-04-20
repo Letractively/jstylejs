@@ -5,10 +5,8 @@
 package org.creativor.viva;
 
 import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.util.logging.Level;
-
 import org.creativor.rayson.util.Log;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,6 +14,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class EnvironmentTest {
 
 	@BeforeClass

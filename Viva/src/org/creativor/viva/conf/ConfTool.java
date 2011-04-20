@@ -9,11 +9,13 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
-
 import org.creativor.viva.Environment;
-
 import com.google.gson.Gson;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class ConfTool {
 	private static ConfTool singleton = new ConfTool();
 	private static final String CONF_FILE_POSTFIX = ".json";

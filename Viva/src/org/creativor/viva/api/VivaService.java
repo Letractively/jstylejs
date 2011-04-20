@@ -8,6 +8,10 @@ import org.creativor.rayson.annotation.Proxy;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @Proxy(VivaProxy.class)
 public interface VivaService extends RpcService {
 
@@ -36,8 +40,8 @@ public interface VivaService extends RpcService {
 	 *            True if the direction is left.
 	 * @return
 	 */
-	public boolean notifyJoin(Session session, int joiner, String ip,
-			int port, boolean leftDirection);
+	public boolean notifyJoin(Session session, int joiner, String ip, int port,
+			boolean leftDirection);
 
 	/**
 	 * Return a string that picture all the staffs of the Viva system in this

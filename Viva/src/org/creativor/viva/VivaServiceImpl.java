@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.exception.NetWorkException;
@@ -22,6 +21,10 @@ import org.creativor.viva.api.PortableStaff;
 import org.creativor.viva.api.Staff;
 import org.creativor.viva.api.VivaService;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 final class VivaServiceImpl implements VivaService {
 
 	private static Logger LOGGER = Log.getLogger();

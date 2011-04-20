@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class Servant {
 
 	private static String SERVANT_ADDRESS_HINTS = "Servant address format should be \"ip:port\"";

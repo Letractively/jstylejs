@@ -8,6 +8,10 @@ import org.creativor.rayson.api.AsyncProxy;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.exception.NetWorkException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface VivaAsyncProxy extends AsyncProxy {
 
 	public CallFuture<Boolean> join(int jioner, int port)

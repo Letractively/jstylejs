@@ -7,6 +7,10 @@ package org.creativor.viva.api;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.exception.RpcException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface VivaProxy extends RpcProxy {
 
 	public boolean join(int jioner, int port) throws RpcException,

@@ -7,9 +7,12 @@ package org.creativor.viva.api;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
 import org.creativor.rayson.api.Portable;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class PortableStaff implements Portable {
 
 	public PortableStaff(int id, String ip, int port) {
