@@ -209,7 +209,7 @@ class RpcConnection extends PacketConnection {
 
 	@Override
 	protected long getTimeoutInterval() {
-		return ConnectionProtocol.TIME_OUT_INTERVAL;
+		return ConnectionProtocol.RPC_TIME_OUT_INTERVAL;
 	}
 
 	@Override

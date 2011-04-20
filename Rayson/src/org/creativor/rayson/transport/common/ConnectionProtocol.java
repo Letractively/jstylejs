@@ -86,7 +86,10 @@ public final class ConnectionProtocol {
 	public static final int RESPONSE_LENGTH = 128;// connection response
 													// state+reserved
 	public static final int TRANSFER_RESPONSE_LENGTH = 128;// transfer response
-															// code+reserved
-	public static final int TIME_OUT_INTERVAL = 600 * 1000;
+															// code+reserved.
+	/**
+	 * Rpc connection will be time out in this interval.
+	 */
+	public static final int RPC_TIME_OUT_INTERVAL = 60 * 1000;
 
 }

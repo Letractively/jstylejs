@@ -24,7 +24,7 @@ class ConnectionManager extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 	private static final int MAX_PENDINGS = 10000;
 
-	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.TIME_OUT_INTERVAL / 2;
+	private static final int THECK_TIME_OUT_INTERVAL = ConnectionProtocol.RPC_TIME_OUT_INTERVAL / 2;
 	private ConcurrentHashMap<Long, TimeLimitConnection> connections;
 	private HashMap<Long, PendingConnection> pendings;
 
