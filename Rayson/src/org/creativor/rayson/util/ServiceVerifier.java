@@ -16,7 +16,7 @@ import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public final class ServiceVerifier {
@@ -49,7 +49,7 @@ public final class ServiceVerifier {
 
 	public static void verifyProxyMethod(Method method)
 			throws IllegalServiceException {
-		// 1. must throws rpc-exceptoion.
+		// 1. must throws rpc-exception.
 		boolean foundRemoteException = false;
 		for (Class exceptionType : method.getExceptionTypes()) {
 			if (exceptionType == RpcException.class) {

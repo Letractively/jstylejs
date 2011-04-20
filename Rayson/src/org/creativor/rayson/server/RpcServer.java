@@ -25,7 +25,7 @@ import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.transport.server.TransportServer;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class RpcServer extends TransportServer implements ServerService {
@@ -109,12 +109,15 @@ public class RpcServer extends TransportServer implements ServerService {
 	@Override
 	public ServiceRegistration[] list(Session session) {
 		List<ServiceRegistration> list = new ArrayList<ServiceRegistration>();
+
 		for (Entry<String, ServiceReflection> entry : services.entrySet()) {
+
 			ServiceReflection serviceReflection = entry.getValue();
 			list.add(new ServiceDescriptionImpl(serviceReflection.getName(),
 					serviceReflection.getDescription(), serviceReflection
 							.getProxys()));
 		}
+
 		return list.toArray(new ServiceDescriptionImpl[0]);
 	}
 

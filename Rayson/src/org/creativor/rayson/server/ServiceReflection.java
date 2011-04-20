@@ -100,6 +100,16 @@ class ServiceReflection {
 
 		private int hashCode;
 
+		/**
+		 * Find proxy method in proxyInterface which has the same method name
+		 * and method parameter types with serviceMethod.
+		 * 
+		 * @param serviceMethod
+		 * @param proxyInterface
+		 * @return Found proxy method.
+		 * @throws IllegalServiceException
+		 *             If can not find associated proxy method.
+		 */
 		private static Method findProxyMethod(Method serviceMethod,
 				Class<? extends RpcProxy> proxyInterface)
 				throws IllegalServiceException {
@@ -130,7 +140,8 @@ class ServiceReflection {
 			Method proxyMethod = findProxyMethod(method, proxyClass);
 			// 3. verify proxy method.
 			ServiceVerifier.verifyProxyMethod(proxyMethod);
-
+			// 4. verify return type and exceptions.
+			// TODO:
 			this.method = method;
 			this.proxyMethod = proxyMethod;
 		}
@@ -147,7 +158,6 @@ class ServiceReflection {
 
 	ServiceReflection(String name, String description, RpcService instance)
 			throws IllegalServiceException {
-		// TODO: throw IllegalServiceException
 		this.name = name;
 		this.description = description;
 		this.instance = instance;
