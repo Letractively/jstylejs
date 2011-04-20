@@ -10,12 +10,15 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.transport.api.Connection;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 import org.creativor.rayson.transport.common.ConnectionProtocol;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ConnectionManager extends Thread {
 
 	private static Logger LOGGER = Log.getLogger();

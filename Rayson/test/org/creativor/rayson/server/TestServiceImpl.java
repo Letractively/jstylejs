@@ -5,9 +5,12 @@
 package org.creativor.rayson.server;
 
 import java.io.EOFException;
-
 import org.creativor.rayson.api.Session;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class TestServiceImpl implements TestService {
 	@Override
 	public String echo(Session session, String message) throws EOFException {

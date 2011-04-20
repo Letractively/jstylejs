@@ -7,10 +7,13 @@ package org.creativor.rayson.common;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.util.Reflection;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class InvocationException extends Exception implements Portable {
 
 	private static final Class[] DEFAULT_CONSTRUCTOR_PARAMETER_TYPES = new Class[] { String.class };

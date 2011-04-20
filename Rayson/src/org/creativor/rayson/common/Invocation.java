@@ -9,11 +9,14 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class Invocation implements Portable {
 
 	private Object[] parameters;

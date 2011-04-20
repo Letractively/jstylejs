@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
-
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.client.ClientCall;
@@ -23,6 +22,10 @@ import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.common.Packet;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class RpcConnector {
 
 	private static class CallWrapper {

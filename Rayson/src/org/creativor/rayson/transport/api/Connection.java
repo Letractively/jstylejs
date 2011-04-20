@@ -5,9 +5,12 @@
 package org.creativor.rayson.transport.api;
 
 import java.io.IOException;
-
 import org.creativor.rayson.transport.common.ProtocolType;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface Connection {
 	public void close() throws IOException;
 

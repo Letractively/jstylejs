@@ -6,6 +6,10 @@ package org.creativor.rayson.api;
 
 import org.creativor.rayson.exception.UnsupportedVersionException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface RpcService {
 	/**
 	 * Check whether the proxy version is supported by this service. If the

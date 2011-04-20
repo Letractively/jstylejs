@@ -8,13 +8,16 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.api.TransferService;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.transport.server.transfer.TransferConnector;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @ServerConfig()
 public class TransportServer {
 	protected static Logger LOGGER = Log.getLogger();

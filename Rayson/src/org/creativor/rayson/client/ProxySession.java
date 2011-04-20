@@ -5,10 +5,13 @@
 package org.creativor.rayson.client;
 
 import java.net.InetSocketAddress;
-
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 final class ProxySession extends ClientSession {
 
 	private volatile boolean unsupportedVersion = false;

@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.client.ConnectionClosedException;
 import org.creativor.rayson.common.InvocationException;
@@ -19,6 +18,10 @@ import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.impl.RpcExceptionImpl;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class CallFutureImpl<V> implements CallFuture<V> {
 
 	private AtomicBoolean cancelled;

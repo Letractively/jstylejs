@@ -9,7 +9,6 @@ import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.client.impl.CallFutureImpl;
 import org.creativor.rayson.common.Invocation;
@@ -23,6 +22,10 @@ import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.common.Packet;
 import org.creativor.rayson.transport.common.PacketException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class ClientCall<V> {
 	private static final int BUFFER_SIZE = 1024;
 	private static final AtomicLong UID = new AtomicLong(0);

@@ -9,11 +9,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.creativor.rayson.transport.api.Connection;
 import org.creativor.rayson.transport.common.ConnectionState;
 import org.creativor.rayson.transport.common.ProtocolType;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class PendingConnection implements Connection {
 	private static AtomicLong UID = new AtomicLong(0);
 	private ByteBuffer connectpProtocolBuffer;

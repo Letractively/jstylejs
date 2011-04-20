@@ -7,6 +7,10 @@ package org.creativor.rayson.transport.client;
 import java.io.IOException;
 
 /**
+ *
+ * @author Nick Zhang
+ */
+/**
  * Signals that the client connection to remote server was refuesed by remote
  * server
  */

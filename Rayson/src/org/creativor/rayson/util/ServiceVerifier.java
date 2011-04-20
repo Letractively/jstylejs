@@ -8,7 +8,6 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.common.Stream;
@@ -16,6 +15,10 @@ import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public final class ServiceVerifier {
 	public static void verifyServiceMethod(Method method)
 			throws IllegalServiceException {

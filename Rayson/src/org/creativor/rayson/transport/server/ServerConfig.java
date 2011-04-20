@@ -9,9 +9,12 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 import org.creativor.rayson.annotation.Config;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @Config
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

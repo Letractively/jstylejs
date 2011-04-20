@@ -6,10 +6,13 @@ package org.creativor.rayson.transport.stream;
 
 import java.io.DataInput;
 import java.io.IOException;
-
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class DataInputImpl extends DataStreamer implements DataInput {
 
 	private DataInput innerInput;

@@ -6,10 +6,13 @@ package org.creativor.rayson.transport.server;
 
 import java.io.IOException;
 import java.util.HashMap;
-
 import org.creativor.rayson.server.ServerCall;
 import org.creativor.rayson.transport.common.Packet;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class RpcConnector {
 
 	private HashMap<Long, RpcConnection> callConenctions;

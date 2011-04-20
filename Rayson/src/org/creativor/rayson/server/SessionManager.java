@@ -8,6 +8,10 @@ import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.server.impl.RpcSessionImpl;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 final class SessionManager {
 	private static SessionManager singleton = new SessionManager();
 

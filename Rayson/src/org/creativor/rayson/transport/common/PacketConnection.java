@@ -5,9 +5,12 @@
 package org.creativor.rayson.transport.common;
 
 import java.io.IOException;
-
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public abstract class PacketConnection extends TimeLimitConnection {
 
 	private ProtocolType protocol = ProtocolType.RPC;

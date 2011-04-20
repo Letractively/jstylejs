@@ -6,11 +6,14 @@ package org.creativor.rayson.transport.server.transfer;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferService;
 import org.creativor.rayson.api.TransferSocket;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class TransferInvoker {
 
 	private short code;

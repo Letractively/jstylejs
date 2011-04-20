@@ -7,11 +7,14 @@ package org.creativor.rayson.api;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
 import org.creativor.rayson.annotation.ClientVersion;
 import org.creativor.rayson.annotation.TransferCode;
 import org.creativor.rayson.api.TransferArgument;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @TransferCode(10)
 @ClientVersion(2)
 public class TestTransferArgument implements TransferArgument {

@@ -7,9 +7,12 @@ package org.creativor.rayson.server;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class CallWorker extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 	private static AtomicLong UID = new AtomicLong(0);

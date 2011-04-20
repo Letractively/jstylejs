@@ -14,7 +14,6 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.transport.common.CRC16;
 import org.creativor.rayson.transport.common.ChecksumMatchException;
 import org.creativor.rayson.transport.common.ConnectionProtocol;
@@ -28,6 +27,10 @@ import org.creativor.rayson.transport.common.PacketWithType;
 import org.creativor.rayson.transport.common.ResponseType;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class RpcConnection extends PacketConnection {
 
 	private class PacketWriter {

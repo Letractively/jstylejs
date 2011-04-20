@@ -5,14 +5,16 @@
 package org.creativor.rayson.server;
 
 import static org.junit.Assert.fail;
-
 import java.io.IOException;
-
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.server.RpcServer;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.junit.Test;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class RpcServerTest {
 
 	public static void startTestServer() {

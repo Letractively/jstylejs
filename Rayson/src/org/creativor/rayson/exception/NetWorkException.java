@@ -6,6 +6,10 @@ package org.creativor.rayson.exception;
 
 import java.io.IOException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class NetWorkException extends Exception {
 
 	private static final long serialVersionUID = 1L;

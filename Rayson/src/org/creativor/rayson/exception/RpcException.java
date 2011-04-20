@@ -6,6 +6,10 @@ package org.creativor.rayson.exception;
 
 import java.lang.reflect.UndeclaredThrowableException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public abstract class RpcException extends Exception {
 
 	private static final long serialVersionUID = 1L;

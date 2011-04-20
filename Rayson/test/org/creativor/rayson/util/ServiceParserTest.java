@@ -5,9 +5,12 @@
 package org.creativor.rayson.util;
 
 import static org.junit.Assert.fail;
-
 import org.junit.Test;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class ServiceParserTest {
 
 	@Test

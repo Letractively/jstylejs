@@ -12,7 +12,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.annotation.ClientVersion;
 import org.creativor.rayson.annotation.TransferCode;
 import org.creativor.rayson.api.TransferArgument;
@@ -29,6 +28,10 @@ import org.creativor.rayson.transport.common.ProtocolType;
 import org.creativor.rayson.transport.stream.TransferResponse;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ClientStreamConnection extends TimeLimitConnection {
 	private long id;
 	private SocketAddress serverAddress;

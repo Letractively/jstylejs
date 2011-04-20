@@ -7,9 +7,12 @@ package org.creativor.rayson.transport.server;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.creativor.rayson.transport.stream.AbstractTransferSocket;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class TransferSocketImpl extends AbstractTransferSocket {
 	private ServerStreamConnection connection;
 	private AtomicBoolean closed;

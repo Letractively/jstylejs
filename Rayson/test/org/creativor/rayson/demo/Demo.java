@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-
 import org.creativor.rayson.annotation.Proxy;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.ServerProxy;
@@ -26,6 +25,10 @@ import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class Demo {
 
 	public static void main(String[] args) throws IllegalServiceException,

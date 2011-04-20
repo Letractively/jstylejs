@@ -11,6 +11,10 @@ import org.creativor.rayson.api.ServiceRegistration;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @Proxy(ServerProxy.class)
 public interface ServerService extends RpcService {
 	public static final String NAME = "server";

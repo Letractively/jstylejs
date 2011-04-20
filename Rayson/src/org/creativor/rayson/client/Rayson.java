@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.creativor.rayson.api.AsyncProxy;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.ServerProxy;
@@ -19,6 +18,10 @@ import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public final class Rayson {
 	private static Client CLIENT = new Client();
 	private static AtomicBoolean clientInited = new AtomicBoolean(false);

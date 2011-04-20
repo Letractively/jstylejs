@@ -8,6 +8,10 @@ import org.creativor.rayson.annotation.ClientVersion;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @ClientVersion(1)
 public interface ServerProxy extends RpcProxy {
 

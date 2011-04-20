@@ -5,7 +5,6 @@
 package org.creativor.rayson.impl;
 
 import java.io.IOException;
-
 import org.creativor.rayson.exception.CallException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RemoteExceptionType;
@@ -13,6 +12,10 @@ import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public final class RpcExceptionImpl extends RpcException {
 
 	private static final long serialVersionUID = 1L;

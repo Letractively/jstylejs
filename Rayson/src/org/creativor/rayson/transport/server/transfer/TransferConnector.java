@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.creativor.rayson.annotation.TransferCode;
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferService;
@@ -19,6 +18,10 @@ import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @TransferConfig
 public class TransferConnector {
 	private HashMap<Short, TransferInvoker> transferInvokers;

@@ -11,10 +11,13 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class Listener extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 

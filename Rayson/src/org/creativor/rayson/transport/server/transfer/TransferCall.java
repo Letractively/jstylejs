@@ -6,10 +6,13 @@ package org.creativor.rayson.transport.server.transfer;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class TransferCall {
 
 	private TransferSocket transferSocket;

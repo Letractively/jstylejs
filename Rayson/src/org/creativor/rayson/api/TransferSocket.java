@@ -9,6 +9,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface TransferSocket {
 
 	public DataInput getDataInput();

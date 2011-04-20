@@ -6,6 +6,10 @@ package org.creativor.rayson.api;
 
 import org.creativor.rayson.annotation.ClientVersion;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @ClientVersion
 public interface TransferArgument extends Portable {
 

@@ -5,12 +5,15 @@
 package org.creativor.rayson.server.impl;
 
 import java.net.InetSocketAddress;
-
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.server.RpcSession;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public final class RpcSessionImpl implements RpcSession {
 	private ClientSession clientSession;
 	private boolean proxyVersionSupported = false;

@@ -7,6 +7,10 @@ package org.creativor.rayson.transport.common;
 import org.creativor.rayson.transport.stream.TransferResponse;
 
 /**
+ *
+ * @author Nick Zhang
+ */
+/**
  * Define the protocol of the connection between client and server. <br>
  * <h4>Connection header format:</h4>
  * <table border="1">

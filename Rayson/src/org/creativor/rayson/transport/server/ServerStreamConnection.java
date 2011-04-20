@@ -11,7 +11,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.common.Stream;
@@ -25,6 +24,10 @@ import org.creativor.rayson.transport.server.transfer.TransferConnector;
 import org.creativor.rayson.transport.stream.TransferResponse;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ServerStreamConnection extends TimeLimitConnection {
 
 	private static enum ReadState {

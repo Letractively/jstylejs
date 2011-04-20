@@ -7,6 +7,10 @@ package org.creativor.rayson.api;
 import java.net.InetSocketAddress;
 
 /**
+ *
+ * @author Nick Zhang
+ */
+/**
  * One {@link RpcProxy} associated with one {@link Session}.
  * 
  * @author hp

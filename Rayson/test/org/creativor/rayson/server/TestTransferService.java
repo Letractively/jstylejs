@@ -5,11 +5,14 @@
 package org.creativor.rayson.server;
 
 import java.io.IOException;
-
 import org.creativor.rayson.api.TestTransferArgument;
 import org.creativor.rayson.api.TransferService;
 import org.creativor.rayson.api.TransferSocket;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class TestTransferService implements
 		TransferService<TestTransferArgument> {
 

@@ -11,7 +11,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
 import org.creativor.rayson.common.InvocationException;
@@ -20,6 +19,10 @@ import org.creativor.rayson.common.Stream;
 import org.creativor.rayson.exception.CallException;
 import org.creativor.rayson.transport.common.Packet;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class ServerCall {
 
 	private static final int BUFFER_SIZE = 1024;

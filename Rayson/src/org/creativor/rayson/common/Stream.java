@@ -7,9 +7,12 @@ package org.creativor.rayson.common;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
 import org.creativor.rayson.api.Portable;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public final class Stream {
 	public static boolean isPortable(Class type) {
 		try {

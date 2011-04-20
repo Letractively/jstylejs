@@ -9,10 +9,13 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.HashMap;
-
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.util.Reflection;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 abstract class PortableObject<T> {
 
 	private byte type;

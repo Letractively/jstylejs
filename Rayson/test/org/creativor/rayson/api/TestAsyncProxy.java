@@ -8,6 +8,10 @@ import org.creativor.rayson.api.AsyncProxy;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.exception.NetWorkException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface TestAsyncProxy extends AsyncProxy {
 
 	public CallFuture<String> echo(String message) throws NetWorkException;

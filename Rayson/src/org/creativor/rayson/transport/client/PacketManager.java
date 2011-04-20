@@ -5,9 +5,12 @@
 package org.creativor.rayson.transport.client;
 
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.creativor.rayson.transport.common.Packet;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class PacketManager {
 
 	private LinkedBlockingQueue<Packet> receives;

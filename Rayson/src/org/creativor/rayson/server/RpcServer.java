@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
-
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.ServiceRegistration;
 import org.creativor.rayson.api.Session;
@@ -25,6 +24,10 @@ import org.creativor.rayson.server.impl.RpcSessionImpl;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.transport.server.TransportServer;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class RpcServer extends TransportServer implements ServerService {
 
 	private HashMap<String, ServiceReflection> services;

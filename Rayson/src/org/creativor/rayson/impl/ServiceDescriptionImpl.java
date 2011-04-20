@@ -7,12 +7,15 @@ package org.creativor.rayson.impl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.ServiceRegistration;
 import org.creativor.rayson.common.Stream;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public final class ServiceDescriptionImpl implements ServiceRegistration,
 		Portable {
 
@@ -21,9 +24,11 @@ public final class ServiceDescriptionImpl implements ServiceRegistration,
 	private String name;
 
 	private String[] proxys;
+
 	private ServiceDescriptionImpl() {
 		// Forbidden construct.
 	}
+
 	public ServiceDescriptionImpl(String serviceName, String description,
 			Class<? extends RpcProxy>[] proxys) {
 		this.name = serviceName;

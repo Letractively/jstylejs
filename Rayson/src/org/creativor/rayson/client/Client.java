@@ -12,7 +12,6 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.WeakHashMap;
-
 import org.creativor.rayson.annotation.ClientVersion;
 import org.creativor.rayson.api.AsyncProxy;
 import org.creativor.rayson.api.RpcProxy;
@@ -33,6 +32,10 @@ import org.creativor.rayson.server.ServerService;
 import org.creativor.rayson.transport.client.TransportClient;
 import org.creativor.rayson.util.ServiceVerifier;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class Client {
 	private class AsyncProxyInvoker extends RpcProxyInvoker {
 

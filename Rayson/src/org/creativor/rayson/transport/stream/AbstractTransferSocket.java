@@ -11,10 +11,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
-
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public abstract class AbstractTransferSocket implements TransferSocket {
 
 	private DataInput dataInput;

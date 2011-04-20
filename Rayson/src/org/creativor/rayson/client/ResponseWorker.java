@@ -5,10 +5,13 @@
 package org.creativor.rayson.client;
 
 import java.util.logging.Logger;
-
 import org.creativor.rayson.transport.client.TransportClient;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ResponseWorker extends Thread {
 
 	private static Logger LOGGER = Log.getLogger();

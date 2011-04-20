@@ -6,6 +6,10 @@ package org.creativor.rayson.transport.server;
 
 import org.creativor.rayson.transport.common.Packet;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ConnectionPacketLink {
 	private RpcConnection connection;
 	private Packet packet;

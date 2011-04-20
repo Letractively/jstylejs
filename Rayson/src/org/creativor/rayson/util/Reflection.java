@@ -9,6 +9,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class Reflection {
 	private static Map<Class<?>, Object> emptyReturnValues = new HashMap<Class<?>, Object>();
 

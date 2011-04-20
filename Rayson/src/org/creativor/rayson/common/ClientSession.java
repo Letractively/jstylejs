@@ -8,10 +8,13 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.api.Session;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class ClientSession implements Portable, Session {
 
 	private byte version;

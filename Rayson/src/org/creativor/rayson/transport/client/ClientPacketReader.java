@@ -5,13 +5,16 @@
 package org.creativor.rayson.transport.client;
 
 import java.nio.channels.SocketChannel;
-
 import org.creativor.rayson.transport.common.CRC16;
 import org.creativor.rayson.transport.common.ChecksumMatchException;
 import org.creativor.rayson.transport.common.PacketException;
 import org.creativor.rayson.transport.common.PacketReader;
 import org.creativor.rayson.transport.common.ResponseType;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 final class ClientPacketReader extends PacketReader {
 
 	public ClientPacketReader(SocketChannel socketChannel) {

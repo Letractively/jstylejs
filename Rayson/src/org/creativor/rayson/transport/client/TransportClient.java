@@ -11,7 +11,6 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.exception.IllegalServiceException;
@@ -23,6 +22,10 @@ import org.creativor.rayson.transport.common.Packet;
 import org.creativor.rayson.transport.common.PacketException;
 import org.creativor.rayson.transport.common.ProtocolType;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public class TransportClient {
 	private static TransportClient singleton = new TransportClient();
 

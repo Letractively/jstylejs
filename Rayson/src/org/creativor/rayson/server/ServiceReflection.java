@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
 import org.creativor.rayson.annotation.Proxy;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.RpcService;
@@ -20,6 +19,10 @@ import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.util.ServiceVerifier;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ServiceReflection {
 	private String description;
 	private RpcService instance;

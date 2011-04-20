@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public abstract class PacketReader {
 
 	private enum State {

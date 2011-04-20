@@ -6,6 +6,10 @@ package org.creativor.rayson.transport.server.transfer;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class CallManager {
 
 	private LinkedBlockingQueue<TransferCall> callQueue;

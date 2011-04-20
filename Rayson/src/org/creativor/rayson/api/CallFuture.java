@@ -8,10 +8,13 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.creativor.rayson.exception.CallExecutionException;
 import org.creativor.rayson.exception.RpcException;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 public interface CallFuture<V> {
 
 	/**

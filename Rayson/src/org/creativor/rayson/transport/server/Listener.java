@@ -11,10 +11,13 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.transport.api.Connection;
 import org.creativor.rayson.util.Log;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class Listener extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 	private Selector selector;
@@ -60,7 +63,7 @@ class Listener extends Thread {
 		try {
 			readCount = connection.read();
 		} catch (IOException e) {
-			//Ignore this exception.
+			// Ignore this exception.
 		}
 		if (readCount == -1) {
 			try {

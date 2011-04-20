@@ -7,6 +7,10 @@ package org.creativor.rayson.exception;
 import org.creativor.rayson.client.ClientCall;
 
 /**
+ *
+ * @author Nick Zhang
+ */
+/**
  * Exception thrown when attempting to retrieve the result of a
  * {@link ClientCall} that aborted by throwing an exception. This exception can
  * be inspected using the {@link #getCause()} method.
