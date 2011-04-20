@@ -4,7 +4,7 @@
  */
 package org.creativor.viva.api;
 
-import org.creativor.rayson.api.AsyncProxy;
+import org.creativor.rayson.api.AsyncRpcProxy;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.exception.NetWorkException;
 
@@ -12,7 +12,7 @@ import org.creativor.rayson.exception.NetWorkException;
  *
  * @author Nick Zhang
  */
-public interface VivaAsyncProxy extends AsyncProxy {
+public interface VivaAsyncProxy extends AsyncRpcProxy {
 
 	public CallFuture<Boolean> join(int jioner, int port)
 			throws NetWorkException;
