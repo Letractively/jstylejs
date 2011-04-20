@@ -4,5 +4,5 @@
  */
 package org.creativor.rayson.api;
 
-public interface AsyncProxy extends RpcProxy {
+public interface AsyncRpcProxy extends RpcProxy {
 }

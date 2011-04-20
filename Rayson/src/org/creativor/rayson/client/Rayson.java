@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.creativor.rayson.api.AsyncProxy;
+import org.creativor.rayson.api.AsyncRpcProxy;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.ServerProxy;
 import org.creativor.rayson.api.TransferArgument;
@@ -34,7 +34,7 @@ public final class Rayson {
 				.createRpcProxy(serviceName, proxyInterface, serverAddress);
 	}
 
-	public static <T extends AsyncProxy> T createAsyncProxy(String serviceName,
+	public static <T extends AsyncRpcProxy> T createAsyncProxy(String serviceName,
 			Class<T> proxyInterface, InetSocketAddress serverAddress)
 			throws IllegalServiceException {
 		tryInit();

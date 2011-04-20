@@ -4,7 +4,7 @@
  */
 package org.creativor.rayson.api;
 
-import org.creativor.rayson.api.AsyncProxy;
+import org.creativor.rayson.api.AsyncRpcProxy;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.exception.NetWorkException;
 
@@ -12,7 +12,7 @@ import org.creativor.rayson.exception.NetWorkException;
  *
  * @author Nick Zhang
  */
-public interface TestAsyncProxy extends AsyncProxy {
+public interface TestAsyncProxy extends AsyncRpcProxy {
 
 	public CallFuture<String> echo(String message) throws NetWorkException;
 

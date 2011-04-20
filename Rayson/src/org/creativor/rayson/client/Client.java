@@ -13,7 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.WeakHashMap;
 import org.creativor.rayson.annotation.ClientVersion;
-import org.creativor.rayson.api.AsyncProxy;
+import org.creativor.rayson.api.AsyncRpcProxy;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.ServerProxy;
 import org.creativor.rayson.api.TransferArgument;
@@ -158,7 +158,7 @@ class Client {
 		return rpcCall;
 	}
 
-	public <T extends AsyncProxy> T createAsyncProxy(String serviceName,
+	public <T extends AsyncRpcProxy> T createAsyncProxy(String serviceName,
 			Class<T> proxyInterface, InetSocketAddress serverAddress)
 			throws IllegalServiceException {
 		if (serviceName == null)
