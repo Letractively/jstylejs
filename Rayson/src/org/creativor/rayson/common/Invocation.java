@@ -9,9 +9,13 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 import org.creativor.rayson.api.Portable;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
+import org.creativor.rayson.exception.CallInvokeException;
+import org.creativor.rayson.exception.UnportableTypeException;
+import org.creativor.rayson.util.Log;
 
 /**
  * 
@@ -75,9 +79,9 @@ public class Invocation implements Portable {
 	}
 
 	public Object invoke(Session session, RpcService serviceObject,
-			Method method) throws InvocationException {
-		Class[] realParaTypes = new Class[this.parameters.length + 1];
-		realParaTypes[0] = SESSION_CLASS;
+			Method method) throws CallInvokeException {
+		// Class[] realParaTypes = new Class[this.parameters.length + 1];
+		// realParaTypes[0] = SESSION_CLASS;
 		Object result = null;
 		try {
 			Object[] realParameters = new Object[this.parameters.length + 1];
@@ -88,14 +92,21 @@ public class Invocation implements Portable {
 			result = method.invoke(serviceObject, realParameters);
 		} catch (InvocationTargetException e) {
 			Throwable targetException = e.getTargetException();
+			boolean declaredException = false;
 			Class[] exceptionTypes = method.getExceptionTypes();
 			for (Class exceptionType : exceptionTypes) {
-				if (exceptionType.isAssignableFrom(targetException.getClass()))
-					throw new InvocationException(false, targetException);
+				if (exceptionType.isAssignableFrom(targetException.getClass())) {
+					declaredException = true;
+					break;
+				}
 			}
-			throw new InvocationException(true, targetException);
+			if (!declaredException)
+				Log.getLogger().log(Level.SEVERE,
+						"Invoke rpc throws an undeclared exception",
+						targetException);
+			throw new CallInvokeException(targetException);
 		} catch (Exception e) {
-			throw new InvocationException(true, e);
+			throw new CallInvokeException(e);
 		}
 		return result;
 	}

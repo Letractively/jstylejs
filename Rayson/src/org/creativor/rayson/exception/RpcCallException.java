@@ -2,47 +2,60 @@
  * Copyright © 2011 Creativor Studio.
  * About license information, please see LICENSE.txt.
  */
-package org.creativor.rayson.common;
+package org.creativor.rayson.exception;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import org.creativor.rayson.api.Portable;
+import org.creativor.rayson.common.Stream;
 import org.creativor.rayson.util.Reflection;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
-public class InvocationException extends Exception implements Portable {
+public class RpcCallException extends Exception implements Portable {
 
 	private static final Class[] DEFAULT_CONSTRUCTOR_PARAMETER_TYPES = new Class[] { String.class };
 	private static final long serialVersionUID = 1L;
 	private Throwable throwException;
 
-	private boolean unDeclared;
+	private boolean invokeException = false;
 
-	public InvocationException() {
+	public RpcCallException() {
 
 	}
 
-	public InvocationException(boolean unDeclaredException,
-			Throwable thrownException) {
-		this.unDeclared = unDeclaredException;
-		this.throwException = thrownException;
+	public RpcCallException(CallInvokeException invokeException) {
+		this.invokeException = true;
+		this.throwException = invokeException.getCause();
 	}
 
-	public Throwable getRemoteException() {
+	public RpcCallException(Throwable cause) {
+		this.invokeException = false;
+		this.throwException = cause;
+	}
+
+	/**
+	 * Get exception that cause this RPC call exception.
+	 */
+	@Override
+	public Throwable getCause() {
 		return throwException;
 	}
 
-	public boolean isUnDeclaredException() {
-		return unDeclared;
+	/**
+	 * @return True if this exception is throws when invoke the rpc call in the
+	 *         remote server.
+	 */
+	public boolean isInvokeException() {
+		return invokeException;
 	}
 
 	@Override
 	public void read(DataInput in) throws IOException {
-		this.unDeclared = in.readBoolean();
+		this.invokeException = in.readBoolean();
 		String className = in.readUTF();
 		String message = (String) Stream.readPortable(in);
 		try {
@@ -51,7 +64,7 @@ public class InvocationException extends Exception implements Portable {
 					new String[] { message });
 			this.throwException = throwable;
 		} catch (Throwable e) {
-			this.unDeclared = true;
+			this.invokeException = true;
 			this.throwException = new RpcExcptionInstantiationException(e);
 		}
 
@@ -60,7 +73,7 @@ public class InvocationException extends Exception implements Portable {
 	@Override
 	public void write(DataOutput out) throws IOException {
 		// write exception type
-		out.writeBoolean(unDeclared);
+		out.writeBoolean(invokeException);
 		String className;
 		String message;
 		className = this.throwException.getClass().getName();
@@ -70,5 +83,4 @@ public class InvocationException extends Exception implements Portable {
 		// write error message.
 		Stream.writePortable(out, message);
 	}
-
 }

@@ -38,7 +38,7 @@ public abstract class RpcException extends Exception {
 	/**
 	 * Throw the cause exception of this remote exception.
 	 * 
-	 * @throws CallException
+	 * @throws ReadInvocationException
 	 *             If read the call parameter from server or client error.
 	 * @throws NetWorkException
 	 *             If network exception occurred.
@@ -51,12 +51,12 @@ public abstract class RpcException extends Exception {
 	 *             server.
 	 */
 	public void throwCause() throws NetWorkException, ServiceNotFoundException,
-			CallException, UndeclaredThrowableException,
+			ReadInvocationException, UndeclaredThrowableException,
 			UnsupportedVersionException {
 		switch (type) {
 
 		case CALL:
-			throw (CallException) cause;
+			throw (ReadInvocationException) cause;
 		case NETWORK:
 			throw (NetWorkException) cause;
 

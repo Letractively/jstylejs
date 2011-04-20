@@ -13,14 +13,14 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
-import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.common.InvocationResultType;
 import org.creativor.rayson.common.Stream;
-import org.creativor.rayson.exception.CallException;
+import org.creativor.rayson.exception.ReadInvocationException;
+import org.creativor.rayson.exception.RpcCallException;
 import org.creativor.rayson.transport.common.Packet;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class ServerCall {
@@ -56,15 +56,15 @@ public class ServerCall {
 			invocation.read(dataInputStream);
 			serverCall.invocation = invocation;
 		} catch (Throwable e) {
-			serverCall.setException(new InvocationException(false,
-					new CallException("Read call invocation error: "
+			serverCall.setException(new RpcCallException(
+					new ReadInvocationException("Read call invocation error: "
 							+ e.toString())));
 		}
 		return serverCall;
 	}
 
 	private long clientCallId;
-	private InvocationException exception;
+	private RpcCallException exception;
 	private long id;
 	private Invocation invocation;
 	private Packet responsePacket;
@@ -110,7 +110,7 @@ public class ServerCall {
 		return clientSession;
 	}
 
-	void setException(InvocationException exception) {
+	void setException(RpcCallException exception) {
 		this.exception = exception;
 	}
 
@@ -152,7 +152,7 @@ public class ServerCall {
 				throw new RuntimeException("Try to write call result "
 						+ tryTime + " times, but still failed!");
 			// return a call exception packet
-			exception = new InvocationException(true, new CallException(
+			exception = new RpcCallException(new ReadInvocationException(
 					"Write call result error:" + e.getMessage()));
 			return toResponsePacket(++tryTime);
 		}

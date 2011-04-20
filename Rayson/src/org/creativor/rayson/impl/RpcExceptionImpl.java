@@ -5,7 +5,7 @@
 package org.creativor.rayson.impl;
 
 import java.io.IOException;
-import org.creativor.rayson.exception.CallException;
+import org.creativor.rayson.exception.ReadInvocationException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RemoteExceptionType;
 import org.creativor.rayson.exception.RpcException;
@@ -34,7 +34,7 @@ public final class RpcExceptionImpl extends RpcException {
 
 	}
 
-	public static RpcException createParameterException(CallException exception) {
+	public static RpcException createParameterException(ReadInvocationException exception) {
 		RpcExceptionImpl remoteException = new RpcExceptionImpl(
 				RemoteExceptionType.CALL, exception);
 		return remoteException;

@@ -4,11 +4,8 @@
  */
 package org.creativor.rayson.exception;
 
-public class CallException extends Exception {
+public class UnportableTypeException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public CallException(String message) {
-		super(message);
-	}
 }

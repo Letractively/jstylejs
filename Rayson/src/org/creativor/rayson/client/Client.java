@@ -21,10 +21,10 @@ import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.client.impl.CallFutureImpl;
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
-import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.exception.CallExecutionException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
+import org.creativor.rayson.exception.RpcCallException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.impl.RpcExceptionImpl;
@@ -33,7 +33,7 @@ import org.creativor.rayson.transport.client.TransportClient;
 import org.creativor.rayson.util.ServiceVerifier;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 class Client {
@@ -55,8 +55,8 @@ class Client {
 			if (getSession().isUnsupportedVersion()) {
 				CallFutureImpl callFuture = new CallFutureImpl(
 						method.getExceptionTypes());
-				callFuture.setException(new InvocationException(false,
-						getSession().getUnsupportedVersionException()));
+				callFuture.setException(new RpcCallException(getSession()
+						.getUnsupportedVersionException()));
 				return callFuture;
 			}
 			Invocation invocation = new Invocation(method, args);
@@ -97,8 +97,8 @@ class Client {
 			if (getSession().isUnsupportedVersion()) {
 				CallFutureImpl callFuture = new CallFutureImpl(
 						method.getExceptionTypes());
-				callFuture.setException(new InvocationException(false,
-						getSession().getUnsupportedVersionException()));
+				callFuture.setException(new RpcCallException(getSession()
+						.getUnsupportedVersionException()));
 				return callFuture.get();
 			}
 

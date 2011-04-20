@@ -12,18 +12,18 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.client.impl.CallFutureImpl;
 import org.creativor.rayson.common.Invocation;
-import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.common.InvocationResultType;
 import org.creativor.rayson.common.Stream;
-import org.creativor.rayson.exception.CallException;
+import org.creativor.rayson.exception.ReadInvocationException;
 import org.creativor.rayson.exception.CallExecutionException;
+import org.creativor.rayson.exception.RpcCallException;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.common.Packet;
 import org.creativor.rayson.transport.common.PacketException;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class ClientCall<V> {
@@ -78,7 +78,7 @@ public class ClientCall<V> {
 	}
 
 	public void notifyConnectionClosed() {
-		this.future.setException(new InvocationException(false,
+		this.future.setException(new RpcCallException(
 				new ConnectionClosedException()));
 	}
 
@@ -92,19 +92,19 @@ public class ClientCall<V> {
 				this.future.set((V) Stream.readPortable(in));
 				break;
 			case EXCEPTION:
-				InvocationException remoteExceptionHandler = new InvocationException();
+				RpcCallException remoteExceptionHandler = new RpcCallException();
 				remoteExceptionHandler.read(in);
-				if (remoteExceptionHandler.getRemoteException() instanceof UnsupportedVersionException)
+				if (remoteExceptionHandler.getCause() instanceof UnsupportedVersionException)
 					session.getUnsupportedVersionException(remoteExceptionHandler
-							.getRemoteException().getMessage());
+							.getCause().getMessage());
 				this.future.setException(remoteExceptionHandler);
 				break;
 			default:
 				break;
 			}
 		} catch (IOException e) {
-			this.future.setException(new InvocationException(false,
-					new CallException("Read call result error:"
+			this.future.setException(new RpcCallException(
+					new ReadInvocationException("Read call result error:"
 							+ e.getMessage())));
 		}
 	}

@@ -14,8 +14,9 @@ import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.common.Invocation;
-import org.creativor.rayson.common.InvocationException;
 import org.creativor.rayson.exception.IllegalServiceException;
+import org.creativor.rayson.exception.CallInvokeException;
+import org.creativor.rayson.exception.RpcCallException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.util.ServiceVerifier;
 
@@ -197,14 +198,18 @@ class ServiceReflection {
 	}
 
 	public Object invoke(Session session, Invocation invocation)
-			throws InvocationException {
+			throws RpcCallException {
 		Method method = methods.get(invocation.getHashCode());
 		if (method == null)
-			throw new InvocationException(false, new ServiceNotFoundException(
+			throw new RpcCallException(new ServiceNotFoundException(
 					"service of " + session.getServiceName() + " hash code "
 							+ invocation.getHashCode() + " method "
 							+ " not found"));
 
-		return invocation.invoke(session, this.instance, method);
+		try {
+			return invocation.invoke(session, this.instance, method);
+		} catch (CallInvokeException e) {
+			throw new RpcCallException(e);
+		}
 	}
 }

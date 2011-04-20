@@ -18,7 +18,7 @@ import org.creativor.rayson.api.TestProxy;
 import org.creativor.rayson.api.TestTransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.client.Rayson;
-import org.creativor.rayson.exception.CallException;
+import org.creativor.rayson.exception.ReadInvocationException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
@@ -81,7 +81,7 @@ public class Demo {
 			} catch (ServiceNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (CallException e1) {
+			} catch (ReadInvocationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} catch (UnsupportedVersionException e1) {

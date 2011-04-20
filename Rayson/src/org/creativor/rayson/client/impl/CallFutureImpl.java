@@ -10,23 +10,23 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.client.ConnectionClosedException;
-import org.creativor.rayson.common.InvocationException;
-import org.creativor.rayson.exception.CallException;
+import org.creativor.rayson.exception.ReadInvocationException;
 import org.creativor.rayson.exception.CallExecutionException;
+import org.creativor.rayson.exception.RpcCallException;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.impl.RpcExceptionImpl;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class CallFutureImpl<V> implements CallFuture<V> {
 
 	private AtomicBoolean cancelled;
 	private AtomicBoolean done;
-	private InvocationException invocationException;
+	private RpcCallException invocationException;
 	private V result;
 	private Class<?>[] exceptionTypes;
 
@@ -61,21 +61,36 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 		return result;
 	}
 
-	private void throwException(InvocationException invocationException)
+	private void throwException(RpcCallException invocationException)
 			throws RpcException, CallExecutionException {
 		//
-		Throwable remoteException = invocationException.getRemoteException();
+		Throwable remoteException = invocationException.getCause();
 		StackTraceElement[] stackTraceElements = Thread.currentThread()
 				.getStackTrace();
 		remoteException.setStackTrace(Arrays.copyOfRange(stackTraceElements,
 				stackTraceElements.length - 1, stackTraceElements.length));
 
-		if (invocationException.isUnDeclaredException())
-			throw RpcExceptionImpl.createUndecleardException(remoteException);
+		if (invocationException.isInvokeException()) {
+			boolean declaredInvokeException = false;
+			if (this.exceptionTypes != null) {
+				for (Class exception : this.exceptionTypes) {
+					if (exception.isAssignableFrom(remoteException.getClass())) {
+						declaredInvokeException = true;
+						break;
+					}
+				}
+			}
 
-		if (remoteException instanceof CallException)
+			if (declaredInvokeException) {
+				throw new CallExecutionException(remoteException);
+			} else
+				throw RpcExceptionImpl
+						.createUndecleardException(remoteException);
+		}
+
+		if (remoteException instanceof ReadInvocationException)
 			throw RpcExceptionImpl
-					.createParameterException((CallException) remoteException);
+					.createParameterException((ReadInvocationException) remoteException);
 
 		if (remoteException instanceof UnsupportedVersionException)
 			throw RpcExceptionImpl
@@ -91,19 +106,7 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 			throw RpcExceptionImpl
 					.createServiceNotFoundException((ServiceNotFoundException) remoteException);
 
-		boolean declaredExcutionException = false;
-		if (this.exceptionTypes != null) {
-			for (Class exception : this.exceptionTypes) {
-				if (remoteException instanceof Exception)
-					declaredExcutionException = true;
-				break;
-			}
-		}
-
-		if (declaredExcutionException) {
-			throw new CallExecutionException(remoteException);
-		} else
-			throw RpcExceptionImpl.createUndecleardException(remoteException);
+		throw RpcExceptionImpl.createUndecleardException(remoteException);
 
 	}
 
@@ -150,7 +153,7 @@ public class CallFutureImpl<V> implements CallFuture<V> {
 		notifyDone();
 	}
 
-	public void setException(InvocationException t) {
+	public void setException(RpcCallException t) {
 		this.invocationException = t;
 		this.done.set(true);
 		notifyDone();
