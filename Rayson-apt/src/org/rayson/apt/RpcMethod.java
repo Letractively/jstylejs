@@ -5,12 +5,15 @@
 package org.rayson.apt;
 
 import java.util.List;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 abstract class RpcMethod {
 
 	private ExecutableElement element;

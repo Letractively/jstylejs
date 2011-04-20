@@ -5,7 +5,6 @@
 package org.rayson.apt;
 
 import java.util.List;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -15,6 +14,10 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ProxyAnnotationValueVisitor implements
 		AnnotationValueVisitor<Boolean, AnnotationMirror> {
 

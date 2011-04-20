@@ -6,7 +6,6 @@ package org.rayson.apt;
 
 import java.util.HashMap;
 import java.util.List;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -21,6 +20,10 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic.Kind;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ServiceMethodVistor implements ElementVisitor<Void, AnnotationMirror> {
 
 	private ProcessingEnvironment processingEnv;

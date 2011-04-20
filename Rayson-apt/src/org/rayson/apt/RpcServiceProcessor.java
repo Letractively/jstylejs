@@ -7,7 +7,6 @@ package org.rayson.apt;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -17,6 +16,10 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class RpcServiceProcessor extends AbstractProcessor {
 	public RpcServiceProcessor() {

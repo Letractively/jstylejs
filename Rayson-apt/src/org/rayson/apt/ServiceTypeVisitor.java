@@ -5,7 +5,6 @@
 package org.rayson.apt;
 
 import java.util.List;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -19,6 +18,10 @@ import javax.lang.model.util.AbstractElementVisitor6;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic.Kind;
 
+/**
+ *
+ * @author Nick Zhang
+ */
 class ServiceTypeVisitor extends
 		AbstractElementVisitor6<Boolean, AnnotationMirror> {
 
