@@ -25,7 +25,7 @@ import org.creativor.rayson.transport.stream.TransferResponse;
 import org.creativor.rayson.util.Log;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 class ServerStreamConnection extends TimeLimitConnection {
@@ -93,7 +93,7 @@ class ServerStreamConnection extends TimeLimitConnection {
 
 	@Override
 	public ProtocolType getProtocol() {
-		return ProtocolType.STREAM;
+		return ProtocolType.TRANSFER;
 	}
 
 	@Override
@@ -154,8 +154,9 @@ class ServerStreamConnection extends TimeLimitConnection {
 						if (!this.transferConnector.isSupportedVersion(
 								this.transferCode, this.clientVersion)) {
 							setTransferResponse(TransferResponse.UNSUPPORTED_VERSION);
-							this.selectionKey.interestOps(SelectionKey.OP_WRITE
-									| SelectionKey.OP_READ);
+							// do not interested in ready event any more.
+							this.selectionKey
+									.interestOps(SelectionKey.OP_WRITE);
 						}
 					} catch (ServiceNotFoundException e) {
 						e.printStackTrace();

@@ -25,6 +25,6 @@ public class TestTransferService implements
 
 	@Override
 	public boolean isSupportedVersion(short clientVersion) {
-		return true;
+		return false;
 	}
 }

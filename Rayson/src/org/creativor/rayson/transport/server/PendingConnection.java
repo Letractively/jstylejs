@@ -86,7 +86,7 @@ class PendingConnection implements Connection {
 				this.selectionKey.attach(rpcConnection);
 			}
 				break;
-			case STREAM: {
+			case TRANSFER: {
 				ServerStreamConnection streamConnection = new ServerStreamConnection(
 						id, socketChannel, selectionKey,
 						this.server.getConnectionManager(),

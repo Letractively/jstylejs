@@ -168,7 +168,7 @@ class ClientStreamConnection extends TimeLimitConnection {
 
 	@Override
 	public ProtocolType getProtocol() {
-		return ProtocolType.STREAM;
+		return ProtocolType.TRANSFER;
 	}
 
 	@Override
