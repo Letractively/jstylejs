@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 import org.creativor.rayson.annotation.Config;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 @Config
@@ -20,7 +20,10 @@ import org.creativor.rayson.annotation.Config;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ServerConfig {
-	public short portNumber() default 4465;
+
+	public int portNumber() default DEFAULT_PORT_NUMBER;
+
+	public static final int DEFAULT_PORT_NUMBER = 6660;
 
 	public int workerCount() default 4;
 }

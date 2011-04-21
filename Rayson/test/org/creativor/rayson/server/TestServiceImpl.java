@@ -14,8 +14,8 @@ import org.creativor.rayson.api.Session;
 public class TestServiceImpl implements TestService {
 	@Override
 	public String echo(Session session, String message) throws EOFException {
-		throw new NullPointerException("eof");
-		// return message;
+		// throw new NullPointerException("eof");
+		return message;
 	}
 
 	@Override
