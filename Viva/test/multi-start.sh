@@ -10,7 +10,7 @@ else
 fi
 
 CURRENT_DIR=$PWD
-cd ..
+cd ../bin
 
 for (( i=$FROM_PORT; i<$TO_PORT; i++));
 do

@@ -15,7 +15,7 @@ echo %HELP_INFO%
 exit /b -1
 )
 set CURRENT_PATH=%cd%
-cd ..
+cd ../bin
 FOR /L %%p IN (%FROM_PORT%,1,%TO_PORT%) DO (
 @start /b start.bat %%p
 timeout /t 5
