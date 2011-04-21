@@ -18,6 +18,7 @@ import org.creativor.rayson.api.TestProxy;
 import org.creativor.rayson.api.TestTransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.client.Rayson;
+import org.creativor.rayson.exception.CallExecutionException;
 import org.creativor.rayson.exception.ReadInvocationException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
@@ -26,7 +27,7 @@ import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class Demo {
@@ -34,7 +35,7 @@ public class Demo {
 	public static void main(String[] args) throws IllegalServiceException,
 			NetWorkException, RpcException, IOException,
 			ServiceNotFoundException, InterruptedException,
-			UnsupportedVersionException {
+			UnsupportedVersionException, CallExecutionException {
 
 		InetSocketAddress serverAddress = new InetSocketAddress(
 				InetAddress.getLocalHost(), 4465);
@@ -103,6 +104,8 @@ public class Demo {
 		// test asynchronous call.
 		TestAsyncProxy asyncProxy = Rayson.createAsyncProxy("demo",
 				TestAsyncProxy.class, serverAddress);
+		CallFuture<int[]> ddd = asyncProxy.getIntArray();
+		int[] intarry = ddd.get();
 		CallFuture<String> echoFuture;
 		for (int i = 0; i < 3; i++) {
 			try {

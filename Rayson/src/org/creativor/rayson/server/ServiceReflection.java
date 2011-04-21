@@ -4,16 +4,21 @@
  */
 package org.creativor.rayson.server;
 
+import java.io.ObjectInputStream.GetField;
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import javax.lang.model.type.ArrayType;
 import org.creativor.rayson.annotation.AsyncProxy;
 import org.creativor.rayson.annotation.Proxy;
 import org.creativor.rayson.api.AsyncRpcProxy;
-import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
@@ -23,6 +28,7 @@ import org.creativor.rayson.exception.IllegalProxyMethodException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.RpcCallException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
+import org.creativor.rayson.util.Reflection;
 import org.creativor.rayson.util.ServiceVerifier;
 
 /**
@@ -156,6 +162,9 @@ class ServiceReflection {
 		private Method method;
 		private Method proxyMethod;
 
+		private Class<?>[] serviceExceptions;
+		private Class<?>[] proxyExceptions;
+
 		private int hashCode;
 
 		/**
@@ -199,31 +208,76 @@ class ServiceReflection {
 		ServiceMethod(Method method, Class<? extends RpcProxy> proxyClass,
 				boolean async) throws IllegalProxyMethodException {
 
+			serviceExceptions = method.getExceptionTypes();
 			// 1. find associated proxy method.
 			Method proxyMethod = findProxyMethod(method, proxyClass);
-
+			proxyExceptions = proxyMethod.getExceptionTypes();
 			// 2. verify proxy method.
 			if (async) {
 				ServiceVerifier.verifyAsyncProxyMethod(proxyMethod);
 			} else
 				ServiceVerifier.verifyProxyMethod(proxyMethod);
 
-			// 3. verify return type and other exceptions.
+			// 3. verify return type
 			if (async) {
-				Class<CallFuture> returnType = (Class<CallFuture>) proxyMethod
-						.getReturnType();
-				TypeVariable<Class<CallFuture>>[] typeParameters = returnType
-						.getTypeParameters();
-				if (typeParameters.length != 1)
+				ParameterizedType genericReturnType = (ParameterizedType) proxyMethod
+						.getGenericReturnType();
+				Type[] typeArguments = genericReturnType
+						.getActualTypeArguments();
+				if (typeArguments.length != 1)
 					throw new IllegalProxyMethodException(proxyMethod,
-							"No type paramter found in return type");
+							"No type argument found in generic return type: "
+									+ genericReturnType);
+				Class returnType = method.getReturnType();
+				Type typeArgument = typeArguments[0];
+
+				if (returnType.isArray()) {
+					returnType = returnType.getComponentType();
+					GenericArrayType arrayTypeArgument = (GenericArrayType) typeArgument;
+					typeArgument = arrayTypeArgument.getGenericComponentType();
+				} else {
+					returnType = Reflection.getNonePrimitiveClass(returnType);
+				}
+				if (returnType != typeArgument)
+					throw new IllegalProxyMethodException(
+							proxyMethod,
+							"Return type argument "
+									+ typeArgument
+									+ " is not match to service method return type");
 			} else {
 				if (proxyMethod.getReturnType() != method.getReturnType())
 					throw new IllegalProxyMethodException(proxyMethod,
 							"Return type is not equals to service method");
 			}
+
+			// 4.verify other exceptions
+			if (!async) {
+				for (Class serviceException : serviceExceptions) {
+					verifyServiceException(serviceException);
+				}
+			}
+
 			this.method = method;
 			this.proxyMethod = proxyMethod;
+		}
+
+		/**
+		 * @param serviceException
+		 */
+		private void verifyServiceException(Class serviceException)
+				throws IllegalProxyMethodException {
+			boolean match = false;
+			for (Class proxyException : this.proxyExceptions) {
+				if (proxyException == serviceException) {
+					match = true;
+					break;
+				}
+			}
+			if (!match)
+				throw new IllegalProxyMethodException(proxyMethod,
+						"Can not find associated exception: "
+								+ serviceException.toString()
+								+ " in associated service method");
 		}
 
 		public Method getMethod() {

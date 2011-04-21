@@ -9,7 +9,7 @@ import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.exception.NetWorkException;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public interface TestAsyncProxy extends AsyncRpcProxy {
