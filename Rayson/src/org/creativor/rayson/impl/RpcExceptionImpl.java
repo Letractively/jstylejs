@@ -13,7 +13,7 @@ import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public final class RpcExceptionImpl extends RpcException {
@@ -34,7 +34,8 @@ public final class RpcExceptionImpl extends RpcException {
 
 	}
 
-	public static RpcException createParameterException(ReadInvocationException exception) {
+	public static RpcException createParameterException(
+			ReadInvocationException exception) {
 		RpcExceptionImpl remoteException = new RpcExceptionImpl(
 				RemoteExceptionType.CALL, exception);
 		return remoteException;
@@ -56,4 +57,5 @@ public final class RpcExceptionImpl extends RpcException {
 	private RpcExceptionImpl(RemoteExceptionType type, Throwable exception) {
 		super(type, exception);
 	}
+
 }

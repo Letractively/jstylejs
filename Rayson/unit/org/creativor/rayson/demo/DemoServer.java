@@ -10,7 +10,7 @@ import org.creativor.rayson.server.RpcServerTest;
  *
  * @author Nick Zhang
  */
-public class ServerDemo {
+public class DemoServer {
 	public static void main(String[] args) {
 		RpcServerTest.startTestServer();
 

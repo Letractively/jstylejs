@@ -33,6 +33,8 @@ final class Performancer {
 				try {
 					returnString = testProxy.echo(ECHO_MSG);
 				} catch (Exception e) {
+					System.err.println("Run one rpc call failed: "
+							+ e.getMessage());
 					failed = true;
 				}
 				if (!failed && !ECHO_MSG.equals(returnString))
@@ -51,9 +53,9 @@ final class Performancer {
 
 	private static class Config {
 
-		private static int CALL_COUNT_PER_THREAD = 1000;
+		private static int CALL_COUNT_PER_THREAD = 1;
 		private static int PORT_NUMBER = ServerConfig.DEFAULT_PORT_NUMBER;
-		private static int THREAD_COUNT = 100;
+		private static int THREAD_COUNT = 1;
 
 		public static String print() {
 			StringBuffer sb = new StringBuffer();
@@ -166,13 +168,14 @@ final class Performancer {
 		public void run() {
 			try {
 				counter.waitForAllThreadQuit();
-				System.out.println("All threads is quit.\n Config is: \n "
-						+ Config.print() + "\n The counter is :\n "
+				System.out.println("All threads is quit.\n The counter is :\n "
 						+ counter.toString());
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			// Eixt the test
+			System.exit(0);
 		}
 	}
 
@@ -185,16 +188,58 @@ final class Performancer {
 	public static void main(String[] args) throws IllegalServiceException {
 
 		Performancer performance = new Performancer();
+		printHelp();
 		parseConfig(args);
-		performance.start();
+		System.out.println("Ready to run test.\n The cofiguration is:"
+				+ Config.print());
+		performance.run();
 	}
 
 	/**
 	 * @param args
 	 */
 	private static void parseConfig(String[] args) {
+		int argumentIndex;
+		for (String arg : args) {
+			if (arg.startsWith(HELP_ARGUMENT)) {
+				// printHelp();
+				System.exit(-1);
+			}
+			argumentIndex = -1;
+			if ((argumentIndex = arg.indexOf(THREAD_COUNT_ARGUMENT)) >= 0)
+				Config.THREAD_COUNT = Integer.parseInt(arg
+						.substring(argumentIndex
+								+ THREAD_COUNT_ARGUMENT.length()));
+			if ((argumentIndex = arg.indexOf(THREAD_CALL_COUNT_ARGUMENT)) >= 0)
+				Config.CALL_COUNT_PER_THREAD = Integer.parseInt(arg
+						.substring(argumentIndex
+								+ THREAD_CALL_COUNT_ARGUMENT.length()));
+			if ((argumentIndex = arg.indexOf(PORT_NUMBER_ARGUMENT)) >= 0)
+				Config.PORT_NUMBER = Integer.parseInt(arg
+						.substring(argumentIndex
+								+ PORT_NUMBER_ARGUMENT.length()));
+		}
+	}
+
+	private static void printHelp() {
+		System.out
+				.println("*****************************************************");
+		System.out
+				.println("This programme is used to test the performance of Rayson.");
+		System.out.println("Araguemts：\n " + HELP_ARGUMENT + " to print help, "
+				+ PORT_NUMBER_ARGUMENT + " to assign to server port, "
+				+ THREAD_CALL_COUNT_ARGUMENT
+				+ " to assign call count each thread, " + THREAD_COUNT_ARGUMENT
+				+ " to assign thread count");
+		System.out
+				.println("*****************************************************");
 
 	}
+
+	private static String THREAD_COUNT_ARGUMENT = "-t";
+	private static String THREAD_CALL_COUNT_ARGUMENT = "-c";
+	private static String PORT_NUMBER_ARGUMENT = "-p";
+	private static String HELP_ARGUMENT = "-h";
 
 	private Counter counter;
 
@@ -205,7 +250,7 @@ final class Performancer {
 
 	}
 
-	public void start() throws IllegalServiceException {
+	public void run() throws IllegalServiceException {
 		testProxy = Rayson.createProxy("demo", TestProxy.class,
 				new InetSocketAddress(Config.PORT_NUMBER));
 		for (int i = 0; i < Config.THREAD_COUNT; i++) {

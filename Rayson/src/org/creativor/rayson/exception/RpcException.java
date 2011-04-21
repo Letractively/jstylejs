@@ -7,7 +7,7 @@ package org.creativor.rayson.exception;
 import java.lang.reflect.UndeclaredThrowableException;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public abstract class RpcException extends Exception {
@@ -21,6 +21,12 @@ public abstract class RpcException extends Exception {
 	protected RpcException(RemoteExceptionType type, Throwable cause) {
 		this.type = type;
 		this.cause = cause;
+	}
+
+	@Override
+	public String getMessage() {
+		return "Rpc exception occurred, type: " + type.name() + ", cause: "
+				+ cause.getMessage();
 	}
 
 	/**
