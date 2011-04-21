@@ -22,6 +22,7 @@ import org.creativor.rayson.client.impl.CallFutureImpl;
 import org.creativor.rayson.common.ClientSession;
 import org.creativor.rayson.common.Invocation;
 import org.creativor.rayson.exception.CallExecutionException;
+import org.creativor.rayson.exception.IllegalProxyMethodException;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcCallException;
@@ -180,7 +181,11 @@ class Client {
 			if (proxyMethod.getName().equals("getSession")
 					&& proxyMethod.getParameterTypes().length == 0)
 				continue;
-			ServiceVerifier.verifyAsyncProxyMethod(proxyMethod);
+			try {
+				ServiceVerifier.verifyAsyncProxyMethod(proxyMethod);
+			} catch (IllegalProxyMethodException e) {
+				throw new IllegalServiceException(e.getMessage());
+			}
 		}
 
 		T rpcProxy;
@@ -212,7 +217,11 @@ class Client {
 			if (proxyMethod.getName().equals("getSession")
 					&& proxyMethod.getParameterTypes().length == 0)
 				continue;
-			ServiceVerifier.verifyProxyMethod(proxyMethod);
+			try {
+				ServiceVerifier.verifyProxyMethod(proxyMethod);
+			} catch (IllegalProxyMethodException e) {
+				throw new IllegalServiceException(e.getMessage());
+			}
 		}
 
 		T rpcProxy;

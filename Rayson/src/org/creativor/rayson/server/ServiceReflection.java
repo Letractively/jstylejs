@@ -5,17 +5,22 @@
 package org.creativor.rayson.server;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import org.creativor.rayson.annotation.AsyncProxy;
 import org.creativor.rayson.annotation.Proxy;
+import org.creativor.rayson.api.AsyncRpcProxy;
+import org.creativor.rayson.api.CallFuture;
 import org.creativor.rayson.api.RpcProxy;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
 import org.creativor.rayson.common.Invocation;
-import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.CallInvokeException;
+import org.creativor.rayson.exception.IllegalProxyMethodException;
+import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.exception.RpcCallException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.util.ServiceVerifier;
@@ -44,25 +49,63 @@ class ServiceReflection {
 		for (Class interfake : interfaces) {
 			if (!RpcService.class.isAssignableFrom(interfake))
 				continue;
+			// verify methods of interface.
+			for (Method method : interfake.getDeclaredMethods()) {
+				try {
+					ServiceVerifier.verifyServiceMethod(method);
+				} catch (IllegalProxyMethodException e) {
+					throw new IllegalServiceException(e.getMessage());
+				}
+			}
 			serviceInterface = (Class<? extends RpcService>) interfake;
 			proxyInterface = getProxy(serviceInterface);
-			list.add(new ServiceProxyPair(serviceInterface, proxyInterface));
+			if (proxyInterface != null)
+				list.add(new ServiceProxyPair(serviceInterface, proxyInterface));
+			proxyInterface = getAsyncProxy(serviceInterface);
+			if (proxyInterface != null)
+				list.add(new ServiceProxyPair(serviceInterface, proxyInterface));
 		}
 		return list.toArray(new ServiceProxyPair[0]);
 	}
 
+	/**
+	 * @param serviceInterface
+	 * @return Found rpc proxy class. Or null when no found.
+	 * @throws IllegalServiceException
+	 */
 	private static Class<? extends RpcProxy> getProxy(
 			Class<? extends RpcService> serviceInterface)
 			throws IllegalServiceException {
 		Proxy proxyAnnotation = serviceInterface.getAnnotation(Proxy.class);
 		if (proxyAnnotation == null)
-			throw new IllegalServiceException(
-					"No proxy annotation found in interface "
-							+ serviceInterface.getName());
+			return null;
 		Class<? extends RpcProxy> interfake = proxyAnnotation.value();
-		if (interfake == null || !interfake.isInterface())
+		if (interfake == null || interfake == RpcProxy.class
+				|| !interfake.isInterface())
 			throw new IllegalServiceException(
-					"Annotation proxy must be an interface");
+					"Annotation proxy must be an interface that extends "
+							+ RpcProxy.class.getName());
+		return interfake;
+	}
+
+	/**
+	 * @param serviceInterface
+	 * @return Found asynchronous rpc proxy class. Or null when no found.
+	 * @throws IllegalServiceException
+	 */
+	private static Class<? extends RpcProxy> getAsyncProxy(
+			Class<? extends RpcService> serviceInterface)
+			throws IllegalServiceException {
+		AsyncProxy proxyAnnotation = serviceInterface
+				.getAnnotation(AsyncProxy.class);
+		if (proxyAnnotation == null)
+			return null;
+		Class<? extends AsyncRpcProxy> interfake = proxyAnnotation.value();
+		if (interfake == null || interfake == AsyncRpcProxy.class
+				|| !interfake.isInterface())
+			throw new IllegalServiceException(
+					"Annotation proxy must be an interface that extends "
+							+ AsyncRpcProxy.class.getName());
 		return interfake;
 	}
 
@@ -71,6 +114,7 @@ class ServiceReflection {
 		private Class<? extends RpcService> serviceInterface;
 		private Class<? extends RpcProxy> proxyInterface;
 		private List<ServiceMethod> serviceMethods;
+		private boolean async = false;
 
 		ServiceProxyPair(Class<? extends RpcService> serviceInterface,
 				Class<? extends RpcProxy> proxyInterface)
@@ -78,12 +122,25 @@ class ServiceReflection {
 			this.serviceInterface = serviceInterface;
 			this.proxyInterface = proxyInterface;
 			this.serviceMethods = new ArrayList<ServiceReflection.ServiceMethod>();
-
+			if (AsyncRpcProxy.class.isAssignableFrom(proxyInterface))
+				async = true;
 			ServiceMethod serviceMethod;
 			for (Method method : this.serviceInterface.getDeclaredMethods()) {
-				serviceMethod = new ServiceMethod(method, this.proxyInterface);
+				try {
+					serviceMethod = new ServiceMethod(method,
+							this.proxyInterface, async);
+				} catch (IllegalProxyMethodException e) {
+					throw new IllegalServiceException(e.getMessage());
+				}
 				this.serviceMethods.add(serviceMethod);
 			}
+		}
+
+		/**
+		 * @return True if the rpc proxy is a asynchronouse one.
+		 */
+		public boolean isAsync() {
+			return async;
 		}
 
 		public Class<? extends RpcProxy> getProxyInterface() {
@@ -113,7 +170,7 @@ class ServiceReflection {
 		 */
 		private static Method findProxyMethod(Method serviceMethod,
 				Class<? extends RpcProxy> proxyInterface)
-				throws IllegalServiceException {
+				throws IllegalProxyMethodException {
 			Class<?>[] parameterTypes = serviceMethod.getParameterTypes();
 			Class[] proxyMethodParaTypes = new Class[parameterTypes.length - 1];
 			System.arraycopy(parameterTypes, 1, proxyMethodParaTypes, 0,
@@ -124,25 +181,47 @@ class ServiceReflection {
 				proxyMethod = proxyInterface.getMethod(serviceMethod.getName(),
 						proxyMethodParaTypes);
 			} catch (Exception e) {
-				throw new IllegalServiceException(
-						"Can not find associated method "
-								+ serviceMethod.toGenericString()
-								+ "in proxy interface");
+				throw new IllegalProxyMethodException(serviceMethod,
+						"Can not find associated method in proxy interface");
 			}
 
 			return proxyMethod;
 		}
 
-		ServiceMethod(Method method, Class<? extends RpcProxy> proxyClass)
-				throws IllegalServiceException {
-			// 1. verify service method .
-			ServiceVerifier.verifyServiceMethod(method);
-			// 2. find associated proxy method.
+		/**
+		 * 
+		 * @param method
+		 * @param proxyClass
+		 * @param async
+		 *            Indicate that the proxy class is an {@link AsyncRpcProxy}.
+		 * @throws IllegalProxyMethodException
+		 */
+		ServiceMethod(Method method, Class<? extends RpcProxy> proxyClass,
+				boolean async) throws IllegalProxyMethodException {
+
+			// 1. find associated proxy method.
 			Method proxyMethod = findProxyMethod(method, proxyClass);
-			// 3. verify proxy method.
-			ServiceVerifier.verifyProxyMethod(proxyMethod);
-			// 4. verify return type and exceptions.
-			// TODO:
+
+			// 2. verify proxy method.
+			if (async) {
+				ServiceVerifier.verifyAsyncProxyMethod(proxyMethod);
+			} else
+				ServiceVerifier.verifyProxyMethod(proxyMethod);
+
+			// 3. verify return type and other exceptions.
+			if (async) {
+				Class<CallFuture> returnType = (Class<CallFuture>) proxyMethod
+						.getReturnType();
+				TypeVariable<Class<CallFuture>>[] typeParameters = returnType
+						.getTypeParameters();
+				if (typeParameters.length != 1)
+					throw new IllegalProxyMethodException(proxyMethod,
+							"No type paramter found in return type");
+			} else {
+				if (proxyMethod.getReturnType() != method.getReturnType())
+					throw new IllegalProxyMethodException(proxyMethod,
+							"Return type is not equals to service method");
+			}
 			this.method = method;
 			this.proxyMethod = proxyMethod;
 		}
@@ -165,6 +244,9 @@ class ServiceReflection {
 
 		methods = new HashMap<Integer, Method>();
 		this.pairs = getPairs(instance.getClass());
+		if (this.pairs.length == 0)
+			throw new IllegalServiceException(
+					"No any rpc proxy class found in this rpc service");
 		this.proxys = new Class[this.pairs.length];
 		for (int i = 0; i < this.pairs.length; i++) {
 			this.proxys[i] = this.pairs[i].getProxyInterface();

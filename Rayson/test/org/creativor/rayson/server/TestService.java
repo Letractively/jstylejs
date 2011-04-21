@@ -5,15 +5,18 @@
 package org.creativor.rayson.server;
 
 import java.io.EOFException;
+import org.creativor.rayson.annotation.AsyncProxy;
 import org.creativor.rayson.annotation.Proxy;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.Session;
+import org.creativor.rayson.api.TestAsyncProxy;
 import org.creativor.rayson.api.TestProxy;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
+@AsyncProxy(TestAsyncProxy.class)
 @Proxy(TestProxy.class)
 public interface TestService extends RpcService {
 	public String echo(Session session, String message) throws EOFException;
