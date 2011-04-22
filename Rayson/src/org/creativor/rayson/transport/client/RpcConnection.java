@@ -28,7 +28,7 @@ import org.creativor.rayson.transport.common.RequestType;
 import org.creativor.rayson.util.Log;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 class RpcConnection extends PacketConnection {
@@ -45,15 +45,17 @@ class RpcConnection extends PacketConnection {
 		void addSendPacket(PacketWithType packetCarrier) throws IOException {
 			synchronized (this.sendPackets) {
 				this.sendPackets.add(packetCarrier);
+				if (this.sendPackets.size() == 1) {
+					selectionKey.interestOps(selectionKey.interestOps()
+							| SelectionKey.OP_WRITE);
+					selectionKey.selector().wakeup();
+				}
 			}
 		}
 
 		public void write() throws IOException {
 			if (this.lastPacketCarrier == null) {
-				synchronized (this.sendPackets) {
-
-					this.lastPacketCarrier = this.sendPackets.remove();
-				}
+				this.lastPacketCarrier = this.sendPackets.remove();
 				byte code = this.lastPacketCarrier.getType();
 				short dataLength = this.lastPacketCarrier.getPacket()
 						.getDataLength();
@@ -80,13 +82,11 @@ class RpcConnection extends PacketConnection {
 				this.lastPacketCarrier = null;
 				// test if we need to unregister the write event.
 				synchronized (this.sendPackets) {
-					if (this.sendPackets.size() == 0)
+					if (this.sendPackets.isEmpty())
 						selectionKey.interestOps(SelectionKey.OP_READ);
 				}
 			}
-
 		}
-
 	}
 
 	private static Logger LOGGER = Log.getLogger();
@@ -153,15 +153,6 @@ class RpcConnection extends PacketConnection {
 		this.packetManager.addReceived(packet);
 	}
 
-	private void addReqeustPacket1(PacketWithType packetWithType)
-			throws IOException {
-		this.packetWriter.addSendPacket(packetWithType);
-		this.selectionKey.interestOps(this.selectionKey.interestOps()
-				| SelectionKey.OP_WRITE);
-		this.selectionKey.selector().wakeup();
-		// LOGGER.info("add  packet " + packetWithType.toString() + " to send");
-	}
-
 	@Override
 	public void addSendPacket(Packet packet) throws IOException {
 		if (readErrorPacket.get()) {
@@ -180,8 +171,8 @@ class RpcConnection extends PacketConnection {
 				}
 			}
 		}
-		addReqeustPacket1(new PacketWithType(RequestType.NORMAL.getType(),
-				packet));
+		this.packetWriter.addSendPacket(new PacketWithType(RequestType.NORMAL
+				.getType(), packet));
 	}
 
 	@Override

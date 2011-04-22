@@ -28,21 +28,21 @@ import org.creativor.rayson.transport.common.ResponseType;
 import org.creativor.rayson.util.Log;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 class RpcConnection extends PacketConnection {
 
 	private class PacketWriter {
+		/**
+		 * Last packet to write.
+		 */
 		private PacketWithType lastPacketCarrier;
 		private ByteBuffer writeDataBuffer;
 
-		private void write() throws IOException {
+		public void write() throws IOException {
 			if (this.lastPacketCarrier == null) {
-				synchronized (sendPackets) {
-
-					this.lastPacketCarrier = sendPackets.remove();
-				}
+				this.lastPacketCarrier = sendPackets.remove();
 				byte code = this.lastPacketCarrier.getType();
 				short dataLength = this.lastPacketCarrier.getPacket()
 						.getDataLength();
@@ -71,11 +71,10 @@ class RpcConnection extends PacketConnection {
 					return;
 				// we need to unregister the write event.
 				synchronized (sendPackets) {
-					if (sendPackets.size() == 0)
+					if (sendPackets.isEmpty())
 						selectionKey.interestOps(SelectionKey.OP_READ);
 				}
 			}
-
 		}
 	}
 
@@ -141,11 +140,12 @@ class RpcConnection extends PacketConnection {
 		synchronized (sendPackets) {
 			this.sendPackets.add(new PacketWithType(ResponseType.OK.getType(),
 					packet));
+			if (this.sendPackets.size() == 1) {
+				this.selectionKey.interestOps(this.selectionKey.interestOps()
+						| SelectionKey.OP_WRITE);
+				this.selectionKey.selector().wakeup();
+			}
 		}
-		this.selectionKey.interestOps(this.selectionKey.interestOps()
-				| SelectionKey.OP_WRITE);
-		this.selectionKey.selector().wakeup();
-		// LOGGER.info("add  packet " + packet.toString() + " to send");
 	}
 
 	@Override
@@ -297,6 +297,8 @@ class RpcConnection extends PacketConnection {
 			// write connection response code.
 			this.socketChannel.write(connectResponseBuffer);
 			if (!this.connectResponseBuffer.hasRemaining()) {
+				// un-register write event. At that time, no packet has received
+				// yet.
 				this.selectionKey.interestOps(SelectionKey.OP_READ);
 				wroteConnectCode = true;
 				// try close this connection itself.
