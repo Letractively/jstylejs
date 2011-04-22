@@ -10,12 +10,13 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 import org.creativor.rayson.util.Log;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 class Listener extends Thread {
@@ -89,19 +90,25 @@ class Listener extends Thread {
 					}
 				}
 			}
-			for (iterator = selector.selectedKeys().iterator(); iterator
-					.hasNext();) {
 
-				key = iterator.next();
-				iterator.remove();
-				if (key.isValid()) {
-					if (key.isReadable())
-						read(key);
-					else if (key.isWritable())
-						write(key);
-					else
-						;
+			try {
+				for (iterator = selector.selectedKeys().iterator(); iterator
+						.hasNext();) {
+
+					key = iterator.next();
+					iterator.remove();
+					if (key.isValid()) {
+						if (key.isReadable())
+							read(key);
+						else if (key.isWritable())
+							write(key);
+						else
+							;
+					}
 				}
+			} catch (Throwable e) {
+				// protect this thread not to quit.
+				LOGGER.log(Level.SEVERE, "Server listener got error", e);
 			}
 
 		}
