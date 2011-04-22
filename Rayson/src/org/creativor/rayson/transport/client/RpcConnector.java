@@ -23,7 +23,7 @@ import org.creativor.rayson.transport.common.Packet;
 import org.creativor.rayson.util.Log;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class RpcConnector {
@@ -152,7 +152,7 @@ public class RpcConnector {
 	}
 
 	public void submitCall(SocketAddress serverAddress, ClientCall call)
-			throws ConnectException, IOException {
+			throws ConnectException, IOException, InterruptedException {
 		RpcConnection connection = client.getConnection(serverAddress);
 		// if the connection is closed, the we will retry.
 		if (connection.isClosed()) {

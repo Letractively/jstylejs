@@ -5,12 +5,11 @@
 package org.creativor.rayson.transport.client;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.creativor.rayson.api.TransferArgument;
 import org.creativor.rayson.api.TransferSocket;
 import org.creativor.rayson.exception.IllegalServiceException;
@@ -18,12 +17,10 @@ import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.transport.common.ConnectionState;
-import org.creativor.rayson.transport.common.Packet;
-import org.creativor.rayson.transport.common.PacketException;
 import org.creativor.rayson.transport.common.ProtocolType;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class TransportClient {
@@ -31,19 +28,6 @@ public class TransportClient {
 
 	public static TransportClient getSingleton() {
 		return singleton;
-	}
-
-	public static void main(String[] args) throws ConnectException,
-			IOException, PacketException {
-		SocketAddress serverAddress = new InetSocketAddress(
-				InetAddress.getLocalHost(), 4465);
-
-		RpcConnection connection = TransportClient.getSingleton()
-				.getConnection(serverAddress);
-		byte[] bytes = new byte[344];
-		Packet testPacket = new Packet(bytes);
-		connection.addSendPacket(testPacket);
-
 	}
 
 	private ConnectionManager connectionManager;

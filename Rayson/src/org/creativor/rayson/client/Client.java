@@ -295,7 +295,7 @@ class Client {
 	}
 
 	private void submitCall(SocketAddress serverAddress, ClientCall call)
-			throws IOException {
+			throws IOException, InterruptedException {
 		TransportClient.getSingleton().getConnector()
 				.submitCall(serverAddress, call);
 	}

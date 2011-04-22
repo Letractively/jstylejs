@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public abstract class PacketConnection extends TimeLimitConnection {
@@ -19,7 +19,7 @@ public abstract class PacketConnection extends TimeLimitConnection {
 	}
 
 	public abstract void addSendPacket(Packet responsePacket)
-			throws IOException;
+			throws IOException, InterruptedException;
 
 	@Override
 	public final ProtocolType getProtocol() {

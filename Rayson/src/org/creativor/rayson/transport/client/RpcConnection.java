@@ -12,6 +12,7 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -130,7 +131,9 @@ class RpcConnection extends PacketConnection {
 	private SocketAddress serverSocket;
 
 	private SocketChannel socketChannel;
-	private Object thresholdLock;
+	private Lock thresholdLock;
+
+	private Condition tooManyPendingPackets;
 
 	private AtomicBoolean removed;
 
@@ -157,7 +160,8 @@ class RpcConnection extends PacketConnection {
 		this.connectHeaderBuffer.put(getProtocol().getType());
 		this.connectHeaderBuffer.put(version);
 		this.connectHeaderBuffer.clear();
-		thresholdLock = new Object();
+		thresholdLock = new ReentrantLock();
+		tooManyPendingPackets = thresholdLock.newCondition();
 	}
 
 	private void addReceivedPacket(Packet packet) throws IOException {
@@ -169,25 +173,24 @@ class RpcConnection extends PacketConnection {
 	}
 
 	@Override
-	public void addSendPacket(Packet packet) throws IOException {
+	public void addSendPacket(Packet packet) throws IOException,
+			InterruptedException {
 		if (readErrorPacket.get()) {
 			// do not accept new packet any more.
 			return;
 		}
 		// add threshold control here.
-		synchronized (thresholdLock) {
+		thresholdLock.lock();
+		try {
 			while (isTooManyPendingPackets()) {
-				try {
-					LOGGER.info("Wati on two many pending packets");
-					thresholdLock.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				tooManyPendingPackets.await();
 			}
+			this.packetWriter.addSendPacket(new PacketWithType(
+					RequestType.NORMAL.getType(), packet));
+
+		} finally {
+			thresholdLock.unlock();
 		}
-		this.packetWriter.addSendPacket(new PacketWithType(RequestType.NORMAL
-				.getType(), packet));
 	}
 
 	@Override
@@ -315,10 +318,16 @@ class RpcConnection extends PacketConnection {
 			return;
 		} else
 			this.packetWriter.write();
+
 		// add threshold control here.
-		synchronized (thresholdLock) {
+		if (pendingPacketCount() < ConnectionProtocol.MAX_PENDING_PACKETS - 3)
+			return;
+		thresholdLock.lock();
+		try {
 			if (!isTooManyPendingPackets())
-				thresholdLock.notifyAll();
+				tooManyPendingPackets.signalAll();
+		} finally {
+			thresholdLock.unlock();
 		}
 	}
 
