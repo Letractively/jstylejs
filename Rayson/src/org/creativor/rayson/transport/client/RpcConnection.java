@@ -320,8 +320,6 @@ class RpcConnection extends PacketConnection {
 			this.packetWriter.write();
 
 		// add threshold control here.
-		if (pendingPacketCount() < ConnectionProtocol.MAX_PENDING_PACKETS - 3)
-			return;
 		thresholdLock.lock();
 		try {
 			if (!isTooManyPendingPackets())

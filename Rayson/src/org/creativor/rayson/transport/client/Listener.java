@@ -10,8 +10,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 import org.creativor.rayson.util.Log;
 
@@ -24,14 +27,17 @@ class Listener extends Thread {
 
 	private ConnectionManager connectionManager;
 	private AtomicBoolean registering;
-
+	private Lock registerLock;
 	private Selector selector;
+
+	private boolean running = true;
 
 	Listener(ConnectionManager connectionManager) throws IOException {
 		setName("Client listener");
 		this.connectionManager = connectionManager;
 		this.selector = Selector.open();
 		registering = new AtomicBoolean(false);
+		registerLock = new ReentrantLock();
 	}
 
 	private void read(SelectionKey key) {
@@ -56,42 +62,32 @@ class Listener extends Thread {
 	SelectionKey register(SocketChannel socketChannel, int ops,
 			TimeLimitConnection clientConnection) throws IOException {
 		SelectionKey key;
-		synchronized (registering) {
+		registerLock.lock();
+		try {
 			registering.set(true);
 			selector.wakeup();
 			key = socketChannel.register(selector, ops, clientConnection);
 			registering.set(false);
-			registering.notifyAll();
+			return key;
+		} finally {
+			registerLock.unlock();
 		}
-		return key;
 	}
 
 	@Override
 	public void run() {
+
 		LOGGER.info(getName() + " starting...");
 		SelectionKey key;
 		Iterator<SelectionKey> iterator;
-		while (true) {
+
+		while (running) {
 
 			try {
-				selector.select();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				break;
-			}
-			synchronized (registering) {
 				while (registering.get()) {
-					try {
-						registering.wait();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					// wait another thread to quit registering progress.
 				}
-			}
-
-			try {
+				selector.select();
 				for (iterator = selector.selectedKeys().iterator(); iterator
 						.hasNext();) {
 

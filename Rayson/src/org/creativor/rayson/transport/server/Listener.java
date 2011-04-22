@@ -23,6 +23,7 @@ class Listener extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 	private Selector selector;
 	private TransportServer server;
+	private boolean running = true;
 
 	public Listener(TransportServer server) throws IOException {
 		setName("Server " + server.toString() + " lisenter");
@@ -86,17 +87,11 @@ class Listener extends Thread {
 
 		Iterator<SelectionKey> iterator;
 
-		while (true) {
+		while (running) {
 
 			try {
+
 				selector.select();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				break;
-			}
-
-			try {
 
 				for (iterator = selector.selectedKeys().iterator(); iterator
 						.hasNext();) {
