@@ -12,6 +12,8 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 import org.creativor.rayson.client.Rayson;
 import org.creativor.rayson.transport.common.CRC16;
@@ -37,25 +39,35 @@ class RpcConnection extends PacketConnection {
 		private PacketWithType lastPacketCarrier;
 		private Queue<PacketWithType> sendPackets;
 		private ByteBuffer writeDataBuffer;
+		private Lock packetsLock;
 
 		PacketWriter() {
 			sendPackets = new LinkedList<PacketWithType>();
+			packetsLock = new ReentrantLock();
 		}
 
 		void addSendPacket(PacketWithType packetCarrier) throws IOException {
-			synchronized (this.sendPackets) {
+			packetsLock.lock();
+			try {
 				this.sendPackets.add(packetCarrier);
 				if (this.sendPackets.size() == 1) {
 					selectionKey.interestOps(selectionKey.interestOps()
 							| SelectionKey.OP_WRITE);
 					selectionKey.selector().wakeup();
 				}
+			} finally {
+				packetsLock.unlock();
 			}
 		}
 
 		public void write() throws IOException {
 			if (this.lastPacketCarrier == null) {
-				this.lastPacketCarrier = this.sendPackets.remove();
+				packetsLock.lock();
+				try {
+					this.lastPacketCarrier = this.sendPackets.remove();
+				} finally {
+					packetsLock.unlock();
+				}
 				byte code = this.lastPacketCarrier.getType();
 				short dataLength = this.lastPacketCarrier.getPacket()
 						.getDataLength();
@@ -81,9 +93,12 @@ class RpcConnection extends PacketConnection {
 				packetCounter.writeOne();
 				this.lastPacketCarrier = null;
 				// test if we need to unregister the write event.
-				synchronized (this.sendPackets) {
+				packetsLock.lock();
+				try {
 					if (this.sendPackets.isEmpty())
 						selectionKey.interestOps(SelectionKey.OP_READ);
+				} finally {
+					packetsLock.unlock();
 				}
 			}
 		}

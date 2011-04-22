@@ -12,6 +12,8 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.creativor.rayson.transport.common.CRC16;
@@ -42,7 +44,12 @@ class RpcConnection extends PacketConnection {
 
 		public void write() throws IOException {
 			if (this.lastPacketCarrier == null) {
-				this.lastPacketCarrier = sendPackets.remove();
+				packetsLock.lock();
+				try {
+					this.lastPacketCarrier = sendPackets.remove();
+				} finally {
+					packetsLock.unlock();
+				}
 				byte code = this.lastPacketCarrier.getType();
 				short dataLength = this.lastPacketCarrier.getPacket()
 						.getDataLength();
@@ -70,9 +77,12 @@ class RpcConnection extends PacketConnection {
 				if (gotErrorPacket.get())
 					return;
 				// we need to unregister the write event.
-				synchronized (sendPackets) {
+				packetsLock.lock();
+				try {
 					if (sendPackets.isEmpty())
 						selectionKey.interestOps(SelectionKey.OP_READ);
+				} finally {
+					packetsLock.unlock();
 				}
 			}
 		}
@@ -101,6 +111,7 @@ class RpcConnection extends PacketConnection {
 	private boolean readedConnectHeader = false;
 	private SelectionKey selectionKey;
 	private Queue<PacketWithType> sendPackets;
+	private Lock packetsLock;
 	private SocketChannel socketChannel;
 	private boolean wroteConnectCode = false;
 	private String addressInfo;
@@ -117,6 +128,7 @@ class RpcConnection extends PacketConnection {
 		this.packetManager = packetManager;
 		closed = new AtomicBoolean(false);
 		sendPackets = new LinkedList<PacketWithType>();
+		packetsLock = new ReentrantLock();
 		packetCounter = new PacketCounter();
 		gotErrorPacket = new AtomicBoolean(false);
 		this.selectionKey = selectionKey;
@@ -137,7 +149,8 @@ class RpcConnection extends PacketConnection {
 
 	@Override
 	public void addSendPacket(Packet packet) throws IOException {
-		synchronized (sendPackets) {
+		packetsLock.lock();
+		try {
 			this.sendPackets.add(new PacketWithType(ResponseType.OK.getType(),
 					packet));
 			if (this.sendPackets.size() == 1) {
@@ -145,6 +158,8 @@ class RpcConnection extends PacketConnection {
 						| SelectionKey.OP_WRITE);
 				this.selectionKey.selector().wakeup();
 			}
+		} finally {
+			packetsLock.unlock();
 		}
 	}
 
