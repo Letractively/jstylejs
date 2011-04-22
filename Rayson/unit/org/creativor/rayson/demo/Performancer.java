@@ -78,7 +78,7 @@ final class Performancer {
 		private int failedCallCount = 0;
 		private long quitThreadCount = 0;
 		private int succCallCount = 0;
-		private long totallCallTime = 0;
+		private long totallSuccCallTime = 0;
 
 		public synchronized void failOne() {
 			failedCallCount++;
@@ -111,7 +111,7 @@ final class Performancer {
 		}
 
 		public synchronized void oneCallTakeTime(long takeTime) {
-			totallCallTime += takeTime;
+			totallSuccCallTime += takeTime;
 		}
 
 		/**
@@ -140,10 +140,13 @@ final class Performancer {
 			sb.append(", ");
 			sb.append("Failed call count: ");
 			sb.append(this.failedCallCount);
+			sb.append(", ");
+			sb.append("All succefully calls take time: ");
+			sb.append(this.totallSuccCallTime);
 			if (succCallCount > 0) {
 				sb.append(", ");
 				sb.append("Each successful call take time: ");
-				sb.append(this.totallCallTime / this.succCallCount);
+				sb.append(this.totallSuccCallTime / this.succCallCount);
 				sb.append(" milli-seconds");
 
 			}
