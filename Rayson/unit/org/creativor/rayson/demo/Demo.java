@@ -25,6 +25,7 @@ import org.creativor.rayson.exception.NetWorkException;
 import org.creativor.rayson.exception.RpcException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
+import org.creativor.rayson.transport.server.ServerConfig;
 
 /**
  * 
@@ -38,9 +39,9 @@ public class Demo {
 			UnsupportedVersionException, CallExecutionException {
 
 		InetSocketAddress serverAddress = new InetSocketAddress(
-				InetAddress.getLocalHost(), 4465);
+				InetAddress.getLocalHost(), ServerConfig.DEFAULT_PORT_NUMBER);
 
-		// Rayson.ping(serverAddress);
+		Rayson.ping(serverAddress);
 
 		System.out.println("Ping sucessfully");
 
