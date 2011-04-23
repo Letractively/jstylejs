@@ -41,7 +41,7 @@ class Listener extends Thread {
 		registerCondition = selectorLock.newCondition();
 	}
 
-	private void read(SelectionKey key) {
+	private void doRead(SelectionKey key) {
 		RpcConnection connection = (RpcConnection) key.attachment();
 		int readCount = -1;
 		try {
@@ -61,22 +61,23 @@ class Listener extends Thread {
 	}
 
 	/**
-	 * Register a new selection key when initialize a client connection.
+	 * Accept a new connection.
 	 * 
 	 * @param socketChannel
 	 * @param ops
 	 * @param clientConnection
-	 * @return
+	 * @return selection key register into the selector of this lisenter.
 	 * @throws IOException
 	 */
-	SelectionKey register(SocketChannel socketChannel, int ops,
+	SelectionKey accept(SocketChannel socketChannel,
 			TimeLimitConnection clientConnection) throws IOException {
 		SelectionKey key;
 		selectorLock.lock();
 		try {
 			registering = true;
 			selector.wakeup();
-			key = socketChannel.register(selector, ops, clientConnection);
+			key = socketChannel.register(selector, SelectionKey.OP_READ,
+					clientConnection);
 			registering = false;
 			registerCondition.signalAll();
 			return key;
@@ -112,9 +113,9 @@ class Listener extends Thread {
 					iterator.remove();
 					if (key.isValid()) {
 						if (key.isReadable())
-							read(key);
+							doRead(key);
 						else if (key.isWritable())
-							write(key);
+							doWrite(key);
 						else
 							;
 					}
@@ -129,7 +130,7 @@ class Listener extends Thread {
 
 	}
 
-	private void write(SelectionKey key) {
+	private void doWrite(SelectionKey key) {
 		RpcConnection connection = (RpcConnection) key.attachment();
 		try {
 			connection.write();

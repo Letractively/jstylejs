@@ -16,6 +16,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
+
 import org.creativor.rayson.client.Rayson;
 import org.creativor.rayson.transport.common.CRC16;
 import org.creativor.rayson.transport.common.ChecksumMatchException;
@@ -242,8 +243,7 @@ class RpcConnection extends PacketConnection {
 		if (state != ConnectionState.OK)
 			throw new ConnectException(state.name());
 		socketChannel.configureBlocking(false);
-		this.selectionKey = listener.register(this.socketChannel,
-				SelectionKey.OP_READ, this);
+		this.selectionKey = listener.accept(this.socketChannel, this);
 		packetReader = new ClientPacketReader(this.socketChannel);
 		LOGGER.info(this.toString() + " builded");
 	}

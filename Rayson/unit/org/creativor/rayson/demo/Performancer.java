@@ -5,6 +5,7 @@
 
 package org.creativor.rayson.demo;
 
+import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import org.creativor.rayson.api.TestProxy;
 import org.creativor.rayson.client.Rayson;
@@ -53,6 +54,7 @@ final class Performancer {
 
 	private static class Config {
 
+		public static final long SAMPLE_INTERVAL = 1000;
 		private static int CALL_COUNT_PER_THREAD = 1;
 		private static int PORT_NUMBER = ServerConfig.DEFAULT_PORT_NUMBER;
 		private static int THREAD_COUNT = 1;
@@ -162,6 +164,36 @@ final class Performancer {
 		}
 	}
 
+	private class SampleThread extends Thread {
+		SampleThread() {
+			setDaemon(true);
+		}
+
+		@Override
+		public void run() {
+			while (true) {
+				doSample();
+				try {
+					Thread.sleep(Config.SAMPLE_INTERVAL);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return;
+				}
+			}
+		}
+
+		private void doSample() {
+			System.out.print("Performance sample information:");
+			System.out.println("Max Memory:" + Runtime.getRuntime().maxMemory()
+					+ "\n" + "available Memory:"
+					+ Runtime.getRuntime().freeMemory());
+			System.out.println("Cup usage:"
+					+ ManagementFactory.getOperatingSystemMXBean()
+							.getSystemLoadAverage());
+		}
+	}
+
 	private class ReportThread extends Thread {
 		ReportThread() {
 			setDaemon(true);
@@ -259,6 +291,7 @@ final class Performancer {
 		for (int i = 0; i < Config.THREAD_COUNT; i++) {
 			(new CallThread()).start();
 		}
+		(new SampleThread()).start();
 		(new ReportThread()).start();
 	}
 }
