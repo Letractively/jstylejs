@@ -5,13 +5,13 @@
 package org.creativor.rayson.transport.client;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,22 +23,67 @@ import org.creativor.rayson.util.Log;
  * @author Nick Zhang
  */
 class Listener extends Thread {
+
 	private static Logger LOGGER = Log.getLogger();
 
 	private ConnectionManager connectionManager;
-	private volatile boolean registering = false;
-	private Lock selectorLock;
 	private Selector selector;
-	private Condition registerCondition;
+
+	/**
+	 * A task to accept new connection in this listener.
+	 * 
+	 */
+	private class AcceptTask {
+		private SocketChannel socketChannel;
+		private SelectionKey key;
+		private AtomicBoolean done;
+
+		private ClosedChannelException exception;
+
+		public AcceptTask(SocketChannel socketChannel) {
+			this.socketChannel = socketChannel;
+			done = new AtomicBoolean(false);
+		}
+
+		public void waitForDone() throws InterruptedException {
+			synchronized (done) {
+				while (!done.get()) {
+					done.wait();
+				}
+			}
+		}
+
+		public void execute() throws ClosedChannelException {
+			try {
+				key = socketChannel.register(selector, SelectionKey.OP_READ);
+			} catch (ClosedChannelException e) {
+				exception = e;
+				throw e;
+			} finally {
+				synchronized (done) {
+					done.set(true);
+					done.notifyAll();
+				}
+			}
+		}
+
+		public SelectionKey getResult() throws ClosedChannelException {
+			if (exception != null)
+				throw exception;
+			return key;
+		}
+
+	}
 
 	private boolean running = true;
+
+	private ConcurrentLinkedQueue<AcceptTask> tasks;
 
 	Listener(ConnectionManager connectionManager) throws IOException {
 		setName("Client listener");
 		this.connectionManager = connectionManager;
 		this.selector = Selector.open();
-		selectorLock = new ReentrantLock();
-		registerCondition = selectorLock.newCondition();
+		this.tasks = new ConcurrentLinkedQueue<AcceptTask>();
 	}
 
 	private void doRead(SelectionKey key) {
@@ -64,26 +109,36 @@ class Listener extends Thread {
 	 * Accept a new connection.
 	 * 
 	 * @param socketChannel
-	 * @param ops
 	 * @param clientConnection
 	 * @return selection key register into the selector of this lisenter.
 	 * @throws IOException
+	 * @throws InterruptedException
 	 */
 	SelectionKey accept(SocketChannel socketChannel,
-			TimeLimitConnection clientConnection) throws IOException {
+			TimeLimitConnection clientConnection) throws IOException,
+			InterruptedException {
 		SelectionKey key;
-		selectorLock.lock();
-		try {
-			registering = true;
-			selector.wakeup();
-			key = socketChannel.register(selector, SelectionKey.OP_READ,
-					clientConnection);
-			registering = false;
-			registerCondition.signalAll();
-			return key;
-		} finally {
-			selectorLock.unlock();
-		}
+		AcceptTask task = submitTask(socketChannel, clientConnection);
+		selector.wakeup();
+		// wait until task is done.
+		task.waitForDone();
+		key = task.getResult();
+		key.attach(clientConnection);
+		return key;
+	}
+
+	/**
+	 * Submit new accept task.
+	 * 
+	 * @param socketChannel
+	 * @param clientConnection
+	 * @return
+	 */
+	private AcceptTask submitTask(SocketChannel socketChannel,
+			TimeLimitConnection clientConnection) {
+		AcceptTask task = new AcceptTask(socketChannel);
+		this.tasks.add(task);
+		return task;
 	}
 
 	@Override
@@ -96,13 +151,9 @@ class Listener extends Thread {
 		while (running) {
 
 			try {
-				selectorLock.lock();
-				try {
-					while (registering)
-						registerCondition.await();
-				} finally {
-					selectorLock.unlock();
-				}
+
+				// Do accept new connections first.
+				doAccept();
 
 				selector.select();
 
@@ -128,6 +179,21 @@ class Listener extends Thread {
 		}
 		LOGGER.info(getName() + " stopped");
 
+	}
+
+	/**
+	 * Execute all accept connection tasks.
+	 * 
+	 * @throws ClosedChannelException
+	 */
+	private void doAccept() throws ClosedChannelException {
+		if (tasks.isEmpty())
+			return;
+		for (Iterator iterator = tasks.iterator(); iterator.hasNext();) {
+			AcceptTask task = (AcceptTask) iterator.next();
+			iterator.remove();
+			task.execute();
+		}
 	}
 
 	private void doWrite(SelectionKey key) {

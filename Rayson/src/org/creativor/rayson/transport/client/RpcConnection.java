@@ -11,6 +11,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -184,7 +185,7 @@ class RpcConnection extends PacketConnection {
 		thresholdLock.lock();
 		try {
 			while (isTooManyPendingPackets()) {
-				tooManyPendingPackets.await();
+				tooManyPendingPackets.await(100, TimeUnit.MILLISECONDS);
 			}
 			this.packetWriter.addSendPacket(new PacketWithType(
 					RequestType.NORMAL.getType(), packet));
@@ -243,7 +244,11 @@ class RpcConnection extends PacketConnection {
 		if (state != ConnectionState.OK)
 			throw new ConnectException(state.name());
 		socketChannel.configureBlocking(false);
-		this.selectionKey = listener.accept(this.socketChannel, this);
+		try {
+			this.selectionKey = listener.accept(this.socketChannel, this);
+		} catch (InterruptedException e) {
+			throw new IOException(e);
+		}
 		packetReader = new ClientPacketReader(this.socketChannel);
 		LOGGER.info(this.toString() + " builded");
 	}
@@ -318,6 +323,12 @@ class RpcConnection extends PacketConnection {
 			return;
 		} else
 			this.packetWriter.write();
+
+		// The following line is used to improve the performance ,but make the
+		// threshold is not thread safe. In fact, we
+		// do not need an extremely threshold.
+		if (pendingPacketCount() + 3 < ConnectionProtocol.MAX_PENDING_PACKETS)
+			return;
 
 		// add threshold control here.
 		thresholdLock.lock();
