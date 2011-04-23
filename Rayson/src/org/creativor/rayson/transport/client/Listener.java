@@ -9,7 +9,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -26,9 +26,10 @@ class Listener extends Thread {
 	private static Logger LOGGER = Log.getLogger();
 
 	private ConnectionManager connectionManager;
-	private AtomicBoolean registering;
-	private Lock registerLock;
+	private volatile boolean registering = false;
+	private Lock selectorLock;
 	private Selector selector;
+	private Condition registerCondition;
 
 	private boolean running = true;
 
@@ -36,8 +37,8 @@ class Listener extends Thread {
 		setName("Client listener");
 		this.connectionManager = connectionManager;
 		this.selector = Selector.open();
-		registering = new AtomicBoolean(false);
-		registerLock = new ReentrantLock();
+		selectorLock = new ReentrantLock();
+		registerCondition = selectorLock.newCondition();
 	}
 
 	private void read(SelectionKey key) {
@@ -59,18 +60,28 @@ class Listener extends Thread {
 
 	}
 
+	/**
+	 * Register a new selection key when initialize a client connection.
+	 * 
+	 * @param socketChannel
+	 * @param ops
+	 * @param clientConnection
+	 * @return
+	 * @throws IOException
+	 */
 	SelectionKey register(SocketChannel socketChannel, int ops,
 			TimeLimitConnection clientConnection) throws IOException {
 		SelectionKey key;
-		registerLock.lock();
+		selectorLock.lock();
 		try {
-			registering.set(true);
+			registering = true;
 			selector.wakeup();
 			key = socketChannel.register(selector, ops, clientConnection);
-			registering.set(false);
+			registering = false;
+			registerCondition.signalAll();
 			return key;
 		} finally {
-			registerLock.unlock();
+			selectorLock.unlock();
 		}
 	}
 
@@ -84,10 +95,16 @@ class Listener extends Thread {
 		while (running) {
 
 			try {
-				while (registering.get()) {
-					// wait another thread to quit registering progress.
+				selectorLock.lock();
+				try {
+					while (registering)
+						registerCondition.await();
+				} finally {
+					selectorLock.unlock();
 				}
+
 				selector.select();
+
 				for (iterator = selector.selectedKeys().iterator(); iterator
 						.hasNext();) {
 
