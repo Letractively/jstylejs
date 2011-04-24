@@ -12,14 +12,14 @@ import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.junit.Test;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 public class RpcServerTest {
 
-	public static void startTestServer() {
+	public static void startTestServer(int portNumber) {
 		try {
-			RpcServer rpcServer = new RpcServer();
+			RpcServer rpcServer = new RpcServer(portNumber);
 			rpcServer.start();
 
 			rpcServer.registerService("demo", "Demo service",
