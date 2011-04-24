@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.creativor.rayson.transport.api.TimeLimitConnection;
 import org.creativor.rayson.util.Log;
 
@@ -45,14 +44,6 @@ class Listener extends Thread {
 			done = new AtomicBoolean(false);
 		}
 
-		public void waitForDone() throws InterruptedException {
-			synchronized (done) {
-				while (!done.get()) {
-					done.wait();
-				}
-			}
-		}
-
 		public void execute() throws ClosedChannelException {
 			try {
 				key = socketChannel.register(selector, SelectionKey.OP_READ);
@@ -67,7 +58,21 @@ class Listener extends Thread {
 			}
 		}
 
-		public SelectionKey getResult() throws ClosedChannelException {
+		/**
+		 * Blocked until this task is executed, and result is return.
+		 * 
+		 * @return
+		 * @throws ClosedChannelException
+		 * @throws InterruptedException
+		 */
+		public SelectionKey getResult() throws ClosedChannelException,
+				InterruptedException {
+			// wait until this task is done.
+			synchronized (done) {
+				while (!done.get()) {
+					done.wait();
+				}
+			}
 			if (exception != null)
 				throw exception;
 			return key;
@@ -120,8 +125,6 @@ class Listener extends Thread {
 		SelectionKey key;
 		AcceptTask task = submitTask(socketChannel, clientConnection);
 		selector.wakeup();
-		// wait until task is done.
-		task.waitForDone();
 		key = task.getResult();
 		key.attach(clientConnection);
 		return key;
