@@ -11,7 +11,9 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.creativor.rayson.transport.api.TimeLimitConnection;
@@ -23,25 +25,23 @@ import org.creativor.rayson.util.Log;
  */
 class Listener extends Thread {
 
-	private static Logger LOGGER = Log.getLogger();
-
-	private ConnectionManager connectionManager;
-	private Selector selector;
-
 	/**
 	 * A task to accept new connection in this listener.
 	 * 
 	 */
 	private class AcceptTask {
-		private SocketChannel socketChannel;
-		private SelectionKey key;
-		private AtomicBoolean done;
-
+		private boolean done = false;
+		private Condition doneCondition;
 		private ClosedChannelException exception;
+		private SelectionKey key;
+		private Lock lock;
+
+		private SocketChannel socketChannel;
 
 		public AcceptTask(SocketChannel socketChannel) {
 			this.socketChannel = socketChannel;
-			done = new AtomicBoolean(false);
+			this.lock = new ReentrantLock();
+			doneCondition = lock.newCondition();
 		}
 
 		public void execute() throws ClosedChannelException {
@@ -51,9 +51,12 @@ class Listener extends Thread {
 				exception = e;
 				throw e;
 			} finally {
-				synchronized (done) {
-					done.set(true);
-					done.notifyAll();
+				lock.lock();
+				try {
+					done = true;
+					doneCondition.signalAll();
+				} finally {
+					lock.unlock();
 				}
 			}
 		}
@@ -68,10 +71,13 @@ class Listener extends Thread {
 		public SelectionKey getResult() throws ClosedChannelException,
 				InterruptedException {
 			// wait until this task is done.
-			synchronized (done) {
-				while (!done.get()) {
-					done.wait();
+			lock.lock();
+			try {
+				while (!done) {
+					doneCondition.await();
 				}
+			} finally {
+				lock.unlock();
 			}
 			if (exception != null)
 				throw exception;
@@ -80,7 +86,12 @@ class Listener extends Thread {
 
 	}
 
+	private static Logger LOGGER = Log.getLogger();
+	private ConnectionManager connectionManager;
+
 	private boolean running = true;
+
+	private Selector selector;
 
 	private ConcurrentLinkedQueue<AcceptTask> tasks;
 
@@ -89,25 +100,6 @@ class Listener extends Thread {
 		this.connectionManager = connectionManager;
 		this.selector = Selector.open();
 		this.tasks = new ConcurrentLinkedQueue<AcceptTask>();
-	}
-
-	private void doRead(SelectionKey key) {
-		RpcConnection connection = (RpcConnection) key.attachment();
-		int readCount = -1;
-		try {
-			readCount = connection.read();
-		} catch (IOException e) {
-		}
-		if (readCount == -1) {
-			try {
-				connection.close();
-			} catch (IOException e) {
-
-			}
-			connectionManager.remove(connection);
-			LOGGER.info(connection.toString() + " removed!");
-		}
-
 	}
 
 	/**
@@ -131,17 +123,55 @@ class Listener extends Thread {
 	}
 
 	/**
-	 * Submit new accept task.
+	 * Execute all accept connection tasks.
 	 * 
-	 * @param socketChannel
-	 * @param clientConnection
-	 * @return
+	 * @throws ClosedChannelException
 	 */
-	private AcceptTask submitTask(SocketChannel socketChannel,
-			TimeLimitConnection clientConnection) {
-		AcceptTask task = new AcceptTask(socketChannel);
-		this.tasks.add(task);
-		return task;
+	private void doAccept() throws ClosedChannelException {
+		if (tasks.isEmpty())
+			return;
+		for (Iterator iterator = tasks.iterator(); iterator.hasNext();) {
+			AcceptTask task = (AcceptTask) iterator.next();
+			iterator.remove();
+			task.execute();
+		}
+	}
+
+	private void doRead(SelectionKey key) {
+		RpcConnection connection = (RpcConnection) key.attachment();
+		int readCount = -1;
+		try {
+			readCount = connection.read();
+		} catch (IOException e) {
+		}
+		if (readCount == -1) {
+			try {
+				connection.close();
+			} catch (IOException e) {
+
+			}
+			connectionManager.remove(connection);
+			LOGGER.info(connection.toString() + " removed!");
+		}
+
+	}
+
+	private void doWrite(SelectionKey key) {
+		RpcConnection connection = (RpcConnection) key.attachment();
+		try {
+			connection.write();
+		} catch (IOException e) {
+			try {
+				connection.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			connectionManager.remove(connection);
+			LOGGER.info(connection.toString() + " removed!");
+
+		}
 	}
 
 	@Override
@@ -185,35 +215,16 @@ class Listener extends Thread {
 	}
 
 	/**
-	 * Execute all accept connection tasks.
+	 * Submit new accept task.
 	 * 
-	 * @throws ClosedChannelException
+	 * @param socketChannel
+	 * @param clientConnection
+	 * @return
 	 */
-	private void doAccept() throws ClosedChannelException {
-		if (tasks.isEmpty())
-			return;
-		for (Iterator iterator = tasks.iterator(); iterator.hasNext();) {
-			AcceptTask task = (AcceptTask) iterator.next();
-			iterator.remove();
-			task.execute();
-		}
-	}
-
-	private void doWrite(SelectionKey key) {
-		RpcConnection connection = (RpcConnection) key.attachment();
-		try {
-			connection.write();
-		} catch (IOException e) {
-			try {
-				connection.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
-			connectionManager.remove(connection);
-			LOGGER.info(connection.toString() + " removed!");
-
-		}
+	private AcceptTask submitTask(SocketChannel socketChannel,
+			TimeLimitConnection clientConnection) {
+		AcceptTask task = new AcceptTask(socketChannel);
+		this.tasks.add(task);
+		return task;
 	}
 }
