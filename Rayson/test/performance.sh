@@ -6,5 +6,5 @@ CLASS_PATH=$PATENT_PATH/bin/
 for f in $PATENT_PATH/lib/*.jar;do
 CLASS_PATH=$CLASS_PATH:$f;
 done
-java -cp $CLASS_PATH  org.creativor.rayson.demo.Performancer $*
+java -cp $CLASS_PATH  org.creativor.rayson.demo.main.Performancer $*
 cd $CURRENT_DIR
