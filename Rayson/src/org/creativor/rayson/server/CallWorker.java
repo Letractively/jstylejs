@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import org.creativor.rayson.util.Log;
 
 /**
- *
+ * 
  * @author Nick Zhang
  */
 class CallWorker extends Thread {
@@ -39,8 +39,7 @@ class CallWorker extends Thread {
 				ServerCall call = this.server.getRpcConnector().takeCall();
 				this.server.invokeCall(call);
 				try {
-					this.server.getRpcConnector().responseCall(call.getId(),
-							call.getResponsePacket());
+					this.server.getRpcConnector().responseCall(call);
 				} catch (Throwable e) {
 					LOGGER.log(Level.SEVERE, "Response call " + call.getId()
 							+ " error!");
