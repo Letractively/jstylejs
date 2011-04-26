@@ -1,35 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-	<property name="project.name" location="Rayson" />
-	<property name="project.version" location="0.9-beta" />
+	<property name="project.name" value="Rayson" />
+	<property name="project.version" value="0.9.0-beta" />
 	<property name="docDir" location="doc" />
 	<property name="srcDir" location="src" />
 	<property name="libDir" location="lib" />
 	<property name="distDir" location="dist" />
+	<property name="buildDir" location="build" />
+
 	<path id="classpath">
 		<fileset dir="${libDir}">
 			<include name="**/*.jar" />
 		</fileset>
 	</path>
+
+	<!-- ================================= 
+          target: clean the build directory            
+         ================================= -->
+	<target name="clean" description="clean the build directory">
+		<delete dir="${buildDir}">
+		</delete>
+	</target>
+
+	<!-- ================================= 
+          target: Compile java source code              
+         ================================= -->
+	<target name="compile" description="Compile java source code">
+		<mkdir dir="${buildDir}" />
+		<javac srcdir="${srcDir}" destdir="${buildDir}" />
+	</target>
+
 	<!-- ================================= 
           target: Generate java doc jar              
          ================================= -->
 	<target name="javadoc" description="Generate java doc jar">
-		<javadoc packagenames="*" destdir="${distDir}" sourcepath="${srcDir}" author="true" version="true" use="true" splitindex="true" windowtitle="自然语言查询演示系统API文档">
+		<delete dir="${docDir}/api">
+		</delete>
+		<mkdir dir="${docDir}/api" />
+		<javadoc locale="no" linksource="no" packagenames="*" destdir="${docDir}/api" sourcepath="${srcDir}" author="true" version="true" use="true" access="public" splitindex="true" windowtitle="Rayson api">
 			<classpath refid="classpath" />
 			<doctitle>
-				<![CDATA[ <h1>${project.name}(version${project.version})</h1> ]]>
+				<![CDATA[ <h1>${project.name} ${project.version} API document</h1> ]]>
 		                     </doctitle>
 		<bottom>
 			<![CDATA[ <div algin="center">Copyright &#169; 2011 Creativor Studio, All Rights Reserved.</div>]]>
 		                     </bottom>
 </javadoc>
+<mkdir dir="${buildDir}" />
+<zip destfile="${distDir}/${project.name}_${project.version}_api.zip" basedir="${docDir}/api">
+</zip>
 </target>
-	<!-- ================================= 
+<!-- ================================= 
           target: Build rayson executable jar
          ================================= -->
-<target name="build" description="Build rayson executable jar">
-
+<target name="build" depends="clean,compile" description="Build rayson executable jar">
+<jar destfile="${distDir}/${project.name}_${project.version}.jar" basedir="${buildDir}">
+</jar>
 </target>
-
 </project>
