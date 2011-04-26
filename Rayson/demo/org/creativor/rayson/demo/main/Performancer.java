@@ -7,6 +7,9 @@ package org.creativor.rayson.demo.main;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 import org.creativor.rayson.client.Rayson;
 import org.creativor.rayson.demo.api.DemoProxy;
 import org.creativor.rayson.exception.IllegalServiceException;
@@ -17,22 +20,28 @@ import org.creativor.rayson.transport.server.ServerConfig;
  */
 final class Performancer {
 
-	private class CallThread extends Thread {
-		CallThread() {
-			setDaemon(true);
+	private class RpcInvoker {
+
+		private DemoProxy[] proxys;
+
+		RpcInvoker(Integer[] ports) throws IllegalServiceException {
+			proxys = new DemoProxy[ports.length];
+			for (int i = 0; i < ports.length; i++) {
+				proxys[i] = Rayson.createProxy("demo", DemoProxy.class,
+						new InetSocketAddress(ports[i]));
+			}
 		}
 
-		@Override
-		public void run() {
+		public void invoke() {
 			long startTime = 0;
 			long endTime = 0;
 			boolean failed;
+			failed = false;
 			String returnString = null;
-			for (int i = 0; i < Config.CALL_COUNT_PER_THREAD; i++) {
-				failed = false;
+			for (DemoProxy proxy : proxys) {
 				startTime = System.currentTimeMillis();
 				try {
-					returnString = testProxy.echo(ECHO_MSG);
+					returnString = proxy.echo(ECHO_MSG);
 				} catch (Exception e) {
 					System.err.println("Run one rpc call failed: "
 							+ e.getMessage());
@@ -42,11 +51,25 @@ final class Performancer {
 					failed = true;
 				if (failed) {
 					counter.failOne();
-					continue;
+					return;
 				}
 				endTime = System.currentTimeMillis();
 				counter.oneCallTakeTime(endTime - startTime);
 				counter.succOne();
+			}
+		}
+	}
+
+	private class CallThread extends Thread {
+		CallThread() {
+			setDaemon(true);
+		}
+
+		@Override
+		public void run() {
+
+			for (int i = 0; i < Config.CALL_COUNT_PER_THREAD; i++) {
+				rpcInvoker.invoke();
 			}
 			counter.quitOneThread();
 		}
@@ -55,9 +78,9 @@ final class Performancer {
 	private static class Config {
 
 		public static final long SAMPLE_INTERVAL = 1000;
-		private static int CALL_COUNT_PER_THREAD = 1;
-		private static int PORT_NUMBER = ServerConfig.DEFAULT_PORT_NUMBER;
-		private static int THREAD_COUNT = 1;
+		private static int CALL_COUNT_PER_THREAD = 100;
+		private static Integer[] PORT_NUMBER_ARRAY = new Integer[] { ServerConfig.DEFAULT_PORT_NUMBER };
+		private static int THREAD_COUNT = 10;
 
 		public static String print() {
 			StringBuffer sb = new StringBuffer();
@@ -68,8 +91,8 @@ final class Performancer {
 			sb.append("call count per thread: ");
 			sb.append(Config.CALL_COUNT_PER_THREAD);
 			sb.append(", ");
-			sb.append("server port number: ");
-			sb.append(Config.PORT_NUMBER);
+			sb.append("server port numbers: ");
+			sb.append(Arrays.toString(Config.PORT_NUMBER_ARRAY));
 			sb.append("}");
 			return sb.toString();
 		}
@@ -117,8 +140,8 @@ final class Performancer {
 		}
 
 		/**
-		 * 
-		 */
+             * 
+             */
 		public synchronized void quitOneThread() {
 			quitThreadCount++;
 			if (isAllThreadQuit())
@@ -227,7 +250,15 @@ final class Performancer {
 		parseConfig(args);
 		System.out.println("Ready to run test.\n The cofiguration is:"
 				+ Config.print());
+		performance.init();
 		performance.run();
+	}
+
+	/**
+	 * @throws IllegalServiceException
+	 */
+	public void init() throws IllegalServiceException {
+		this.rpcInvoker = new RpcInvoker(Config.PORT_NUMBER_ARRAY);
 	}
 
 	/**
@@ -250,10 +281,23 @@ final class Performancer {
 						.substring(argumentIndex
 								+ THREAD_CALL_COUNT_ARGUMENT.length()));
 			if ((argumentIndex = arg.indexOf(PORT_NUMBER_ARGUMENT)) >= 0)
-				Config.PORT_NUMBER = Integer.parseInt(arg
+				Config.PORT_NUMBER_ARRAY = parsePortNumbers(arg
 						.substring(argumentIndex
 								+ PORT_NUMBER_ARGUMENT.length()));
 		}
+	}
+
+	/**
+	 * @param substring
+	 * @return
+	 */
+	private static Integer[] parsePortNumbers(String substring) {
+		StringTokenizer tokenizer = new StringTokenizer(substring, ",");
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		while (tokenizer.hasMoreElements()) {
+			list.add(Integer.parseInt((String) tokenizer.nextElement()));
+		}
+		return list.toArray(new Integer[] {});
 	}
 
 	private static void printHelp() {
@@ -278,7 +322,7 @@ final class Performancer {
 
 	private Counter counter;
 
-	private DemoProxy testProxy;
+	private RpcInvoker rpcInvoker;
 
 	Performancer() {
 		counter = new Counter();
@@ -286,8 +330,6 @@ final class Performancer {
 	}
 
 	public void run() throws IllegalServiceException {
-		testProxy = Rayson.createProxy("demo", DemoProxy.class,
-				new InetSocketAddress(Config.PORT_NUMBER));
 		for (int i = 0; i < Config.THREAD_COUNT; i++) {
 			(new CallThread()).start();
 		}

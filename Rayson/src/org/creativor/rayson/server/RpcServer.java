@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import org.creativor.rayson.api.RpcService;
 import org.creativor.rayson.api.ServiceRegistration;
 import org.creativor.rayson.api.Session;
@@ -20,7 +19,6 @@ import org.creativor.rayson.exception.RpcCallException;
 import org.creativor.rayson.exception.ServiceNotFoundException;
 import org.creativor.rayson.exception.UnsupportedVersionException;
 import org.creativor.rayson.impl.ServiceDescriptionImpl;
-import org.creativor.rayson.server.impl.RpcSessionImpl;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
 import org.creativor.rayson.transport.server.TransportServer;
 

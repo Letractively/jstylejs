@@ -5,12 +5,12 @@
 package org.creativor.rayson.demo.main;
 
 import java.io.IOException;
-
 import org.creativor.rayson.demo.server.DemoServiceImpl;
 import org.creativor.rayson.demo.server.DemoTransferService;
 import org.creativor.rayson.exception.IllegalServiceException;
 import org.creativor.rayson.server.RpcServer;
 import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
+import org.creativor.rayson.transport.server.ServerConfig;
 
 /**
  * 
@@ -18,8 +18,15 @@ import org.creativor.rayson.transport.api.ServiceAlreadyExistedException;
  */
 public class DemoServer {
 	public static void main(String[] args) {
+		int portNumber = ServerConfig.DEFAULT_PORT_NUMBER;
+
 		try {
-			RpcServer rpcServer = new RpcServer();
+			portNumber = Integer.parseInt(args[0]);
+		} catch (Exception e) {
+			// Ignore.
+		}
+		try {
+			RpcServer rpcServer = new RpcServer(portNumber);
 			rpcServer.start();
 
 			rpcServer.registerService("demo", "Demo service",
