@@ -14,7 +14,21 @@ import org.creativor.rayson.exception.UnportableTypeException;
 import org.creativor.rayson.util.Reflection;
 
 /**
- *
+ * An portable object can be transfered from client to server through Rayson
+ * protocols. <br/>
+ * All supported objects are list in the following table.
+ * <table border=1>
+ * <tr
+ * <td>name</td>
+ * <td>type</td>
+ * <td>java class</td></tr>
+ * <tr>
+ * <td>BYTE</td>
+ * <td>1</td>
+ * <td>byte</td>
+ * </tr>
+ * </table>
+ * 
  * @author Nick Zhang
  */
 abstract class PortableObject<T> {

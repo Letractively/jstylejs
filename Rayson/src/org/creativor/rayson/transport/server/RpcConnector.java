@@ -6,6 +6,9 @@ package org.creativor.rayson.transport.server;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.creativor.rayson.server.ServerCall;
 
 /**
@@ -19,15 +22,22 @@ public class RpcConnector {
 	 */
 	private HashMap<Long, RpcConnection> callConenctions;
 	private TransportServer server;
+	private Lock lock;
 
 	RpcConnector(TransportServer server) {
 		this.server = server;
 		callConenctions = new HashMap<Long, RpcConnection>();
+		lock = new ReentrantLock();
 	}
 
 	public void responseCall(ServerCall call) throws IOException {
-		RpcConnection serverConnection = this.callConenctions.remove(call
-				.getId());
+		RpcConnection serverConnection;
+		lock.lock();
+		try {
+			serverConnection = this.callConenctions.remove(call.getId());
+		} finally {
+			lock.unlock();
+		}
 		serverConnection.addSendPacket(call.getResponsePacket());
 	}
 
@@ -37,8 +47,13 @@ public class RpcConnector {
 		ServerCall serverCall = null;
 		serverCall = ServerCall.fromPacket(connectionPacket.getConnection()
 				.getRemoteAddr(), connectionPacket.getPacket());
-		callConenctions.put(serverCall.getId(),
-				connectionPacket.getConnection());
+		lock.lock();
+		try {
+			callConenctions.put(serverCall.getId(),
+					connectionPacket.getConnection());
+		} finally {
+			lock.unlock();
+		}
 		return serverCall;
 	}
 }
