@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<property name="project.name" location="Rayson" />
+	<property name="project.version" location="0.9-beta" />
+	<property name="docDir" location="doc" />
+	<property name="srcDir" location="src" />
+	<property name="libDir" location="lib" />
+	<property name="distDir" location="dist" />
+	<path id="classpath">
+		<fileset dir="${libDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	<!-- ================================= 
+          target: Generate java doc jar              
+         ================================= -->
+	<target name="javadoc" description="Generate java doc jar">
+		<javadoc packagenames="*" destdir="${distDir}" sourcepath="${srcDir}" author="true" version="true" use="true" splitindex="true" windowtitle="自然语言查询演示系统API文档">
+			<classpath refid="classpath" />
+			<doctitle>
+				<![CDATA[ <h1>${project.name}(version${project.version})</h1> ]]>
+		                     </doctitle>
+		<bottom>
+			<![CDATA[ <div algin="center">Copyright &#169; 2011 Creativor Studio, All Rights Reserved.</div>]]>
+		                     </bottom>
+</javadoc>
+</target>
+	<!-- ================================= 
+          target: Build rayson executable jar
+         ================================= -->
+<target name="build" description="Build rayson executable jar">
+
+</target>
+
+</project>
