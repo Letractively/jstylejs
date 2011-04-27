@@ -6,7 +6,9 @@
 	<property name="srcDir" location="src" />
 	<property name="libDir" location="lib" />
 	<property name="distDir" location="dist" />
+	<property name="demoDir" location="demo" />
 	<property name="buildDir" location="build" />
+	<property name="licenseFile" value="LICENSE.txt" />
 
 	<path id="classpath">
 		<fileset dir="${libDir}">
@@ -51,6 +53,7 @@
 <zip destfile="${distDir}/${project.name}_${project.version}_api.zip" basedir="${docDir}/api">
 </zip>
 </target>
+
 <!-- ================================= 
           target: Build rayson executable jar
          ================================= -->
@@ -58,4 +61,24 @@
 <jar destfile="${distDir}/${project.name}_${project.version}.jar" basedir="${buildDir}">
 </jar>
 </target>
+<!-- ================================= 
+          target: Distribute Rayson current version         
+         ================================= -->
+<target name="dist" depends="javadoc,build" description="Distribute Rayson current version">
+<!--1. zip demo source files-->
+<zip destfile="${distDir}/${project.name}_demo.zip" basedir="${demoDir}">
+</zip>
+<!--2. zip all zip files to one file-->
+<zip destfile="${distDir}/${project.name}_${project.version}.zip">
+	<zipfileset dir="${distDir}" includes="${project.name}_demo.zip">
+	</zipfileset>
+	<zipfileset dir="${distDir}" includes="${project.name}_${project.version}_api.zip">
+	</zipfileset>
+	<zipfileset dir="${distDir}" includes="${project.name}_${project.version}.jar">
+	</zipfileset>
+	<fileset dir="." includes="${licenseFile}">
+	</fileset>
+</zip>
+</target>
+
 </project>
