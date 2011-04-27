@@ -47,6 +47,7 @@
 		                     </bottom>
 </javadoc>
 <mkdir dir="${buildDir}" />
+<mkdir dir="${distDir}" />
 <zip destfile="${distDir}/${project.name}_${project.version}_api.zip" basedir="${docDir}/api">
 </zip>
 </target>
