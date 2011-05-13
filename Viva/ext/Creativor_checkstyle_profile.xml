@@ -37,7 +37,6 @@ Slightly modified version of Sun Checks that better matches the default code for
     <module name="AvoidStarImport"/>
     <module name="IllegalImport"/>
     <module name="RedundantImport"/>
-    <module name="UnusedImports"/>
     <module name="LineLength">
       <property name="max" value="100"/>
       <property name="tabWidth" value="4"/>
@@ -56,8 +55,12 @@ Slightly modified version of Sun Checks that better matches the default code for
     <module name="WhitespaceAfter"/>
     <module name="WhitespaceAround"/>
     <module name="ModifierOrder"/>
-    <module name="AvoidNestedBlocks"/>
-    <module name="EmptyBlock"/>
+    <module name="AvoidNestedBlocks">
+      <property name="allowInSwitchCase" value="true"/>
+    </module>
+    <module name="EmptyBlock">
+      <property name="tokens" value="LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_IF,LITERAL_FOR,LITERAL_TRY,LITERAL_WHILE,STATIC_INIT"/>
+    </module>
     <module name="LeftCurly"/>
     <module name="NeedBraces">
       <property name="tokens" value="LITERAL_DO,LITERAL_FOR,LITERAL_WHILE"/>
@@ -83,7 +86,6 @@ Slightly modified version of Sun Checks that better matches the default code for
     <module name="InterfaceIsType"/>
     <module name="VisibilityModifier"/>
     <module name="ArrayTypeStyle"/>
-    <module name="FinalParameters"/>
     <module name="TodoComment"/>
     <module name="UpperEll"/>
     <module name="NestedForDepth">
