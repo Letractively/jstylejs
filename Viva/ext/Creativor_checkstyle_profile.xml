@@ -15,12 +15,17 @@ Slightly modified version of Sun Checks that better matches the default code for
     <property name="tabWidth" value="4"/>
     <module name="FileContentsHolder"/>
     <module name="JavadocMethod">
+      <property name="scope" value="package"/>
       <property name="suppressLoadErrors" value="true"/>
     </module>
-    <module name="JavadocType"/>
-    <module name="JavadocVariable"/>
+    <module name="JavadocType">
+      <property name="scope" value="package"/>
+    </module>
+    <module name="JavadocVariable">
+      <property name="scope" value="package"/>
+    </module>
     <module name="JavadocStyle">
-      <property name="scope" value="protected"/>
+      <property name="scope" value="package"/>
       <property name="checkEmptyJavadoc" value="true"/>
     </module>
     <module name="ConstantName"/>
@@ -80,7 +85,10 @@ Slightly modified version of Sun Checks that better matches the default code for
     <module name="MissingSwitchDefault"/>
     <module name="SimplifyBooleanExpression"/>
     <module name="SimplifyBooleanReturn"/>
-    <module name="DesignForExtension"/>
+    <module name="DesignForExtension">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
     <module name="FinalClass"/>
     <module name="HideUtilityClassConstructor"/>
     <module name="InterfaceIsType"/>
