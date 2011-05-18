@@ -6,8 +6,7 @@
 -->
 <!--
     Checkstyle-Configuration: Creativor
-    Description: 
-Slightly modified version of Sun Checks that better matches the default code formatter setting of Eclipse.
+    Description: none
 -->
 <module name="Checker">
   <property name="severity" value="warning"/>
@@ -16,6 +15,7 @@ Slightly modified version of Sun Checks that better matches the default code for
     <module name="FileContentsHolder"/>
     <module name="JavadocMethod">
       <property name="scope" value="package"/>
+      <property name="allowMissingReturnTag" value="true"/>
       <property name="suppressLoadErrors" value="true"/>
     </module>
     <module name="JavadocType">
@@ -111,7 +111,9 @@ Slightly modified version of Sun Checks that better matches the default code for
     <module name="StringLiteralEquality"/>
   </module>
   <module name="JavadocPackage"/>
-  <module name="NewlineAtEndOfFile"/>
+  <module name="NewlineAtEndOfFile">
+    <property name="lineSeparator" value="lf"/>
+  </module>
   <module name="Translation"/>
   <module name="FileLength"/>
   <module name="FileTabCharacter">
