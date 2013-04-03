@@ -8,6 +8,10 @@
  * TODO: comments later.
  */
 var __JOO_CLASS__ = function() {
+	/*
+	 * Do log informations.
+	 */
+	var LOGGER = {};
 	var __hashCode__ = 0;
 	/**
 	 * Basic Object of JOO.
@@ -26,7 +30,7 @@ var __JOO_CLASS__ = function() {
 	};
 	// Extends nothing.
 	JOBJECT.Extends = function() {
-
+		print("OBJECT constructor");
 	};
 	/**
 	 * Basic Class of JOO.
@@ -46,8 +50,10 @@ var __JOO_CLASS__ = function() {
 	JCLASS.Constructor = function() {
 		var argCount = arguments.length;
 		var matchConstructor = this.constructors[0];
+		var constructor;
 		for (v in this.constructors) {
-			if (this.constructors[v] == argCount) {
+			constructor = this.constructors[v];
+			if (constructor.length == argCount) {
 				matchConstructor = constructor;
 				break;
 			}
@@ -93,8 +99,13 @@ var JOO = new __JOO_CLASS__();
 
 var ParentClass = JOO.Class({
 	constructors : [ function(a, b) {
+		print("constructor(a£¬b)");
+		this.supper();
 		this.a = a;
 		this.b = b;
+	}, function(a) {
+		print("constructor(a)");
+		this.a = a;
 	} ],
 	body : function() {
 		function privateEcho() {
@@ -110,7 +121,11 @@ var ParentClass = JOO.Class({
 	}
 });
 
-var parentObj = new ParentClass("aaaa", "bddd");
+/**
+ * The following codes is just for testing.
+ */
+
+var parentObj = new ParentClass("aaaa", "v");
 parentObj.echo();
 print(parentObj.toString());
 print("public field a: " + parentObj.a);
