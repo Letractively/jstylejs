@@ -12,7 +12,7 @@ var __JOO_CLASS__ = function() {
 	/**
 	 * Basic Object of JOO.
 	 */
-	var JOBJECT = function() {
+	var JOBJECT = function(Class) {
 		var hashCode = __hashCode__++;
 		this.toString = function() {
 			return "@" + hashCode;
@@ -21,8 +21,8 @@ var __JOO_CLASS__ = function() {
 			return hashCode;
 		};
 		this.getClass = function() {
-			return this.Class;
-		}
+			return Class;
+		};
 	};
 	// Extends nothing.
 	JOBJECT.Extends = function() {
@@ -43,25 +43,24 @@ var __JOO_CLASS__ = function() {
 	 * @param parameters
 	 *            all the constructor fields.
 	 */
-	JCLASS.Constructor = function(parameters) {
-		var paramCount = parameters.length;
-		var matchConstructor = this.constructors[0]
-		for (constructor in this.constructors) {
-			if (constructor.length == paramCount) {
+	JCLASS.Constructor = function() {
+		var argCount = arguments.length;
+		var matchConstructor = this.constructors[0];
+		for (v in this.constructors) {
+			if (this.constructors[v] == argCount) {
 				matchConstructor = constructor;
 				break;
 			}
 		}
-		var result = {};
-		result.Class = this;
+		var result = new JOBJECT(this);
 		result.constructor = matchConstructor;
 		result.supper = this.Extends;
-		result.constructor.prototype = new JOBJECT();
 		var bodyObj = new this.body();
 		for (v in bodyObj) {
 			result[v] = bodyObj[v];
 		}
-		result.constructor.call(result, parameters);
+
+		result.constructor.apply(result, arguments);
 		return result;
 	};
 
@@ -74,7 +73,7 @@ var __JOO_CLASS__ = function() {
 	this.Class = function(script) {
 		// Create a new class definition.
 		function klass() {
-			return JCLASS.Constructor.call(klass, arguments);
+			return JCLASS.Constructor.apply(klass, arguments);
 		}
 		var body = script.body ? script.body : function() {
 		};
@@ -88,18 +87,14 @@ var __JOO_CLASS__ = function() {
 		klass.body = body;
 		return klass;
 	};
-	// Define JOBJECT class itself.
-	JOBJECT.Class = this.Class({
-
-	});
 };
 
 var JOO = new __JOO_CLASS__();
 
-var TestClass = JOO.Class({
+var ParentClass = JOO.Class({
 	constructors : [ function(a, b) {
 		this.a = a;
-		_b = b;
+		this.b = b;
 	} ],
 	body : function() {
 		function privateEcho() {
@@ -109,12 +104,15 @@ var TestClass = JOO.Class({
 			privateEcho();
 			this.b = "adddfeddd";
 		};
+		this.toString = function() {
+			return "{a: " + this.a + ", b:" + this.b + " }";
+		};
 	}
 });
 
-var testObject = new TestClass("aaaa", "bddd");
-testObject.echo();
-
-print("public field a: " + testObject.a);
-print("private field b: " + testObject.b);
+var parentObj = new ParentClass("aaaa", "bddd");
+parentObj.echo();
+print(parentObj.toString());
+print("public field a: " + parentObj.a);
+print("private field b: " + parentObj.b);
 quit();
